@@ -1,0 +1,58 @@
+/// <reference types="vitest" />
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { VitePWA } from 'vite-plugin-pwa'
+import { fileURLToPath, URL } from 'node:url' // 修改導入
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    vue(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}']
+      },
+      manifest: {
+        name: '八字排盤應用程式',
+        short_name: '八字排盤',
+        description: '一個現代化的八字排盤與分析工具',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
+        display: 'standalone',
+        scope: '/',
+        start_url: '/',
+        icons: [
+          {
+            src: 'logo192.png', // 假設圖示位於 public/logo192.png
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'logo512.png', // 假設圖示位於 public/logo512.png
+            sizes: '512x512',
+            type: 'image/png'
+          },
+          {
+            src: 'logo512.png', // 假設圖示位於 public/logo512.png, for maskable
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          }
+        ]
+      }
+    })
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+    setupFiles: [], // 可選，用於全局設置文件
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+  },
+})

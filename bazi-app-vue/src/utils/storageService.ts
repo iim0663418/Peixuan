@@ -9,6 +9,9 @@ export const STORAGE_KEYS = {
   BAZI_BIRTH_INFO: 'peixuan_bazi_birth_info',
   PURPLE_STAR_CHART: 'peixuan_purple_star_chart',
   PURPLE_STAR_BIRTH_INFO: 'peixuan_birth_info',
+  TRANSFORMATION_STARS: 'peixuan_transformation_stars',
+  TRANSFORMATION_FLOWS: 'peixuan_transformation_flows',
+  TRANSFORMATION_COMBINATIONS: 'peixuan_transformation_combinations',
   INTEGRATED_ANALYSIS: 'peixuan_integrated_analysis',
   INTEGRATED_BIRTH_INFO: 'peixuan_integrated_birth_info',
   SESSION_ID: 'peixuan_session_id',
@@ -78,7 +81,7 @@ export const clearAllAstrologyData = (): void => {
 /**
  * 清除特定分析的數據
  */
-export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'integrated'): void => {
+export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'integrated' | 'transformationStars'): void => {
   try {
     switch (analysisType) {
       case 'bazi':
@@ -88,6 +91,14 @@ export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'integra
       case 'purpleStar':
         sessionStorage.removeItem(STORAGE_KEYS.PURPLE_STAR_CHART);
         sessionStorage.removeItem(STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO);
+        sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_STARS);
+        sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_FLOWS);
+        sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS);
+        break;
+      case 'transformationStars':
+        sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_STARS);
+        sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_FLOWS);
+        sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS);
         break;
       case 'integrated':
         sessionStorage.removeItem(STORAGE_KEYS.INTEGRATED_ANALYSIS);
@@ -131,6 +142,66 @@ export const getTimeZoneInfo = (): TimeZoneInfo | null => {
   return getFromStorage<TimeZoneInfo>(STORAGE_KEYS.TIMEZONE_INFO);
 };
 
+/**
+ * 保存四化飛星數據到 sessionStorage
+ * @param transformationStars 四化飛星數據
+ * @param transformationFlows 四化流數據
+ * @param transformationCombinations 四化組合數據
+ */
+export const saveTransformationStarsData = (
+  transformationStars: any = null,
+  transformationFlows: Record<number, any> = {},
+  transformationCombinations: Array<any> = []
+): void => {
+  try {
+    if (transformationStars) {
+      saveToStorage(STORAGE_KEYS.TRANSFORMATION_STARS, transformationStars);
+    }
+    
+    if (Object.keys(transformationFlows).length > 0) {
+      saveToStorage(STORAGE_KEYS.TRANSFORMATION_FLOWS, transformationFlows);
+    }
+    
+    if (transformationCombinations.length > 0) {
+      saveToStorage(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS, transformationCombinations);
+    }
+    
+    console.log('四化飛星數據已保存到 sessionStorage');
+  } catch (error) {
+    console.error('保存四化飛星數據失敗:', error);
+  }
+};
+
+/**
+ * 從 sessionStorage 獲取四化飛星數據
+ * @returns 四化飛星數據對象，包含 stars, flows 和 combinations
+ */
+export const getTransformationStarsData = (): {
+  stars: any | null;
+  flows: Record<number, any>;
+  combinations: Array<any>;
+} => {
+  try {
+    const stars = getFromStorage<any>(STORAGE_KEYS.TRANSFORMATION_STARS);
+    const flows = getFromStorage<Record<number, any>>(STORAGE_KEYS.TRANSFORMATION_FLOWS) || {};
+    const combinations = getFromStorage<Array<any>>(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS) || [];
+    
+    return { stars, flows, combinations };
+  } catch (error) {
+    console.error('獲取四化飛星數據失敗:', error);
+    return { stars: null, flows: {}, combinations: [] };
+  }
+};
+
+/**
+ * 檢查四化飛星數據是否存在
+ * @returns 是否存在四化飛星數據
+ */
+export const hasTransformationStarsData = (): boolean => {
+  const { stars, flows, combinations } = getTransformationStarsData();
+  return !!(stars || Object.keys(flows).length > 0 || combinations.length > 0);
+};
+
 export default {
   STORAGE_KEYS,
   getOrCreateSessionId,
@@ -140,5 +211,8 @@ export default {
   clearAllAstrologyData,
   clearAnalysisData,
   saveTimeZoneInfo,
-  getTimeZoneInfo
+  getTimeZoneInfo,
+  saveTransformationStarsData,
+  getTransformationStarsData,
+  hasTransformationStarsData
 };

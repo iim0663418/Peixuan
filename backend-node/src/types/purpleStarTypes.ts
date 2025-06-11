@@ -40,6 +40,7 @@ export interface PurpleStarCalculationRequest {
     includeMajorCycles?: boolean;     // 是否包含大限計算
     includeMinorCycles?: boolean;     // 是否包含小限計算
     includeAnnualCycles?: boolean;    // 是否包含流年計算
+    includeFourTransformations?: boolean; // 是否包含四化飛星數據計算
     detailLevel?: 'basic' | 'advanced' | 'expert';  // 詳細程度
     maxAge?: number;                  // 計算到多少歲，預設 100
   };
@@ -189,6 +190,7 @@ export interface PurpleStarChart {
   palaces: Palace[];
   mingPalaceIndex: number;
   shenPalaceIndex: number;
+  mingGan?: string;            // 命宮天干，用於四化飛星計算
   fiveElementsBureau?: string;
   daXian?: DaXianInfo[];
   xiaoXian?: XiaoXianInfo[];

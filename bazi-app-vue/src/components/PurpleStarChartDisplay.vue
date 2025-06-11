@@ -32,38 +32,12 @@
       <div class="chart-header">
         <h2>{{ $t('purpleStarChart.title') }}</h2>
         <div class="chart-info">
-          <div class="birth-info">
-            <p v-if="calculationInfo"><strong>{{ $t('purpleStarChart.birthDate') }}:</strong> {{ formatBirthDate() }}</p>
-            <p v-if="calculationInfo"><strong>{{ $t('purpleStarChart.gender') }}:</strong> {{ formatGender() }}</p>
-            <p v-if="chartData.fiveElementsBureau">
-              <strong>{{ $t('purpleStarChart.fiveElementsBureau') }}:</strong> {{ chartData.fiveElementsBureau }}
-            </p>
-            <p><strong>數據概況:</strong> 
-              {{ chartData.palaces?.length || 0 }}宮位, 
-              {{ chartData.daXian?.length || 0 }}個大限, 
-              {{ chartData.xiaoXian?.length || 0 }}個小限,
-              {{ chartData.liuNianTaiSui?.length || 0 }}個流年
-            </p>
-          </div>
           <div class="chart-controls">
-            <div class="display-depth-container">
-              <div class="mode-help-text">{{ $t('purpleStarChart.modeHelp') }}</div>
-              <div class="display-depth-tabs">
-                <button 
-                  v-for="depth in availableDisplayDepths" 
-                  :key="depth"
-                  @click="setDisplayDepth(depth)"
-                  class="depth-tab-button"
-                  :class="{ active: displayDepth === depth }"
-                  :title="$t(`purpleStarChart.displayDepthDesc.${depth}`)"
-                >
-                  {{ $t(`purpleStarChart.displayDepth.${depth}`) }}
-                </button>
-              </div>
-              <div v-if="displayDepth" class="depth-description">
-                {{ $t(`purpleStarChart.displayDepthDesc.${displayDepth}`) }}
-              </div>
-            </div>
+            <DisplayDepthContainer
+              v-model="displayDepth"
+              :available-depths="availableDisplayDepths"
+              module-type="purpleStar"
+            />
           </div>
         </div>
       </div>
@@ -476,6 +450,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useDisplayMode } from '@/composables/useDisplayMode';
+import DisplayDepthContainer from '@/components/DisplayDepthContainer.vue';
+import type { DisplayMode } from '@/types/displayModes';
 import type { 
   PurpleStarChart, 
   Palace, 
@@ -521,6 +498,7 @@ const emit = defineEmits<{
   palaceClick: [palace: Palace];
   starClick: [star: Star];
   export: [format: string];
+  'update:displayDepth': [depth: DisplayMode];
 }>();
 
 // 響應式資料
@@ -534,14 +512,16 @@ const interpretationMode = ref<'comprehensive' | 'domain' | 'palace'>('comprehen
 const activeDomain = ref<'career' | 'wealth' | 'marriage' | 'health' | 'education' | 'social'>('career');
 const activePalaceName = ref<string>('');
 
-// 顯示深度相關變數
-type DisplayDepth = 'minimal' | 'compact' | 'standard' | 'comprehensive';
-const displayDepth = ref<DisplayDepth>('standard'); // 預設為標準深度
-const availableDisplayDepths: DisplayDepth[] = ['minimal', 'compact', 'standard', 'comprehensive'];
+// 使用顯示模式 composable
+const { displayMode: displayDepth, mapDepthToMode } = useDisplayMode('purpleStar');
+const availableDisplayDepths: DisplayMode[] = ['minimal', 'compact', 'standard', 'comprehensive'];
 
 // 設定顯示深度的方法
-const setDisplayDepth = (depth: DisplayDepth) => {
+const setDisplayDepth = (depth: DisplayMode) => {
   displayDepth.value = depth;
+  
+  // 發送事件通知父組件顯示深度已變更
+  emit('update:displayDepth', depth);
   
   // 保存顯示深度設定到 localStorage
   try {
@@ -1025,8 +1005,8 @@ onMounted(() => {
   // 設置初始顯示深度
   try {
     const savedDepth = localStorage.getItem('purple-star-display-depth');
-    if (savedDepth && availableDisplayDepths.includes(savedDepth as DisplayDepth)) {
-      displayDepth.value = savedDepth as DisplayDepth;
+    if (savedDepth && availableDisplayDepths.includes(savedDepth as DisplayMode)) {
+      displayDepth.value = savedDepth as DisplayMode;
       // 應用顯示深度效果
       setTimeout(() => setDisplayDepth(displayDepth.value), 100);
     } else {
@@ -1129,12 +1109,12 @@ watch(() => props.chartData, (newData) => {
   flex-wrap: wrap;
   gap: 20px;
 }
-
+/*
 .birth-info p {
   margin: 5px 0;
   color: #555;
 }
-
+*/
 .chart-controls {
   display: flex;
   gap: 10px;
@@ -1161,14 +1141,14 @@ watch(() => props.chartData, (newData) => {
   color: white;
 }
 
-/* 顯示深度容器與標籤 */
+/* 顯示深度容器與標籤 
 .display-depth-container {
   background: #f0f8ff;
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 10px;
 }
-
+*/
 .mode-help-text {
   margin-bottom: 10px;
   color: #2c3e50;

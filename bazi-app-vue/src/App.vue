@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import LanguageSelector from '@/components/LanguageSelector.vue';
+import GlobalDisplayModePanel from '@/components/GlobalDisplayModePanel.vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -96,6 +97,8 @@ const toggleMobileMenu = () => {
     
     <main>
       <router-view />
+      <!-- 全域顯示深度控制面板 -->
+      <GlobalDisplayModePanel />
     </main>
     
     <footer class="app-footer">

@@ -12,12 +12,22 @@
 
     <div v-else-if="integratedAnalysis" class="analysis-result">
       <!-- 信心度評分 -->
+      <div class="analysis-header">
+        <div class="title-section">
+          <h3>
+            <el-icon><DataAnalysis /></el-icon>
+            《時運分析》命運洞察
+            <el-tag size="small" effect="dark" type="success" class="version-tag">2025版</el-tag>
+          </h3>
+        </div>
+        <DisplayDepthContainer
+          v-model="displayMode"
+          :available-depths="availableDisplayDepths"
+          module-type="integrated"
+        />
+      </div>
+      
       <div class="confidence-section">
-        <h3>
-          <el-icon><DataAnalysis /></el-icon>
-          《時運分析》命運洞察
-          <el-tag size="small" effect="dark" type="success" class="version-tag">2025版</el-tag>
-        </h3>
         
         <div class="confidence-gauge">
           <el-progress 
@@ -167,6 +177,9 @@
 
 <script setup lang="ts">
 import { ref, defineProps, withDefaults, onMounted, watch, computed } from 'vue';
+import { useDisplayMode } from '@/composables/useDisplayMode';
+import type { DisplayMode } from '@/types/displayModes';
+import DisplayDepthContainer from '@/components/DisplayDepthContainer.vue';
 import { 
   Loading, Warning, Check, InfoFilled, DataAnalysis, Connection, 
   TrendCharts, Bell, Document
@@ -178,13 +191,36 @@ interface Props {
   integratedAnalysis?: IntegratedAnalysisResponse | null;
   loading?: boolean;
   error?: string | null;
+  displayMode?: DisplayMode;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   integratedAnalysis: null,
   loading: false,
-  error: null
+  error: null,
+  displayMode: 'standard'
 });
+
+// 定義 emit
+const emit = defineEmits<{
+  'update:displayMode': [mode: DisplayMode];
+}>();
+
+// 可用的顯示深度選項
+const availableDisplayDepths: DisplayMode[] = ['minimal', 'compact', 'standard', 'comprehensive'];
+
+// 使用顯示模式 composable
+const { displayMode, mapDepthToMode } = useDisplayMode('integrated');
+
+// 同步本地顯示模式與 props 顯示模式
+if (props.displayMode) {
+  displayMode.value = props.displayMode;
+}
+
+// 監聽顯示模式變化
+watch(displayMode, (newMode: DisplayMode) => {
+  emit('update:displayMode', newMode);
+}, { immediate: true });
 
 // 監視分析結果變化，用於調試
 watch(() => props.integratedAnalysis, (newVal) => {
@@ -392,8 +428,19 @@ const getCurrentDateTime = () => {
   padding-bottom: 10px;
 }
 
+.analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
 .confidence-section {
   margin-bottom: 25px;
+}
+
+.title-section {
+  flex: 1;
 }
 
 .key-findings-section, 

@@ -112,5 +112,31 @@
     "refresh": "刷新",
     "export_logs": "导出日志",
     "export_coming_soon": "导出功能即将推出"
+  },
+  "display": {
+    "globalSettings": "全局显示设置",
+    "depthSelector": "显示深度",
+    "modeHelp": "选择显示模式",
+    "displayDepth": {
+      "minimal": "简要预览",
+      "compact": "精简视图",
+      "standard": "标准解读",
+      "comprehensive": "深度分析"
+    },
+    "displayDepthDesc": {
+      "minimal": "最简洁的命盘展示，仅呈现基本框架",
+      "compact": "显示主要星曜和基本效应，快速了解命盘特点",
+      "standard": "完整展示星曜信息和效应，深入解析命盘结构",
+      "comprehensive": "全面详尽的命盘分析，包含所有星曜、组合和多层次能量叠加"
+    },
+    "tooltips": {
+      "panelCollapsed": "点击展开全局显示设置",
+      "panelExpanded": "全局显示设置面板",
+      "collapsedHint": "点击展开全局显示设置\n快速调整命理模块显示深度",
+      "expand": "展开设置面板",
+      "collapse": "收起设置面板",
+      "selectModule": "选择模块：切换命理分析类型",
+      "adjustDepth": "调整深度：控制信息详细程度"
+    }
   }
 }

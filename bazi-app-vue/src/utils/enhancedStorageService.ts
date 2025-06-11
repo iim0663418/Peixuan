@@ -21,6 +21,7 @@ export interface UnifiedSessionData {
     bazi?: any;
     purpleStar?: any;
     integrated?: any;
+    transformationStars?: any;
   };
   birthInfo: {
     bazi?: any;
@@ -31,6 +32,7 @@ export interface UnifiedSessionData {
     bazi: boolean;
     purpleStar: boolean;
     integrated: boolean;
+    transformationStars: boolean;
   };
   validationStatus: 'valid' | 'warning' | 'error';
 }
@@ -123,7 +125,8 @@ export const initializeStorage = (): boolean => {
         status: {
           bazi: false,
           purpleStar: false,
-          integrated: false
+          integrated: false,
+          transformationStars: false
         },
         validationStatus: 'valid'
       };
@@ -151,7 +154,8 @@ export const initializeStorage = (): boolean => {
         unifiedData.status = {
           bazi: false,
           purpleStar: false,
-          integrated: false
+          integrated: false,
+          transformationStars: false
         };
       }
       
@@ -215,11 +219,12 @@ export const initializeChartData = (): boolean => {
           purpleStar: null,
           integrated: null
         },
-        status: {
-          bazi: false,
-          purpleStar: false,
-          integrated: false
-        },
+      status: {
+        bazi: false,
+        purpleStar: false,
+        integrated: false,
+        transformationStars: false
+      },
         validationStatus: 'valid'
       };
       saveToStorage(UNIFIED_DATA_KEY, unifiedData);
@@ -246,7 +251,8 @@ export const initializeChartData = (): boolean => {
       unifiedData.status = {
         bazi: false,
         purpleStar: false,
-        integrated: false
+        integrated: false,
+        transformationStars: false
       };
     }
     
@@ -351,7 +357,8 @@ export const syncChartsToUnifiedData = (): boolean => {
       unifiedData.status = {
         bazi: false,
         purpleStar: false,
-        integrated: false
+        integrated: false,
+        transformationStars: false
       };
     }
     
@@ -444,7 +451,8 @@ export const validateStorageData = (): boolean => {
       unifiedData.status = {
         bazi: false,
         purpleStar: false,
-        integrated: false
+        integrated: false,
+        transformationStars: false
       };
     }
     

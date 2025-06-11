@@ -447,6 +447,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 確保 el-card__body 是一個定位上下文 */
+:deep(.el-card__body) {
+  position: relative;
+  overflow: visible;
+}
 .bazi-container {
   max-width: 1200px;
   margin: 0 auto;

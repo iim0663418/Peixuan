@@ -2,6 +2,7 @@ export interface PurpleStarChart {
   palaces: Palace[];
   mingPalaceIndex: number;
   shenPalaceIndex: number;
+  mingGan?: string; // 命宮天干
   fiveElementsBureau?: string;
   daXian?: DaXianInfo[];
   xiaoXian?: XiaoXianInfo[];
@@ -116,6 +117,51 @@ export interface TenGod {
   position: 'gan' | 'zhi';
   god: string;
   element: string;
+}
+
+// 四化飛星相關類型
+export interface TransformationFlow {
+  palaceIndex: number;
+  palaceName: string;
+  energyScore: number;
+  majorInfluences: string[];
+}
+
+export interface TransformationCombination {
+  palaceIndex: number;
+  palaceName: string;
+  combination: string;
+  effect: string;
+  significance: 'high' | 'medium' | 'low';
+}
+
+export interface LayeredEnergy {
+  palaceIndex: number;
+  palaceName: string;
+  baseEnergy: number;
+  daXianEnergy: number;
+  liuNianEnergy: number;
+  liuYueEnergy: number;
+  totalEnergy: number;
+  interpretation: string;
+}
+
+export interface PurpleStarAPIResponse {
+  success: boolean;
+  data: {
+    chart: PurpleStarChart;
+    calculationInfo: {
+      calculationTime: string;
+      method: string;
+      version: string;
+    };
+    transformations?: {
+      flows: Record<number, TransformationFlow>;
+      combinations: TransformationCombination[];
+      layeredEnergies: Record<number, LayeredEnergy>;
+    };
+  };
+  timestamp: string;
 }
 
 export interface IntegratedAnalysisResponse {

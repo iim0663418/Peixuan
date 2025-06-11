@@ -9,6 +9,7 @@ import {
 import { RequestValidator, createErrorResponse, createSuccessResponse } from '../utils/validation';
 import { PurpleStarCalculationService } from '../services/purpleStarCalculationService';
 import { EnhancedPurpleStarCalculationService } from '../services/enhancedPurpleStarCalculationService';
+import { TransformationStarService } from '../services/transformationStarService';
 
 const router = Router();
 
@@ -84,6 +85,82 @@ const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Res
     const chart = await calculator.calculateChart(options);
     console.log('Chart calculation completed:', chart);
 
+    // 構建四化飛星數據
+    let transformationData;
+    
+    // 檢查是否包含四化飛星數據請求
+    if (request.options?.includeFourTransformations) {
+      console.log('計算四化飛星數據...');
+      
+      try {
+        // 確保命盤中有命宮天干信息
+        if (!chart.mingGan) {
+          console.warn('命盤中缺少命宮天干信息，嘗試獲取命宮天干...');
+          
+          // 從 transformationStarService 獲取命宮天干
+          const transformationService = new TransformationStarService();
+          chart.mingGan = transformationService.getMingPalaceGan(
+            request.lunarInfo.yearGan,
+            chart.mingPalaceIndex
+          );
+          
+          console.log('已添加命宮天干:', chart.mingGan);
+        }
+        
+        // 計算四化飛星
+        const transformationService = new TransformationStarService();
+        const transformedStars = transformationService.applyFourTransformations(
+          chart.palaces, 
+          chart.mingGan
+        );
+        
+        console.log('四化飛星計算完成，共影響', transformedStars.length, '顆星曜');
+        
+        // 計算四化流動能量
+        const flows = transformationService.calculateTransformationFlows(chart.palaces, transformedStars);
+        console.log('四化流動計算完成，', Object.keys(flows).length, '個宮位');
+        
+        // 分析四化組合
+        const combinations = transformationService.analyzeTransformationCombinations(chart.palaces);
+        console.log('四化組合分析完成，找到', combinations.length, '個組合');
+        
+        // 計算多層次能量疊加
+        let layeredEnergies = {};
+        
+        if (chart.daXian && chart.daXian.length > 0 && chart.liuNianTaiSui && chart.liuNianTaiSui.length > 0) {
+          // 選擇大限和流年指標（這裡選當前年齡相關的）
+          const age = 25; // 示例年齡，可以根據需求調整
+          
+          const daXianInfo = chart.daXian.find(dx => dx.startAge <= age && dx.endAge >= age);
+          const liuNianInfo = chart.liuNianTaiSui.find(ln => ln.year === (request.lunarInfo.year + age));
+          
+          if (daXianInfo && liuNianInfo) {
+            layeredEnergies = transformationService.calculateMultiLayerEnergies(
+              chart.palaces,
+              daXianInfo.palaceIndex,
+              liuNianInfo.palaceIndex
+            );
+            
+            console.log('多層次能量疊加計算完成');
+          }
+        }
+        
+        // 封裝四化數據
+        transformationData = {
+          flows,
+          combinations,
+          layeredEnergies
+        };
+        
+        console.log('四化飛星數據處理完成');
+      } catch (error) {
+        console.error('四化飛星計算錯誤:', error);
+        console.error('繼續處理，但不包含四化飛星數據');
+      }
+    } else {
+      console.log('未請求四化飛星數據，跳過計算');
+    }
+    
     // 構建回應數據
     const responseData = {
       chart,
@@ -95,7 +172,9 @@ const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Res
           location: request.location
         },
         options
-      }
+      },
+      // 添加四化飛星數據（如果有）
+      transformations: transformationData
     };
 
     const response = createSuccessResponse(responseData);

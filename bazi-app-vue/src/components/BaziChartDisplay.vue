@@ -15,8 +15,15 @@
 
     <div v-else-if="baziResult" class="chart-content">
       <!-- 八字排盤顯示 -->
-      <div class="bazi-pillars">
+      <div class="chart-header">
         <h3>{{ $t('baziChart.title') }}</h3>
+        <DisplayDepthContainer
+          v-model="displayMode"
+          :available-depths="availableDisplayDepths"
+          module-type="bazi"
+        />
+      </div>
+      <div class="bazi-pillars">
         <div class="pillars-grid">
           <div 
             v-for="(pillar, index) in pillarsDisplay" 
@@ -92,7 +99,7 @@
         </div>
       </div>
 
-      <!-- 操作按鈕 -->
+      <!-- 操作按鈕 
       <div class="chart-actions">
         <button @click="$emit('save-record')" class="action-button save-button">
           {{ $t('baziChart.saveRecord') }}
@@ -101,8 +108,9 @@
           {{ $t('baziChart.exportChart') }}
         </button>
       </div>
+       -->
     </div>
-
+   
     <div v-else class="empty-state">
       <p>{{ $t('baziChart.noData') }}</p>
     </div>
@@ -110,8 +118,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount } from 'vue';
+import { computed, onBeforeMount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useDisplayMode } from '@/composables/useDisplayMode';
+import type { DisplayMode } from '@/types/displayModes';
+import DisplayDepthContainer from '@/components/DisplayDepthContainer.vue';
 import type {
   BaziResult,
   TenGodsPillars,
@@ -135,6 +146,7 @@ interface Props {
   startLuckInfo?: StartLuckInfo | null;
   isLoading?: boolean;
   error?: string | null;
+  displayMode?: DisplayMode;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -151,7 +163,24 @@ const emit = defineEmits<{
   retry: [];
   'pillar-click': [pillarName: string];
   'save-record': [];
+  'update:displayMode': [mode: DisplayMode];
 }>();
+
+// 可用的顯示深度選項
+const availableDisplayDepths: DisplayMode[] = ['minimal', 'compact', 'standard', 'comprehensive'];
+
+// 使用顯示模式 composable
+const { displayMode, mapDepthToMode } = useDisplayMode('bazi');
+
+// 同步本地顯示模式與 props 顯示模式
+if (props.displayMode) {
+  displayMode.value = props.displayMode;
+}
+
+// 監聽顯示模式變化
+watch(displayMode, (newMode: DisplayMode) => {
+  emit('update:displayMode', newMode);
+}, { immediate: true });
 
 // 計算屬性
 const pillarsDisplay = computed(() => {
@@ -301,11 +330,17 @@ const exportChart = () => {
   padding: 30px;
 }
 
-.bazi-pillars h3 {
-  margin: 0 0 25px 0;
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.chart-header h3 {
+  margin: 0;
   color: #8b4513;
   font-size: 1.4rem;
-  text-align: center;
 }
 
 .pillars-grid {

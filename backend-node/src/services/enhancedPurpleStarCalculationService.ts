@@ -205,6 +205,7 @@ export class EnhancedPurpleStarCalculationService {
         palaces,
         mingPalaceIndex: this.mingPalaceStdIndex,
         shenPalaceIndex: this.shenPalaceStdIndex,
+        mingGan: this.mingPalaceGan,  // 添加命宮天干信息
         fiveElementsBureau: this.fiveElementsBureau,
         daXian,
         xiaoXian,

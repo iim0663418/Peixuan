@@ -183,6 +183,9 @@ export class TransformationStarService {
     effect: string;
     significance: 'high' | 'medium' | 'low';
   }> {
+    console.group('四化組合分析');
+    console.log(`分析宮位數量: ${palaces.length}`);
+
     const combinations: Array<{
       palaceIndex: number;
       palaceName: string;
@@ -191,9 +194,38 @@ export class TransformationStarService {
       significance: 'high' | 'medium' | 'low';
     }> = [];
     
+    // 詳細記錄每個宮位的星曜和四化情況
+    palaces.forEach(palace => {
+      console.log(`宮位: ${palace.name}, 索引: ${palace.index}`);
+      
+      const starsWithTransformations = palace.stars.filter(star => 
+        star.transformations && star.transformations.length > 0
+      );
+      
+      if (starsWithTransformations.length > 0) {
+        console.log(`  找到 ${starsWithTransformations.length} 顆帶有四化的星曜`);
+        starsWithTransformations.forEach(star => {
+          console.log(`  星曜: ${star.name}, 四化: ${star.transformations?.join(',')}`);
+        });
+      } else {
+        console.log('  此宮無四化星曜');
+      }
+    });
+    
     // 遍歷所有宮位
     for (const palace of palaces) {
       // 檢查宮位中的四化組合
+      console.log(`檢查宮位 ${palace.name} 的四化組合...`);
+      
+      // 詳細記錄該宮位的星曜
+      const starsWithTransformations = palace.stars.filter(star => 
+        star.transformations && star.transformations.length > 0
+      );
+      
+      console.log(`  該宮位有 ${starsWithTransformations.length} 顆帶四化的星曜`);
+      starsWithTransformations.forEach(star => {
+        console.log(`  星曜: ${star.name}, 四化: ${star.transformations?.join(', ')}`);
+      });
       
       // 1. 檢查是否有化祿與化忌同宮
       const hasLu = palace.stars.some(star => 
@@ -204,7 +236,10 @@ export class TransformationStarService {
         star.transformations && star.transformations.includes('忌')
       );
       
+      console.log(`  化祿存在: ${hasLu}, 化忌存在: ${hasJi}`);
+      
       if (hasLu && hasJi) {
+        console.log('  發現組合: 化祿化忌同宮');
         combinations.push({
           palaceIndex: palace.index,
           palaceName: palace.name,
@@ -212,6 +247,12 @@ export class TransformationStarService {
           effect: '財帛易得而難守，或大起大落',
           significance: 'high'
         });
+      } else if (hasLu && !hasJi) {
+        console.log('  此宮有化祿但無化忌，不構成"化祿化忌同宮"組合');
+      } else if (!hasLu && hasJi) {
+        console.log('  此宮有化忌但無化祿，不構成"化祿化忌同宮"組合');
+      } else {
+        console.log('  此宮無化祿也無化忌，不構成任何四化組合');
       }
       
       // 2. 檢查是否有化權與化科同宮
@@ -223,7 +264,10 @@ export class TransformationStarService {
         star.transformations && star.transformations.includes('科')
       );
       
+      console.log(`  化權存在: ${hasQuan}, 化科存在: ${hasKe}`);
+      
       if (hasQuan && hasKe) {
+        console.log('  發現組合: 化權化科同宮');
         combinations.push({
           palaceIndex: palace.index,
           palaceName: palace.name,
@@ -231,39 +275,61 @@ export class TransformationStarService {
           effect: '權威與名譽雙收，利於事業發展',
           significance: 'high'
         });
+      } else if (hasQuan && !hasKe) {
+        console.log('  此宮有化權但無化科，不構成"化權化科同宮"組合');
+      } else if (!hasQuan && hasKe) {
+        console.log('  此宮有化科但無化權，不構成"化權化科同宮"組合');
       }
       
       // 3. 檢查命宮是否有化祿
-      if (palace.name === '命宮' && hasLu) {
-        combinations.push({
-          palaceIndex: palace.index,
-          palaceName: palace.name,
-          combination: '命宮化祿',
-          effect: '一生財運亨通，易得財富',
-          significance: 'high'
-        });
+      if (palace.name === '命宮') {
+        console.log(`  檢查命宮是否有化祿: ${hasLu}`);
+        if (hasLu) {
+          console.log('  發現組合: 命宮化祿');
+          combinations.push({
+            palaceIndex: palace.index,
+            palaceName: palace.name,
+            combination: '命宮化祿',
+            effect: '一生財運亨通，易得財富',
+            significance: 'high'
+          });
+        } else {
+          console.log('  命宮無化祿，不構成"命宮化祿"組合');
+        }
       }
       
       // 4. 檢查官祿宮是否有化權
-      if (palace.name === '官祿宮' && hasQuan) {
-        combinations.push({
-          palaceIndex: palace.index,
-          palaceName: palace.name,
-          combination: '官祿宮化權',
-          effect: '事業有成，有權威地位',
-          significance: 'high'
-        });
+      if (palace.name === '官祿宮') {
+        console.log(`  檢查官祿宮是否有化權: ${hasQuan}`);
+        if (hasQuan) {
+          console.log('  發現組合: 官祿宮化權');
+          combinations.push({
+            palaceIndex: palace.index,
+            palaceName: palace.name,
+            combination: '官祿宮化權',
+            effect: '事業有成，有權威地位',
+            significance: 'high'
+          });
+        } else {
+          console.log('  官祿宮無化權，不構成"官祿宮化權"組合');
+        }
       }
     }
     
     // 5. 檢查化忌是否在疾厄宮
     const diseaseHouse = palaces.find(palace => palace.name === '疾厄宮');
+    console.log(`檢查疾厄宮是否有化忌...`);
+    
     if (diseaseHouse) {
+      console.log(`  找到疾厄宮，宮位索引: ${diseaseHouse.index}`);
       const hasJiInDisease = diseaseHouse.stars.some(star => 
         star.transformations && star.transformations.includes('忌')
       );
       
+      console.log(`  疾厄宮化忌存在: ${hasJiInDisease}`);
+      
       if (hasJiInDisease) {
+        console.log('  發現組合: 疾厄宮化忌');
         combinations.push({
           palaceIndex: diseaseHouse.index,
           palaceName: diseaseHouse.name,
@@ -271,9 +337,27 @@ export class TransformationStarService {
           effect: '健康運勢較差，需注意保健',
           significance: 'medium'
         });
+      } else {
+        console.log('  疾厄宮無化忌，不構成"疾厄宮化忌"組合');
       }
+    } else {
+      console.log('  未找到疾厄宮，無法檢查"疾厄宮化忌"組合');
     }
     
+    // 總結
+    if (combinations.length > 0) {
+      console.log(`找到 ${combinations.length} 個四化組合`);
+      combinations.forEach((combo, idx) => {
+        console.log(`  ${idx+1}. ${combo.combination} 在 ${combo.palaceName}宮`);
+      });
+    } else {
+      console.log('沒有找到任何四化組合，這可能是因為：');
+      console.log('1. 該命盤的星曜四化分佈較分散，未形成組合');
+      console.log('2. 四化在宮位中的分佈未滿足組合條件');
+      console.log('3. 可能需要擴展組合判斷邏輯以包含更多情況');
+    }
+    
+    console.groupEnd();
     return combinations;
   }
   

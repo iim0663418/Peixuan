@@ -261,5 +261,31 @@
     "yearUnit": "Year",
     "saveRecord": "Save Record",
     "exportChart": "Export Chart"
+  },
+  "display": {
+    "globalSettings": "Global Display Settings",
+    "depthSelector": "Display Depth",
+    "modeHelp": "Select Display Mode",
+    "displayDepth": {
+      "minimal": "Minimal Preview",
+      "compact": "Compact View",
+      "standard": "Standard Reading",
+      "comprehensive": "Comprehensive Analysis"
+    },
+    "displayDepthDesc": {
+      "minimal": "Most concise chart display, showing only basic framework",
+      "compact": "Shows main stars and basic effects, quickly understand chart features",
+      "standard": "Complete display of stars and effects, in-depth analysis of chart structure",
+      "comprehensive": "Comprehensive detailed chart analysis, including all stars, combinations, and multi-level energy overlays"
+    },
+    "tooltips": {
+      "panelCollapsed": "Click to expand global display settings",
+      "panelExpanded": "Global display settings panel",
+      "collapsedHint": "Click to expand global display settings\nQuickly adjust astrology module display depth",
+      "expand": "Expand settings panel",
+      "collapse": "Collapse settings panel",
+      "selectModule": "Select module: Switch astrology analysis type",
+      "adjustDepth": "Adjust depth: Control information detail level"
+    }
   }
 }

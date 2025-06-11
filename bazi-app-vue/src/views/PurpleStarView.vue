@@ -63,13 +63,32 @@
         <el-col :span="12">
           <el-card shadow="hover" v-if="purpleStarChart">
             <template #header>
-              <span>分析結果</span>
+              <div class="card-header">
+                <span>分析結果</span>
+                
+                <!-- 保留空間用於未來元素 -->
+              </div>
             </template>
             
             <PurpleStarChartDisplay 
               :chartData="purpleStarChart" 
               :isLoading="false"
               :showCyclesDetail="true"
+              :displayDepth="displayMode"
+              @update:displayDepth="changeDisplayMode"
+            />
+            
+            <!-- 四化飛星顯示組件 -->
+            <TransformationStarsDisplay
+              v-if="displayMode !== 'minimal' && Object.keys(transformationFlows).length > 0"
+              :chartData="purpleStarChart"
+              :mingGan="purpleStarChart.mingGan || ''"
+              :displayMode="displayMode"
+              :transformationFlows="transformationFlows"
+              :transformationCombinations="transformationCombinations || []"
+              :multiLayerEnergies="multiLayerEnergies"
+              @update:displayMode="changeDisplayMode"
+              class="mt-4"
             />
           </el-card>
           
@@ -181,7 +200,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { 
   StarFilled, 
@@ -196,13 +215,16 @@ import {
 } from '@element-plus/icons-vue';
 import PurpleStarInputForm from '@/components/PurpleStarInputForm.vue';
 import PurpleStarChartDisplay from '@/components/PurpleStarChartDisplay.vue';
+import TransformationStarsDisplay from '@/components/TransformationStarsDisplay.vue';
 import IntegratedAnalysisDisplay from '@/components/IntegratedAnalysisDisplay.vue';
 import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
 import apiService from '@/services/apiService';
 import astrologyIntegrationService from '@/services/astrologyIntegrationService';
 import storageService from '@/utils/storageService';
 import enhancedStorageService from '@/utils/enhancedStorageService';
-import type { PurpleStarChart, IntegratedAnalysisResponse } from '@/types/astrologyTypes';
+import { useDisplayMode } from '@/composables/useDisplayMode';
+import type { DisplayMode } from '@/types/displayModes';
+import type { PurpleStarChart, IntegratedAnalysisResponse, PurpleStarAPIResponse } from '@/types/astrologyTypes';
 
 // 確保 session ID 存在
 const sessionId = storageService.getOrCreateSessionId();
@@ -210,6 +232,26 @@ const sessionId = storageService.getOrCreateSessionId();
 // 主要狀態
 const purpleStarChart = ref<PurpleStarChart | null>(null);
 const birthInfoForIntegration = ref<any>(null);
+const transformationFlows = ref<Record<number, any>>({});
+const transformationCombinations = ref<Array<any>>([]);
+const multiLayerEnergies = ref<Record<number, any>>({});
+
+// 使用顯示模式 composable
+const { displayMode, mapDepthToMode } = useDisplayMode('purpleStar');
+
+// 顯示模式選項
+const displayModeOptions = [
+  { value: 'minimal', label: '簡要預覽', tooltip: '最簡潔的命盤展示，僅呈現基本框架' },
+  { value: 'compact', label: '精簡檢視', tooltip: '顯示主要星曜和基本四化效應，快速了解命盤特點' },
+  { value: 'standard', label: '標準解讀', tooltip: '完整展示星曜信息和四化效應，深入解析命盤結構' },
+  { value: 'comprehensive', label: '深度分析', tooltip: '全面詳盡的命盤分析，包含所有星曜、四化組合和多層次能量疊加' }
+];
+
+// 切換顯示模式
+const changeDisplayMode = (mode: DisplayMode) => {
+  // 直接設置 displayMode 的值，composable 內部會處理 localStorage 的保存
+  displayMode.value = mode;
+};
 
 // 整合分析狀態
 const showIntegratedAnalysis = ref(false);
@@ -243,6 +285,8 @@ const clearData = () => {
 // 主要提交處理
 const handleSubmit = async (birthInfo: any) => {
   try {
+    // 使用 console.group 組織日誌輸出
+    console.group('紫微斗數API調用');
     ElMessage.info('正在計算紫微斗數命盤...');
     
     // 保存出生資訊用於整合分析
@@ -259,35 +303,90 @@ const handleSubmit = async (birthInfo: any) => {
         includeMinorCycles: true,
         includeAnnualCycles: true, // 確保流年太歲計算被啟用
         detailLevel: 'advanced',
+        includeFourTransformations: true, // 明確請求四化飛星數據
         maxAge: 100
       }
     };
     
     console.log('發送請求數據:', requestData);
+    console.log('請求選項配置:', requestData.options);
     
     // 使用後端 API 進行紫微斗數計算
-    const response = await apiService.calculatePurpleStar(requestData);
+    const response = await apiService.calculatePurpleStar(requestData) as unknown as PurpleStarAPIResponse;
     
-    console.log('API 響應:', response);
-    console.log('命盤數據:', response.data?.chart);
-    console.log('大限資訊:', response.data?.chart?.daXian);
-    console.log('小限資訊:', response.data?.chart?.xiaoXian);
-    console.log('流年太歲資訊:', response.data?.chart?.liuNianTaiSui);
+    // 詳細記錄 API 響應結構
+    console.log('API 響應狀態:', response ? '成功' : '空響應');
+    console.log('API 響應頂層鍵:', Object.keys(response || {}));
+    console.log('API data 存在:', !!response?.data);
+    console.log('API data 鍵:', Object.keys(response?.data || {}));
+    
+    // 檢查命盤數據完整性
+    if (!response?.data?.chart) {
+      console.error('API 未返回紫微斗數命盤數據');
+      throw new Error('紫微斗數命盤數據缺失');
+    }
+    
+    // 記錄命盤基本信息
+    console.log('命盤數據:', response.data.chart);
+    console.log('命宮天干:', response.data.chart.mingGan || '未返回命宮天干');
+    console.log('大限資訊:', response.data.chart.daXian || '無大限資訊');
+    console.log('小限資訊:', response.data.chart.xiaoXian || '無小限資訊');
+    console.log('流年太歲資訊:', response.data.chart.liuNianTaiSui || '無流年太歲資訊');
     
     // 正確提取命盤數據
-    purpleStarChart.value = response.data?.chart;
+    purpleStarChart.value = response.data.chart;
+    
+    // 檢查四化飛星數據
+    console.log('四化飛星數據存在:', !!response.data.transformations);
+    
+    // 提取四化飛星數據
+    if (response.data.transformations) {
+      transformationFlows.value = response.data.transformations.flows || {};
+      transformationCombinations.value = response.data.transformations.combinations || [];
+      multiLayerEnergies.value = response.data.transformations.layeredEnergies || {};
+      
+      // 詳細記錄四化飛星數據結構
+      console.log('四化飛星數據載入成功:', {
+        flows: Object.keys(transformationFlows.value).length,
+        combinations: transformationCombinations.value.length,
+        layeredEnergies: Object.keys(multiLayerEnergies.value).length
+      });
+    } else {
+      console.error('API 未返回四化飛星數據，無法顯示四化信息');
+      
+      // 不再自動添加默認值，而是清空相關引用避免錯誤
+      transformationFlows.value = {};
+      transformationCombinations.value = [];
+      multiLayerEnergies.value = {};
+      
+      // 提示用戶有數據缺失
+      ElMessage.warning({
+        message: '四化飛星數據缺失，部分分析功能將不可用',
+        duration: 5000
+      });
+    }
     
     // 保存命盤數據到 sessionStorage
-    storageService.saveToStorage(storageService.STORAGE_KEYS.PURPLE_STAR_CHART, response.data?.chart);
+    storageService.saveToStorage(storageService.STORAGE_KEYS.PURPLE_STAR_CHART, response.data.chart);
     
+    console.groupEnd();
     ElMessage.success('紫微斗數計算完成');
-  } catch (error) {
+  } catch (error: any) {
+    // 確保關閉日誌組
+    console.groupEnd();
+    
+    // 詳細記錄錯誤信息
     console.error('紫微斗數計算錯誤:', error);
-    ElMessage.error(
-      error instanceof Error 
-        ? error.message 
-        : '紫微斗數計算失敗，請稍後再試'
-    );
+    console.error('錯誤類型:', error.constructor.name);
+    console.error('錯誤訊息:', error.message);
+    console.error('錯誤堆疊:', error.stack);
+    
+    // 提供用戶友好的錯誤訊息
+    const errorMessage = error.message || '未知錯誤';
+    ElMessage.error({
+      message: `紫微斗數計算失敗: ${errorMessage}`,
+      duration: 6000
+    });
   }
 };
 
@@ -533,6 +632,7 @@ onMounted(() => {
   console.log('PurpleStarView 組件已掛載');
   try {
     setupComponentData();
+    // useDisplayMode composable 會自動從 localStorage 加載顯示偏好
   } catch (error) {
     console.error('紫微斗數組件初始化過程中發生錯誤:', error);
     // 在初始化失敗時嘗試回退到安全狀態
@@ -543,6 +643,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 確保 el-card__body 是一個定位上下文 */
+:deep(.el-card__body) {
+  position: relative;
+  overflow: visible;
+}
 .purple-star-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -555,6 +660,7 @@ onMounted(() => {
 
 .main-content.with-sidebar {
   margin-right: 20px;
+  transition: margin-right 0.3s ease;
 }
 
 .card-header {
@@ -566,67 +672,81 @@ onMounted(() => {
 .header-actions {
   display: flex;
   gap: 10px;
-  align-items: center;
 }
 
 .view-description {
   margin-bottom: 20px;
 }
 
+.view-description p {
+  line-height: 1.6;
+  color: #555;
+}
+
+.text-center-alert :deep(.el-alert__content) {
+  margin: 0 auto;
+}
+
 .placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
   text-align: center;
-  padding: 60px 20px;
   color: #909399;
 }
 
 .placeholder p {
-  margin-top: 16px;
-  font-size: 14px;
+  margin-top: 20px;
 }
 
-.mb-4 {
-  margin-bottom: 20px;
-}
-
-.mt-3 {
-  margin-top: 15px;
-}
-
-/* 側邊欄樣式 */
+/* 整合分析側邊欄樣式 */
 .integrated-analysis-sidebar {
-  padding: 0;
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.analysis-intro {
+  display: flex;
+  flex-direction: column;
   height: 100%;
 }
 
-/* 介紹頁面樣式 */
-.analysis-intro {
-  padding: 30px;
+.intro-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
   text-align: center;
 }
 
-.intro-header {
-  margin-bottom: 30px;
+.intro-header h3 {
+  margin-top: 15px;
+  color: #409EFF;
+  font-size: 1.8rem;
 }
 
-.intro-header h3 {
-  margin: 15px 0 0 0;
-  color: #303133;
-  font-size: 24px;
-  font-weight: 600;
+.intro-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .intro-content p {
-  color: #606266;
-  font-size: 16px;
+  margin: 0 0 25px 0;
   line-height: 1.6;
-  margin-bottom: 30px;
+  font-size: 1.05rem;
+  text-align: center;
+  color: #606266;
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
-  margin: 30px 0;
+  margin-bottom: 40px;
 }
 
 .feature-item {
@@ -634,171 +754,81 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
+  background: #f5f7fa;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+
+.feature-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .start-analysis-btn {
-  margin-top: 30px;
-  width: 100%;
-  height: 48px;
-  font-size: 16px;
-  font-weight: 600;
+  margin-top: auto;
+  align-self: center;
+  padding: 12px 24px;
+  font-size: 1.1rem;
 }
 
-/* 載入狀態樣式 */
+/* 載入分析狀態 */
 .analysis-loading {
-  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  height: 100%;
+  padding: 20px;
 }
 
 .analysis-loading h3 {
-  margin: 20px 0 10px 0;
-  color: #303133;
-  font-size: 20px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #409EFF;
 }
 
 .analysis-loading p {
+  margin-bottom: 30px;
   color: #606266;
-  margin: 10px 0;
-  line-height: 1.6;
 }
 
 .analysis-loading .el-progress {
-  margin: 25px 0 15px 0;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 10px;
 }
 
 .loading-step {
-  color: #409EFF !important;
-  font-weight: 500 !important;
-  font-size: 14px !important;
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: #909399;
 }
 
-/* 結果頁面樣式 */
-.analysis-results {
-  padding: 0;
-}
-
+/* 分析結果 */
 .result-actions {
-  padding: 20px 30px;
-  border-top: 1px solid #ebeef5;
   display: flex;
-  gap: 15px;
   justify-content: center;
+  margin-top: 30px;
+  gap: 15px;
 }
 
-/* 錯誤狀態樣式 */
+/* 分析錯誤 */
 .analysis-error {
-  padding: 30px;
-  text-align: center;
-}
-
-.analysis-error .el-alert {
-  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 .retry-btn {
   margin-top: 15px;
-  width: 100%;
-}
-
-/* 抽屜覆蓋樣式 */
-:deep(.el-drawer__header) {
-  padding: 20px 30px 15px 30px;
-  border-bottom: 1px solid #ebeef5;
-  margin-bottom: 0;
-}
-
-:deep(.el-drawer__title) {
-  font-size: 18px;
-  font-weight: 600;
-  color: #303133;
-}
-
-:deep(.el-drawer__body) {
-  padding: 0;
-}
-
-/* 響應式設計 */
-@media (max-width: 1400px) {
-  :deep(.el-drawer) {
-    width: 50% !important;
-  }
-}
-
-@media (max-width: 1024px) {
-  :deep(.el-drawer) {
-    width: 60% !important;
-  }
-  
-  .features-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
 }
 
 @media (max-width: 768px) {
-  :deep(.el-drawer) {
-    width: 85% !important;
+  .features-grid {
+    grid-template-columns: 1fr;
   }
   
-  .main-content.with-sidebar {
-    margin-right: 0;
+  .el-col {
+    margin-bottom: 20px;
   }
-  
-  .analysis-intro,
-  .analysis-loading,
-  .analysis-error {
-    padding: 20px;
-  }
-  
-  .intro-header h3 {
-    font-size: 20px;
-  }
-  
-  .intro-content p {
-    font-size: 14px;
-  }
-  
-  .feature-item {
-    padding: 12px;
-    font-size: 13px;
-  }
-}
-
-/* 動畫效果 */
-.el-icon.is-loading {
-  animation: rotating 2s linear infinite;
-}
-
-@keyframes rotating {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* 進度條自定義樣式 */
-:deep(.el-progress-bar__outer) {
-  background-color: #f0f2f5;
-}
-
-:deep(.el-progress-bar__inner) {
-  background: linear-gradient(90deg, #409EFF 0%, #67C23A 100%);
-}
-
-/* 置中提示樣式 */
-.text-center-alert {
-  display: flex;
-  justify-content: center;
-}
-
-.text-center-alert :deep(.el-alert__content) {
-  text-align: center;
-}
-
-.text-center-alert :deep(.el-alert__description) {
-  text-align: center;
-  font-weight: bold;
 }
 </style>

@@ -139,6 +139,7 @@ import AstrologyIntegrationService from '@/services/astrologyIntegrationService'
 import { BirthInfo } from '@/services/astrologyIntegrationService';
 import type { IntegratedAnalysisResponse } from '@/types/astrologyTypes';
 import storageService from '@/utils/storageService';
+import enhancedStorageService from '@/utils/enhancedStorageService';
 
 // 確保 session ID 存在
 const sessionId = storageService.getOrCreateSessionId();
@@ -242,9 +243,22 @@ const submitAnalysis = async (useSessionData = false) => {
 // 從 sessionStorage 加載數據
 const loadFromSessionStorage = () => {
   try {
+    console.log('開始從 sessionStorage 載入數據');
+    
+    // 記錄當前 sessionStorage 狀態
+    const keysInStorage = Object.keys(sessionStorage).filter(key => 
+      key.startsWith('peixuan_')
+    );
+    
+    console.log('sessionStorage 中的相關鍵:', keysInStorage);
+    
     // 檢查出生信息
     const savedBirthInfo = storageService.getFromStorage<BirthInfo>(storageService.STORAGE_KEYS.INTEGRATED_BIRTH_INFO);
+    
     if (savedBirthInfo) {
+      console.log('找到保存的出生信息');
+      
+      // 安全地更新各個字段，添加默認值
       birthInfo.birthDate = savedBirthInfo.birthDate || '';
       birthInfo.birthTime = savedBirthInfo.birthTime || '';
       
@@ -259,12 +273,18 @@ const loadFromSessionStorage = () => {
       if (savedBirthInfo.location) {
         if (typeof savedBirthInfo.location === 'string') {
           birthInfo.location = savedBirthInfo.location;
+          locationInputValue.value = savedBirthInfo.location;
         } else if (typeof savedBirthInfo.location === 'object') {
-          birthInfo.location = savedBirthInfo.location.name || '台北市';
+          const locationName = savedBirthInfo.location.name || '台北市';
+          birthInfo.location = locationName;
+          locationInputValue.value = locationName;
         }
       } else {
         birthInfo.location = '台北市'; // 預設值
+        locationInputValue.value = '台北市';
       }
+    } else {
+      console.log('未找到保存的出生信息');
     }
 
     // 檢查整合分析結果
@@ -272,47 +292,77 @@ const loadFromSessionStorage = () => {
       storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS
     );
     
+    console.log('保存的分析結果:', savedAnalysis ? '已找到' : '未找到');
+    
     if (savedAnalysis && analysisState.integratedAnalysis) {
       try {
-        // 構建符合 IntegratedAnalysisResponse 格式的物件
+        // 安全地構建符合 IntegratedAnalysisResponse 格式的物件
         const formattedResult = {
           ...savedAnalysis,
+          // 確保關鍵字段存在
           success: true,
+          data: savedAnalysis.data || {},
           meta: savedAnalysis.meta || {
             layer: 'frontend',
             userRole: 'user',
             features: ['sessionStorage'],
             sources: ['cache']
           },
-          timestamp: savedAnalysis.timestamp || new Date().toISOString()
+          timestamp: savedAnalysis.timestamp || Date.now()
         } as IntegratedAnalysisResponse;
         
         // 設置分析狀態
         analysisState.integratedAnalysis.value = formattedResult;
-        console.log('已從 sessionStorage 載入分析結果:', formattedResult);
+        console.log('已從 sessionStorage 載入並格式化分析結果');
         
         // 如果有已保存的分析結果，自動執行一次分析來更新 UI
         if (savedBirthInfo) {
+          console.log('準備使用已保存的數據執行分析');
           submitAnalysis(true);
         }
       } catch (parseError) {
         console.error('解析儲存的分析結果時出錯:', parseError);
+        // 在出現錯誤時清除可能損壞的數據
+        storageService.clearAnalysisData('integrated');
       }
     }
     
-    console.log('從 sessionStorage 載入的整合分析數據:', {
+    // 使用增強版存儲服務驗證數據
+    try {
+      console.log('使用增強版存儲服務驗證數據');
+      enhancedStorageService.validateStorageData();
+    } catch (validateError) {
+      console.error('驗證數據時出錯:', validateError);
+    }
+    
+    console.log('從 sessionStorage 載入的整合分析數據總結:', {
       birthInfo: !!savedBirthInfo,
       analysis: !!savedAnalysis
     });
   } catch (error) {
     console.error('從 sessionStorage 載入數據時出錯:', error);
+    // 出現嚴重錯誤時，清除可能損壞的數據
+    storageService.clearAllAstrologyData();
   }
+};
+
+// 確保在組件掛載前設置好所有生命週期鉤子，避免異步問題
+const setupComponentData = () => {
+  console.log('IntegratedAnalysisView 組件初始化');
+  loadFromSessionStorage();
 };
 
 // 生命週期鉤子 - 組件掛載時載入數據
 onMounted(() => {
-  console.log('IntegratedAnalysisView 組件掛載');
-  loadFromSessionStorage();
+  console.log('IntegratedAnalysisView 組件已掛載');
+  try {
+    setupComponentData();
+  } catch (error) {
+    console.error('組件初始化過程中發生錯誤:', error);
+    // 在初始化失敗時嘗試回退到安全狀態
+    storageService.clearAnalysisData('integrated');
+    ElMessage.warning('數據載入時發生錯誤，已重置分析狀態');
+  }
 });
 </script>
 

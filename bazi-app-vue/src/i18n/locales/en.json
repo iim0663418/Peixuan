@@ -197,6 +197,32 @@
       ]
     }
   },
+  "storage": {
+    "totalSize": "Total Storage",
+    "usage": "Usage",
+    "itemCount": "Item Count",
+    "lastUpdated": "Last Updated",
+    "never": "Never Updated",
+    "unavailable": "Storage Unavailable",
+    "dataInconsistent": "Data Inconsistent",
+    "dataWarning": "Data Issues Detected",
+    "almostFull": "Storage Almost Full",
+    "healthy": "Storage Status Healthy",
+    "showDetails": "Show Details",
+    "hideDetails": "Hide Details",
+    "clearAll": "Clear All Data",
+    "dataCleared": "Data Cleared",
+    "clearError": "Failed to Clear Data",
+    "validate": "Validate Data",
+    "validationSuccess": "Data Validation Successful",
+    "validationWarning": "Data Validation Warning",
+    "validationError": "Data Validation Failed",
+    "unifiedData": "Unified Data Storage",
+    "sync": "Sync Data",
+    "syncSuccess": "Data Synchronization Successful",
+    "syncError": "Data Synchronization Failed",
+    "missingFields": "Missing Fields"
+  },
   "chart": {
     "description": "Professional astrology chart analysis",
     "birth_info": "Birth Information",

@@ -201,6 +201,7 @@ import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
 import apiService from '@/services/apiService';
 import astrologyIntegrationService from '@/services/astrologyIntegrationService';
 import storageService from '@/utils/storageService';
+import enhancedStorageService from '@/utils/enhancedStorageService';
 import type { PurpleStarChart, IntegratedAnalysisResponse } from '@/types/astrologyTypes';
 
 // 確保 session ID 存在
@@ -442,37 +443,102 @@ const exportAnalysisResult = () => {
 // 從 sessionStorage 加載數據
 const loadFromSessionStorage = () => {
   try {
+    console.log('開始從 sessionStorage 載入紫微斗數數據');
+    
+    // 記錄當前 sessionStorage 狀態
+    const keysInStorage = Object.keys(sessionStorage).filter(key => 
+      key.startsWith('peixuan_')
+    );
+    
+    console.log('sessionStorage 中的相關鍵:', keysInStorage);
+    
     // 檢查出生信息
     const savedBirthInfo = storageService.getFromStorage(storageService.STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO);
     if (savedBirthInfo) {
+      console.log('找到保存的紫微斗數出生信息');
       birthInfoForIntegration.value = savedBirthInfo;
+    } else {
+      console.log('未找到保存的紫微斗數出生信息');
     }
 
     // 檢查紫微斗數命盤
     const savedPurpleStarChart = storageService.getFromStorage<PurpleStarChart>(storageService.STORAGE_KEYS.PURPLE_STAR_CHART);
     if (savedPurpleStarChart) {
-      purpleStarChart.value = savedPurpleStarChart as PurpleStarChart;
+      console.log('找到保存的紫微斗數命盤數據');
+      try {
+        // 進行基本的數據驗證，確保數據完整性
+        if (!savedPurpleStarChart.palaces || !Array.isArray(savedPurpleStarChart.palaces) || 
+            savedPurpleStarChart.palaces.length === 0) {
+          console.warn('保存的紫微斗數命盤數據缺少宮位信息');
+          throw new Error('命盤數據不完整');
+        }
+        
+        purpleStarChart.value = savedPurpleStarChart as PurpleStarChart;
+      } catch (parseError) {
+        console.error('解析保存的紫微斗數命盤數據時出錯:', parseError);
+        // 不設置命盤數據，確保數據完整性
+      }
+    } else {
+      console.log('未找到保存的紫微斗數命盤數據');
     }
 
     // 檢查整合分析結果
     const savedIntegratedAnalysis = storageService.getFromStorage<IntegratedAnalysisResponse>(storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS);
     if (savedIntegratedAnalysis) {
-      integratedAnalysisResult.value = savedIntegratedAnalysis as IntegratedAnalysisResponse;
+      console.log('找到保存的整合分析結果');
+      try {
+        // 驗證整合分析數據
+        if (!savedIntegratedAnalysis.data || !savedIntegratedAnalysis.data.integratedAnalysis) {
+          console.warn('保存的整合分析結果缺少必要的分析數據');
+          throw new Error('整合分析數據不完整');
+        }
+        
+        integratedAnalysisResult.value = savedIntegratedAnalysis as IntegratedAnalysisResponse;
+      } catch (parseError) {
+        console.error('解析保存的整合分析結果時出錯:', parseError);
+        // 清除可能損壞的數據
+        storageService.clearAnalysisData('integrated');
+      }
+    } else {
+      console.log('未找到保存的整合分析結果');
     }
     
-    console.log('從 sessionStorage 載入的數據:', {
+    // 驗證數據一致性
+    try {
+      console.log('使用增強版存儲服務驗證紫微斗數數據');
+      enhancedStorageService.validateStorageData();
+    } catch (validateError) {
+      console.error('驗證紫微斗數數據時出錯:', validateError);
+    }
+    
+    console.log('從 sessionStorage 載入的紫微斗數數據總結:', {
       birthInfo: !!birthInfoForIntegration.value,
       purpleStarChart: !!purpleStarChart.value,
       integratedAnalysis: !!integratedAnalysisResult.value
     });
   } catch (error) {
-    console.error('從 sessionStorage 載入數據時出錯:', error);
+    console.error('從 sessionStorage 載入紫微斗數數據時出錯:', error);
+    // 出現嚴重錯誤時，清除可能損壞的數據
+    storageService.clearAnalysisData('purpleStar');
   }
+};
+
+// 確保在組件掛載前設置好所有生命週期鉤子，避免異步問題
+const setupComponentData = () => {
+  loadFromSessionStorage();
 };
 
 // 生命週期鉤子 - 組件掛載時載入數據
 onMounted(() => {
-  loadFromSessionStorage();
+  console.log('PurpleStarView 組件已掛載');
+  try {
+    setupComponentData();
+  } catch (error) {
+    console.error('紫微斗數組件初始化過程中發生錯誤:', error);
+    // 在初始化失敗時嘗試回退到安全狀態
+    storageService.clearAnalysisData('purpleStar');
+    ElMessage.warning('紫微斗數數據載入時發生錯誤，已重置分析狀態');
+  }
 });
 </script>
 

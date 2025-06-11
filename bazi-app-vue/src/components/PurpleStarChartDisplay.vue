@@ -636,11 +636,13 @@ const setDisplayDepth = (depth: DisplayDepth) => {
 // 計算屬性
 // 命盤概要解讀
 const chartSummary = computed(() => {
-  if (!props.chartData) return null;
+  if (!props.chartData || !props.chartData.palaces || !Array.isArray(props.chartData.palaces)) return null;
   
   // 從命盤數據中提取重要信息生成簡要解讀
   const mainStars = props.chartData.palaces.flatMap(p => 
-    p.stars.filter(s => s.type === 'main' || s.transformations?.length)
+    p.stars && Array.isArray(p.stars) 
+      ? p.stars.filter(s => s.type === 'main' || (s.transformations && s.transformations.length)) 
+      : []
   );
   
   const mainStarCounts = {
@@ -777,25 +779,59 @@ const getStarTooltip = (star: Star): string => {
 };
 
 const isMingPalace = (zhiName: string): boolean => {
-  if (!props.chartData) return false;
+  if (!props.chartData || !props.chartData.palaces || !Array.isArray(props.chartData.palaces)) return false;
+  
+  // 確保 mingPalaceIndex 存在且有效
+  if (typeof props.chartData.mingPalaceIndex !== 'number' || 
+      props.chartData.mingPalaceIndex < 0 || 
+      props.chartData.mingPalaceIndex >= props.chartData.palaces.length) {
+    return false;
+  }
+  
   const mingPalace = props.chartData.palaces[props.chartData.mingPalaceIndex];
-  return mingPalace?.zhi === zhiName;
+  return mingPalace && mingPalace.zhi === zhiName;
 };
 
 const isShenPalace = (zhiName: string): boolean => {
-  if (!props.chartData) return false;
+  if (!props.chartData || !props.chartData.palaces || !Array.isArray(props.chartData.palaces)) return false;
+  
+  // 確保 shenPalaceIndex 存在且有效
+  if (typeof props.chartData.shenPalaceIndex !== 'number' || 
+      props.chartData.shenPalaceIndex < 0 || 
+      props.chartData.shenPalaceIndex >= props.chartData.palaces.length) {
+    return false;
+  }
+  
   const shenPalace = props.chartData.palaces[props.chartData.shenPalaceIndex];
-  return shenPalace?.zhi === zhiName;
+  return shenPalace && shenPalace.zhi === zhiName;
 };
 
 const getMingPalaceName = (): string => {
-  if (!props.chartData) return '';
-  return props.chartData.palaces[props.chartData.mingPalaceIndex]?.zhi || '';
+  if (!props.chartData || !props.chartData.palaces || !Array.isArray(props.chartData.palaces)) return '';
+  
+  // 確保 mingPalaceIndex 存在且有效
+  if (typeof props.chartData.mingPalaceIndex !== 'number' || 
+      props.chartData.mingPalaceIndex < 0 || 
+      props.chartData.mingPalaceIndex >= props.chartData.palaces.length) {
+    return '';
+  }
+  
+  const mingPalace = props.chartData.palaces[props.chartData.mingPalaceIndex];
+  return mingPalace?.zhi || '';
 };
 
 const getShenPalaceName = (): string => {
-  if (!props.chartData) return '';
-  return props.chartData.palaces[props.chartData.shenPalaceIndex]?.zhi || '';
+  if (!props.chartData || !props.chartData.palaces || !Array.isArray(props.chartData.palaces)) return '';
+  
+  // 確保 shenPalaceIndex 存在且有效
+  if (typeof props.chartData.shenPalaceIndex !== 'number' || 
+      props.chartData.shenPalaceIndex < 0 || 
+      props.chartData.shenPalaceIndex >= props.chartData.palaces.length) {
+    return '';
+  }
+  
+  const shenPalace = props.chartData.palaces[props.chartData.shenPalaceIndex];
+  return shenPalace?.zhi || '';
 };
 
 const getDaXianInfo = (zhiName: string): DaXianInfo | undefined => {

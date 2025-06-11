@@ -1,572 +1,853 @@
 /**
- * 增強型存儲服務 - 提供進階的數據存儲與獲取功能
- * 擴展基本 storageService 並增加更多功能，如版本控制、壓縮和錯誤處理
+ * 強化版存儲服務 - 提供更完整的數據存儲、驗證與管理功能
+ * 擴展基本的 storageService 功能，添加數據一致性檢查和統一數據模型
  */
 
-import { STORAGE_KEYS, saveToStorage, getFromStorage } from './storageService';
+import storageService, { STORAGE_KEYS, getFromStorage, saveToStorage } from './storageService';
 
-// 存儲鍵名常數擴展
-export const ENHANCED_STORAGE_KEYS = {
-  ...STORAGE_KEYS,
-  STORAGE_VERSION: 'peixuan_storage_version',
-  STORAGE_LAST_VALIDATED: 'peixuan_storage_last_validated',
-  STORAGE_USAGE_STATS: 'peixuan_storage_usage_stats'
-};
-
-// 目前的存儲版本
-export const CURRENT_STORAGE_VERSION = '1.0.0';
-
-/**
- * 存儲選項接口
- */
-export interface StorageOptions {
-  compress?: boolean;
-  encrypt?: boolean;
-  version?: string;
-  expireInMinutes?: number;
-}
-
-/**
- * 圖表數據接口
- */
-export interface ChartData {
-  id?: string;
-  timestamp: number;
-  data: any;
-  metadata?: {
-    version?: string;
-    compressed?: boolean;
-    size?: number;
-    lastAccessed?: number;
-  };
-}
-
-/**
- * 用戶偏好設定接口
- */
-export interface UserPreferences {
-  timeZone?: string;
-  language?: string;
-  theme?: 'light' | 'dark' | 'auto';
-  lastUpdated?: number;
-}
-
-/**
- * 存儲統計接口
- */
+// 存儲統計信息接口
 export interface StorageStats {
   totalSize: number;
+  usagePercentage: number;
   itemCount: number;
   lastUpdated: number;
-  usagePercentage: number;
-  items: {
-    key: string;
-    size: number;
-    lastAccessed?: number;
-  }[];
 }
+
+// 統一會話數據接口
+export interface UnifiedSessionData {
+  sessionId: string;
+  lastUpdated: number;
+  charts: {
+    bazi?: any;
+    purpleStar?: any;
+    integrated?: any;
+  };
+  birthInfo: {
+    bazi?: any;
+    purpleStar?: any;
+    integrated?: any;
+  };
+  status: {
+    bazi: boolean;
+    purpleStar: boolean;
+    integrated: boolean;
+  };
+  validationStatus: 'valid' | 'warning' | 'error';
+}
+
+// 統一數據的存儲鍵
+const UNIFIED_DATA_KEY = 'peixuan_unified_session_data';
+// 存儲警告的存儲鍵
+const STORAGE_WARNINGS_KEY = 'peixuan_storage_warnings';
 
 /**
- * 增強型存儲服務類
+ * 檢查存儲是否可用
  */
-export class EnhancedStorageService {
-  private defaultOptions: StorageOptions = {
-    compress: false,
-    encrypt: false,
-    version: CURRENT_STORAGE_VERSION,
-    expireInMinutes: 60 * 24 // 默認24小時
+export const isStorageAvailable = (): boolean => {
+  try {
+    const test = 'test';
+    sessionStorage.setItem(test, test);
+    sessionStorage.removeItem(test);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+/**
+ * 獲取存儲使用統計信息
+ */
+export const getStorageUsage = (): StorageStats => {
+  const stats: StorageStats = {
+    totalSize: 0,
+    usagePercentage: 0,
+    itemCount: 0,
+    lastUpdated: Date.now()
   };
 
-  constructor(private readonly options: StorageOptions = {}) {
-    this.options = { ...this.defaultOptions, ...options };
-    this.initializeStorage();
-  }
+  try {
+    let totalSize = 0;
+    let itemCount = 0;
 
-  /**
-   * 初始化存儲
-   */
-  private initializeStorage(): void {
-    try {
-      // 檢查存儲版本，必要時進行遷移
-      const storedVersion = this.getStorageVersion();
-      if (storedVersion && storedVersion !== CURRENT_STORAGE_VERSION) {
-        this.migrateData(storedVersion, CURRENT_STORAGE_VERSION);
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key) {
+        const value = sessionStorage.getItem(key);
+        if (value) {
+          totalSize += value.length * 2; // 每個字符約 2 字節
+          itemCount++;
+        }
       }
-
-      // 更新存儲版本
-      this.setStorageVersion(CURRENT_STORAGE_VERSION);
-
-      // 更新存儲統計
-      this.updateStorageStats();
-    } catch (error) {
-      console.error('初始化存儲時發生錯誤:', error);
     }
+
+    stats.totalSize = totalSize;
+    stats.itemCount = itemCount;
+
+    // sessionStorage 上限通常為 5MB
+    const maxSize = 5 * 1024 * 1024;
+    stats.usagePercentage = (totalSize / maxSize) * 100;
+  } catch (error) {
+    console.error('獲取存儲使用統計信息時出錯:', error);
   }
 
-  /**
-   * 獲取存儲版本
-   */
-  private getStorageVersion(): string | null {
-    return getFromStorage<string>(ENHANCED_STORAGE_KEYS.STORAGE_VERSION);
-  }
+  return stats;
+};
 
-  /**
-   * 設置存儲版本
-   */
-  private setStorageVersion(version: string): void {
-    saveToStorage(ENHANCED_STORAGE_KEYS.STORAGE_VERSION, version);
-  }
+/**
+ * 初始化存儲系統
+ * 確保必要的數據結構已創建
+ */
+export const initializeStorage = (): boolean => {
+  try {
+    // 確保 session ID 存在
+    const sessionId = storageService.getOrCreateSessionId();
 
-  /**
-   * 更新存儲統計
-   */
-  private updateStorageStats(): void {
-    try {
-      const stats: StorageStats = {
-        totalSize: 0,
-        itemCount: 0,
+    // 檢查並初始化統一數據結構，使用更安全的初始化邏輯
+    let unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
+    
+    if (!unifiedData) {
+      // 創建新的統一數據結構，確保所有必要的子對象都被初始化
+      unifiedData = {
+        sessionId,
         lastUpdated: Date.now(),
-        usagePercentage: 0,
-        items: []
+        charts: {
+          bazi: null,
+          purpleStar: null,
+          integrated: null
+        },
+        birthInfo: {
+          bazi: null,
+          purpleStar: null,
+          integrated: null
+        },
+        status: {
+          bazi: false,
+          purpleStar: false,
+          integrated: false
+        },
+        validationStatus: 'valid'
       };
-
-      // 遍歷所有 sessionStorage 項目
-      for (let i = 0; i < sessionStorage.length; i++) {
-        const key = sessionStorage.key(i);
-        if (key) {
-          const value = sessionStorage.getItem(key);
-          if (value) {
-            const size = new Blob([value]).size;
-            stats.totalSize += size;
-            stats.itemCount++;
-            stats.items.push({
-              key,
-              size,
-              lastAccessed: Date.now()
-            });
-          }
-        }
-      }
-
-      // 計算使用百分比 (假設 sessionStorage 限制為 5MB)
-      const storageLimit = 5 * 1024 * 1024; // 5MB in bytes
-      stats.usagePercentage = (stats.totalSize / storageLimit) * 100;
-
-      // 保存統計信息
-      saveToStorage(ENHANCED_STORAGE_KEYS.STORAGE_USAGE_STATS, stats);
-    } catch (error) {
-      console.error('更新存儲統計時發生錯誤:', error);
-    }
-  }
-
-  /**
-   * 檢查 sessionStorage 是否可用
-   */
-  public isStorageAvailable(): boolean {
-    try {
-      const testKey = 'peixuan_storage_test';
-      sessionStorage.setItem(testKey, 'test');
-      const result = sessionStorage.getItem(testKey) === 'test';
-      sessionStorage.removeItem(testKey);
-      return result;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  /**
-   * 獲取存儲使用統計
-   */
-  public getStorageUsage(): StorageStats | null {
-    return getFromStorage<StorageStats>(ENHANCED_STORAGE_KEYS.STORAGE_USAGE_STATS);
-  }
-
-  /**
-   * 壓縮數據
-   * 簡單實現，實際使用時可以使用更高效的壓縮庫
-   */
-  private compressData(data: any): any {
-    if (!data) return data;
-    
-    try {
-      const stringData = JSON.stringify(data);
-      // 這裡可以使用實際的壓縮庫，如 pako 或 lz-string
-      // 現在只是模擬壓縮效果
-      return {
-        _compressed: true,
-        data: stringData
-      };
-    } catch (error) {
-      console.error('壓縮數據時發生錯誤:', error);
-      return data;
-    }
-  }
-
-  /**
-   * 解壓縮數據
-   */
-  private decompressData(data: any): any {
-    if (!data || !data._compressed) return data;
-    
-    try {
-      // 這裡應該使用與壓縮相同的庫進行解壓縮
-      // 現在只是模擬解壓縮效果
-      return JSON.parse(data.data);
-    } catch (error) {
-      console.error('解壓縮數據時發生錯誤:', error);
-      return data;
-    }
-  }
-
-  /**
-   * 保存圖表數據
-   */
-  public saveChartData(chartType: 'bazi' | 'purpleStar' | 'integrated', data: any, options?: StorageOptions): boolean {
-    try {
-      const mergedOptions = { ...this.options, ...options };
       
-      // 決定存儲鍵
-      let storageKey;
-      switch (chartType) {
-        case 'bazi':
-          storageKey = ENHANCED_STORAGE_KEYS.BAZI_CHART;
-          break;
-        case 'purpleStar':
-          storageKey = ENHANCED_STORAGE_KEYS.PURPLE_STAR_CHART;
-          break;
-        case 'integrated':
-          storageKey = ENHANCED_STORAGE_KEYS.INTEGRATED_ANALYSIS;
-          break;
-        default:
-          throw new Error(`未知的圖表類型: ${chartType}`);
+      saveToStorage(UNIFIED_DATA_KEY, unifiedData);
+    } else {
+      // 確保所有必要的對象結構存在
+      if (!unifiedData.charts) {
+        unifiedData.charts = {
+          bazi: null,
+          purpleStar: null,
+          integrated: null
+        };
       }
-
-      // 準備存儲數據
-      const chartData: ChartData = {
+      
+      if (!unifiedData.birthInfo) {
+        unifiedData.birthInfo = {
+          bazi: null,
+          purpleStar: null,
+          integrated: null
+        };
+      }
+      
+      if (!unifiedData.status) {
+        unifiedData.status = {
+          bazi: false,
+          purpleStar: false,
+          integrated: false
+        };
+      }
+      
+      // 如果 session ID 不匹配，更新它
+      if (unifiedData.sessionId !== sessionId) {
+        unifiedData.sessionId = sessionId;
+      }
+      
+      unifiedData.lastUpdated = Date.now();
+      saveToStorage(UNIFIED_DATA_KEY, unifiedData);
+    }
+    
+    // 嘗試初始化命盤數據，但處理可能的錯誤
+    try {
+      initializeChartData();
+    } catch (chartError) {
+      console.error('初始化命盤數據時出錯:', chartError);
+      // 記錄錯誤但不中斷初始化流程
+      saveToStorage(STORAGE_WARNINGS_KEY, {
         timestamp: Date.now(),
-        data: mergedOptions.compress ? this.compressData(data) : data,
-        metadata: {
-          version: mergedOptions.version || CURRENT_STORAGE_VERSION,
-          compressed: mergedOptions.compress,
-          size: new Blob([JSON.stringify(data)]).size,
-          lastAccessed: Date.now()
-        }
+        message: '命盤數據初始化失敗',
+        level: 'warning',
+        details: chartError instanceof Error ? chartError.message : '未知錯誤'
+      });
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('初始化存儲系統時出錯:', error);
+    // 記錄詳細的錯誤信息
+    saveToStorage(STORAGE_WARNINGS_KEY, {
+      timestamp: Date.now(),
+      message: '存儲初始化失敗',
+      level: 'critical',
+      details: error instanceof Error ? error.message : '未知錯誤'
+    });
+    return false;
+  }
+};
+
+/**
+ * 初始化命盤數據
+ * 確保所有現有的命盤數據都被納入統一數據結構
+ */
+export const initializeChartData = (): boolean => {
+  try {
+    // 獲取統一數據
+    let unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
+    if (!unifiedData) {
+      // 如果統一數據不存在，創建一個完整的初始結構而不是遞歸調用
+      unifiedData = {
+        sessionId: storageService.getOrCreateSessionId(),
+        lastUpdated: Date.now(),
+        charts: {
+          bazi: null,
+          purpleStar: null,
+          integrated: null
+        },
+        birthInfo: {
+          bazi: null,
+          purpleStar: null,
+          integrated: null
+        },
+        status: {
+          bazi: false,
+          purpleStar: false,
+          integrated: false
+        },
+        validationStatus: 'valid'
       };
-
-      // 存儲數據
-      saveToStorage(storageKey, chartData);
-
-      // 更新存儲統計
-      this.updateStorageStats();
-
-      return true;
-    } catch (error) {
-      console.error(`保存${chartType}圖表數據時發生錯誤:`, error);
-      return false;
+      saveToStorage(UNIFIED_DATA_KEY, unifiedData);
     }
-  }
-
-  /**
-   * 獲取圖表數據
-   */
-  public getChartData(chartType: 'bazi' | 'purpleStar' | 'integrated'): any | null {
-    try {
-      // 決定存儲鍵
-      let storageKey;
-      switch (chartType) {
-        case 'bazi':
-          storageKey = ENHANCED_STORAGE_KEYS.BAZI_CHART;
-          break;
-        case 'purpleStar':
-          storageKey = ENHANCED_STORAGE_KEYS.PURPLE_STAR_CHART;
-          break;
-        case 'integrated':
-          storageKey = ENHANCED_STORAGE_KEYS.INTEGRATED_ANALYSIS;
-          break;
-        default:
-          throw new Error(`未知的圖表類型: ${chartType}`);
-      }
-
-      // 獲取存儲的數據
-      const chartData = getFromStorage<ChartData>(storageKey);
-      if (!chartData) return null;
-
-      // 更新最後訪問時間
-      if (chartData.metadata) {
-        chartData.metadata.lastAccessed = Date.now();
-        saveToStorage(storageKey, chartData);
-      }
-
-      // 如果數據被壓縮，則解壓縮
-      const data = chartData.metadata?.compressed 
-        ? this.decompressData(chartData.data) 
-        : chartData.data;
-
-      return data;
-    } catch (error) {
-      console.error(`獲取${chartType}圖表數據時發生錯誤:`, error);
-      return null;
-    }
-  }
-
-  /**
-   * 清除圖表數據
-   */
-  public clearChartData(chartType?: 'bazi' | 'purpleStar' | 'integrated'): void {
-    try {
-      if (chartType) {
-        // 清除特定類型的圖表數據
-        switch (chartType) {
-          case 'bazi':
-            sessionStorage.removeItem(ENHANCED_STORAGE_KEYS.BAZI_CHART);
-            sessionStorage.removeItem(ENHANCED_STORAGE_KEYS.BAZI_BIRTH_INFO);
-            break;
-          case 'purpleStar':
-            sessionStorage.removeItem(ENHANCED_STORAGE_KEYS.PURPLE_STAR_CHART);
-            sessionStorage.removeItem(ENHANCED_STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO);
-            break;
-          case 'integrated':
-            sessionStorage.removeItem(ENHANCED_STORAGE_KEYS.INTEGRATED_ANALYSIS);
-            sessionStorage.removeItem(ENHANCED_STORAGE_KEYS.INTEGRATED_BIRTH_INFO);
-            break;
-        }
-      } else {
-        // 清除所有圖表數據
-        sessionStorage.removeItem(ENHANCED_STORAGE_KEYS.BAZI_CHART);
-        sessionStorage.removeItem(ENHANCED_STORAGE_KEYS.BAZI_BIRTH_INFO);
-        sessionStorage.removeItem(ENHANCED_STORAGE_KEYS.PURPLE_STAR_CHART);
-        sessionStorage.removeItem(ENHANCED_STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO);
-        sessionStorage.removeItem(ENHANCED_STORAGE_KEYS.INTEGRATED_ANALYSIS);
-        sessionStorage.removeItem(ENHANCED_STORAGE_KEYS.INTEGRATED_BIRTH_INFO);
-      }
-
-      // 更新存儲統計
-      this.updateStorageStats();
-    } catch (error) {
-      console.error('清除圖表數據時發生錯誤:', error);
-    }
-  }
-
-  /**
-   * 保存出生資訊
-   */
-  public saveBirthInfo(chartType: 'bazi' | 'purpleStar' | 'integrated', birthInfo: any): boolean {
-    try {
-      // 決定存儲鍵
-      let storageKey;
-      switch (chartType) {
-        case 'bazi':
-          storageKey = ENHANCED_STORAGE_KEYS.BAZI_BIRTH_INFO;
-          break;
-        case 'purpleStar':
-          storageKey = ENHANCED_STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO;
-          break;
-        case 'integrated':
-          storageKey = ENHANCED_STORAGE_KEYS.INTEGRATED_BIRTH_INFO;
-          break;
-        default:
-          throw new Error(`未知的圖表類型: ${chartType}`);
-      }
-
-      // 增加時間戳和版本信息
-      const enhancedBirthInfo = {
-        ...birthInfo,
-        _timestamp: Date.now(),
-        _version: CURRENT_STORAGE_VERSION
+    
+    // 確保必要的對象結構都已初始化
+    if (!unifiedData.charts) {
+      unifiedData.charts = {
+        bazi: null,
+        purpleStar: null,
+        integrated: null
       };
-
-      // 存儲數據
-      saveToStorage(storageKey, enhancedBirthInfo);
-
-      // 更新存儲統計
-      this.updateStorageStats();
-
-      return true;
-    } catch (error) {
-      console.error(`保存${chartType}出生資訊時發生錯誤:`, error);
-      return false;
     }
-  }
 
-  /**
-   * 獲取出生資訊
-   */
-  public getBirthInfo(chartType: 'bazi' | 'purpleStar' | 'integrated'): any | null {
-    try {
-      // 決定存儲鍵
-      let storageKey;
-      switch (chartType) {
-        case 'bazi':
-          storageKey = ENHANCED_STORAGE_KEYS.BAZI_BIRTH_INFO;
-          break;
-        case 'purpleStar':
-          storageKey = ENHANCED_STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO;
-          break;
-        case 'integrated':
-          storageKey = ENHANCED_STORAGE_KEYS.INTEGRATED_BIRTH_INFO;
-          break;
-        default:
-          throw new Error(`未知的圖表類型: ${chartType}`);
-      }
-
-      return getFromStorage(storageKey);
-    } catch (error) {
-      console.error(`獲取${chartType}出生資訊時發生錯誤:`, error);
-      return null;
-    }
-  }
-
-  /**
-   * 保存用戶偏好設定
-   */
-  public saveUserPreferences(prefs: UserPreferences): boolean {
-    try {
-      // 增加更新時間戳
-      const enhancedPrefs: UserPreferences = {
-        ...prefs,
-        lastUpdated: Date.now()
+    if (!unifiedData.birthInfo) {
+      unifiedData.birthInfo = {
+        bazi: null,
+        purpleStar: null,
+        integrated: null
       };
-
-      // 保存時區信息
-      if (prefs.timeZone) {
-        saveToStorage(ENHANCED_STORAGE_KEYS.TIMEZONE_INFO, {
-          timeZone: prefs.timeZone,
-          timestamp: Date.now()
-        });
-      }
-
-      // 保存所有偏好設定
-      saveToStorage('peixuan_user_preferences', enhancedPrefs);
-
-      // 更新存儲統計
-      this.updateStorageStats();
-
-      return true;
-    } catch (error) {
-      console.error('保存用戶偏好設定時發生錯誤:', error);
-      return false;
     }
-  }
 
-  /**
-   * 獲取用戶偏好設定
-   */
-  public getUserPreferences(): UserPreferences | null {
-    return getFromStorage<UserPreferences>('peixuan_user_preferences');
+    if (!unifiedData.status) {
+      unifiedData.status = {
+        bazi: false,
+        purpleStar: false,
+        integrated: false
+      };
+    }
+    
+    // 獲取各種命盤數據
+    const baziChart = getFromStorage(STORAGE_KEYS.BAZI_CHART);
+    const purpleStarChart = getFromStorage(STORAGE_KEYS.PURPLE_STAR_CHART);
+    const integratedAnalysis = getFromStorage(STORAGE_KEYS.INTEGRATED_ANALYSIS);
+    
+    // 獲取各種出生信息
+    const baziBirthInfo = getFromStorage(STORAGE_KEYS.BAZI_BIRTH_INFO);
+    const purpleStarBirthInfo = getFromStorage(STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO);
+    const integratedBirthInfo = getFromStorage(STORAGE_KEYS.INTEGRATED_BIRTH_INFO);
+    
+    // 檢查並添加命盤數據
+    let isUpdated = false;
+    
+    // 使用更安全的賦值方式
+    if (baziChart) {
+      unifiedData.charts.bazi = baziChart;
+      unifiedData.status.bazi = true;
+      isUpdated = true;
+    }
+    
+    if (purpleStarChart) {
+      unifiedData.charts.purpleStar = purpleStarChart;
+      unifiedData.status.purpleStar = true;
+      isUpdated = true;
+    }
+    
+    if (integratedAnalysis) {
+      unifiedData.charts.integrated = integratedAnalysis;
+      unifiedData.status.integrated = true;
+      isUpdated = true;
+    }
+    
+    // 檢查並添加出生信息
+    if (baziBirthInfo) {
+      unifiedData.birthInfo.bazi = baziBirthInfo;
+      isUpdated = true;
+    }
+    
+    if (purpleStarBirthInfo) {
+      unifiedData.birthInfo.purpleStar = purpleStarBirthInfo;
+      isUpdated = true;
+    }
+    
+    if (integratedBirthInfo) {
+      unifiedData.birthInfo.integrated = integratedBirthInfo;
+      isUpdated = true;
+    }
+    
+    // 更新並保存統一數據
+    unifiedData.lastUpdated = Date.now();
+    saveToStorage(UNIFIED_DATA_KEY, unifiedData);
+    
+    return true;
+  } catch (error) {
+    console.error('初始化命盤數據時出錯:', error);
+    // 記錄詳細的錯誤信息
+    saveToStorage(STORAGE_WARNINGS_KEY, {
+      timestamp: Date.now(),
+      message: '命盤數據初始化失敗',
+      level: 'error',
+      details: error instanceof Error ? error.message : '未知錯誤'
+    });
+    return false;
   }
+};
 
-  /**
-   * 驗證存儲中的數據
-   */
-  public validateStorageData(): boolean {
+/**
+ * 同步各個命盤數據到統一數據
+ */
+export const syncChartsToUnifiedData = (): boolean => {
+  try {
+    // 獲取各個獨立的命盤和出生信息
+    const baziChart = getFromStorage(STORAGE_KEYS.BAZI_CHART);
+    const baziInfo = getFromStorage(STORAGE_KEYS.BAZI_BIRTH_INFO);
+    const purpleStarChart = getFromStorage(STORAGE_KEYS.PURPLE_STAR_CHART);
+    const purpleStarInfo = getFromStorage(STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO);
+    const integratedChart = getFromStorage(STORAGE_KEYS.INTEGRATED_ANALYSIS);
+    const integratedInfo = getFromStorage(STORAGE_KEYS.INTEGRATED_BIRTH_INFO);
+    
+    // 獲取統一數據
+    let unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
+    if (!unifiedData) {
+      // 如果統一數據不存在，初始化它
+      initializeStorage();
+      unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
+      if (!unifiedData) return false;
+    }
+    
+    // 確保必要的物件結構存在
+    if (!unifiedData.charts) {
+      unifiedData.charts = {};
+    }
+    
+    if (!unifiedData.birthInfo) {
+      unifiedData.birthInfo = {};
+    }
+    
+    if (!unifiedData.status) {
+      unifiedData.status = {
+        bazi: false,
+        purpleStar: false,
+        integrated: false
+      };
+    }
+    
+    // 更新統一數據中的命盤和信息
+    if (baziChart) {
+      unifiedData.charts.bazi = baziChart;
+      unifiedData.status.bazi = true;
+    }
+    
+    if (baziInfo) {
+      unifiedData.birthInfo.bazi = baziInfo;
+    }
+    
+    if (purpleStarChart) {
+      unifiedData.charts.purpleStar = purpleStarChart;
+      unifiedData.status.purpleStar = true;
+    }
+    
+    if (purpleStarInfo) {
+      unifiedData.birthInfo.purpleStar = purpleStarInfo;
+    }
+    
+    if (integratedChart) {
+      unifiedData.charts.integrated = integratedChart;
+      unifiedData.status.integrated = true;
+    }
+    
+    if (integratedInfo) {
+      unifiedData.birthInfo.integrated = integratedInfo;
+    }
+    
+    // 更新時間戳並保存
+    unifiedData.lastUpdated = Date.now();
+    unifiedData.validationStatus = 'valid';
+    saveToStorage(UNIFIED_DATA_KEY, unifiedData);
+    
+    // 檢查數據一致性
     try {
-      let isValid = true;
+      validateStorageData();
+    } catch (validateError) {
+      console.error('同步後驗證數據時出錯:', validateError);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('同步命盤數據到統一數據時出錯:', error);
+    return false;
+  }
+};
+
+/**
+ * 驗證存儲數據的一致性
+ */
+export const validateStorageData = (): boolean => {
+  try {
+    // 獲取統一數據
+    let unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
+    if (!unifiedData) {
+      // 如果統一數據不存在，初始化它
+      console.warn('未找到統一數據，重新初始化');
+      initializeStorage();
+      // 重新獲取，而不是遞歸調用（避免潛在的無限遞歸）
+      unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
       
-      // 驗證各種圖表數據的完整性
-      const chartTypes = ['bazi', 'purpleStar', 'integrated'] as const;
+      // 如果初始化後仍然沒有數據，則退出
+      if (!unifiedData) {
+        console.error('即使在初始化後仍未能獲取統一數據');
+        return false;
+      }
+    }
+    
+    // 確保必要的對象結構已初始化
+    if (!unifiedData.charts) {
+      unifiedData.charts = {
+        bazi: null,
+        purpleStar: null,
+        integrated: null
+      };
+    }
+    
+    if (!unifiedData.birthInfo) {
+      unifiedData.birthInfo = {
+        bazi: null,
+        purpleStar: null,
+        integrated: null
+      };
+    }
+    
+    if (!unifiedData.status) {
+      unifiedData.status = {
+        bazi: false,
+        purpleStar: false,
+        integrated: false
+      };
+    }
+    
+    // 檢查與獨立存儲的數據是否一致
+    const baziChart = getFromStorage(STORAGE_KEYS.BAZI_CHART);
+    const purpleStarChart = getFromStorage(STORAGE_KEYS.PURPLE_STAR_CHART);
+    const integratedChart = getFromStorage(STORAGE_KEYS.INTEGRATED_ANALYSIS);
+    
+    // 標記是否有不一致
+    let hasInconsistency = false;
+    let missingFields: Record<string, string[]> = {};
+    
+    // 更寬鬆的驗證邏輯
+    const validateChart = (chart: any) => {
+      return chart !== null && chart !== undefined && typeof chart === 'object' && Object.keys(chart).length > 0;
+    };
+    
+    // 檢查八字命盤，加強防禦性編程
+    if (baziChart && unifiedData.charts && unifiedData.charts.bazi !== undefined) {
+      try {
+        const baziConsistency = crossValidateChartData(baziChart, unifiedData.charts.bazi, 'bazi');
+        if (!baziConsistency.isConsistent) {
+          hasInconsistency = true;
+          missingFields['bazi'] = baziConsistency.missingFields;
+        }
+      } catch (error) {
+        console.error('驗證八字命盤時出錯:', error);
+        hasInconsistency = true;
+        missingFields['bazi'] = ['validation_error'];
+      }
+    } else if (baziChart && (!unifiedData.charts || unifiedData.charts.bazi === undefined)) {
+      // 統一數據中缺少八字命盤
+      hasInconsistency = true;
+      missingFields['bazi'] = ['entire chart'];
       
-      for (const type of chartTypes) {
-        const chartData = this.getChartData(type);
-        const birthInfo = this.getBirthInfo(type);
+      // 修復：添加到統一數據
+      if (unifiedData.charts) {
+        unifiedData.charts.bazi = baziChart;
+        if (unifiedData.status) {
+          unifiedData.status.bazi = true;
+        }
+      }
+    } else if (!baziChart && unifiedData.charts && validateChart(unifiedData.charts.bazi)) {
+      // 獨立存儲中缺少八字命盤
+      hasInconsistency = true;
+      missingFields['bazi_independent'] = ['entire chart'];
+      
+      // 修復：添加到獨立存儲
+      saveToStorage(STORAGE_KEYS.BAZI_CHART, unifiedData.charts.bazi);
+    }
+    
+    // 檢查紫微斗數命盤，加強防禦性編程
+    if (purpleStarChart && unifiedData.charts && unifiedData.charts.purpleStar !== undefined) {
+      try {
+        const purpleStarConsistency = crossValidateChartData(purpleStarChart, unifiedData.charts.purpleStar, 'purpleStar');
+        if (!purpleStarConsistency.isConsistent) {
+          hasInconsistency = true;
+          missingFields['purpleStar'] = purpleStarConsistency.missingFields;
+        }
+      } catch (error) {
+        console.error('驗證紫微斗數命盤時出錯:', error);
+        hasInconsistency = true;
+        missingFields['purpleStar'] = ['validation_error'];
+      }
+    } else if (purpleStarChart && (!unifiedData.charts || unifiedData.charts.purpleStar === undefined)) {
+      // 統一數據中缺少紫微斗數命盤
+      hasInconsistency = true;
+      missingFields['purpleStar'] = ['entire chart'];
+      
+      // 修復：添加到統一數據
+      if (unifiedData.charts) {
+        unifiedData.charts.purpleStar = purpleStarChart;
+        if (unifiedData.status) {
+          unifiedData.status.purpleStar = true;
+        }
+      }
+    } else if (!purpleStarChart && unifiedData.charts && validateChart(unifiedData.charts.purpleStar)) {
+      // 獨立存儲中缺少紫微斗數命盤
+      hasInconsistency = true;
+      missingFields['purpleStar_independent'] = ['entire chart'];
+      
+      // 修復：添加到獨立存儲
+      saveToStorage(STORAGE_KEYS.PURPLE_STAR_CHART, unifiedData.charts.purpleStar);
+    }
+    
+    // 檢查整合分析，加強防禦性編程
+    if (integratedChart && unifiedData.charts && unifiedData.charts.integrated !== undefined) {
+      try {
+        const integratedConsistency = crossValidateChartData(integratedChart, unifiedData.charts.integrated, 'integrated');
+        if (!integratedConsistency.isConsistent) {
+          hasInconsistency = true;
+          missingFields['integrated'] = integratedConsistency.missingFields;
+        }
+      } catch (error) {
+        console.error('驗證整合分析時出錯:', error);
+        hasInconsistency = true;
+        missingFields['integrated'] = ['validation_error'];
+      }
+    } else if (integratedChart && (!unifiedData.charts || unifiedData.charts.integrated === undefined)) {
+      // 統一數據中缺少整合分析
+      hasInconsistency = true;
+      missingFields['integrated'] = ['entire analysis'];
+      
+      // 修復：添加到統一數據
+      if (unifiedData.charts) {
+        unifiedData.charts.integrated = integratedChart;
+        if (unifiedData.status) {
+          unifiedData.status.integrated = true;
+        }
+      }
+    } else if (!integratedChart && unifiedData.charts && validateChart(unifiedData.charts.integrated)) {
+      // 獨立存儲中缺少整合分析
+      hasInconsistency = true;
+      missingFields['integrated_independent'] = ['entire analysis'];
+      
+      // 修復：添加到獨立存儲
+      saveToStorage(STORAGE_KEYS.INTEGRATED_ANALYSIS, unifiedData.charts.integrated);
+    }
+    
+    // 更新狀態標誌
+    if (unifiedData.charts && unifiedData.status) {
+      if (validateChart(unifiedData.charts.bazi)) {
+        unifiedData.status.bazi = true;
+      }
+      
+      if (validateChart(unifiedData.charts.purpleStar)) {
+        unifiedData.status.purpleStar = true;
+      }
+      
+      if (validateChart(unifiedData.charts.integrated)) {
+        unifiedData.status.integrated = true;
+      }
+    }
+    
+    // 嘗試自動修復不一致
+    if (hasInconsistency) {
+      unifiedData.validationStatus = 'warning';
+      saveToStorage(UNIFIED_DATA_KEY, unifiedData);
+      
+      // 記錄警告
+      saveToStorage(STORAGE_WARNINGS_KEY, {
+        timestamp: Date.now(),
+        message: '存儲數據存在不一致',
+        level: 'warning',
+        details: missingFields
+      });
+      
+      // 嘗試修復，但不依賴它的成功
+      try {
+        repairDataConsistency();
+      } catch (repairError) {
+        console.error('修復數據一致性時出錯:', repairError);
+      }
+      
+      return false;
+    } else {
+      // 清除警告
+      sessionStorage.removeItem(STORAGE_WARNINGS_KEY);
+      
+      unifiedData.validationStatus = 'valid';
+      saveToStorage(UNIFIED_DATA_KEY, unifiedData);
+      
+      return true;
+    }
+  } catch (error) {
+    console.error('驗證存儲數據一致性時出錯:', error);
+    
+    // 記錄錯誤
+    saveToStorage(STORAGE_WARNINGS_KEY, {
+      timestamp: Date.now(),
+      message: '驗證數據時發生錯誤',
+      level: 'error',
+      details: error instanceof Error ? error.message : '未知錯誤'
+    });
+    
+    return false;
+  }
+};
+
+/**
+ * 交叉驗證命盤數據
+ */
+export const crossValidateChartData = (chart1: any, chart2: any, chartType: string): { isConsistent: boolean; missingFields: string[] } => {
+  const result = {
+    isConsistent: true,
+    missingFields: [] as string[]
+  };
+  
+  try {
+    // 處理 null 或 undefined 的情況
+    if (chart1 === null || chart1 === undefined || chart2 === null || chart2 === undefined) {
+      // 如果兩者都是 null 或 undefined，則視為一致
+      if ((chart1 === null || chart1 === undefined) && (chart2 === null || chart2 === undefined)) {
+        return result;
+      }
+      
+      // 只有一個是 null 或 undefined，則不一致
+      result.isConsistent = false;
+      result.missingFields.push(chart1 === null || chart1 === undefined ? 'chart1_is_null' : 'chart2_is_null');
+      return result;
+    }
+    
+    // 如果是基本數據類型，直接比較
+    if (typeof chart1 !== 'object' || typeof chart2 !== 'object') {
+      result.isConsistent = chart1 === chart2;
+      if (!result.isConsistent) {
+        result.missingFields.push('primitive_value_mismatch');
+      }
+      return result;
+    }
+    
+    // 檢查關鍵欄位是否存在，根據命盤類型
+    const keyFields: Record<string, string[]> = {
+      bazi: ['yearPillar', 'monthPillar', 'dayPillar', 'hourPillar'],
+      purpleStar: ['palaces', 'mingPalaceIndex', 'shenPalaceIndex'],
+      integrated: ['data', 'meta', 'success']
+    };
+    
+    // 使用更寬鬆的比較：只檢查關鍵欄位（如果該命盤類型有指定）
+    if (chartType in keyFields) {
+      for (const field of keyFields[chartType]) {
+        // 使用 in 操作符而不是直接訪問以避免可能的 undefined 問題
+        const chart1HasField = chart1 && typeof chart1 === 'object' && field in chart1;
+        const chart2HasField = chart2 && typeof chart2 === 'object' && field in chart2;
         
-        // 檢查圖表數據和出生資訊是否配對
-        if ((chartData && !birthInfo) || (!chartData && birthInfo)) {
-          console.warn(`${type}圖表數據和出生資訊不匹配`);
-          isValid = false;
+        if (!chart1HasField && chart2HasField) {
+          result.isConsistent = false;
+          result.missingFields.push(`chart1.${field}`);
+        } else if (chart1HasField && !chart2HasField) {
+          result.isConsistent = false;
+          result.missingFields.push(`chart2.${field}`);
+        }
+      }
+    }
+    
+    // 簡化欄位比較，只檢查關鍵欄位即可，避免非關鍵欄位的差異導致過多的不一致
+    // 不再檢查所有欄位，只檢查關鍵欄位
+    
+    // 如果未指定關鍵欄位或不屬於已知命盤類型，則使用基本一致性檢查
+    if (!(chartType in keyFields)) {
+      // 基本一致性檢查：確保兩個對象的所有鍵相同
+      const keys1 = Object.keys(chart1);
+      const keys2 = Object.keys(chart2);
+      
+      // 檢查 chart1 有但 chart2 沒有的欄位
+      for (const key of keys1) {
+        if (!(key in chart2)) {
+          result.isConsistent = false;
+          result.missingFields.push(`chart2.${key}`);
         }
       }
       
-      // 記錄最後驗證時間
-      saveToStorage(ENHANCED_STORAGE_KEYS.STORAGE_LAST_VALIDATED, Date.now());
-      
-      return isValid;
-    } catch (error) {
-      console.error('驗證存儲數據時發生錯誤:', error);
-      return false;
-    }
-  }
-
-  /**
-   * 數據遷移
-   */
-  public migrateData(fromVersion: string, toVersion: string): boolean {
-    try {
-      console.log(`正在遷移存儲數據，從版本 ${fromVersion} 到 ${toVersion}`);
-      
-      // 在實際應用中，這裡應該包含各種版本間的遷移邏輯
-      // 例如，如果從版本1.0.0遷移到2.0.0，可能需要調整數據結構
-      
-      // 這裡只是一個簡單的示例
-      if (fromVersion < toVersion) {
-        // 遷移圖表數據
-        const chartTypes = ['bazi', 'purpleStar', 'integrated'] as const;
-        
-        for (const type of chartTypes) {
-          // 獲取舊格式數據
-          let dataKey, birthInfoKey;
-          
-          switch (type) {
-            case 'bazi':
-              dataKey = ENHANCED_STORAGE_KEYS.BAZI_CHART;
-              birthInfoKey = ENHANCED_STORAGE_KEYS.BAZI_BIRTH_INFO;
-              break;
-            case 'purpleStar':
-              dataKey = ENHANCED_STORAGE_KEYS.PURPLE_STAR_CHART;
-              birthInfoKey = ENHANCED_STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO;
-              break;
-            case 'integrated':
-              dataKey = ENHANCED_STORAGE_KEYS.INTEGRATED_ANALYSIS;
-              birthInfoKey = ENHANCED_STORAGE_KEYS.INTEGRATED_BIRTH_INFO;
-              break;
-          }
-          
-          // 獲取舊數據
-          const oldData = getFromStorage(dataKey);
-          const oldBirthInfo = getFromStorage(birthInfoKey);
-          
-          if (oldData) {
-            // 轉換為新格式
-            const newChartData: ChartData = {
-              timestamp: Date.now(),
-              data: oldData,
-              metadata: {
-                version: toVersion,
-                compressed: false,
-                size: new Blob([JSON.stringify(oldData)]).size,
-                lastAccessed: Date.now()
-              }
-            };
-            
-            // 保存新格式數據
-            saveToStorage(dataKey, newChartData);
-          }
-          
-          if (oldBirthInfo) {
-            // 為舊的出生資訊添加版本信息
-            const newBirthInfo = {
-              ...oldBirthInfo,
-              _timestamp: Date.now(),
-              _version: toVersion
-            };
-            
-            // 保存新格式數據
-            saveToStorage(birthInfoKey, newBirthInfo);
-          }
+      // 檢查 chart2 有但 chart1 沒有的欄位
+      for (const key of keys2) {
+        if (!(key in chart1)) {
+          result.isConsistent = false;
+          result.missingFields.push(`chart1.${key}`);
         }
       }
-      
-      // 設置新版本
-      this.setStorageVersion(toVersion);
-      
-      return true;
-    } catch (error) {
-      console.error('遷移數據時發生錯誤:', error);
+    }
+    
+  } catch (error) {
+    console.error('交叉驗證命盤數據時出錯:', error);
+    result.isConsistent = false;
+    result.missingFields.push('validation_error');
+  }
+  
+  return result;
+};
+
+/**
+ * 修復數據一致性
+ */
+export const repairDataConsistency = (): boolean => {
+  try {
+    // 獲取警告詳情
+    const warnings = getFromStorage<{
+      timestamp: number;
+      message: string;
+      level: string;
+      details?: Record<string, string[]>;
+    }>(STORAGE_WARNINGS_KEY);
+    
+    if (!warnings || !warnings.details) {
+      // 沒有詳細信息，無法修復
       return false;
     }
+    
+    // 獲取統一數據
+    let unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
+    if (!unifiedData) {
+      // 如果統一數據不存在，初始化它
+      initializeStorage();
+      unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
+      if (!unifiedData) return false;
+    }
+    
+    // 修復八字命盤
+    if ('bazi' in warnings.details) {
+      const baziChart = getFromStorage(STORAGE_KEYS.BAZI_CHART);
+      if (baziChart) {
+        unifiedData.charts.bazi = baziChart;
+        unifiedData.status.bazi = true;
+      }
+    } else if ('bazi_independent' in warnings.details) {
+      if (unifiedData.charts.bazi) {
+        saveToStorage(STORAGE_KEYS.BAZI_CHART, unifiedData.charts.bazi);
+      }
+    }
+    
+    // 修復紫微斗數命盤
+    if ('purpleStar' in warnings.details) {
+      const purpleStarChart = getFromStorage(STORAGE_KEYS.PURPLE_STAR_CHART);
+      if (purpleStarChart) {
+        unifiedData.charts.purpleStar = purpleStarChart;
+        unifiedData.status.purpleStar = true;
+      }
+    } else if ('purpleStar_independent' in warnings.details) {
+      if (unifiedData.charts.purpleStar) {
+        saveToStorage(STORAGE_KEYS.PURPLE_STAR_CHART, unifiedData.charts.purpleStar);
+      }
+    }
+    
+    // 修復整合分析
+    if ('integrated' in warnings.details) {
+      const integratedChart = getFromStorage(STORAGE_KEYS.INTEGRATED_ANALYSIS);
+      if (integratedChart) {
+        unifiedData.charts.integrated = integratedChart;
+        unifiedData.status.integrated = true;
+      }
+    } else if ('integrated_independent' in warnings.details) {
+      if (unifiedData.charts.integrated) {
+        saveToStorage(STORAGE_KEYS.INTEGRATED_ANALYSIS, unifiedData.charts.integrated);
+      }
+    }
+    
+    // 更新統一數據
+    unifiedData.lastUpdated = Date.now();
+    saveToStorage(UNIFIED_DATA_KEY, unifiedData);
+    
+    // 清除警告
+    sessionStorage.removeItem(STORAGE_WARNINGS_KEY);
+    
+    return true;
+  } catch (error) {
+    console.error('修復數據一致性時出錯:', error);
+    return false;
   }
-}
+};
 
-// 創建默認實例
-export const enhancedStorageService = new EnhancedStorageService();
+/**
+ * 獲取統一會話數據
+ */
+export const getUnifiedSessionData = (): UnifiedSessionData | null => {
+  try {
+    // 獲取統一數據
+    let unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
+    if (!unifiedData) {
+      // 如果統一數據不存在，初始化它
+      initializeStorage();
+      unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
+    }
+    
+    return unifiedData;
+  } catch (error) {
+    console.error('獲取統一會話數據時出錯:', error);
+    return null;
+  }
+};
+
+/**
+ * 清除所有命盤數據
+ */
+export const clearChartData = (): boolean => {
+  try {
+    // 清除獨立存儲的數據
+    storageService.clearAllAstrologyData();
+    
+    // 清除統一數據
+    sessionStorage.removeItem(UNIFIED_DATA_KEY);
+    sessionStorage.removeItem(STORAGE_WARNINGS_KEY);
+    
+    // 重新初始化存儲
+    initializeStorage();
+    
+    return true;
+  } catch (error) {
+    console.error('清除命盤數據時出錯:', error);
+    return false;
+  }
+};
+
+export const enhancedStorageService = {
+  isStorageAvailable,
+  getStorageUsage,
+  initializeStorage,
+  initializeChartData,
+  syncChartsToUnifiedData,
+  validateStorageData,
+  crossValidateChartData,
+  repairDataConsistency,
+  getUnifiedSessionData,
+  clearChartData
+};
 
 export default enhancedStorageService;

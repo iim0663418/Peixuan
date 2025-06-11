@@ -188,6 +188,7 @@ import {
   type AnnualLuck
 } from '@/utils/baziCalc';
 import storageService from '@/utils/storageService';
+import enhancedStorageService from '@/utils/enhancedStorageService';
 
 // 確保 session ID 存在
 const sessionId = storageService.getOrCreateSessionId();
@@ -366,30 +367,82 @@ const handleSubmit = async (birthInfo: BirthInfo) => {
 // 從 sessionStorage 加載數據
 const loadFromSessionStorage = () => {
   try {
+    console.log('開始從 sessionStorage 載入八字數據');
+    
+    // 記錄當前 sessionStorage 狀態
+    const keysInStorage = Object.keys(sessionStorage).filter(key => 
+      key.startsWith('peixuan_')
+    );
+    
+    console.log('sessionStorage 中的相關鍵:', keysInStorage);
+    
     // 檢查出生信息
     const savedBirthInfo = storageService.getFromStorage<BirthInfo>(storageService.STORAGE_KEYS.BAZI_BIRTH_INFO);
+    
     if (savedBirthInfo) {
+      console.log('找到保存的八字出生信息');
       birthInfoRef.value = savedBirthInfo as BirthInfo;
+    } else {
+      console.log('未找到保存的八字出生信息');
     }
 
     // 檢查八字命盤
     const savedBaziChart = storageService.getFromStorage<FullBaziAnalysis>(storageService.STORAGE_KEYS.BAZI_CHART);
+    
     if (savedBaziChart) {
-      baziChart.value = savedBaziChart as FullBaziAnalysis;
+      console.log('找到保存的八字命盤數據');
+      try {
+        // 進行安全檢查，確保必要屬性存在
+        if (!savedBaziChart.yearPillar || !savedBaziChart.monthPillar || 
+            !savedBaziChart.dayPillar || !savedBaziChart.hourPillar) {
+          console.warn('保存的八字命盤數據缺少必要的柱位信息');
+          throw new Error('命盤數據不完整');
+        }
+        
+        baziChart.value = savedBaziChart;
+      } catch (parseError) {
+        console.error('解析保存的八字命盤數據時出錯:', parseError);
+        // 不要設置命盤數據，確保數據完整性
+      }
+    } else {
+      console.log('未找到保存的八字命盤數據');
     }
     
-    console.log('從 sessionStorage 載入的八字數據:', {
+    // 驗證數據一致性
+    try {
+      console.log('使用增強版存儲服務驗證八字數據');
+      enhancedStorageService.validateStorageData();
+    } catch (validateError) {
+      console.error('驗證八字數據時出錯:', validateError);
+    }
+    
+    console.log('從 sessionStorage 載入的八字數據總結:', {
       birthInfo: !!birthInfoRef.value,
       baziChart: !!baziChart.value
     });
   } catch (error) {
-    console.error('從 sessionStorage 載入數據時出錯:', error);
+    console.error('從 sessionStorage 載入八字數據時出錯:', error);
+    // 出現嚴重錯誤時，清除可能損壞的數據
+    storageService.clearAnalysisData('bazi');
   }
+};
+
+// 確保在組件掛載前設置好所有生命週期鉤子，避免異步問題
+const setupComponentData = () => {
+  loadFromSessionStorage();
 };
 
 // 生命週期鉤子 - 組件掛載時載入數據
 onMounted(() => {
-  loadFromSessionStorage();
+  console.log('BaziView 組件已掛載');
+  try {
+    setupComponentData();
+  } catch (error) {
+    console.error('八字組件初始化過程中發生錯誤:', error);
+    // 在初始化失敗時嘗試回退到安全狀態
+    storageService.clearAnalysisData('bazi');
+    ElMessage.warning('八字數據載入時發生錯誤，已重置分析狀態');
+  }
 });
 </script>
 

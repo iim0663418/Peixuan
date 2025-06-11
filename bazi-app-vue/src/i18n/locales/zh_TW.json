@@ -233,6 +233,11 @@
     "validate": "驗證資料",
     "validationSuccess": "資料驗證成功",
     "validationWarning": "資料驗證出現警告",
-    "validationError": "資料驗證失敗"
+    "validationError": "資料驗證失敗",
+    "unifiedData": "統一資料儲存",
+    "sync": "同步資料",
+    "syncSuccess": "資料同步成功",
+    "syncError": "資料同步失敗",
+    "missingFields": "缺失欄位"
   }
 }

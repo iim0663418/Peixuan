@@ -75,6 +75,28 @@
     "fiveElementsBureau": "五行局",
     "detailedView": "詳細模式",
     "simpleView": "簡潔模式",
+    "expandedView": "展開檢視",
+    "compactView": "精簡檢視",
+    "displayDepth": {
+      "minimal": "簡要預覽",
+      "compact": "精簡檢視",
+      "standard": "標準解讀",
+      "comprehensive": "深度分析"
+    },
+    "displayDepthDesc": {
+      "minimal": "僅顯示核心星曜，最簡潔展示",
+      "compact": "顯示主要星曜和基本宮位資訊",
+      "standard": "完整呈現命盤星曜和大限資訊",
+      "comprehensive": "專業級命盤深入解析與評估"
+    },
+    "interactionTips": {
+      "minimal": "輕觸螢幕，快速預覽命盤全貌",
+      "compact": "點選星曜，探索命理細節",
+      "standard": "暢遊命盤，發現生命奧秘",
+      "comprehensive": "深度解析，揭開命運密碼"
+    },
+    "interactionTipDesc": "可上下左右滑動查看完整命盤",
+    "modeHelp": "切換不同顯示模式以獲取不同深度的命盤解讀",
     "export": "匯出命盤",
     "centerPalace": "太極",
     "mingPalace": "命宮",
@@ -84,6 +106,19 @@
     "starType": "星曜類型",
     "palace": "宮位",
     "transformations": "四化",
+    "interpretation": "命盤解讀",
+    "chartSummary": "命盤簡要解讀",
+    "clickTips": "點擊宮位或星曜查看詳細資訊",
+    "hideSummary": "隱藏解讀",
+    "showSummary": "顯示解讀",
+    "features": "命盤特徵",
+    "keyInsights": "關鍵洞見",
+    "recommendedActions": "建議行動",
+    "favorablePeriods": "有利時期",
+    "challengingPeriods": "挑戰時期",
+    "comprehensiveAnalysis": "綜合解讀",
+    "domainAnalysis": "領域分析",
+    "palaceAnalysis": "宮位解讀",
     "starTypes": {
       "main": "主星",
       "auxiliary": "輔星",
@@ -94,6 +129,21 @@
       "權": "化權", 
       "科": "化科",
       "忌": "化忌"
+    },
+    "domains": {
+      "career": "事業",
+      "wealth": "財富",
+      "marriage": "婚姻",
+      "health": "健康",
+      "education": "學業",
+      "social": "人際"
+    },
+    "fortune": {
+      "excellent": "極佳",
+      "good": "良好",
+      "neutral": "中性",
+      "challenging": "挑戰",
+      "difficult": "困難"
     },
     "genders": {
       "male": "男性",

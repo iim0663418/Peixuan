@@ -6,6 +6,52 @@ export interface PurpleStarChart {
   daXian?: DaXianInfo[];
   xiaoXian?: XiaoXianInfo[];
   liuNianTaiSui?: LiuNianTaiSuiInfo[];
+  // 命盤解讀相關
+  palaceInterpretations?: PalaceInterpretation[];
+  domainAnalyses?: DomainSpecificAnalysis[];
+  comprehensiveInterpretation?: ComprehensiveChartInterpretation;
+}
+
+// 宮位詳細解讀
+export interface PalaceInterpretation {
+  palaceName: string;
+  personalityTraits: string[];
+  strengthAreas: string[];
+  challengeAreas: string[];
+  lifeThemes: string[];
+  keyStarInfluences: string[];
+  advice: string[];
+}
+
+// 特定領域分析
+export interface DomainSpecificAnalysis {
+  domain: 'career' | 'wealth' | 'marriage' | 'health' | 'education' | 'social';
+  overallFortune: 'excellent' | 'good' | 'neutral' | 'challenging' | 'difficult';
+  keyInsights: string[];
+  starInfluences: string[];
+  recommendedActions: string[];
+  periods: {
+    favorable: string[];
+    challenging: string[];
+  };
+}
+
+// 生命週期類型
+export interface LifeCycle {
+  period: string;
+  theme: string;
+  focus: string;
+}
+
+// 綜合命盤解讀
+export interface ComprehensiveChartInterpretation {
+  overallLifePattern: string;
+  majorLifeCycles: LifeCycle[];
+  potentialChallenges: string[];
+  uniqueStrengths: string[];
+  spiritualGrowthPath: string;
+  lifePurpose: string;
+  keyCrossPalacePatterns: string[];
 }
 
 export interface Palace {
@@ -13,6 +59,10 @@ export interface Palace {
   index: number;
   zhi: string;
   stars: Star[];
+  fortuneType?: '吉' | '凶' | '中性';
+  fortuneScore?: number;
+  element?: '水' | '木' | '火' | '土' | '金';
+  significance?: 'high' | 'medium' | 'low';
 }
 
 export interface Star {
@@ -20,6 +70,11 @@ export interface Star {
   type: 'main' | 'auxiliary' | 'minor';
   palaceIndex: number;
   transformations?: ('祿' | '權' | '科' | '忌')[];
+  attribute?: '吉' | '凶' | '中性';
+  propertyType?: '陽' | '陰';
+  element?: '水' | '木' | '火' | '土' | '金';
+  strength?: number;
+  description?: string;
 }
 
 export interface DaXianInfo {

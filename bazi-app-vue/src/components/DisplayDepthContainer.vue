@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, withDefaults, onMounted, onBeforeUnmount } from 'vue';
+import { defineProps, defineEmits, withDefaults, onMounted, onUnmounted } from 'vue';
 import type { DisplayMode } from '@/types/displayModes';
 
 // Props
@@ -65,6 +65,11 @@ const setDisplayDepth = (depth: DisplayMode) => {
     
     // 觸發自定義事件，通知全域控制面板顯示深度已更改
     window.dispatchEvent(new CustomEvent('module-changed', { 
+      detail: { module: props.moduleType, depth } 
+    }));
+    
+    // 額外發送 display-depth-changed 事件以確保雙向同步
+    window.dispatchEvent(new CustomEvent('display-depth-changed', { 
       detail: { module: props.moduleType, depth } 
     }));
   } catch (error) {

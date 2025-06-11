@@ -121,7 +121,19 @@
 
     <!-- 多層次疊加 (僅在詳細視圖中顯示) -->
     <div class="layered-effects" v-if="isDetailView && hasMultiLayerData">
-      <h4>大限與流年疊加</h4>
+      <h4>大限與流年疊加 <span class="energy-tooltip">
+        <i class="info-tooltip">ℹ️</i>
+        <span class="tooltip-content">多層次能量疊加分析結合原命盤、大限與流年的四化能量，呈現宮位能量在不同時間維度的變化。</span>
+      </span></h4>
+      <div class="energy-summary" v-if="selectedLayer === 'total'">
+        <div class="energy-highlight">
+          <div class="highlight-title">當前最強能量宮位</div>
+          <div class="highlight-value">{{ getMaxEnergyPalace() }}</div>
+        </div>
+        <div class="energy-description">
+          <p>{{ getEnergySummary() }}</p>
+        </div>
+      </div>
       <div class="layer-selector">
         <button 
           @click="selectedLayer = 'base'"
@@ -195,7 +207,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import type { PurpleStarChart, Palace, Star } from '@/types/astrologyTypes';
 import { useDisplayMode } from '@/composables/useDisplayMode';
 import type { DisplayMode, DisplayModeProps, DisplayModeEmits } from '@/types/displayModes';
@@ -255,6 +267,7 @@ const availableDisplayDepths: DisplayMode[] = ['minimal', 'compact', 'standard',
 watch(() => props.displayMode, (newMode) => {
   if (newMode) {
     displayMode.value = newMode;
+    console.log('TransformationStarsDisplay: props displayMode 已同步', newMode);
   }
 }, { immediate: true });
 
@@ -270,6 +283,23 @@ watch(displayMode, (newMode) => {
   console.log('四化飛星顯示模式已更新:', newMode, '詳細視圖:', isDetailView.value);
   emit('update:displayMode', newMode);
 }, { immediate: true });
+
+// 處理事件監聽
+const handleDisplayDepthChanged = (event: CustomEvent) => {
+  if (event.detail && event.detail.module === 'transformationStars') {
+    console.log('TransformationStarsDisplay: 接收到 display-depth-changed 事件', event.detail.depth);
+    displayMode.value = event.detail.depth;
+    emit('update:displayMode', event.detail.depth);
+  }
+};
+
+const handleModuleChanged = (event: CustomEvent) => {
+  if (event.detail && event.detail.module === 'transformationStars') {
+    console.log('TransformationStarsDisplay: 接收到 module-changed 事件', event.detail.depth);
+    displayMode.value = event.detail.depth;
+    emit('update:displayMode', event.detail.depth);
+  }
+};
 
 // 計算屬性
 const transformedStars = computed(() => {
@@ -456,14 +486,81 @@ const getLayerInterpretation = (palaceIndex: number): string => {
   return energy.interpretation || '';
 };
 
+// 獲取能量最大的宮位
+const getMaxEnergyPalace = (): string => {
+  let maxEnergy = -Infinity;
+  let maxEnergyPalace = '';
+  
+  // 遍歷所有宮位，找出能量最大的
+  for (const palaceIndex in props.multiLayerEnergies) {
+    const energy = props.multiLayerEnergies[palaceIndex];
+    if (energy && typeof energy.totalEnergy === 'number' && energy.totalEnergy > maxEnergy) {
+      maxEnergy = energy.totalEnergy;
+      maxEnergyPalace = `${energy.palaceName} (${maxEnergy > 0 ? '+' : ''}${maxEnergy})`;
+    }
+  }
+  
+  return maxEnergyPalace || '無顯著能量宮位';
+};
+
+// 獲取能量綜合摘要
+const getEnergySummary = (): string => {
+  let positiveCount = 0;
+  let negativeCount = 0;
+  let totalCount = 0;
+  let totalEnergy = 0;
+  
+  // 計算各類能量宮位數量
+  for (const palaceIndex in props.multiLayerEnergies) {
+    const energy = props.multiLayerEnergies[palaceIndex];
+    if (energy && typeof energy.totalEnergy === 'number') {
+      totalCount++;
+      totalEnergy += energy.totalEnergy;
+      
+      if (energy.totalEnergy > 0) {
+        positiveCount++;
+      } else if (energy.totalEnergy < 0) {
+        negativeCount++;
+      }
+    }
+  }
+  
+  // 根據能量分佈生成摘要
+  if (totalCount === 0) {
+    return '無法分析能量分佈';
+  }
+  
+  const energyBalance = positiveCount > negativeCount 
+    ? '整體能量偏正向，有利於發展'
+    : (positiveCount < negativeCount 
+      ? '整體能量偏負向，需注意化解阻礙' 
+      : '正負能量平衡');
+  
+  const averageEnergy = totalCount > 0 ? (totalEnergy / totalCount).toFixed(1) : '0';
+  const averageEnergyNumber = parseFloat(averageEnergy);
+  
+  return `命盤中有 ${positiveCount} 個正向能量宮位，${negativeCount} 個負向能量宮位。${energyBalance}。平均能量值: ${averageEnergyNumber > 0 ? '+' : ''}${averageEnergy}。`;
+};
+
 // 生命週期鉤子
 onMounted(() => {
-  // 確保在組件卸載時清除定時器
-  return () => {
-    if (animationInterval.value) {
-      clearInterval(animationInterval.value);
-    }
-  };
+  // 設置事件監聽器
+  window.addEventListener('display-depth-changed', handleDisplayDepthChanged as EventListener);
+  window.addEventListener('module-changed', handleModuleChanged as EventListener);
+  
+  console.log('TransformationStarsDisplay: 已設置事件監聽器');
+});
+
+// 組件卸載時移除事件監聽器
+onUnmounted(() => {
+  window.removeEventListener('display-depth-changed', handleDisplayDepthChanged as EventListener);
+  window.removeEventListener('module-changed', handleModuleChanged as EventListener);
+  
+  // 確保清除定時器
+  if (animationInterval.value) {
+    clearInterval(animationInterval.value);
+    animationInterval.value = null;
+  }
 });
 </script>
 
@@ -919,6 +1016,99 @@ onMounted(() => {
   line-height: 1.5;
 }
 
+/* 能量摘要樣式 */
+.energy-summary {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.energy-highlight {
+  flex: 0 0 200px;
+  background-color: white;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.highlight-title {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #495057;
+  margin-bottom: 10px;
+}
+
+.highlight-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #212529;
+}
+
+.energy-description {
+  flex: 1;
+  min-width: 200px;
+}
+
+.energy-description p {
+  margin: 0;
+  line-height: 1.6;
+  color: #495057;
+}
+
+.energy-tooltip {
+  position: relative;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.info-tooltip {
+  font-size: 0.9rem;
+  color: #6c757d;
+  cursor: help;
+}
+
+.tooltip-content {
+  visibility: hidden;
+  width: 250px;
+  background-color: #343a40;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 12px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -125px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  font-weight: normal;
+}
+
+.tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #343a40 transparent transparent transparent;
+}
+
+.energy-tooltip:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}
+
 /* 動畫控制樣式 */
 .animation-control {
   display: flex;
@@ -926,14 +1116,14 @@ onMounted(() => {
   justify-content: flex-end;
 }
 
-/* 顯示深度容器樣式 */
+/* 顯示深度容器樣式 
 .display-depth-container {
   background: #f0f8ff;
   padding: 10px;
   border-radius: 8px;
   margin: 10px 0;
 }
-
+*/
 /* 顯示選項區域 */
 .display-options-section {
   margin-bottom: 12px;
@@ -998,7 +1188,25 @@ onMounted(() => {
 
 /* 動畫效果 */
 .animation-active .energy-bar {
-  animation: pulse 2s infinite;
+  animation: pulse 2s infinite, flowAnimation 3s ease-in-out infinite;
+  background-image: linear-gradient(
+    90deg, 
+    rgba(40, 167, 69, 0.7) 0%, 
+    rgba(23, 162, 184, 0.8) 50%, 
+    rgba(40, 167, 69, 0.7) 100%
+  );
+  background-size: 200% 100%;
+}
+
+.animation-active .negative-energy .energy-bar {
+  animation: pulse 2s infinite, flowAnimation 3s ease-in-out infinite;
+  background-image: linear-gradient(
+    90deg, 
+    rgba(220, 53, 69, 0.7) 0%, 
+    rgba(255, 128, 128, 0.8) 50%, 
+    rgba(220, 53, 69, 0.7) 100%
+  );
+  background-size: 200% 100%;
 }
 
 @keyframes pulse {
@@ -1010,6 +1218,71 @@ onMounted(() => {
   }
   100% {
     opacity: 0.7;
+  }
+}
+
+@keyframes flowAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animation-active .layer-palace {
+  animation: elevate 3s ease-in-out infinite;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+@keyframes elevate {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.animation-active .flow-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.animation-active .flow-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
   }
 }
 

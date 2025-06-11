@@ -176,6 +176,12 @@ const setDisplayDepth = (depth: DisplayMode) => {
     });
     window.dispatchEvent(event);
     
+    // 額外發送 module-changed 事件以確保兼容性和同步
+    const compatEvent = new CustomEvent('module-changed', { 
+      detail: { module: activeModule.value, depth } 
+    });
+    window.dispatchEvent(compatEvent);
+    
     console.log(`更新${getModuleLabel(activeModule.value)}的顯示深度為: ${depth}`);
   } catch (error) {
     console.warn('無法保存顯示深度設定:', error);

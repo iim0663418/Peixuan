@@ -388,7 +388,7 @@
             </div>
             <div class="cycle-zhi">{{ cycle.palaceZhi }}</div>
             <div class="cycle-description">
-              大限落在{{ cycle.palaceName }}宮，著重於{{ getCycleTheme(cycle.palaceName) }}主題。
+              大限落在{{ cycle.palaceName }}，著重於{{ getCycleTheme(cycle.palaceName) }}主題。
             </div>
           </div>
         </div>

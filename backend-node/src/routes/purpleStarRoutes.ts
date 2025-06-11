@@ -8,6 +8,7 @@ import {
 } from '../types/purpleStarTypes';
 import { RequestValidator, createErrorResponse, createSuccessResponse } from '../utils/validation';
 import { PurpleStarCalculationService } from '../services/purpleStarCalculationService';
+import { EnhancedPurpleStarCalculationService } from '../services/enhancedPurpleStarCalculationService';
 
 const router = Router();
 
@@ -57,14 +58,27 @@ const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Res
       maxAge: request.options?.maxAge ?? 100
     };
 
-    // 使用真實的計算邏輯，傳入農曆資訊
-    console.log('Creating PurpleStarCalculationService with:', {
+    // 使用增強版紫微斗數計算服務，傳入農曆資訊
+    console.log('Creating EnhancedPurpleStarCalculationService with:', {
       birthInfo,
       lunarInfo: request.lunarInfo
     });
     
-    const calculator = new PurpleStarCalculationService(birthInfo, request.lunarInfo);
-    console.log('Calculator created successfully');
+    // 如果提供位置信息，轉換為字符串格式添加到birthInfo
+    if (request.location) {
+      // 轉換位置對象為字符串 "longitude,latitude,timezone"
+      const locationParts = [
+        request.location.longitude.toString(),
+        request.location.latitude.toString()
+      ];
+      if (request.location.timezone) {
+        locationParts.push(request.location.timezone);
+      }
+      birthInfo.location = locationParts.join(',');
+    }
+    
+    const calculator = new EnhancedPurpleStarCalculationService(birthInfo, request.lunarInfo);
+    console.log('Enhanced calculator created successfully');
     
     console.log('Starting chart calculation with options:', options);
     const chart = await calculator.calculateChart(options);

@@ -11,7 +11,8 @@ export const STORAGE_KEYS = {
   PURPLE_STAR_BIRTH_INFO: 'peixuan_birth_info',
   INTEGRATED_ANALYSIS: 'peixuan_integrated_analysis',
   INTEGRATED_BIRTH_INFO: 'peixuan_integrated_birth_info',
-  SESSION_ID: 'peixuan_session_id'
+  SESSION_ID: 'peixuan_session_id',
+  TIMEZONE_INFO: 'peixuan_timezone_info'
 };
 
 /**
@@ -98,6 +99,38 @@ export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'integra
   }
 };
 
+/**
+ * 保存時區信息到 sessionStorage
+ * @param timeZone 時區信息
+ * @param year 出生年份
+ */
+export interface TimeZoneInfo {
+  timeZone: string;
+  year: number;
+  timestamp: number;
+}
+
+export const saveTimeZoneInfo = (timeZone: string, year: number): void => {
+  try {
+    const timeZoneInfo: TimeZoneInfo = {
+      timeZone,
+      year,
+      timestamp: Date.now()
+    };
+    saveToStorage(STORAGE_KEYS.TIMEZONE_INFO, timeZoneInfo);
+  } catch (error) {
+    console.error('保存時區信息失敗:', error);
+  }
+};
+
+/**
+ * 獲取最近選擇的時區信息
+ * @returns 時區信息或 null
+ */
+export const getTimeZoneInfo = (): TimeZoneInfo | null => {
+  return getFromStorage<TimeZoneInfo>(STORAGE_KEYS.TIMEZONE_INFO);
+};
+
 export default {
   STORAGE_KEYS,
   getOrCreateSessionId,
@@ -105,5 +138,7 @@ export default {
   getFromStorage,
   removeFromStorage,
   clearAllAstrologyData,
-  clearAnalysisData
+  clearAnalysisData,
+  saveTimeZoneInfo,
+  getTimeZoneInfo
 };

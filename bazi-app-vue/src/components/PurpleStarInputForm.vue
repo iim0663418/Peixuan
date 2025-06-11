@@ -32,8 +32,26 @@
       </el-radio-group>
     </el-form-item>
 
-    <el-form-item label="出生地點（可選）">
-      <el-text type="info" size="small">紫微斗數計算不需要地理位置信息</el-text>
+    <el-form-item label="出生地點（時區選擇）">
+      <el-select
+        v-model="formData.timezone"
+        filterable
+        placeholder="選擇時區"
+        style="width: 100%"
+      >
+        <el-option
+          v-for="tz in timezones"
+          :key="tz.value"
+          :label="tz.label"
+          :value="tz.value"
+        />
+      </el-select>
+      <el-text type="info" size="small">
+        選擇時區可提高紫微斗數計算的精確度
+        <el-tooltip content="時區會影響命盤計算的精確性。若不確定，請選擇出生地附近的城市時區。">
+          <el-icon><QuestionFilled /></el-icon>
+        </el-tooltip>
+      </el-text>
     </el-form-item>
 
     <el-form-item>
@@ -48,15 +66,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
+import { QuestionFilled } from '@element-plus/icons-vue';
+import { saveTimeZoneInfo, getTimeZoneInfo } from '../utils/storageService';
 
 const emit = defineEmits(['submit']);
+
+// 時區選項
+const timezones = ref<Array<{ label: string; value: string }>>([
+  { label: '亞洲/台北 (GMT+8)', value: 'Asia/Taipei' },
+  { label: '亞洲/上海 (GMT+8)', value: 'Asia/Shanghai' },
+  { label: '亞洲/香港 (GMT+8)', value: 'Asia/Hong_Kong' },
+  { label: '亞洲/東京 (GMT+9)', value: 'Asia/Tokyo' },
+  { label: '亞洲/首爾 (GMT+9)', value: 'Asia/Seoul' },
+  { label: '亞洲/新加坡 (GMT+8)', value: 'Asia/Singapore' },
+  { label: '澳洲/悉尼 (GMT+10)', value: 'Australia/Sydney' },
+  { label: '歐洲/倫敦 (GMT+0)', value: 'Europe/London' },
+  { label: '歐洲/巴黎 (GMT+1)', value: 'Europe/Paris' },
+  { label: '美洲/紐約 (GMT-5)', value: 'America/New_York' },
+  { label: '美洲/洛杉磯 (GMT-8)', value: 'America/Los_Angeles' },
+  { label: '美洲/溫哥華 (GMT-8)', value: 'America/Vancouver' }
+]);
 
 const formData = reactive({
   birthDate: '',
   birthTime: '',
-  gender: 'male' as 'male' | 'female'
+  gender: 'male' as 'male' | 'female',
+  timezone: 'Asia/Taipei'
+});
+
+// 從 sessionStorage 加載保存的時區信息
+onMounted(() => {
+  const savedTimezone = getTimeZoneInfo();
+  if (savedTimezone && savedTimezone.timeZone) {
+    formData.timezone = savedTimezone.timeZone;
+  }
 });
 
 const formRules = {
@@ -113,11 +158,19 @@ const submitForm = async () => {
       );
       const lunarDate = solarInstance.getLunar();
       
+      // 保存時區信息到 sessionStorage
+      saveTimeZoneInfo(formData.timezone, year);
+      
       // 構建發送給後端的資料格式
       const birthInfo = {
         birthDate: formData.birthDate,
         birthTime: formData.birthTime,
         gender: formData.gender,
+        location: {
+          longitude: 0, // 這裡可以根據時區推算一個大致經度，或者使用城市中心點
+          latitude: 0,  // 同上
+          timezone: formData.timezone
+        },
         lunarInfo: {
           year: lunarDate.getYear(),
           month: lunarDate.getMonth(),

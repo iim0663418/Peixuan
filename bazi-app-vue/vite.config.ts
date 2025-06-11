@@ -15,9 +15,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}']
       },
       manifest: {
-        name: '八字排盤應用程式',
-        short_name: '八字排盤',
-        description: '一個現代化的八字排盤與分析工具',
+        name: '佩璇命理智能分析平台',
+        short_name: '佩璇大師',
+        description: '一個現代化的命理分析工具',
         theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',

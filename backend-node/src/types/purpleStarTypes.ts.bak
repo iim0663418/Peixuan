@@ -92,12 +92,6 @@ export interface Star {
   type: 'main' | 'auxiliary' | 'minor';
   palaceIndex: number;
   transformations?: ('祿' | '權' | '科' | '忌')[];
-  // 新增星曜屬性
-  attribute?: '吉' | '凶' | '中性';  // 星曜吉凶屬性
-  propertyType?: '陽' | '陰';        // 星曜陰陽屬性
-  element?: '水' | '木' | '火' | '土' | '金'; // 五行屬性
-  strength?: number;                // 星曜強度 (1-10)
-  description?: string;            // 星曜描述
 }
 
 export interface Palace {
@@ -106,21 +100,6 @@ export interface Palace {
   stars: Star[];
   gan?: string;
   zhi?: string;
-  // 新增宮位吉凶
-  fortuneType?: '吉' | '凶' | '中性';  // 宮位吉凶
-  fortuneScore?: number;             // 吉凶評分 (1-10)
-  element?: '水' | '木' | '火' | '土' | '金'; // 宮位五行
-  significance?: 'high' | 'medium' | 'low'; // 宮位重要性
-}
-
-// 星曜屬性配置類型
-export interface StarAttributeConfig {
-  name: string;
-  attribute: '吉' | '凶' | '中性';
-  propertyType: '陽' | '陰';
-  element: '水' | '木' | '火' | '土' | '金';
-  strength: number;
-  description: string;
 }
 
 export interface DaXianInfo {
@@ -146,45 +125,6 @@ export interface LiuNianTaiSuiInfo {
   palaceIndex: number;
 }
 
-// 宮位解讀類型定義
-export interface PalaceInterpretation {
-  palaceName: string;
-  personalityTraits: string[];       // 性格特質
-  strengthAreas: string[];           // 強項領域
-  challengeAreas: string[];          // 挑戰領域
-  lifeThemes: string[];              // 生命主題
-  keyStarInfluences: string[];       // 主要星曜影響
-  advice: string[];                  // 建議
-}
-
-// 特定領域分析類型定義
-export interface DomainSpecificAnalysis {
-  domain: 'career' | 'wealth' | 'marriage' | 'health' | 'education' | 'social';
-  overallFortune: 'excellent' | 'good' | 'neutral' | 'challenging' | 'difficult';
-  keyInsights: string[];            // 關鍵洞察
-  starInfluences: string[];         // 星曜影響
-  recommendedActions: string[];     // 建議行動
-  periods: {                        // 特定時期變化
-    favorable: string[];            // 有利時期
-    challenging: string[];          // 挑戰時期
-  };
-}
-
-// 綜合命盤解讀類型定義
-export interface ComprehensiveChartInterpretation {
-  overallLifePattern: string;       // 整體生命模式
-  majorLifeCycles: {                // 主要生命週期
-    period: string;
-    theme: string;
-    focus: string;
-  }[];
-  potentialChallenges: string[];    // 潛在挑戰
-  uniqueStrengths: string[];        // 獨特優勢
-  spiritualGrowthPath: string;      // 靈性成長路徑
-  lifePurpose: string;              // 生命目的
-  keyCrossPalacePatterns: string[]; // 關鍵跨宮位模式
-}
-
 export interface PurpleStarChart {
   palaces: Palace[];
   mingPalaceIndex: number;
@@ -193,11 +133,6 @@ export interface PurpleStarChart {
   daXian?: DaXianInfo[];
   xiaoXian?: XiaoXianInfo[];
   liuNianTaiSui?: LiuNianTaiSuiInfo[];
-  
-  // 新增命盤解讀相關欄位
-  palaceInterpretations?: PalaceInterpretation[];
-  domainAnalyses?: DomainSpecificAnalysis[];
-  comprehensiveInterpretation?: ComprehensiveChartInterpretation;
 }
 
 export interface BirthInfo {

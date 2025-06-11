@@ -68,6 +68,91 @@
       }
     }
   },
+  "purpleStarChart": {
+    "loading": "Loading Purple Star Chart...",
+    "loadError": "Failed to load chart",
+    "retry": "Retry",
+    "title": "Purple Star Astrology Chart",
+    "birthDate": "Birth Date",
+    "gender": "Gender",
+    "fiveElementsBureau": "Five Elements Bureau",
+    "detailedView": "Detailed View",
+    "simpleView": "Simple View",
+    "expandedView": "Expanded View",
+    "compactView": "Compact View",
+    "displayDepth": {
+      "minimal": "Minimal Preview",
+      "compact": "Compact View",
+      "standard": "Standard Reading",
+      "comprehensive": "Deep Analysis"
+    },
+    "displayDepthDesc": {
+      "minimal": "Shows only core stars with minimal details",
+      "compact": "Displays main stars and basic palace information",
+      "standard": "Complete view with all stars and major cycles",
+      "comprehensive": "Professional-level detailed chart analysis"
+    },
+    "interactionTips": {
+      "minimal": "Tap to quickly preview your chart",
+      "compact": "Click on stars to explore astrological details",
+      "standard": "Explore your chart to discover life mysteries",
+      "comprehensive": "Analyze in depth to reveal your destiny"
+    },
+    "interactionTipDesc": "Swipe up/down/left/right to view complete chart",
+    "modeHelp": "Switch between different display modes for different levels of chart interpretation",
+    "export": "Export Chart",
+    "centerPalace": "Center Palace",
+    "mingPalace": "Life Palace",
+    "shenPalace": "Body Palace",
+    "majorCycles": "Major Cycles",
+    "years": "Years",
+    "starType": "Star Type",
+    "palace": "Palace",
+    "transformations": "Transformations",
+    "interpretation": "Chart Interpretation",
+    "chartSummary": "Chart Summary",
+    "clickTips": "Click on palaces or stars for details",
+    "hideSummary": "Hide Summary",
+    "showSummary": "Show Summary",
+    "features": "Chart Features",
+    "keyInsights": "Key Insights",
+    "recommendedActions": "Recommended Actions",
+    "favorablePeriods": "Favorable Periods",
+    "challengingPeriods": "Challenging Periods",
+    "comprehensiveAnalysis": "Comprehensive Analysis",
+    "domainAnalysis": "Domain Analysis",
+    "palaceAnalysis": "Palace Analysis",
+    "starTypes": {
+      "main": "Main Star",
+      "auxiliary": "Auxiliary Star",
+      "minor": "Minor Star"
+    },
+    "transformationTypes": {
+      "祿": "Prosperity",
+      "權": "Authority",
+      "科": "Achievement",
+      "忌": "Adversity"
+    },
+    "domains": {
+      "career": "Career",
+      "wealth": "Wealth",
+      "marriage": "Marriage",
+      "health": "Health",
+      "education": "Education",
+      "social": "Social"
+    },
+    "fortune": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "neutral": "Neutral",
+      "challenging": "Challenging",
+      "difficult": "Difficult"
+    },
+    "genders": {
+      "male": "Male",
+      "female": "Female"
+    }
+  },
   "analysis": {
     "title": "Integrated Multi-System Analysis",
     "loading": "Performing multi-system cross-validation...",
@@ -112,6 +197,32 @@
       ]
     }
   },
+  "storage": {
+    "totalSize": "Total Storage",
+    "usage": "Usage",
+    "itemCount": "Item Count",
+    "lastUpdated": "Last Updated",
+    "never": "Never Updated",
+    "unavailable": "Storage Unavailable",
+    "dataInconsistent": "Data Inconsistent",
+    "dataWarning": "Data Issues Detected",
+    "almostFull": "Storage Almost Full",
+    "healthy": "Storage Status Healthy",
+    "showDetails": "Show Details",
+    "hideDetails": "Hide Details",
+    "clearAll": "Clear All Data",
+    "dataCleared": "Data Cleared",
+    "clearError": "Failed to Clear Data",
+    "validate": "Validate Data",
+    "validationSuccess": "Data Validation Successful",
+    "validationWarning": "Data Validation Warning",
+    "validationError": "Data Validation Failed",
+    "unifiedData": "Unified Data Storage",
+    "sync": "Sync Data",
+    "syncSuccess": "Data Synchronization Successful",
+    "syncError": "Data Synchronization Failed",
+    "missingFields": "Missing Fields"
+  },
   "chart": {
     "description": "Professional astrology chart analysis",
     "birth_info": "Birth Information",
@@ -130,5 +241,25 @@
     "twelve_palaces": "Twelve Palaces",
     "details": "Details",
     "export_chart": "Export Chart"
+  },
+  "baziChart": {
+    "loading": "Calculating BaZi Chart...",
+    "loadError": "Failed to load BaZi chart",
+    "retry": "Retry",
+    "title": "BaZi Chart",
+    "noData": "No BaZi data available, please calculate first",
+    "yearPillar": "Year Pillar",
+    "monthPillar": "Month Pillar",
+    "dayPillar": "Day Pillar",
+    "hourPillar": "Hour Pillar",
+    "elementsDistribution": "Elements Distribution",
+    "tenGodsAnalysis": "Ten Gods Analysis",
+    "luckInfo": "Luck Information",
+    "startAge": "Starting Age",
+    "startYear": "Starting Year",
+    "years": "Years",
+    "yearUnit": "Year",
+    "saveRecord": "Save Record",
+    "exportChart": "Export Chart"
   }
 }

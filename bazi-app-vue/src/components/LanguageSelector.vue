@@ -9,7 +9,8 @@
       :aria-label="$t('common.language')"
     >
       <option value="en">English</option>
-      <option value="zh">简体中文</option>
+      <!-- 暫時隱藏簡體中文選項 -->
+      <!-- <option value="zh">简体中文</option> -->
       <option value="zh_TW">繁體中文</option>
     </select>
   </div>
@@ -26,8 +27,13 @@ const currentLocale = ref(locale.value);
 function loadLanguagePreference(): string {
   try {
     const savedLocale = localStorage.getItem('preferred-language');
-    if (savedLocale && ['en', 'zh', 'zh_TW'].includes(savedLocale)) {
+    // 移除對簡體中文的支持
+    if (savedLocale && ['en', 'zh_TW'].includes(savedLocale)) {
       return savedLocale;
+    }
+    // 如果保存的是簡體中文，預設切換到繁體中文
+    if (savedLocale === 'zh') {
+      return 'zh_TW';
     }
   } catch (error) {
     console.warn('Failed to load language preference from localStorage:', error);

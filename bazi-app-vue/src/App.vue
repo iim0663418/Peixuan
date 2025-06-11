@@ -20,7 +20,7 @@ const toggleMobileMenu = () => {
         <div class="nav-brand">
           <router-link to="/" class="brand-link">
             <h1>{{ $t('common.app_name') }}</h1>
-            <span class="brand-subtitle">命理服務平台</span>
+            <span class="brand-subtitle">佩璇命理智能分析平台</span>
           </router-link>
         </div>
         

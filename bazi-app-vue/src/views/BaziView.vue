@@ -31,6 +31,9 @@
               class="mt-3 text-center-alert"
             />
           </div>
+          
+          <!-- 添加儲存狀態指示器 -->
+          <StorageStatusIndicator class="mt-3" />
         </el-card>
       </el-col>
 
@@ -171,6 +174,7 @@ import { ElMessage, ElMessageBox, ElTabs, ElTabPane } from 'element-plus';
 import { Coordinate, Delete } from '@element-plus/icons-vue';
 import BaziInputForm from '@/components/BaziInputForm.vue';
 import BaziChartDisplay from '@/components/BaziChartDisplay.vue';
+import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
 import { BirthInfo } from '@/services/astrologyIntegrationService';
 import { 
   BaziCalculator, 

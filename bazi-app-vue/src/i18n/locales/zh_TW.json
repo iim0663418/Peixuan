@@ -213,5 +213,26 @@
         "多維度分析"
       ]
     }
+  },
+  "storage": {
+    "totalSize": "總儲存空間",
+    "usage": "使用率",
+    "itemCount": "資料數量",
+    "lastUpdated": "最後更新",
+    "never": "尚未更新",
+    "unavailable": "儲存不可用",
+    "dataInconsistent": "資料不一致",
+    "dataWarning": "資料有問題",
+    "almostFull": "儲存空間即將用完",
+    "healthy": "儲存狀態良好",
+    "showDetails": "顯示詳細資訊",
+    "hideDetails": "隱藏詳細資訊",
+    "clearAll": "清除所有資料",
+    "dataCleared": "資料已清除",
+    "clearError": "清除資料失敗",
+    "validate": "驗證資料",
+    "validationSuccess": "資料驗證成功",
+    "validationWarning": "資料驗證出現警告",
+    "validationError": "資料驗證失敗"
   }
 }

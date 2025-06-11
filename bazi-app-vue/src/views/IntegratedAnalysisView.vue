@@ -82,7 +82,8 @@
 
             <el-form-item :label="$t('form.location')" prop="location">
               <el-input 
-                v-model="typeof birthInfo.location === 'string' ? birthInfo.location : (birthInfo.location?.name || '')"
+                v-model="locationInputValue"
+                @input="handleLocationInput"
               />
             </el-form-item>
 
@@ -129,10 +130,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted, watch } from 'vue';
+import { reactive, ref, onMounted, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Connection, Delete } from '@element-plus/icons-vue';
 import IntegratedAnalysisDisplay from '@/components/IntegratedAnalysisDisplay.vue';
+import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
 import AstrologyIntegrationService from '@/services/astrologyIntegrationService';
 import { BirthInfo } from '@/services/astrologyIntegrationService';
 import type { IntegratedAnalysisResponse } from '@/types/astrologyTypes';
@@ -158,6 +160,18 @@ const birthInfo = reactive<BirthInfo>({
   gender: 'male' as 'male' | 'female',
   location: '台北市'
 });
+
+// 創建位置輸入值響應式變數
+const locationInputValue = ref(
+  typeof birthInfo.location === 'string' 
+    ? birthInfo.location 
+    : (birthInfo.location?.name || '台北市')
+);
+
+// 處理位置輸入變更
+const handleLocationInput = (value: string) => {
+  birthInfo.location = value;
+};
 
 const formRules = {
   birthDate: [

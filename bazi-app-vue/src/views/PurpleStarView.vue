@@ -43,6 +43,9 @@
                 class="mt-3 text-center-alert"
                 style="text-align: center; display: flex; justify-content: center;"
               />
+              
+              <!-- 添加儲存狀態指示器 -->
+              <StorageStatusIndicator class="mt-3" />
             </div>
           </el-card>
         </el-col>
@@ -194,6 +197,7 @@ import {
 import PurpleStarInputForm from '@/components/PurpleStarInputForm.vue';
 import PurpleStarChartDisplay from '@/components/PurpleStarChartDisplay.vue';
 import IntegratedAnalysisDisplay from '@/components/IntegratedAnalysisDisplay.vue';
+import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
 import apiService from '@/services/apiService';
 import astrologyIntegrationService from '@/services/astrologyIntegrationService';
 import storageService from '@/utils/storageService';

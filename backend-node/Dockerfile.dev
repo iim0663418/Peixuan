@@ -1,0 +1,24 @@
+# 使用官方 Node.js LTS (Long Term Support) 版本作為基礎映像
+FROM node:lts-alpine
+
+# 設定工作目錄
+WORKDIR /app
+
+# 複製 package.json 和 package-lock.json (或 yarn.lock)
+# 如果使用 yarn，請將 package-lock.json 替換為 yarn.lock
+COPY package*.json ./
+
+# 安裝專案依賴
+RUN npm install
+
+# 複製專案所有檔案到工作目錄
+# 為了更好地利用 Docker 的快取機制，可以考慮先複製 .，然後再複製 src
+# 但對於開發環境，直接複製所有內容通常更簡單
+COPY . .
+
+# 開放後端服務運行的端口 (假設為 3000)
+EXPOSE 3000
+
+# 執行開發伺服器命令 (使用 nodemon 監控 TypeScript 檔案變化)
+# ts-node 用於直接運行 TypeScript 檔案
+CMD ["npm", "run", "dev"]

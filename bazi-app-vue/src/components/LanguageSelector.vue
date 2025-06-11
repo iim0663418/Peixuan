@@ -1,0 +1,130 @@
+<template>
+  <div class="language-selector">
+    <label for="language-select" class="sr-only">{{ $t('common.language') }}</label>
+    <select 
+      id="language-select"
+      v-model="currentLocale" 
+      @change="changeLanguage"
+      class="language-select"
+      :aria-label="$t('common.language')"
+    >
+      <option value="en">English</option>
+      <option value="zh">简体中文</option>
+      <option value="zh_TW">繁體中文</option>
+    </select>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { ref, onMounted, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { locale } = useI18n();
+const currentLocale = ref(locale.value);
+
+// 從 localStorage 讀取保存的語言設定
+function loadLanguagePreference(): string {
+  try {
+    const savedLocale = localStorage.getItem('preferred-language');
+    if (savedLocale && ['en', 'zh', 'zh_TW'].includes(savedLocale)) {
+      return savedLocale;
+    }
+  } catch (error) {
+    console.warn('Failed to load language preference from localStorage:', error);
+  }
+  return locale.value;
+}
+
+// 將語言設定保存到 localStorage
+function saveLanguagePreference(language: string): void {
+  try {
+    localStorage.setItem('preferred-language', language);
+  } catch (error) {
+    console.warn('Failed to save language preference to localStorage:', error);
+  }
+}
+
+// 切換語言並保存偏好設定
+function changeLanguage(): void {
+  try {
+    locale.value = currentLocale.value;
+    saveLanguagePreference(currentLocale.value);
+  } catch (error) {
+    console.error('Failed to change language:', error);
+  }
+}
+
+// 組件掛載時載入保存的語言設定
+onMounted(() => {
+  const preferredLanguage = loadLanguagePreference();
+  if (preferredLanguage !== currentLocale.value) {
+    currentLocale.value = preferredLanguage;
+    locale.value = preferredLanguage;
+  }
+});
+
+// 監聽 locale 變化，同步更新 currentLocale
+watch(locale, (newLocale) => {
+  if (newLocale !== currentLocale.value) {
+    currentLocale.value = newLocale;
+  }
+});
+</script>
+
+<style scoped>
+.language-selector {
+  display: inline-block;
+}
+
+.language-select {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: white;
+  color: #374151;
+  cursor: pointer;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  min-width: 120px;
+}
+
+.language-select:hover {
+  border-color: #9ca3af;
+}
+
+.language-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 深色模式支援 */
+@media (prefers-color-scheme: dark) {
+  .language-select {
+    background-color: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+  
+  .language-select:hover {
+    border-color: #6b7280;
+  }
+  
+  .language-select:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+  }
+}
+</style>

@@ -1,14 +1,56 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import type { RouteRecordRaw } from 'vue-router' // RouteRecordRaw 改為 type import
-import HomeView from '../views/HomeView.vue' // 我們稍後會創建這個組件
+import type { RouteRecordRaw } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'home',
     component: HomeView
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('../views/LoginView.vue') 
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: () => import('../views/RegisterView.vue')
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('../views/ProfileView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/monitoring',
+    name: 'monitoring',
+    component: () => import('../views/MonitoringDashboard.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/purple-star',
+    name: 'purple-star',
+    component: () => import('../views/PurpleStarView.vue'),
+    meta: { title: 'astrology.purple_star' }
+  },
+  {
+    path: '/bazi',
+    name: 'bazi',
+    component: () => import('../views/BaziView.vue'),
+    meta: { title: 'astrology.bazi' }
+  },
+  {
+    path: '/integrated-analysis',
+    name: 'integrated-analysis',
+    component: () => import('../views/IntegratedAnalysisView.vue'),
+    meta: { 
+      title: 'astrology.integrated_analysis',
+      requiresAuth: true
+    }
   }
-  // 之後可以在這裡添加更多路由
 ]
 
 const router = createRouter({

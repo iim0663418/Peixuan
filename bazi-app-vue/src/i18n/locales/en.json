@@ -1,0 +1,134 @@
+{
+  "common": {
+    "app_name": "Peixuan Astrology Intelligence Platform",
+    "home": "Home",
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "profile": "Profile",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "reset": "Reset",
+    "error": "Error"
+  },
+  "navigation": {
+    "home": "Home",
+    "purple_star": "Purple Star Astrology",
+    "bazi": "BaZi (Eight Characters)",
+    "integrated_analysis": "Integrated Analysis",
+    "auth": {
+      "login": "Member Login",
+      "register": "Member Register"
+    }
+  },
+  "astrology": {
+    "purple_star": "Purple Star Astrology",
+    "bazi": "Four Pillars of Destiny",
+    "purple_star_detail": {
+      "title": "Purple Star Astrology Analysis",
+      "description": "Comprehensive Purple Star astrology chart analysis based on your birth information",
+      "inputSection": "Birth Information Input",
+      "form": {
+        "title": "Purple Star Calculation",
+        "birth_date": "Birth Date",
+        "birth_time": "Birth Time",
+        "gender": "Gender",
+        "location": "Birth Location"
+      }
+    },
+    "bazi_detail": {
+      "title": "BaZi (Eight Characters)",
+      "description": "Four Pillars BaZi analysis based on your birth information",
+      "inputSection": "Input Data",
+      "form": {
+        "title": "BaZi Chart",
+        "birth_date": "Birth Date",
+        "birth_time": "Birth Time",
+        "gender": "Gender",
+        "location": "Birth Location"
+      }
+    },
+    "integrated_analysis": {
+      "title": "Integrated Multi-System Analysis",
+      "description": "Intelligent analysis system combining Purple Star and BaZi for cross-system validation",
+      "subtitle": "Cross-System Astrology Intelligence Validation",
+      "inputSection": "Input Data",
+      "howItWorks": {
+        "title": "How It Works",
+        "steps": [
+          "Enter complete birth information (year, month, day, time)",
+          "System calculates both Purple Star and BaZi charts simultaneously",
+          "AI analyzes differences and consensus between the two systems",
+          "Provides comprehensive confidence assessment and recommendations",
+          "Displays detailed cross-validation analysis report"
+        ]
+      }
+    }
+  },
+  "analysis": {
+    "title": "Integrated Multi-System Analysis",
+    "loading": "Performing multi-system cross-validation...",
+    "confidence": "Analysis Confidence",
+    "consensusFindings": "Consensus Findings",
+    "divergentFindings": "Divergent Findings",
+    "recommendations": "Smart Recommendations",
+    "methodsUsed": "Validation Methods",
+    "details": "Detailed Analysis"
+  },
+  "confidenceLevel": {
+    "high": "Highly Reliable",
+    "medium": "Moderately Reliable",
+    "low": "Use with Caution"
+  },
+  "form": {
+    "birth_date": "Birth Date",
+    "birth_time": "Birth Time",
+    "gender": "Gender",
+    "location": "Birth Location",
+    "submit": "Start Analysis",
+    "genderOptions": {
+      "male": "Male",
+      "female": "Female"
+    }
+  },
+  "errors": {
+    "required_field": "This field is required",
+    "invalid_date": "Please enter a valid date",
+    "invalid_time": "Please enter a valid time",
+    "unauthorized": "Please login first",
+    "analysis_failed": "Analysis failed, please try again later"
+  },
+  "features": {
+    "integrated_analysis": {
+      "description": "Intelligent analysis system combining Purple Star and BaZi",
+      "benefits": [
+        "Cross-system validation",
+        "Confidence assessment",
+        "Smart recommendations",
+        "Multi-dimensional analysis"
+      ]
+    }
+  },
+  "chart": {
+    "description": "Professional astrology chart analysis",
+    "birth_info": "Birth Information",
+    "birth_year": "Birth Year",
+    "birth_month": "Birth Month", 
+    "birth_day": "Birth Day",
+    "birth_hour": "Birth Hour",
+    "birth_minute": "Birth Minute",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "generate": "Generate Chart",
+    "invalid_input": "Please fill in all required fields correctly",
+    "calculation_failed": "Chart calculation failed",
+    "result_title": "Chart Analysis Result",
+    "twelve_palaces": "Twelve Palaces",
+    "details": "Details",
+    "export_chart": "Export Chart"
+  }
+}

@@ -1,103 +1,109 @@
-// storageService.ts
+/**
+ * 存儲服務 - 處理應用中的數據存儲與獲取
+ * 使用 sessionStorage 而非 localStorage，以確保數據在關閉瀏覽器時自動清除，提高安全性
+ */
 
-// import type { FormState } from '../components/UserInputForm.vue'; // 移除此導入
-import type { BaziResult, TenGodsPillars, ElementsDistribution, StartLuckInfo } from './baziCalc';
+// 存儲鍵名常數
+export const STORAGE_KEYS = {
+  BAZI_CHART: 'peixuan_bazi_chart',
+  BAZI_BIRTH_INFO: 'peixuan_bazi_birth_info',
+  PURPLE_STAR_CHART: 'peixuan_purple_star_chart',
+  PURPLE_STAR_BIRTH_INFO: 'peixuan_birth_info',
+  INTEGRATED_ANALYSIS: 'peixuan_integrated_analysis',
+  INTEGRATED_BIRTH_INFO: 'peixuan_integrated_birth_info',
+  SESSION_ID: 'peixuan_session_id'
+};
 
-// 重新定義或導入 FormState，因為它在組件內部，可能無法直接導入
-// 為了簡化，這裡假設 UserInputForm 的 formState 結構
-interface StoredFormState {
-  calendarType: 'solar' | 'lunar';
-  year: number | null;
-  month: number | null;
-  day: number | null;
-  hour: number | null;
-  minute: number | null;
-  gender: 'male' | 'female';
-  timezone: string;
-  isLeapMonth: boolean;
-}
-
-export interface QueryRecord {
-  id: string; // UUID
-  userId: string | null;
-  timestamp: number;
-  inputData: StoredFormState; // 使用上面定義的 StoredFormState
-  baziResult: BaziResult | null;
-  tenGods?: TenGodsPillars | null;
-  elementsDistribution?: ElementsDistribution | null;
-  startLuckInfo?: StartLuckInfo | null;
-  // 未來可以添加標籤或筆記
-  // tags?: string[];
-  // notes?: string;
-}
-
-const QUERY_HISTORY_KEY = 'baziQueryHistory';
-
-export class LocalStorageService {
-  /**
-   * 保存一條查詢紀錄
-   * @param record 要保存的查詢紀錄
-   */
-  public static saveQueryRecord(record: Omit<QueryRecord, 'id' | 'timestamp'>): QueryRecord | null {
-    try {
-      const newRecord: QueryRecord = {
-        ...record,
-        id: crypto.randomUUID(),
-        timestamp: Date.now(),
-      };
-      const records = this.getQueryRecords();
-      records.unshift(newRecord); // 將新紀錄添加到最前面
-      localStorage.setItem(QUERY_HISTORY_KEY, JSON.stringify(records));
-      console.log('查詢紀錄已保存:', newRecord);
-      return newRecord;
-    } catch (error) {
-      console.error('保存查詢紀錄失敗:', error);
-      return null;
-    }
+/**
+ * 生成或獲取 session ID
+ */
+export const getOrCreateSessionId = (): string => {
+  let sessionId = sessionStorage.getItem(STORAGE_KEYS.SESSION_ID);
+  if (!sessionId) {
+    sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    sessionStorage.setItem(STORAGE_KEYS.SESSION_ID, sessionId);
   }
+  return sessionId;
+};
 
-  /**
-   * 獲取所有查詢紀錄
-   * @returns 查詢紀錄陣列，如果沒有則返回空陣列
-   */
-  public static getQueryRecords(): QueryRecord[] {
-    try {
-      const savedData = localStorage.getItem(QUERY_HISTORY_KEY);
-      return savedData ? JSON.parse(savedData) : [];
-    } catch (error) {
-      console.error('獲取查詢紀錄失敗:', error);
-      return [];
-    }
+/**
+ * 保存數據到 sessionStorage
+ */
+export const saveToStorage = <T>(key: string, data: T): void => {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.error(`保存數據到 sessionStorage 失敗 (${key}):`, error);
   }
+};
 
-  /**
-   * 根據 ID 刪除一條查詢紀錄
-   * @param recordId 要刪除的紀錄 ID
-   */
-  public static deleteQueryRecord(recordId: string): boolean {
-    try {
-      let records = this.getQueryRecords();
-      records = records.filter(record => record.id !== recordId);
-      localStorage.setItem(QUERY_HISTORY_KEY, JSON.stringify(records));
-      console.log(`查詢紀錄 ${recordId} 已刪除。`);
-      return true;
-    } catch (error) {
-      console.error(`刪除查詢紀錄 ${recordId} 失敗:`, error);
-      return false;
-    }
+/**
+ * 從 sessionStorage 獲取數據
+ */
+export const getFromStorage = <T>(key: string): T | null => {
+  try {
+    const data = sessionStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+  } catch (error) {
+    console.error(`從 sessionStorage 獲取數據失敗 (${key}):`, error);
+    return null;
   }
-  
-  /**
-   * 清除所有查詢紀錄
-   */
-  public static clearAllQueryRecords(): boolean {
-    try {
-      localStorage.removeItem(QUERY_HISTORY_KEY);
-      console.log('所有查詢紀錄已清除。');
-      return true;
-    } catch (error) {
-      console.error('清除所有查詢紀錄失敗:', error);
-      return false;
-    }
+};
+
+/**
+ * 刪除特定鍵的數據
+ */
+export const removeFromStorage = (key: string): void => {
+  try {
+    sessionStorage.removeItem(key);
+  } catch (error) {
+    console.error(`從 sessionStorage 刪除數據失敗 (${key}):`, error);
   }
-}
+};
+
+/**
+ * 清除所有相關的數據
+ */
+export const clearAllAstrologyData = (): void => {
+  try {
+    Object.values(STORAGE_KEYS).forEach(key => {
+      sessionStorage.removeItem(key);
+    });
+  } catch (error) {
+    console.error('清除所有數據失敗:', error);
+  }
+};
+
+/**
+ * 清除特定分析的數據
+ */
+export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'integrated'): void => {
+  try {
+    switch (analysisType) {
+      case 'bazi':
+        sessionStorage.removeItem(STORAGE_KEYS.BAZI_CHART);
+        sessionStorage.removeItem(STORAGE_KEYS.BAZI_BIRTH_INFO);
+        break;
+      case 'purpleStar':
+        sessionStorage.removeItem(STORAGE_KEYS.PURPLE_STAR_CHART);
+        sessionStorage.removeItem(STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO);
+        break;
+      case 'integrated':
+        sessionStorage.removeItem(STORAGE_KEYS.INTEGRATED_ANALYSIS);
+        sessionStorage.removeItem(STORAGE_KEYS.INTEGRATED_BIRTH_INFO);
+        break;
+    }
+  } catch (error) {
+    console.error(`清除 ${analysisType} 數據失敗:`, error);
+  }
+};
+
+export default {
+  STORAGE_KEYS,
+  getOrCreateSessionId,
+  saveToStorage,
+  getFromStorage,
+  removeFromStorage,
+  clearAllAstrologyData,
+  clearAnalysisData
+};

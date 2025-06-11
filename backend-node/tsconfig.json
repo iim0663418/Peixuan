@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es6",                       // 指定 ECMAScript 目標版本
+    "module": "commonjs",                  // 指定模組代碼生成： 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'esnext'
+    "rootDir": "./src",                    // 指定輸入檔案的根目錄
+    "outDir": "./dist",                    // 將輸出的結構重定向到目錄
+    "esModuleInterop": true,               // 通過為所有導入創建名稱空間對象，實現 CommonJS 和 ES 模組之間的互操作性
+    "strict": true,                        // 啟用所有嚴格類型檢查選項
+    "skipLibCheck": true,                  // 跳過宣告檔案的類型檢查
+    "forceConsistentCasingInFileNames": true, // 不允許對同一檔案使用大小寫不一致的引用
+    "typeRoots": ["./node_modules/@types", "./src/types"], // 指定類型根目錄
+    "resolveJsonModule": true              // 允許導入 JSON 模組
+  },
+  "include": ["src/**/*", "src/types/**/*"],  // 指定要包含在編譯中的檔案
+  "exclude": ["node_modules", "**/*.spec.ts"] // 指定要從編譯過程中排除的檔案
+}

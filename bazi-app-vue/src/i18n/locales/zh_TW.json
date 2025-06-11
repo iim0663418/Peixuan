@@ -1,0 +1,167 @@
+{
+  "common": {
+    "app_name": "佩璇命理智能分析平台",
+    "home": "首頁",
+    "login": "登入",
+    "logout": "登出",
+    "register": "註冊",
+    "profile": "個人資料",
+    "dashboard": "儀表板",
+    "settings": "設定",
+    "submit": "提交",
+    "cancel": "取消"
+  },
+  "navigation": {
+    "home": "首頁",
+    "purple_star": "紫微斗數",
+    "bazi": "八字排盤",
+    "integrated_analysis": "多術數交互驗證",
+    "auth": {
+      "login": "會員登入",
+      "register": "會員註冊"
+    }
+  },
+  "astrology": {
+    "purple_star": "紫微斗數",
+    "bazi": "八字排盤",
+    "purple_star_detail": {
+      "title": "紫微斗數分析",
+      "description": "根據您的出生資訊進行紫微斗數排盤",
+      "inputSection": "輸入資料",
+      "form": {
+        "title": "紫微斗數排盤",
+        "birth_date": "出生日期",
+        "birth_time": "出生時間",
+        "gender": "性別",
+        "location": "出生地"
+      }
+    },
+    "bazi_detail": {
+      "title": "八字排盤",
+      "description": "根據您的出生資訊進行四柱八字分析",
+      "inputSection": "輸入資料",
+      "form": {
+        "title": "八字排盤",
+        "birth_date": "出生日期",
+        "birth_time": "出生時間",
+        "gender": "性別",
+        "location": "出生地"
+      }
+    },
+    "integrated_analysis": {
+      "title": "多術數交互驗證",
+      "description": "結合紫微斗數與八字的智能分析系統，提供跨系統交叉驗證的專業命理分析",
+      "subtitle": "跨系統的命理智能驗證",
+      "inputSection": "輸入資料",
+      "howItWorks": {
+        "title": "運作方式",
+        "steps": [
+          "輸入完整的出生資訊（年月日時）",
+          "系統同時計算紫微斗數與八字命盤",
+          "AI 分析兩種術數的結果差異與共識",
+          "提供綜合信心度評估與建議",
+          "展示詳細的交叉驗證分析報告"
+        ]
+      }
+    }
+  },
+  "purpleStarChart": {
+    "loading": "正在計算紫微斗數命盤...",
+    "loadError": "命盤載入失敗",
+    "retry": "重新計算",
+    "title": "紫微斗數命盤",
+    "birthDate": "出生日期",
+    "gender": "性別",
+    "fiveElementsBureau": "五行局",
+    "detailedView": "詳細模式",
+    "simpleView": "簡潔模式",
+    "export": "匯出命盤",
+    "centerPalace": "太極",
+    "mingPalace": "命宮",
+    "shenPalace": "身宮",
+    "majorCycles": "大限",
+    "years": "歲",
+    "starType": "星曜類型",
+    "palace": "宮位",
+    "transformations": "四化",
+    "starTypes": {
+      "main": "主星",
+      "auxiliary": "輔星",
+      "minor": "雜曜"
+    },
+    "transformationTypes": {
+      "祿": "化祿",
+      "權": "化權", 
+      "科": "化科",
+      "忌": "化忌"
+    },
+    "genders": {
+      "male": "男性",
+      "female": "女性"
+    }
+  },
+  "baziChart": {
+    "loading": "正在計算八字命盤...",
+    "loadError": "八字命盤載入失敗",
+    "retry": "重新計算",
+    "title": "八字排盤",
+    "noData": "尚無八字資料，請先進行八字計算",
+    "yearPillar": "年柱",
+    "monthPillar": "月柱",
+    "dayPillar": "日柱",
+    "hourPillar": "時柱",
+    "elementsDistribution": "五行分布",
+    "tenGodsAnalysis": "十神分析",
+    "luckInfo": "起運資訊",
+    "startAge": "起運年齡",
+    "startYear": "起運年份",
+    "years": "歲",
+    "yearUnit": "年",
+    "saveRecord": "保存記錄",
+    "exportChart": "匯出命盤"
+  },
+  "analysis": {
+    "title": "多術數交互驗證分析",
+    "loading": "正在進行多術數交叉驗證...",
+    "confidence": "分析信心度",
+    "consensusFindings": "共識發現",
+    "divergentFindings": "差異發現",
+    "recommendations": "智能建議",
+    "methodsUsed": "驗證方法",
+    "details": "詳細分析"
+  },
+  "confidenceLevel": {
+    "high": "高度可信",
+    "medium": "較為可信",
+    "low": "需謹慎參考"
+  },
+  "form": {
+    "birth_date": "出生日期",
+    "birth_time": "出生時間",
+    "gender": "性別",
+    "location": "出生地",
+    "submit": "開始分析",
+    "genderOptions": {
+      "male": "男性",
+      "female": "女性"
+    }
+  },
+  "errors": {
+    "required_field": "此欄位為必填",
+    "invalid_date": "請輸入有效的日期",
+    "invalid_time": "請輸入有效的時間",
+    "unauthorized": "請先登入會員",
+    "analysis_failed": "分析失敗，請稍後再試"
+  },
+  "features": {
+    "integrated_analysis": {
+      "description": "結合紫微斗數與八字的智能分析系統",
+      "benefits": [
+        "跨系統交叉驗證",
+        "信心度評估",
+        "智能建議",
+        "多維度分析"
+      ]
+    }
+  }
+}

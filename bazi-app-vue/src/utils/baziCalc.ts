@@ -53,37 +53,66 @@ export interface UserInputData {
 
 export class BaziCalculator {
   public static calculateBazi(input: UserInputData): BaziResult | null {
-    if (typeof Solar === 'undefined' || typeof Lunar === 'undefined') {
-      console.error('lunar-javascript 庫或其核心組件 (Solar, Lunar) 未正確加載。');
-      return null;
+    try {
+      if (typeof Solar === 'undefined' || typeof Lunar === 'undefined') {
+        console.error('lunar-javascript 庫或其核心組件 (Solar, Lunar) 未正確加載。');
+        return null;
+      }
+
+      const jsDate = input.solarDate;
+      
+      // 檢查日期對象是否有效
+      if (!jsDate || isNaN(jsDate.getTime())) {
+        console.error('無效的日期對象:', jsDate);
+        throw new Error('輸入的日期無效，請確保格式正確');
+      }
+      
+      const year = jsDate.getFullYear();
+      const month = jsDate.getMonth() + 1; 
+      const day = jsDate.getDate();
+      const hour = jsDate.getHours();
+      const minute = jsDate.getMinutes();
+      const second = jsDate.getSeconds();
+      
+      // 輸出中間計算結果以便調試
+      console.log('轉換日期:', { year, month, day, hour, minute, second });
+      
+      // 確保所有值都是有效的數值
+      if (isNaN(year) || isNaN(month) || isNaN(day)) {
+        console.error('日期轉換時出現NaN值:', { year, month, day });
+        throw new Error(`農曆轉換失敗: 無效的年(${year})、月(${month})或日(${day})`);
+      }
+      
+      const solarDate = Solar.fromYmdHms(year, month, day, hour, minute, second);
+      if (!solarDate) {
+        throw new Error('無法創建Solar對象，請檢查日期是否有效');
+      }
+      
+      const lunarDate = solarDate.getLunar();
+      if (!lunarDate) {
+        throw new Error('無法獲取農曆日期，請檢查lunar-javascript庫是否正確工作');
+      }
+
+      const yearStem = lunarDate.getYearGan() as HeavenlyStem;
+      const yearBranch = lunarDate.getYearZhi() as EarthlyBranch;
+      const monthStem = lunarDate.getMonthGan() as HeavenlyStem;
+      const monthBranch = lunarDate.getMonthZhi() as EarthlyBranch;
+      const dayStem = lunarDate.getDayGan() as HeavenlyStem;
+      const dayBranch = lunarDate.getDayZhi() as EarthlyBranch;
+      const timeGanZhi = lunarDate.getTimeInGanZhi(); 
+      const hourStem = timeGanZhi.substring(0, 1) as HeavenlyStem;
+      const hourBranch = timeGanZhi.substring(1, 2) as EarthlyBranch;
+
+      return {
+        yearPillar: { stem: yearStem, branch: yearBranch, stemElement: STEM_TO_ELEMENT[yearStem], branchElement: BRANCH_TO_ELEMENT[yearBranch] },
+        monthPillar: { stem: monthStem, branch: monthBranch, stemElement: STEM_TO_ELEMENT[monthStem], branchElement: BRANCH_TO_ELEMENT[monthBranch] },
+        dayPillar: { stem: dayStem, branch: dayBranch, stemElement: STEM_TO_ELEMENT[dayStem], branchElement: BRANCH_TO_ELEMENT[dayBranch] },
+        hourPillar: { stem: hourStem, branch: hourBranch, stemElement: STEM_TO_ELEMENT[hourStem], branchElement: BRANCH_TO_ELEMENT[hourBranch] },
+      };
+    } catch (error) {
+      console.error('八字計算錯誤：', error);
+      throw error; // 重新拋出錯誤以便上層處理
     }
-    const jsDate = input.solarDate;
-    const year = jsDate.getFullYear();
-    const month = jsDate.getMonth() + 1; 
-    const day = jsDate.getDate();
-    const hour = jsDate.getHours();
-    const minute = jsDate.getMinutes();
-    const second = jsDate.getSeconds();
-
-    const solarDate = Solar.fromYmdHms(year, month, day, hour, minute, second);
-    const lunarDate = solarDate.getLunar(); 
-
-    const yearStem = lunarDate.getYearGan() as HeavenlyStem;
-    const yearBranch = lunarDate.getYearZhi() as EarthlyBranch;
-    const monthStem = lunarDate.getMonthGan() as HeavenlyStem;
-    const monthBranch = lunarDate.getMonthZhi() as EarthlyBranch;
-    const dayStem = lunarDate.getDayGan() as HeavenlyStem;
-    const dayBranch = lunarDate.getDayZhi() as EarthlyBranch;
-    const timeGanZhi = lunarDate.getTimeInGanZhi(); 
-    const hourStem = timeGanZhi.substring(0, 1) as HeavenlyStem;
-    const hourBranch = timeGanZhi.substring(1, 2) as EarthlyBranch;
-
-    return {
-      yearPillar: { stem: yearStem, branch: yearBranch, stemElement: STEM_TO_ELEMENT[yearStem], branchElement: BRANCH_TO_ELEMENT[yearBranch] },
-      monthPillar: { stem: monthStem, branch: monthBranch, stemElement: STEM_TO_ELEMENT[monthStem], branchElement: BRANCH_TO_ELEMENT[monthBranch] },
-      dayPillar: { stem: dayStem, branch: dayBranch, stemElement: STEM_TO_ELEMENT[dayStem], branchElement: BRANCH_TO_ELEMENT[dayBranch] },
-      hourPillar: { stem: hourStem, branch: hourBranch, stemElement: STEM_TO_ELEMENT[hourStem], branchElement: BRANCH_TO_ELEMENT[hourBranch] },
-    };
   }
 }
 

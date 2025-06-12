@@ -15,7 +15,7 @@
 
     <div v-else-if="baziResult" class="chart-content">
       <!-- 八字排盤顯示 -->
-      <div class="chart-header">
+      <div  class="chart-header">
         <h3>{{ $t('baziChart.title') }}</h3>
         <DisplayDepthContainer
           v-model="displayMode"

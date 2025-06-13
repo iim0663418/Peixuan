@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
+
+// 立即載入的首頁 (因為是首次訪問)
 import HomeView from '../views/HomeView.vue'
 
 const routes: Array<RouteRecordRaw> = [
@@ -11,7 +13,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     name: 'login',
-    component: () => import('../views/LoginView.vue') 
+    component: () => import('../views/LoginView.vue')
   },
   {
     path: '/register',

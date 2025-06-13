@@ -11,11 +11,15 @@ import 'element-plus/dist/index.css'
 // 導入增強版存儲服務
 import enhancedStorageService from './utils/enhancedStorageService'
 
+// 導入全局錯誤處理器
+import { errorHandlerPlugin } from './plugins/errorHandler'
+
 const app = createApp(App)
 
 app.use(router) // 使用 router
 app.use(i18n) // 使用 i18n
 app.use(ElementPlus) // 使用 Element Plus
+app.use(errorHandlerPlugin) // 使用全局錯誤處理器
 
 // 註冊增強版存儲服務為全域屬性
 app.config.globalProperties.$enhancedStorageService = enhancedStorageService

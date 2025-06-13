@@ -1,6 +1,6 @@
 /**
- * 時運分析服務
- * 實現八字與紫微斗數的交叉驗證和當下運勢綜合分析
+ * 綜合人生解讀服務
+ * 整合八字與紫微斗數的傳統智慧，提供全面的人生解讀
  */
 
 import { PurpleStarCalculationResponse, BaziCalculationResult, Palace, Star } from '../types/purpleStarTypes';
@@ -38,6 +38,11 @@ export interface IntegratedReport {
     elements: CorrelationResult;
     cycles: CorrelationResult;
   };
+  comprehensiveReading: {
+    completenessPercentage: number;
+    readingDepth: number;
+    sourceMethods: string[];
+  };
   crossValidation: {
     agreementPercentage: number;
     reliabilityScore: number;
@@ -47,7 +52,7 @@ export interface IntegratedReport {
 
 export class AstrologyIntegrationService {
   /**
-   * 主要時運分析方法 - 依據命盤資料計算
+   * 主要綜合解讀方法 - 依據命盤資料計算
    */
   generateIntegratedAnalysis(
     purpleStarData: PurpleStarCalculationResponse,
@@ -63,8 +68,9 @@ export class AstrologyIntegrationService {
     
     // 檢查輸入資料是否有效
     if (!purpleStarData || !baziData) {
-      console.warn('命盤資料不完整，無法進行完整分析');
-      return this.createEmptyReport();
+      console.warn('命盤資料不完整，將返回基礎報告');
+      // 即使資料不完整，也提供基礎分析而不是完全空的報告
+      return this.createBasicReport();
     }
     
     // 提取八字資料的五行分布
@@ -134,6 +140,11 @@ export class AstrologyIntegrationService {
         elements: elementsResult,
         cycles: cyclesResult
       },
+      comprehensiveReading: {
+        completenessPercentage: Math.round(overallConfidence * 100),
+        readingDepth: Math.round(overallConfidence * 10),
+        sourceMethods: ['紫微斗數', '四柱八字', '五行理論']
+      },
       crossValidation: {
         agreementPercentage: Math.round(overallConfidence * 100),
         reliabilityScore: overallConfidence,
@@ -143,7 +154,59 @@ export class AstrologyIntegrationService {
   }
   
   /**
-   * 生成空的報告（無有效資料時使用）
+   * 生成基礎報告（資料不完整時使用）
+   */
+  private createBasicReport(): IntegratedReport {
+    return {
+      overallConfidence: 0.3,
+      consensusFindings: ['基於現有資料進行分析'],
+      divergentFindings: ['需要完整命盤資料以獲得更准確的解讀'],
+      recommendations: ['建議提供完整的出生時間和地點信息', '可嘗試重新輸入資料獲得更詳細的分析'],
+      detailedAnalysis: {
+        personality: {
+          category: 'personality',
+          matches: ['性格特質分析需要完整命盤資料'],
+          differences: [],
+          confidence: 0.3,
+          description: "基於部分資料的初步分析，建議提供完整出生資訊以獲得更準確的性格特質解讀。"
+        },
+        fortune: {
+          category: 'fortune',
+          matches: ['運勢分析需要完整命盤資料'],
+          differences: [],
+          confidence: 0.3,
+          description: "基於部分資料的初步分析，建議提供完整出生資訊以獲得更準確的運勢解讀。"
+        },
+        elements: {
+          category: 'elements',
+          matches: ['五行分析需要完整命盤資料'],
+          differences: [],
+          confidence: 0.3,
+          description: "基於部分資料的初步分析，建議提供完整出生資訊以獲得更準確的五行分析。"
+        },
+        cycles: {
+          category: 'cycles',
+          matches: ['時間週期分析需要完整命盤資料'],
+          differences: [],
+          confidence: 0.3,
+          description: "基於部分資料的初步分析，建議提供完整出生資訊以獲得更準確的時間週期分析。"
+        }
+      },
+      comprehensiveReading: {
+        completenessPercentage: 30,
+        readingDepth: 3,
+        sourceMethods: ['基礎分析']
+      },
+      crossValidation: {
+        agreementPercentage: 30,
+        reliabilityScore: 0.3,
+        validationSources: ['基礎數據']
+      }
+    };
+  }
+
+  /**
+   * 生成空的報告（完全無資料時使用）
    */
   private createEmptyReport(): IntegratedReport {
     return {
@@ -180,6 +243,11 @@ export class AstrologyIntegrationService {
           confidence: 0,
           description: ""
         }
+      },
+      comprehensiveReading: {
+        completenessPercentage: 0,
+        readingDepth: 0,
+        sourceMethods: []
       },
       crossValidation: {
         agreementPercentage: 0,

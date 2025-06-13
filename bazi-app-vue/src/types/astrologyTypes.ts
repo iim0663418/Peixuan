@@ -190,11 +190,9 @@ export interface IntegratedAnalysisResponse {
       calculationTime: string;
       methodsUsed: string[];
       confidence: number;
-      layer: string;
     };
   };
   meta: {
-    layer: string;
     userRole: string;
     features: string[];
     sources: string[];

@@ -30,6 +30,25 @@ export class RequestValidator {
     };
   }
 
+  public validateBaziRequest(request: any): { isValid: boolean; errors: ValidationError[] } {
+    this.errors = [];
+
+    // 驗證必需字段
+    this.validateBirthDate(request.birthDate);
+    this.validateBirthTime(request.birthTime);
+    this.validateGender(request.gender);
+
+    // 驗證可選字段
+    if (request.location) {
+      this.validateLocation(request.location);
+    }
+
+    return {
+      isValid: this.errors.length === 0,
+      errors: this.errors
+    };
+  }
+
   private validateBirthDate(birthDate: any): void {
     if (!birthDate) {
       this.addError('birthDate', '出生日期為必需字段', 'REQUIRED');

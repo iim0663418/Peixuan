@@ -24,7 +24,7 @@
             <el-alert 
               v-if="baziChart"
               title="💡 提示"
-              description="您可以使用「智能交叉驗證」功能來獲得八字與紫微斗數的多維度洞察分析"
+              description="您可以使用「命運洞悉」功能來獲得八字與紫微斗數的多維度洞察分析"
               type="info"
               :closable="false"
               show-icon
@@ -37,7 +37,7 @@
         </el-card>
       </el-col>
 
-      <el-col :span="12">
+      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
         <el-card shadow="hover">
           <template #header>
             <span>{{ $t('astrology.bazi_detail.inputSection') }}</span>
@@ -47,7 +47,7 @@
         </el-card>
       </el-col>
 
-      <el-col :span="12">
+      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
         <el-card shadow="hover" v-if="baziChart">
           <template #header>
             <span>分析結果</span>
@@ -456,6 +456,58 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+}
+
+/* 響應式優化 */
+@media (max-width: 768px) {
+  .bazi-container {
+    padding: 10px;
+  }
+  
+  /* 卡片內邊距調整 */
+  :deep(.el-card__body) {
+    padding: 15px;
+  }
+  
+  /* 標題字體調整 */
+  :deep(.el-card__header) {
+    padding: 15px;
+    font-size: 16px;
+  }
+  
+  /* 按鈕組優化 */
+  .header-actions {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  
+  .header-actions .el-button {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bazi-container {
+    padding: 5px;
+  }
+  
+  /* 更小螢幕的調整 */
+  :deep(.el-card__body) {
+    padding: 10px;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 
 .card-header {

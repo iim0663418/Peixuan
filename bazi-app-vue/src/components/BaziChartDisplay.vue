@@ -1,8 +1,7 @@
 <template>
   <div class="bazi-chart-display">
     <div v-if="isLoading" class="loading-state">
-      <div class="spinner"></div>
-      <p>{{ $t('baziChart.loading') }}</p>
+      <SkeletonLoader variant="chart" />
     </div>
 
     <div v-else-if="error" class="error-state">
@@ -15,16 +14,21 @@
 
     <div v-else-if="baziResult" class="chart-content">
       <!-- 八字排盤顯示 -->
-      <div  class="chart-header">
+      <div class="chart-header">
         <h3>{{ $t('baziChart.title') }}</h3>
-        <DisplayDepthContainer
-          v-model="displayMode"
-          :available-depths="availableDisplayDepths"
-          module-type="bazi"
-        />
+        
+        <!-- 八字不使用分層顯示，保持固定模式 -->
+        <div class="fixed-mode-indicator">
+          <el-tag type="info" size="small" effect="plain">
+            <el-icon><Lock /></el-icon>
+            固定模式
+          </el-tag>
+          <span class="mode-description">八字命盤保持完整顯示</span>
+        </div>
       </div>
       <div class="bazi-pillars">
-        <div class="pillars-grid">
+        <!-- 桌面版網格布局 -->
+        <div class="pillars-grid desktop-layout">
           <div 
             v-for="(pillar, index) in pillarsDisplay" 
             :key="pillar.name"
@@ -42,6 +46,44 @@
               <span class="branch-element" :class="`element-${getElementClass(pillar.branchElement)}`">
                 {{ pillar.branchElement }}
               </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 手機版卡片布局 -->
+        <div class="pillars-mobile mobile-layout">
+          <div 
+            v-for="(pillar, index) in pillarsDisplay" 
+            :key="pillar.name"
+            class="pillar-card"
+            @click="handlePillarClick(pillar.name)"
+          >
+            <div class="pillar-card-header">
+              <h4 class="pillar-name">{{ pillar.name }}</h4>
+              <div class="pillar-main">
+                <span class="pillar-stem">{{ pillar.stem }}</span>
+                <span class="pillar-branch">{{ pillar.branch }}</span>
+              </div>
+            </div>
+            <div class="pillar-card-content">
+              <div v-if="tenGods" class="pillar-god-mobile">
+                <span class="god-label">十神：</span>
+                <span class="god-value">{{ getTenGod(index) }}</span>
+              </div>
+              <div class="pillar-elements-mobile">
+                <div class="element-row">
+                  <span class="element-label">天干五行：</span>
+                  <span class="stem-element" :class="`element-${getElementClass(pillar.stemElement)}`">
+                    {{ pillar.stemElement }}
+                  </span>
+                </div>
+                <div class="element-row">
+                  <span class="element-label">地支五行：</span>
+                  <span class="branch-element" :class="`element-${getElementClass(pillar.branchElement)}`">
+                    {{ pillar.branchElement }}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -119,10 +161,10 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount, ref, watch } from 'vue';
+import SkeletonLoader from './SkeletonLoader.vue';
 import { useI18n } from 'vue-i18n';
-import { useDisplayMode } from '@/composables/useDisplayMode';
+import { Lock } from '@element-plus/icons-vue';
 import type { DisplayMode } from '@/types/displayModes';
-import DisplayDepthContainer from '@/components/DisplayDepthContainer.vue';
 import type {
   BaziResult,
   TenGodsPillars,
@@ -166,18 +208,12 @@ const emit = defineEmits<{
   'update:displayMode': [mode: DisplayMode];
 }>();
 
-// 可用的顯示深度選項
-const availableDisplayDepths: DisplayMode[] = ['minimal', 'compact', 'standard', 'comprehensive'];
+// 八字命盤固定使用 'standard' 模式，不提供分層控制
+const displayMode = ref<DisplayMode>('standard');
 
-// 使用顯示模式 composable
-const { displayMode, mapDepthToMode } = useDisplayMode('bazi');
+console.log('八字命盤初始化：使用固定模式（standard）');
 
-// 同步本地顯示模式與 props 顯示模式
-if (props.displayMode) {
-  displayMode.value = props.displayMode;
-}
-
-// 監聽顯示模式變化
+// 向上通知父組件當前使用固定模式
 watch(displayMode, (newMode: DisplayMode) => {
   emit('update:displayMode', newMode);
 }, { immediate: true });
@@ -335,19 +371,43 @@ const exportChart = () => {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* 固定模式指示器 */
+.fixed-mode-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mode-description {
+  font-size: 12px;
+  color: #666;
+  margin-left: 4px;
 }
 
 .chart-header h3 {
   margin: 0;
   color: #8b4513;
   font-size: 1.4rem;
+  flex: 1;
 }
 
-.pillars-grid {
+/* 響應式布局控制 */
+.desktop-layout {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   margin-bottom: 40px;
+}
+
+.mobile-layout {
+  display: none;
 }
 
 .pillar-column {
@@ -560,42 +620,212 @@ const exportChart = () => {
   color: white;
 }
 
+/* 手機版卡片樣式 */
+.pillars-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-bottom: 40px;
+}
+
+.pillar-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  overflow: hidden;
+}
+
+.pillar-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.pillar-card-header {
+  background: linear-gradient(135deg, var(--primary-lightest), var(--bazi-orange-lightest));
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.pillar-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-color);
+  margin: 0 0 var(--space-md) 0;
+}
+
+.pillar-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg);
+}
+
+.pillar-card .pillar-stem,
+.pillar-card .pillar-branch {
+  font-size: 2rem;
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-sm);
+  min-width: 60px;
+  text-align: center;
+}
+
+.pillar-card .pillar-stem {
+  background: var(--primary-color);
+  color: var(--text-inverse);
+}
+
+.pillar-card .pillar-branch {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 2px solid var(--primary-color);
+}
+
+.pillar-card-content {
+  padding: var(--space-lg);
+}
+
+.pillar-god-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+}
+
+.god-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.god-value {
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pillar-elements-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.element-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+}
+
+.element-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.pillar-elements-mobile .stem-element,
+.pillar-elements-mobile .branch-element {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-xs);
+  min-width: 40px;
+  text-align: center;
+}
+
 /* 響應式設計 */
 @media (max-width: 768px) {
-  .pillars-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+  /* 隱藏桌面布局，顯示手機布局 */
+  .desktop-layout {
+    display: none;
+  }
+  
+  .mobile-layout {
+    display: flex;
   }
   
   .chart-content {
-    padding: 20px;
+    padding: var(--space-lg);
+  }
+  
+  .chart-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .fixed-mode-indicator {
+    justify-content: center;
+  }
+  
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 12px;
+  }
+  
+  .chart-header h3 {
+    font-size: 1.2rem;
   }
   
   .elements-section, .ten-gods-section, .luck-section {
-    padding: 20px;
+    padding: var(--space-lg);
   }
   
   .ten-gods-grid, .luck-details {
     grid-template-columns: 1fr;
+    gap: var(--space-md);
   }
   
   .chart-actions {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--space-md);
+  }
+  
+  .export-button,
+  .chart-actions button {
+    min-height: 48px;
+    font-size: var(--font-size-base);
   }
 }
 
 @media (max-width: 480px) {
-  .pillars-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .pillar-stem, .pillar-branch {
-    font-size: 1.5rem;
-  }
-  
   .chart-content {
-    padding: 15px;
+    padding: var(--space-md);
+  }
+  
+  .pillar-card-header {
+    padding: var(--space-md);
+  }
+  
+  .pillar-card-content {
+    padding: var(--space-md);
+  }
+  
+  .pillar-main {
+    gap: var(--space-md);
+  }
+  
+  .pillar-card .pillar-stem,
+  .pillar-card .pillar-branch {
+    font-size: 1.5rem;
+    min-width: 50px;
+    padding: var(--space-sm) var(--space-md);
+  }
+  
+  .pillar-name {
+    font-size: var(--font-size-base);
   }
 }
 </style>

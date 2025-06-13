@@ -3,7 +3,7 @@
     <div class="global-display-panel" :class="{ 'collapsed': isCollapsed }" 
       :aria-label="isCollapsed ? $t('display.tooltips.panelCollapsed') || '點擊展開全域顯示設定' : $t('display.tooltips.panelExpanded') || '全域顯示設定面板'"
       :title="isCollapsed ? $t('display.tooltips.collapsedHint') || '點擊展開全域顯示設定\n快速調整命理模組顯示深度' : ''">
-      <div class="panel-content" :style="{ background: moduleColors[activeModule] }">
+      <div class="panel-content" :style="{ background: moduleColors[props.activeModule] }">
         <div class="panel-header">
           <h3 v-if="!isCollapsed">{{ $t('display.globalSettings') || '顯示設定' }}</h3>
           <button @click="toggleCollapse" class="collapse-button" 
@@ -22,8 +22,8 @@
               :key="module"
               @click="setActiveModule(module)"
               class="module-button"
-              :class="{ active: activeModule === module }"
-              :style="{ backgroundColor: activeModule === module ? color : 'transparent', borderColor: color }"
+              :class="{ active: props.activeModule === module }"
+              :style="{ backgroundColor: props.activeModule === module ? color : 'transparent', borderColor: color }"
               :title="$t('display.tooltips.selectModule') || '選擇模組：切換命理分析類型'"
               :aria-label="`${$t('display.tooltips.selectModule') || '選擇模組'}: ${getModuleLabel(module)}`"
             >
@@ -40,7 +40,7 @@
                 @click="setDisplayDepth(depth)"
                 class="depth-button"
                 :class="{ 
-                  active: getModuleDepth(activeModule) === depth,
+                  active: getModuleDepth(props.activeModule) === depth,
                   'depth-minimal': depth === 'minimal',
                   'depth-compact': depth === 'compact',
                   'depth-standard': depth === 'standard',
@@ -55,7 +55,7 @@
           </div>
           
           <div class="depth-description">
-            {{ $t(`display.displayDepthDesc.${getModuleDepth(activeModule)}`) || getDefaultDescription(getModuleDepth(activeModule)) }}
+            {{ $t(`display.displayDepthDesc.${getModuleDepth(props.activeModule)}`) || getDefaultDescription(getModuleDepth(props.activeModule)) }}
           </div>
         </div>
       </div>
@@ -72,6 +72,18 @@ type ModuleType = 'purpleStar' | 'bazi' | 'transformationStars' | 'integrated';
 
 // 預設深度設定
 const defaultDepth: DisplayMode = 'standard';
+
+// Props 定義
+const props = defineProps<{
+  activeModule: ModuleType;
+  moduleDepths: Record<ModuleType, DisplayMode>;
+}>();
+
+// 事件定義
+const emit = defineEmits<{
+  'update:activeModule': [module: ModuleType];
+  'update:displayDepth': [depth: DisplayMode];
+}>();
 
 // 模組顏色映射 (無障礙色彩方案)
 const moduleColors = {
@@ -97,26 +109,19 @@ const moduleTextColors = {
   integrated: '#FFFFFF'   // 白色
 };
 
-// 響應式狀態
+// 響應式狀態（僅保留面板收縮狀態）
 const isCollapsed = ref(true);
-const activeModule = ref<ModuleType>('purpleStar');
-const moduleDepths = ref<Record<ModuleType, DisplayMode>>({
-  purpleStar: defaultDepth,
-  bazi: defaultDepth,
-  transformationStars: defaultDepth,
-  integrated: defaultDepth
-});
 
 // 可用的顯示深度選項
 const availableDepths: DisplayMode[] = ['minimal', 'compact', 'standard', 'comprehensive'];
 
 // 計算當前模組的顯示深度
 const getModuleDepth = (module: ModuleType): DisplayMode => {
-  return moduleDepths.value[module] || defaultDepth;
+  return props.moduleDepths[module] || defaultDepth;
 };
 
 // 提供給外部的顯示深度
-const displayDepth = computed(() => getModuleDepth(activeModule.value));
+const displayDepth = computed(() => getModuleDepth(props.activeModule));
 
 // 方法: 切換收起/展開
 const toggleCollapse = () => {
@@ -136,13 +141,8 @@ const toggleCollapse = () => {
 
 // 方法: 設置當前模組
 const setActiveModule = (module: ModuleType) => {
-  activeModule.value = module;
-  
-  // 從 sessionStorage 讀取深度設定
-  const savedDepth = sessionStorage.getItem(`${module}-display-depth`);
-  if (savedDepth && availableDepths.includes(savedDepth as DisplayMode)) {
-    moduleDepths.value[module] = savedDepth as DisplayMode;
-  }
+  // 觸發事件通知父組件
+  emit('update:activeModule', module);
   
   // 觸發動畫效果
   const buttons = document.querySelectorAll('.module-button');
@@ -155,7 +155,7 @@ const setActiveModule = (module: ModuleType) => {
     activeButton.classList.add('rotate-animation');
   }
   
-  // 無障礙宣告 - 通知螢幕閱讀器
+  // 優化的無障礙宣告 - 僅在存在無障礙元素時通知
   const announcement = document.getElementById('a11y-announcement');
   if (announcement) {
     announcement.textContent = `已選擇${getModuleLabel(module)}模組`;
@@ -164,28 +164,10 @@ const setActiveModule = (module: ModuleType) => {
 
 // 方法: 設置顯示深度
 const setDisplayDepth = (depth: DisplayMode) => {
-  moduleDepths.value[activeModule.value] = depth;
+  // 觸發事件通知父組件
+  emit('update:displayDepth', depth);
   
-  // 保存到 sessionStorage
-  try {
-    sessionStorage.setItem(`${activeModule.value}-display-depth`, depth);
-    
-    // 觸發自定義事件，通知其他組件顯示深度已更改
-    const event = new CustomEvent('display-depth-changed', { 
-      detail: { module: activeModule.value, depth } 
-    });
-    window.dispatchEvent(event);
-    
-    // 額外發送 module-changed 事件以確保兼容性和同步
-    const compatEvent = new CustomEvent('module-changed', { 
-      detail: { module: activeModule.value, depth } 
-    });
-    window.dispatchEvent(compatEvent);
-    
-    console.log(`更新${getModuleLabel(activeModule.value)}的顯示深度為: ${depth}`);
-  } catch (error) {
-    console.warn('無法保存顯示深度設定:', error);
-  }
+  console.log(`全域面板：請求更新${getModuleLabel(props.activeModule)}的顯示深度為: ${depth}`);
   
   // 播放按鈕動畫
   const depthButton = document.querySelector(`.depth-button.active`);
@@ -227,40 +209,34 @@ const getDefaultDescription = (depth: string): string => {
     'minimal': '最簡潔的命盤展示，僅呈現基本框架',
     'compact': '顯示主要星曜和基本效應，快速了解命盤特點',
     'standard': '完整展示星曜信息和效應，深入解析命盤結構',
-    'comprehensive': '全面詳盡的命盤分析，包含所有星曜、組合和多層次能量疊加'
+    'comprehensive': '全面詳盡的命盤分析'
   };
   
   return descriptions[depth] || '';
 };
 
-// 監聽路由變化
+// 組件掛載時初始化
 onMounted(() => {
-  // 初始化: 從 sessionStorage 讀取各模組的顯示深度設定
-  Object.keys(moduleDepths.value).forEach(module => {
-    const moduleType = module as ModuleType;
-    const savedDepth = sessionStorage.getItem(`${moduleType}-display-depth`);
-    if (savedDepth && availableDepths.includes(savedDepth as DisplayMode)) {
-      moduleDepths.value[moduleType] = savedDepth as DisplayMode;
-    }
-  });
+  // 無障礙宣告功能改為完全按需啟用
+  // 用戶可以透過 sessionStorage.setItem('enable-accessibility-announcements', 'true') 來啟用
+  const enableA11yAnnouncements = sessionStorage.getItem('enable-accessibility-announcements') === 'true';
   
-  // 監聽自定義事件，接收組件發出的顯示模式變更通知
-  window.addEventListener('module-changed', ((event: CustomEvent) => {
-    if (event.detail && event.detail.module) {
-      setActiveModule(event.detail.module);
-    }
-  }) as EventListener);
-  
-  // 添加無障礙宣告區域
-  const announcement = document.createElement('div');
-  announcement.id = 'a11y-announcement';
-  announcement.setAttribute('role', 'status');
-  announcement.setAttribute('aria-live', 'polite');
-  announcement.className = 'sr-only';
-  document.body.appendChild(announcement);
+  if (enableA11yAnnouncements) {
+    const announcement = document.createElement('div');
+    announcement.id = 'a11y-announcement';
+    announcement.setAttribute('role', 'status');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.className = 'sr-only';
+    document.body.appendChild(announcement);
+  }
   
   // 添加鍵盤事件處理
   document.addEventListener('keydown', handleKeyboardNavigation);
+  
+  console.log('GlobalDisplayModePanel 初始化，當前狀態:', {
+    activeModule: props.activeModule,
+    moduleDepths: props.moduleDepths
+  });
 });
 
 // 鍵盤無障礙導航

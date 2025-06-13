@@ -242,8 +242,8 @@ function updateResultsDisplayBasedOnLibStatus() {
 }
 
 onMounted(() => {
-  let storedUserId = localStorage.getItem(USER_ID_KEY);
-  if (!storedUserId) { storedUserId = crypto.randomUUID(); localStorage.setItem(USER_ID_KEY, storedUserId); }
+  let storedUserId = sessionStorage.getItem(USER_ID_KEY);
+  if (!storedUserId) { storedUserId = crypto.randomUUID(); sessionStorage.setItem(USER_ID_KEY, storedUserId); }
   userId.value = storedUserId;
   if (typeof window.Lunar === 'object' && typeof window.Solar === 'object') { checkCalendarLibrary(); } 
   else {
@@ -261,15 +261,15 @@ const clearTimers = () => {
 };
 onUnmounted(() => clearTimers());
 
-const saveFormState = () => { try { localStorage.setItem(FORM_STATE_KEY, JSON.stringify(formState)); } catch (error) { console.error('保存表單狀態失敗:', error); }};
+const saveFormState = () => { try { sessionStorage.setItem(FORM_STATE_KEY, JSON.stringify(formState)); } catch (error) { console.error('保存表單狀態失敗:', error); }};
 const loadFormState = () => {
   try {
-    const savedData = localStorage.getItem(FORM_STATE_KEY);
+    const savedData = sessionStorage.getItem(FORM_STATE_KEY);
     if (savedData) {
       const parsedData = JSON.parse(savedData);
       Object.keys(parsedData).forEach(key => { if (key in formState) { (formState as any)[key] = parsedData[key]; }});
     }
-  } catch (error) { console.error('恢復表單狀態失敗:', error); localStorage.removeItem(FORM_STATE_KEY); }
+  } catch (error) { console.error('恢復表單狀態失敗:', error); sessionStorage.removeItem(FORM_STATE_KEY); }
 };
 watch(formState, saveFormState, { deep: true });
 
@@ -407,8 +407,8 @@ const handleSubmit = async () => {
   if (formState.minute === null || formState.minute < 0 || formState.minute > 59) { alert('請輸入有效的分鐘 (0-59)。'); return; }
   if (!activeCalendarLib.value) { alert('核心日曆庫未加載，無法提交。'); return; }
   if (!userId.value) {
-    let storedUserId = localStorage.getItem(USER_ID_KEY);
-    if (!storedUserId) { storedUserId = crypto.randomUUID(); localStorage.setItem(USER_ID_KEY, storedUserId); }
+    let storedUserId = sessionStorage.getItem(USER_ID_KEY);
+    if (!storedUserId) { storedUserId = crypto.randomUUID(); sessionStorage.setItem(USER_ID_KEY, storedUserId); }
     userId.value = storedUserId;
     if (!userId.value) { alert('無法獲取 UserID，請稍後再試。'); return; }
   }
@@ -467,7 +467,7 @@ const resetForm = () => {
   parsedElementsDistributionResult.value = null; parsedStartLuckResult.value = null;
   yearlyFateInput.value = null; parsedYearlyInteractionResult.value = null; selectedYearFromTimeline.value = null;
   baziDisplayResult.value = ''; tenGodsDisplayResult.value = ''; elementsDistributionDisplayResult.value = ''; startLuckDisplayResult.value = ''; 
-  try { localStorage.removeItem(FORM_STATE_KEY); } catch (error) { console.error('清除表單狀態失敗:', error); }
+  try { sessionStorage.removeItem(FORM_STATE_KEY); } catch (error) { console.error('清除表單狀態失敗:', error); }
 };
 </script>
 

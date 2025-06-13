@@ -8,7 +8,7 @@
                 "task-master-ai"
             ],
             "env": {
-                "ANTHROPIC_API_KEY": "ANTHROPIC_API_KEY_HERE",
+                "ANTHROPIC_API_KEY": "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",
                 "PERPLEXITY_API_KEY": "PERPLEXITY_API_KEY_HERE",
                 "OPENAI_API_KEY": "OPENAI_API_KEY_HERE",
                 "GOOGLE_API_KEY": "GOOGLE_API_KEY_HERE",

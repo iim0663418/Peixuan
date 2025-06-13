@@ -17,10 +17,19 @@ const globalModes = ref<Record<string, DisplayMode>>({
  * @returns 顯示模式相關的狀態和方法
  */
 export function useDisplayMode(componentName: string) {
+  // 內部更新標誌，防止循環觸發
+  let isUpdatingFromEvent = false;
+
   // 計算屬性，獲取和設置特定元件的顯示模式
   const displayMode = computed({
     get: () => globalModes.value[componentName] || 'standard',
     set: (newMode: DisplayMode) => {
+      // 如果正在從事件更新，避免再次觸發事件
+      if (isUpdatingFromEvent) {
+        globalModes.value[componentName] = newMode;
+        return;
+      }
+      
       globalModes.value[componentName] = newMode;
       
       // 持久化存儲邏輯，保存到 sessionStorage
@@ -97,17 +106,42 @@ export function useDisplayMode(componentName: string) {
   
   // 監聽顯示深度變更事件
   const handleDisplayDepthChanged = (event: CustomEvent) => {
-    if (event.detail && event.detail.module === componentName) {
+    if (event.detail && event.detail.module === componentName && event.detail.depth !== globalModes.value[componentName]) {
+      isUpdatingFromEvent = true;
       globalModes.value[componentName] = event.detail.depth;
+      // 同步保存到 sessionStorage
+      try {
+        sessionStorage.setItem(`${componentName}-display-depth`, event.detail.depth);
+      } catch (e) {
+        console.error('無法保存顯示深度設定到 sessionStorage:', e);
+      }
+      isUpdatingFromEvent = false;
     }
   };
   
+  // 監聽 module-changed 事件（來自 GlobalDisplayModePanel）
+  const handleModuleChanged = (event: CustomEvent) => {
+    if (event.detail && event.detail.module === componentName && event.detail.depth !== globalModes.value[componentName]) {
+      isUpdatingFromEvent = true;
+      globalModes.value[componentName] = event.detail.depth;
+      // 同步保存到 sessionStorage
+      try {
+        sessionStorage.setItem(`${componentName}-display-depth`, event.detail.depth);
+      } catch (e) {
+        console.error('無法保存顯示深度設定到 sessionStorage:', e);
+      }
+      isUpdatingFromEvent = false;
+    }
+  };
+
   onMounted(() => {
     window.addEventListener('display-depth-changed', handleDisplayDepthChanged as EventListener);
+    window.addEventListener('module-changed', handleModuleChanged as EventListener);
   });
   
   onBeforeUnmount(() => {
     window.removeEventListener('display-depth-changed', handleDisplayDepthChanged as EventListener);
+    window.removeEventListener('module-changed', handleModuleChanged as EventListener);
   });
 
   return {

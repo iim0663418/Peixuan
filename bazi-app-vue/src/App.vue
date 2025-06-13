@@ -1,17 +1,42 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, provide, readonly } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import LanguageSelector from '@/components/LanguageSelector.vue';
-import GlobalDisplayModePanel from '@/components/GlobalDisplayModePanel.vue';
+// import GlobalDisplayModePanel from '@/components/GlobalDisplayModePanel.vue'; // 已簡化，使用各模組獨立分層控制
+import type { DisplayMode } from '@/types/displayModes';
+
+// 模組類型定義
+type ModuleType = 'purpleStar' | 'bazi' | 'transformationStars' | 'integrated';
 
 const { t } = useI18n();
 const route = useRoute();
 const showMobileMenu = ref(false);
 
+// 簡化狀態管理 - 只保留基本狀態追蹤
+const activeModule = ref<ModuleType>('purpleStar');
+// 模組深度由各組件自行管理，不再需要全域狀態
+
+// 簡化方法：只追蹤當前模組
+const setActiveModule = (module: ModuleType) => {
+  activeModule.value = module;
+  console.log(`當前模組切換為: ${module}`);
+};
+
+// 簡化提供狀態 - 只提供模組追蹤
+provide('globalDisplayState', {
+  activeModule: readonly(activeModule),
+  setActiveModule
+});
+
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value;
 };
+
+// 簡化初始化
+onMounted(() => {
+  console.log('應用初始化完成 - 使用獨立分層控制系統');
+});
 </script>
 
 <template>
@@ -97,8 +122,7 @@ const toggleMobileMenu = () => {
     
     <main>
       <router-view />
-      <!-- 全域顯示深度控制面板 -->
-      <GlobalDisplayModePanel />
+      <!-- 已簡化：使用各模組獨立的分層控制器 -->
     </main>
     
     <footer class="app-footer">

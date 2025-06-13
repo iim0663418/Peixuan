@@ -31,15 +31,6 @@
       <!-- 命盤資訊標題 -->
       <div class="chart-header">
         <h2>{{ $t('purpleStarChart.title') }}</h2>
-        <div class="chart-info">
-          <div class="chart-controls">
-            <DisplayDepthContainer
-              v-model="displayDepth"
-              :available-depths="availableDisplayDepths"
-              module-type="purpleStar"
-            />
-          </div>
-        </div>
       </div>
       
       <!-- 簡要解讀區域 -->
@@ -451,7 +442,6 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDisplayMode } from '@/composables/useDisplayMode';
-import DisplayDepthContainer from '@/components/DisplayDepthContainer.vue';
 import type { DisplayMode } from '@/types/displayModes';
 import type { 
   PurpleStarChart, 
@@ -523,12 +513,13 @@ const setDisplayDepth = (depth: DisplayMode) => {
   // 發送事件通知父組件顯示深度已變更
   emit('update:displayDepth', depth);
   
-  // 保存顯示深度設定到 localStorage
+  // 保存顯示深度設定到 sessionStorage
   try {
-    localStorage.setItem('purple-star-display-depth', depth);
+    sessionStorage.setItem('purple-star-display-depth', depth);
   } catch (error) {
     console.warn('無法保存顯示深度設定:', error);
   }
+  
   
   // 根據深度應用不同的顯示效果
   setTimeout(() => {
@@ -797,7 +788,7 @@ const getMingPalaceName = (): string => {
   }
   
   const mingPalace = props.chartData.palaces[props.chartData.mingPalaceIndex];
-  return mingPalace?.zhi || '';
+  return mingPalace?.name || '';
 };
 
 const getShenPalaceName = (): string => {
@@ -811,7 +802,7 @@ const getShenPalaceName = (): string => {
   }
   
   const shenPalace = props.chartData.palaces[props.chartData.shenPalaceIndex];
-  return shenPalace?.zhi || '';
+  return shenPalace?.name || '';
 };
 
 const getDaXianInfo = (zhiName: string): DaXianInfo | undefined => {
@@ -1004,7 +995,7 @@ const getFortuneDisplayName = (fortune: string): string => {
 onMounted(() => {
   // 設置初始顯示深度
   try {
-    const savedDepth = localStorage.getItem('purple-star-display-depth');
+    const savedDepth = sessionStorage.getItem('purple-star-display-depth');
     if (savedDepth && availableDisplayDepths.includes(savedDepth as DisplayMode)) {
       displayDepth.value = savedDepth as DisplayMode;
       // 應用顯示深度效果
@@ -1091,33 +1082,20 @@ watch(() => props.chartData, (newData) => {
 
 /* 圖表標題區域 */
 .chart-header {
-  margin-bottom: 20px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.chart-header h2 {
-  margin: 0 0 15px 0;
-  color: #2c3e50;
-}
-
-.chart-info {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
   gap: 20px;
 }
-/*
-.birth-info p {
-  margin: 5px 0;
-  color: #555;
-}
-*/
-.chart-controls {
-  display: flex;
-  gap: 10px;
+
+.chart-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  flex: 1;
 }
 
 .view-toggle-button, .export-button {
@@ -1200,14 +1178,15 @@ watch(() => props.chartData, (newData) => {
 }
 
 @media (max-width: 768px) {
-  .display-depth-tabs {
+  .chart-header {
     flex-direction: column;
-    width: 100%;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 12px;
   }
   
-  .depth-tab-button {
-    width: 100%;
-    text-align: center;
+  .chart-header h2 {
+    font-size: 1.2rem;
   }
 }
 

@@ -2,13 +2,36 @@
   <div class="transformation-stars-display" :class="{ 'animation-active': isAnimationActive }">
     <div class="display-header">
       <h3>四化飛星</h3>
-      <DisplayDepthContainer
+      
+      <!-- 同步狀態顯示 -->
+      <div class="sync-status" v-if="enableSharedReading">
+        <el-tag 
+          type="success" 
+          size="small"
+          effect="plain"
+        >
+          <el-icon><Connection /></el-icon>
+          同步中
+        </el-tag>
+        <span class="sync-description">
+          跟隨紫微斗數層級: {{ currentSyncLevel }}
+        </span>
+      </div>
+      
+      <!-- 四化飛星分層控制器（如果未啟用同步） -->
+      <UnifiedLayeredController
+        v-if="!enableSharedReading"
+        :module-type="'transformationStars'"
+        :layered-data="layeredData"
+        :data-completeness="dataCompleteness"
+        :enable-sync="false"
+        :is-mobile="isMobile"
+        :is-compact="true"
+        :show-toolbar="false"
         v-model="displayMode"
-        :available-depths="availableDisplayDepths"
-        :show-animation="true"
-        :is-animation-active="isAnimationActive"
-        module-type="transformationStars"
+        @level-changed="handleLevelChanged"
         @toggle-animation="toggleAnimation"
+        class="transformation-controller"
       />
     </div>
 
@@ -103,7 +126,7 @@
         >
           <div class="combo-header">
             <span class="combo-name">{{ combo.combination }}</span>
-            <span class="combo-location">{{ combo.palaceName }}宮</span>
+            <span class="combo-location">{{ combo.palaceName }}</span>
           </div>
           <div class="combo-effect">{{ combo.effect }}</div>
         </div>
@@ -208,13 +231,24 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { Connection } from '@element-plus/icons-vue';
 import type { PurpleStarChart, Palace, Star } from '@/types/astrologyTypes';
 import { useDisplayMode } from '@/composables/useDisplayMode';
+import { useSharedLayeredReading } from '@/composables/useSharedLayeredReading';
 import type { DisplayMode, DisplayModeProps, DisplayModeEmits } from '@/types/displayModes';
-import DisplayDepthContainer from '@/components/DisplayDepthContainer.vue';
+import type { ReadingLevel } from '@/types/layeredReading';
+import UnifiedLayeredController from '@/components/UnifiedLayeredController.vue';
 
-// 使用顯示模式 composable
-const { displayMode, mapDepthToMode } = useDisplayMode('transformationStars');
+// 是否啟用共享分層閱讀
+const enableSharedReading = ref(true);
+
+// 使用共享分層閱讀系統（如果啟用）
+const sharedLayeredReading = enableSharedReading.value 
+  ? useSharedLayeredReading('transformationStars')
+  : null;
+
+// 使用傳統顯示模式 composable（作為後備）
+const { displayMode: localDisplayMode, mapDepthToMode } = useDisplayMode('transformationStars');
 
 // Vue 3 宏不需要顯式導入，但在這裡需要定義
 const emit = defineEmits<DisplayModeEmits>();
@@ -261,12 +295,102 @@ const isAnimationActive = ref(false);
 const isDetailView = ref(true);
 const selectedLayer = ref<'base' | 'daXian' | 'liuNian' | 'total'>('total');
 const animationInterval = ref<number | null>(null);
-const availableDisplayDepths: DisplayMode[] = ['minimal', 'compact', 'standard', 'comprehensive'];
 
-// 同步本地顯示模式與 props 顯示模式
+// 新增移動端檢測和數據相關屬性
+const isMobile = ref(window.innerWidth <= 768);
+const layeredData = computed(() => null); // 待實現分層數據
+const dataCompleteness = computed(() => {
+  let score = 0;
+  if (!props.chartData) return 0;
+
+  // 核心數據：命宮天干是計算四化的基礎
+  if (props.mingGan && props.mingGan.length > 0) {
+    score += 40;
+  }
+
+  // 核心數據：命盤宮位和星曜資訊
+  const hasTransformedStars = props.chartData.palaces?.some(p => p.stars.some(s => s.transformations && s.transformations.length > 0));
+  if (hasTransformedStars) {
+    score += 30;
+  }
+
+  // 輔助數據：特殊組合，用於深度分析
+  if (props.transformationCombinations && props.transformationCombinations.length > 0) {
+    score += 15;
+  }
+
+  // 輔助數據：多層次能量，用於深度分析
+  if (props.multiLayerEnergies && Object.keys(props.multiLayerEnergies).length > 0) {
+    score += 15;
+  }
+  
+  return Math.min(score, 100); // 確保最高為 100
+}); // 四化飛星數據完整度
+
+// 處理層級變化
+const handleLevelChanged = (level: any) => {
+  console.log('四化飛星層級變化:', level);
+  // TODO: 實現層級變化邏輯
+};
+
+// 計算當前層級標籤
+const currentSyncLevel = computed(() => {
+  if (enableSharedReading.value && sharedLayeredReading?.effectiveReadingLevel) {
+    const levelLabels: Record<ReadingLevel, string> = {
+      'summary': '簡要',
+      'compact': '精簡',
+      'standard': '標準',
+      'deep': '深度'
+    };
+    return levelLabels[sharedLayeredReading.effectiveReadingLevel.value] || '標準';
+  }
+  return '標準';
+});
+
+// 映射表定義（在外部定義以供重複使用）
+const levelToModeMap: Record<ReadingLevel, DisplayMode> = {
+  'summary': 'minimal',
+  'compact': 'compact', 
+  'standard': 'standard',
+  'deep': 'comprehensive'
+};
+
+// 計算顯示模式
+const displayMode = computed({
+  get: () => {
+    if (enableSharedReading.value && sharedLayeredReading?.effectiveReadingLevel) {
+      // 將 ReadingLevel 映射到 DisplayMode
+      return levelToModeMap[sharedLayeredReading.effectiveReadingLevel.value] || 'standard';
+    }
+    
+    // 後備方案：使用 props 或本地狀態
+    return props.displayMode || localDisplayMode.value;
+  },
+  set: (newMode: DisplayMode) => {
+    if (!enableSharedReading.value) {
+      localDisplayMode.value = newMode;
+      emit('update:displayMode', newMode);
+    }
+    // 如果啟用同步，則忽略設置（由紫微斗數控制）
+  }
+});
+
+// 監聽紫微斗數層級變化（如果啟用同步）
+if (enableSharedReading.value && sharedLayeredReading?.effectiveReadingLevel) {
+  watch(sharedLayeredReading.effectiveReadingLevel, (newLevel) => {
+    if (newLevel) {
+      console.log(`四化飛星同步新層級: ${newLevel}`);
+      // 強制更新詳細視圖狀態
+      const newMode = levelToModeMap[newLevel] || 'standard';
+      isDetailView.value = newMode === 'standard' || newMode === 'comprehensive';
+    }
+  }, { immediate: true });
+}
+
+// 傳統同步方式（為了向下相容）
 watch(() => props.displayMode, (newMode) => {
-  if (newMode) {
-    displayMode.value = newMode;
+  if (newMode && !enableSharedReading.value) {
+    localDisplayMode.value = newMode;
     console.log('TransformationStarsDisplay: props displayMode 已同步', newMode);
   }
 }, { immediate: true });
@@ -281,25 +405,15 @@ watch(displayMode, (newMode) => {
   
   // 將顯示模式變更記錄到控制台並向上傳遞更新
   console.log('四化飛星顯示模式已更新:', newMode, '詳細視圖:', isDetailView.value);
-  emit('update:displayMode', newMode);
+  
+  // 只有在未啟用共享分層時才發送更新事件
+  if (!enableSharedReading.value) {
+    emit('update:displayMode', newMode);
+  }
 }, { immediate: true });
 
 // 處理事件監聽
-const handleDisplayDepthChanged = (event: CustomEvent) => {
-  if (event.detail && event.detail.module === 'transformationStars') {
-    console.log('TransformationStarsDisplay: 接收到 display-depth-changed 事件', event.detail.depth);
-    displayMode.value = event.detail.depth;
-    emit('update:displayMode', event.detail.depth);
-  }
-};
-
-const handleModuleChanged = (event: CustomEvent) => {
-  if (event.detail && event.detail.module === 'transformationStars') {
-    console.log('TransformationStarsDisplay: 接收到 module-changed 事件', event.detail.depth);
-    displayMode.value = event.detail.depth;
-    emit('update:displayMode', event.detail.depth);
-  }
-};
+// 移除重複的事件處理，useDisplayMode 已經處理了這些邏輯
 
 // 計算屬性
 const transformedStars = computed(() => {
@@ -327,28 +441,12 @@ const hasMultiLayerData = computed(() => {
   return Object.keys(props.multiLayerEnergies || {}).length > 0;
 });
 
-// 顯示深度相關方法
-const setDisplayDepth = (depth: string) => {
-  // 使用 mapDepthToMode 輔助函數獲取正確的模式
-  const newMode = mapDepthToMode(depth);
-  
-  // 直接設置顯示模式，watch 會處理後續的事件發射
-  displayMode.value = newMode;
-  console.log('四化飛星設置顯示深度:', newMode);
-};
-
-const getDisplayDepthDescription = (mode: string | undefined): string => {
-  if (!mode) return '';
-  
-  const descriptions: Record<string, string> = {
-    'minimal': '最簡潔的命盤展示，僅呈現基本框架',
-    'compact': '顯示主要星曜和基本四化效應，快速了解命盤特點',
-    'standard': '完整展示星曜信息和四化效應，深入解析命盤結構',
-    'comprehensive': '全面詳盡的命盤分析，包含所有星曜、四化組合和多層次能量疊加'
-  };
-  
-  return descriptions[mode] || '';
-};
+// 顯示深度相關方法（保留供將來使用）
+// const setDisplayDepth = (depth: string) => {
+//   const newMode = mapDepthToMode(depth);
+//   displayMode.value = newMode;
+//   console.log('四化飛星設置顯示深度:', newMode);
+// };
 
 // 動畫控制方法
 const toggleAnimation = () => {
@@ -376,9 +474,9 @@ const toggleAnimation = () => {
   }
 };
 
-const toggleView = () => {
-  isDetailView.value = !isDetailView.value;
-};
+// const toggleView = () => {
+//   isDetailView.value = !isDetailView.value;
+// };
 
 const getPalaceNameByIndex = (index: number): string => {
   const palace = props.chartData.palaces.find(p => p.index === index);
@@ -544,18 +642,29 @@ const getEnergySummary = (): string => {
 
 // 生命週期鉤子
 onMounted(() => {
-  // 設置事件監聽器
-  window.addEventListener('display-depth-changed', handleDisplayDepthChanged as EventListener);
-  window.addEventListener('module-changed', handleModuleChanged as EventListener);
+  console.log('TransformationStarsDisplay: 組件已掛載');
+  console.log('TransformationStarsDisplay: Props數據檢查', {
+    chartData: !!props.chartData,
+    mingGan: props.mingGan,
+    transformationFlows: Object.keys(props.transformationFlows || {}).length,
+    transformationCombinations: (props.transformationCombinations || []).length,
+    multiLayerEnergies: Object.keys(props.multiLayerEnergies || {}).length,
+    displayMode: displayMode.value,
+    enableSharedReading: enableSharedReading.value
+  });
   
-  console.log('TransformationStarsDisplay: 已設置事件監聽器');
+  // 檢查分層系統狀態
+  if (enableSharedReading.value && sharedLayeredReading) {
+    console.log('TransformationStarsDisplay: 共享分層閱讀狀態', {
+      effectiveReadingLevel: sharedLayeredReading.effectiveReadingLevel?.value,
+      isPrimaryModule: sharedLayeredReading.isPrimaryModule?.value,
+      syncStatusDescription: sharedLayeredReading.syncStatusDescription?.value
+    });
+  }
 });
 
-// 組件卸載時移除事件監聽器
+// 組件卸載時清理
 onUnmounted(() => {
-  window.removeEventListener('display-depth-changed', handleDisplayDepthChanged as EventListener);
-  window.removeEventListener('module-changed', handleModuleChanged as EventListener);
-  
   // 確保清除定時器
   if (animationInterval.value) {
     clearInterval(animationInterval.value);
@@ -577,15 +686,18 @@ onUnmounted(() => {
 .display-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  gap: 20px;
 }
 
 .display-header h3 {
   margin: 0;
   color: #333;
+  flex: 1;
 }
 
 .control-buttons {
@@ -1288,6 +1400,17 @@ onUnmounted(() => {
 
   /* 響應式設計 */
 @media (max-width: 768px) {
+  .display-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 12px;
+  }
+  
+  .display-header h3 {
+    font-size: 1.2rem;
+  }
+  
   .table-header, .table-row {
     grid-template-columns: 1fr 1fr;
   }
@@ -1305,6 +1428,42 @@ onUnmounted(() => {
   
   .control-buttons {
     flex-direction: column;
+  }
+}
+
+/* 同步狀態顯示 */
+.sync-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 12px;
+}
+
+.sync-description {
+  font-size: 12px;
+  color: #666;
+  margin-left: 4px;
+}
+
+.display-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .display-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .sync-status {
+    margin-left: 0;
+    justify-content: center;
   }
 }
 </style>

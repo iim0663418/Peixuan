@@ -81,7 +81,7 @@ export const clearAllAstrologyData = (): void => {
 /**
  * 清除特定分析的數據
  */
-export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'integrated' | 'transformationStars'): void => {
+export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'purpleStarAll' | 'integrated' | 'transformationStars'): void => {
   try {
     switch (analysisType) {
       case 'bazi':
@@ -89,6 +89,15 @@ export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'integra
         sessionStorage.removeItem(STORAGE_KEYS.BAZI_BIRTH_INFO);
         break;
       case 'purpleStar':
+        sessionStorage.removeItem(STORAGE_KEYS.PURPLE_STAR_CHART);
+        sessionStorage.removeItem(STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO);
+        // 不清除四化飛星資料，讓它們保持獨立
+        // sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_STARS);
+        // sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_FLOWS);
+        // sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS);
+        break;
+      case 'purpleStarAll':
+        // 清除所有紫微斗數相關資料，包括四化飛星
         sessionStorage.removeItem(STORAGE_KEYS.PURPLE_STAR_CHART);
         sessionStorage.removeItem(STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO);
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_STARS);

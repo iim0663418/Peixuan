@@ -288,7 +288,7 @@ onMounted(() => {
 
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 40px;
   max-width: 1100px;
   margin: 0 auto;
@@ -581,27 +581,87 @@ onMounted(() => {
 }
 
 /* 響應式設計 */
+@media (max-width: 1024px) {
+  .hero-section {
+    padding: 70px 20px;
+  }
+  
+  .services-grid {
+    grid-template-columns: 1fr;
+    max-width: 600px;
+  }
+  
+  .container {
+    padding: 0 15px;
+  }
+  
+  .guide-steps {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+  }
+  
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 35px;
+  }
+}
+
 @media (max-width: 768px) {
+  .hero-section {
+    padding: 60px 15px;
+  }
+  
   .site-title {
     font-size: 2.5rem;
+    line-height: 1.2;
   }
   
   .site-subtitle {
     font-size: 1.1rem;
   }
   
+  .site-description {
+    font-size: 1rem;
+  }
+  
+  .section-title {
+    font-size: 2.2rem;
+    margin-bottom: 35px;
+  }
+  
+  .services-section, .guide-section, .features-section {
+    padding: 60px 0;
+  }
+  
   .services-grid {
     grid-template-columns: 1fr;
     gap: 30px;
+    max-width: 100%;
   }
   
   .service-card {
-    padding: 30px 25px;
+    padding: 25px 20px;
+    margin: 0 10px;
+  }
+  
+  .service-content h3 {
+    font-size: 1.6rem;
+  }
+  
+  .service-description {
+    font-size: 0.95rem;
   }
   
   .service-actions {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
+  }
+  
+  .btn {
+    padding: 14px 20px;
+    font-size: 1rem;
+    min-height: 48px;
   }
   
   .guide-steps {
@@ -609,35 +669,244 @@ onMounted(() => {
     gap: 20px;
   }
   
+  .step-item {
+    padding: 25px 15px;
+  }
+  
+  .step-number {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+  }
+  
   .features-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: 1fr;
     gap: 30px;
   }
   
+  .feature-item {
+    padding: 25px 15px;
+  }
+  
+  .feature-icon {
+    font-size: 2.5rem;
+  }
+  
   .modal-content {
-    margin: 20px;
+    margin: 15px;
+    max-width: calc(100vw - 30px);
   }
   
   .modal-header, .modal-body, .modal-footer {
     padding: 20px;
   }
+  
+  .modal-header h3 {
+    font-size: 1.3rem;
+  }
 }
 
 @media (max-width: 480px) {
   .hero-section {
-    padding: 60px 15px;
+    padding: 50px 10px;
   }
   
   .site-title {
     font-size: 2rem;
+    margin-bottom: 12px;
+  }
+  
+  .site-subtitle {
+    font-size: 1rem;
+    margin-bottom: 15px;
+  }
+  
+  .site-description {
+    font-size: 0.9rem;
+    line-height: 1.6;
   }
   
   .section-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
   }
   
   .services-section, .guide-section, .features-section {
-    padding: 60px 0;
+    padding: 40px 0;
+  }
+  
+  .container {
+    padding: 0 10px;
+  }
+  
+  .service-card {
+    padding: 20px 15px;
+    margin: 0 5px;
+    border-radius: 15px;
+  }
+  
+  .icon-circle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .icon-text {
+    font-size: 1.5rem;
+  }
+  
+  .service-content h3 {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+  }
+  
+  .service-description {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  
+  .feature-tag {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+  }
+  
+  .service-actions {
+    gap: 10px;
+  }
+  
+  .btn {
+    padding: 16px 20px;
+    font-size: 1.1rem;
+    min-height: 52px;
+    border-radius: 12px;
+  }
+  
+  .step-item {
+    padding: 20px 10px;
+  }
+  
+  .step-number {
+    width: 45px;
+    height: 45px;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+  
+  .step-content h4 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+  
+  .step-content p {
+    font-size: 0.9rem;
+  }
+  
+  .feature-item {
+    padding: 20px 10px;
+  }
+  
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
+  
+  .feature-item h4 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+  
+  .feature-item p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  
+  .modal-content {
+    margin: 10px;
+    max-width: calc(100vw - 20px);
+    border-radius: 12px;
+  }
+  
+  .modal-header {
+    padding: 15px;
+  }
+  
+  .modal-header h3 {
+    font-size: 1.2rem;
+  }
+  
+  .modal-body {
+    padding: 15px;
+  }
+  
+  .modal-body h4 {
+    font-size: 1.1rem;
+    margin: 15px 0 8px 0;
+  }
+  
+  .modal-body p {
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+  }
+  
+  .modal-footer {
+    padding: 15px;
+  }
+  
+  .close-btn {
+    width: 25px;
+    height: 25px;
+    font-size: 1.3rem;
+  }
+}
+
+/* 極小螢幕優化 (320px以下) */
+@media (max-width: 320px) {
+  .hero-section {
+    padding: 40px 8px;
+  }
+  
+  .site-title {
+    font-size: 1.8rem;
+  }
+  
+  .site-subtitle {
+    font-size: 0.95rem;
+  }
+  
+  .site-description {
+    font-size: 0.85rem;
+  }
+  
+  .section-title {
+    font-size: 1.6rem;
+  }
+  
+  .service-card {
+    padding: 15px 12px;
+  }
+  
+  .service-content h3 {
+    font-size: 1.3rem;
+  }
+  
+  .btn {
+    font-size: 1rem;
+    padding: 14px 16px;
+  }
+}
+
+/* 橫屏模式優化 */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-section {
+    padding: 30px 20px;
+  }
+  
+  .services-section, .guide-section, .features-section {
+    padding: 40px 0;
+  }
+  
+  .modal-content {
+    max-height: 90vh;
   }
 }
 </style>

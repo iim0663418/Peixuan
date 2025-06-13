@@ -88,7 +88,7 @@ docker-compose logs -f
 
 ## 📊 API 端點
 
-### 多術數交互驗證
+### 命運洞悉
 - `POST /api/v1/astrology/integrated-analysis`
 - `POST /api/v1/astrology/confidence-assessment`
 
@@ -141,7 +141,7 @@ npm run test
 - ⏳ 實現用戶認證系統
 - ⏳ 開發匿名轉會員合併機制
 - ⏳ 設計和實現 RESTful API
-- ⏳ 開發多術數交互驗證功能
+- ⏳ 開發命運洞悉功能
 - ⏳ 實現第三方 API 接入
 - ⏳ 開發用戶數據和歷史查詢功能
 - ⏳ 實現多設備同步功能
@@ -149,7 +149,7 @@ npm run test
 - ⏳ 實現高級用戶權限管理
 - ⏳ 開發分階段 Token 驗證系統
 - ⏳ 實現高級數據合併與衝突處理
-- ⏳ 智能交叉驗證與命運分析容錯機制
+- ⏳ 命運洞悉與命運分析容錯機制
 - ⏳ 紫微斗數計算精化與時間精準度優化
 - ⏳ Redis 分佈式緩存系統配置與部署
 - ⏳ Enhance English Localization for Multi-language Interface

@@ -134,7 +134,6 @@ import { reactive, ref, onMounted, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Connection, Delete } from '@element-plus/icons-vue';
 import IntegratedAnalysisDisplay from '@/components/IntegratedAnalysisDisplay.vue';
-import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
 import AstrologyIntegrationService from '@/services/astrologyIntegrationService';
 import { BirthInfo } from '@/services/astrologyIntegrationService';
 import type { IntegratedAnalysisResponse } from '@/types/astrologyTypes';
@@ -296,28 +295,44 @@ const loadFromSessionStorage = () => {
     
     if (savedAnalysis && analysisState.integratedAnalysis) {
       try {
+        // 驗證數據完整性
+        if (!savedAnalysis.data || typeof savedAnalysis.data !== 'object') {
+          console.warn('保存的分析結果數據格式不正確，將清除');
+          storageService.clearAnalysisData('integrated');
+          return;
+        }
+        
         // 安全地構建符合 IntegratedAnalysisResponse 格式的物件
         const formattedResult = {
           ...savedAnalysis,
           // 確保關鍵字段存在
-          success: true,
-          data: savedAnalysis.data || {},
+          success: savedAnalysis.success !== false,
+          data: {
+            ...savedAnalysis.data,
+            // 確保必要的數據結構存在
+            integratedAnalysis: savedAnalysis.data.integratedAnalysis || {},
+            analysisInfo: savedAnalysis.data.analysisInfo || {
+              calculationTime: new Date().toISOString(),
+              methodsUsed: ['紫微斗數', '四柱八字'],
+              confidence: 0.5
+            }
+          },
           meta: savedAnalysis.meta || {
-            layer: 'frontend',
             userRole: 'user',
             features: ['sessionStorage'],
             sources: ['cache']
           },
-          timestamp: savedAnalysis.timestamp || Date.now()
+          timestamp: savedAnalysis.timestamp || new Date().toISOString()
         } as IntegratedAnalysisResponse;
         
         // 設置分析狀態
         analysisState.integratedAnalysis.value = formattedResult;
         console.log('已從 sessionStorage 載入並格式化分析結果');
         
-        // 如果有已保存的分析結果，自動執行一次分析來更新 UI
-        if (savedBirthInfo) {
-          console.log('準備使用已保存的數據執行分析');
+        // 如果有已保存的分析結果但缺少完整數據，重新分析
+        if (savedBirthInfo && formattedResult.data.integratedAnalysis && 
+            Object.keys(formattedResult.data.integratedAnalysis).length === 0) {
+          console.log('檢測到不完整的分析結果，準備重新分析');
           submitAnalysis(true);
         }
       } catch (parseError) {

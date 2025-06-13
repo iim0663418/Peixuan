@@ -16,7 +16,7 @@
                     @click="toggleIntegratedAnalysis"
                     :loading="integratedAnalysisLoading"
                   >
-                    {{ showIntegratedAnalysis ? '隱藏' : '智能交叉驗證' }}
+                    {{ showIntegratedAnalysis ? '隱藏' : '綜合解讀' }}
                   </el-button>
                   <el-button
                     v-if="purpleStarChart"
@@ -36,7 +36,7 @@
               <el-alert 
                 v-if="purpleStarChart && !showIntegratedAnalysis"
                 title="💡 提示"
-                description="您可以點擊右上角「智能交叉驗證」來獲得八字與紫微斗數的多維度洞察分析"
+                description="您可以點擊右上角「綜合解讀」來獲得八字與紫微斗數的全面人生解讀"
                 type="info"
                 :closable="false"
                 show-icon
@@ -50,7 +50,7 @@
           </el-card>
         </el-col>
 
-        <el-col :span="12">
+        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
           <el-card shadow="hover">
             <template #header>
               <span>{{ $t('astrology.purple_star_detail.inputSection') }}</span>
@@ -60,13 +60,28 @@
           </el-card>
         </el-col>
 
-        <el-col :span="12">
+        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
           <el-card shadow="hover" v-if="purpleStarChart">
             <template #header>
               <div class="card-header">
                 <span>分析結果</span>
                 
-                <!-- 保留空間用於未來元素 -->
+                <!-- 紫微斗數分層控制器 -->
+                <UnifiedLayeredController
+                  :module-type="'purpleStar'"
+                  :layered-data="layeredData"
+                  :data-completeness="dataCompleteness"
+                  :enable-sync="true"
+                  :is-mobile="isMobile"
+                  :is-compact="true"
+                  :show-toolbar="false"
+                  :model-value="displayMode"
+                  @level-changed="handleLevelChanged"
+                  @update:model-value="handleDisplayModeUpdate"
+                  class="purple-star-controller"
+
+                  :ignore-data-completeness="true" 
+                />
               </div>
             </template>
             
@@ -80,7 +95,7 @@
             
             <!-- 四化飛星顯示組件 -->
             <TransformationStarsDisplay
-              v-if="displayMode !== 'minimal' && Object.keys(transformationFlows).length > 0"
+              v-if="Object.keys(transformationFlows).length > 0"
               :chartData="purpleStarChart"
               :mingGan="purpleStarChart.mingGan || ''"
               :displayMode="displayMode"
@@ -88,6 +103,16 @@
               :transformationCombinations="transformationCombinations || []"
               :multiLayerEnergies="multiLayerEnergies"
               @update:displayMode="changeDisplayMode"
+              class="mt-4"
+            />
+            
+            <!-- 四化飛星數據缺失提示 -->
+            <el-alert
+              v-else-if="displayMode !== 'minimal' && Object.keys(transformationFlows).length === 0 && purpleStarChart"
+              title="四化飛星數據缺失"
+              :description="`當前命盤缺少四化飛星數據。命宮天干：${purpleStarChart.mingGan || '未知'}，請檢查API響應是否包含四化數據。`"
+              type="warning"
+              :closable="false"
               class="mt-4"
             />
           </el-card>
@@ -104,7 +129,7 @@
       </el-row>
     </div>
 
-    <!-- 智能交叉驗證側邊欄 -->
+    <!-- 綜合人生解讀側邊欄 -->
     <el-drawer
       v-model="showIntegratedAnalysis"
       :title="integratedAnalysisTitle"
@@ -116,24 +141,24 @@
         <div v-if="!integratedAnalysisResult && !integratedAnalysisLoading" class="analysis-intro">
           <div class="intro-header">
             <el-icon :size="48" color="#409EFF"><TrendCharts /></el-icon>
-            <h3>多維度命運洞察</h3>
+            <h3>綜合人生解讀</h3>
           </div>
           
           <div class="intro-content">
-            <p>結合八字與紫微斗數的雙重驗證，為您提供更加準確和全面的命理分析。</p>
+            <p>整合八字與紫微斗數的傳統智慧，為您提供更加全面和深入的人生解讀。</p>
             
             <div class="features-grid">
               <div class="feature-item">
                 <el-icon color="#67C23A"><Check /></el-icon>
-                <span>交叉驗證準確性</span>
+                <span>多角度全面分析</span>
               </div>
               <div class="feature-item">
                 <el-icon color="#E6A23C"><Warning /></el-icon>
-                <span>矛盾點分析</span>
+                <span>深層特質解析</span>
               </div>
               <div class="feature-item">
                 <el-icon color="#409EFF"><DataAnalysis /></el-icon>
-                <span>信心度評分</span>
+                <span>解讀完整度</span>
               </div>
               <div class="feature-item">
                 <el-icon color="#F56C6C"><Bell /></el-icon>
@@ -148,27 +173,28 @@
               :loading="integratedAnalysisLoading"
               class="start-analysis-btn"
             >
-              開始智能分析
+              開始綜合解讀
             </el-button>
           </div>
         </div>
 
         <div v-else-if="integratedAnalysisLoading" class="analysis-loading">
           <el-icon :size="60" class="is-loading"><Loading /></el-icon>
-          <h3>正在進行多術數交叉驗證...</h3>
-          <p>系統正在同時計算八字與紫微斗數，並進行智能比對分析</p>
+          <h3>正在進行綜合人生解讀...</h3>
+          <p>系統正在整合八字與紫微斗數，為您準備全面的人生解讀</p>
           <el-progress :percentage="loadingProgress" :show-text="false" />
           <p class="loading-step">{{ currentLoadingStep }}</p>
         </div>
 
         <div v-else-if="integratedAnalysisResult" class="analysis-results">
+          <!-- 綜合分析顯示 -->
           <IntegratedAnalysisDisplay 
             :integratedAnalysis="integratedAnalysisResult"
             :loading="false"
             :error="integratedAnalysisError"
           />
           
-          <!-- 額外的操作按鈕 -->
+          <!-- 操作按鈕 -->
           <div class="result-actions">
             <el-button @click="performIntegratedAnalysis" :loading="integratedAnalysisLoading">
               重新分析
@@ -200,7 +226,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, inject } from 'vue';
+import { useBreakpoints } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { 
   StarFilled, 
@@ -217,17 +244,28 @@ import PurpleStarInputForm from '@/components/PurpleStarInputForm.vue';
 import PurpleStarChartDisplay from '@/components/PurpleStarChartDisplay.vue';
 import TransformationStarsDisplay from '@/components/TransformationStarsDisplay.vue';
 import IntegratedAnalysisDisplay from '@/components/IntegratedAnalysisDisplay.vue';
+import UnifiedLayeredController from '@/components/UnifiedLayeredController.vue';
 import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
 import apiService from '@/services/apiService';
 import astrologyIntegrationService from '@/services/astrologyIntegrationService';
 import storageService from '@/utils/storageService';
 import enhancedStorageService from '@/utils/enhancedStorageService';
 import { useDisplayMode } from '@/composables/useDisplayMode';
+import { useSharedLayeredReading } from '@/composables/useSharedLayeredReading';
 import type { DisplayMode } from '@/types/displayModes';
 import type { PurpleStarChart, IntegratedAnalysisResponse, PurpleStarAPIResponse } from '@/types/astrologyTypes';
+import type { LayeredIntegratedAnalysis } from '@/types/layeredReading';
+import { ReadingLevel } from '@/types/layeredReading';
+import { adaptIntegratedAnalysisToLayered } from '@/composables/useLayeredReading';
 
 // 確保 session ID 存在
 const sessionId = storageService.getOrCreateSessionId();
+
+// 注入全域顯示狀態
+const globalDisplayState = inject('globalDisplayState') as {
+  activeModule: { value: string };
+  setActiveModule: (module: string) => void;
+} | null;
 
 // 主要狀態
 const purpleStarChart = ref<PurpleStarChart | null>(null);
@@ -236,8 +274,42 @@ const transformationFlows = ref<Record<number, any>>({});
 const transformationCombinations = ref<Array<any>>([]);
 const multiLayerEnergies = ref<Record<number, any>>({});
 
-// 使用顯示模式 composable
-const { displayMode, mapDepthToMode } = useDisplayMode('purpleStar');
+// 使用共享分層閱覽系統
+const {
+  readingState,
+  effectiveReadingLevel,
+  availableLevels,
+  currentLevelConfig,
+  canUpgrade,
+  canDowngrade,
+  switchToLevel,
+  updateLayeredData,
+  isPrimaryModule,
+  syncStatusDescription
+} = useSharedLayeredReading('purpleStar');
+
+// 使用顯示模式 composable（作為後備）
+const { displayMode: localDisplayMode, mapDepthToMode } = useDisplayMode('purpleStar');
+
+// 監聽本地顯示模式的變化
+watch(() => localDisplayMode.value, (newMode) => {
+  console.log(`PurpleStarView: localDisplayMode 變化為 ${newMode}`);
+}, { immediate: true });
+
+// 計算顯示模式 - 只使用本地顯示模式，避免多重系統衝突
+const displayMode = computed(() => {
+  console.log(`PurpleStarView: 使用本地顯示模式=${localDisplayMode.value}`);
+  return localDisplayMode.value;
+});
+
+// 監聽全域狀態變化，同步到本地 composable
+// 注意：簡化版的 globalDisplayState 不再包含 moduleDepths，所以這個監聽器暫時禁用
+// watch(() => globalDisplayState?.moduleDepths?.value?.purpleStar, (newDepth) => {
+//   if (newDepth && newDepth !== localDisplayMode.value) {
+//     localDisplayMode.value = newDepth;
+//     console.log(`PurpleStarView: 同步全域狀態到本地 composable: ${newDepth}`);
+//   }
+// }, { immediate: true });
 
 // 顯示模式選項
 const displayModeOptions = [
@@ -247,10 +319,71 @@ const displayModeOptions = [
   { value: 'comprehensive', label: '深度分析', tooltip: '全面詳盡的命盤分析，包含所有星曜、四化組合和多層次能量疊加' }
 ];
 
+// 分層相關狀態
+const layeredData = ref<LayeredIntegratedAnalysis | null>(null);
+const dataCompleteness = computed(() => {
+  if (!purpleStarChart.value) return 0;
+  
+  let completeness = 0;
+  
+  // 基礎命盤数据 (40%)
+  if (purpleStarChart.value.palaces && purpleStarChart.value.palaces.length > 0) {
+    completeness += 40;
+  }
+  
+  // 四化飞星数据 (30%)
+  if (Object.keys(transformationFlows.value).length > 0) {
+    completeness += 30;
+  }
+  
+  // 多层次能量数据 (20%)
+  if (Object.keys(multiLayerEnergies.value).length > 0) {
+    completeness += 20;
+  }
+  
+  // 特殊组合数据 (10%)
+  if (transformationCombinations.value && transformationCombinations.value.length > 0) {
+    completeness += 10;
+  }
+  
+  return Math.min(completeness, 100);
+});
+
 // 切換顯示模式
 const changeDisplayMode = (mode: DisplayMode) => {
-  // 直接設置 displayMode 的值，composable 內部會處理 localStorage 的保存
-  displayMode.value = mode;
+  console.log(`PurpleStarView: changeDisplayMode 被調用，mode=${mode}`);
+  localDisplayMode.value = mode;
+};
+
+// 處理顯示模式更新
+const handleDisplayModeUpdate = (mode: DisplayMode) => {
+  console.log(`PurpleStarView: handleDisplayModeUpdate 被調用，mode=${mode}`);
+  localDisplayMode.value = mode;
+};
+
+// 處理層級變化
+const handleLevelChanged = (level: ReadingLevel) => {
+  console.log(`PurpleStarView: handleLevelChanged 被調用，level=${level}`);
+  
+  // 將 ReadingLevel 映射到 DisplayMode
+  const levelToModeMap: Record<ReadingLevel, DisplayMode> = {
+    [ReadingLevel.SUMMARY]: 'minimal',
+    [ReadingLevel.COMPACT]: 'compact', 
+    [ReadingLevel.STANDARD]: 'standard',
+    [ReadingLevel.DEEP_ANALYSIS]: 'comprehensive'
+  };
+  
+  const newDisplayMode = levelToModeMap[level] || 'standard';
+  console.log(`PurpleStarView: 層級 ${level} 映射到顯示模式 ${newDisplayMode}`);
+  
+  // 更新本地顯示模式
+  localDisplayMode.value = newDisplayMode;
+  
+  // 通過 useSharedLayeredReading 系統更新層級以同步四化飛星
+  if (effectiveReadingLevel) {
+    effectiveReadingLevel.value = level;
+    console.log(`PurpleStarView: 已同步層級到共享系統: ${level}`);
+  }
 };
 
 // 整合分析狀態
@@ -261,25 +394,76 @@ const integratedAnalysisError = ref<string | null>(null);
 const loadingProgress = ref(0);
 const currentLoadingStep = ref('正在準備分析...');
 
+// 響應式斷點檢測  
+const responsiveBreakpoints = useBreakpoints({
+  mobile: 768,
+  tablet: 1024
+});
+
+const isMobile = responsiveBreakpoints.smaller('mobile');
+
 // 計算屬性
 const integratedAnalysisTitle = computed(() => {
-  return integratedAnalysisResult.value ? '智能交叉驗證結果' : '多術數交叉驗證';
+  return integratedAnalysisResult.value ? '綜合解讀結果' : '綜合人生解讀';
+});
+
+// 分析完整度計算
+const analysisCompleteness = computed(() => {
+  if (!integratedAnalysisResult.value) return 0;
+  
+  try {
+    const confidence = integratedAnalysisResult.value.data?.analysisInfo?.confidence || 0;
+    return Math.round(confidence * 100);
+  } catch (error) {
+    console.error('計算分析完整度時出錯:', error);
+    return 0;
+  }
 });
 
 // 數據清除函數
-const clearData = () => {
-  ElMessageBox.confirm('確定要清除當前的紫微斗數計算結果嗎？', '清除數據', {
-    confirmButtonText: '確定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
+const clearData = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '確定要清除基本命盤資料嗎？（四化飛星資料將保留）',
+      '清除數據',
+      {
+        confirmButtonText: '確定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    );
+    
+    // 只清除基本資料，保留四化飛星
     storageService.clearAnalysisData('purpleStar');
     purpleStarChart.value = null;
     birthInfoForIntegration.value = null;
-    ElMessage.success('紫微斗數數據已清除');
-  }).catch(() => {
-    // 用戶取消操作
-  });
+    ElMessage.success('紫微斗數基本資料已清除（四化飛星資料已保留）');
+    
+  } catch (error) {
+    // 用戶取消或詢問是否全部清除
+    try {
+      await ElMessageBox.confirm(
+        '是否要清除包括四化飛星在內的所有資料？',
+        '全部清除',
+        {
+          confirmButtonText: '全部清除',
+          cancelButtonText: '取消',
+          type: 'error'
+        }
+      );
+      
+      storageService.clearAnalysisData('purpleStarAll');
+      purpleStarChart.value = null;
+      birthInfoForIntegration.value = null;
+      transformationFlows.value = {};
+      transformationCombinations.value = [];
+      multiLayerEnergies.value = {};
+      ElMessage.success('所有紫微斗數資料已清除');
+      
+    } catch (finalError) {
+      // 用戶最終取消
+    }
+  }
 };
 
 // 主要提交處理
@@ -351,23 +535,53 @@ const handleSubmit = async (birthInfo: any) => {
         combinations: transformationCombinations.value.length,
         layeredEnergies: Object.keys(multiLayerEnergies.value).length
       });
-    } else {
-      console.error('API 未返回四化飛星數據，無法顯示四化信息');
       
-      // 不再自動添加默認值，而是清空相關引用避免錯誤
+      // 檢查數據的具體內容
+      if (Object.keys(transformationFlows.value).length === 0) {
+        console.warn('四化飛星flows數據為空，可能影響顯示');
+      } else {
+        console.log('四化飛星flows數據樣本:', Object.keys(transformationFlows.value).slice(0, 3));
+      }
+    } else {
+      console.error('API 未返回四化飛星數據，詳細檢查API響應結構');
+      console.log('API響應的完整data結構鍵:', Object.keys(response.data));
+      
+      // 檢查是否有其他可能的四化數據字段
+      const possibleKeys = ['fourTransformations', 'sihua', 'transformedStars', 'starTransformations'];
+      const responseData = response.data as any; // 臨時類型轉換以處理動態屬性訪問
+      const foundAlternative = possibleKeys.find(key => responseData[key]);
+      
+      if (foundAlternative) {
+        console.log(`發現替代四化數據字段: ${foundAlternative}`, responseData[foundAlternative]);
+      }
+      
+      // 清空相關引用避免錯誤
       transformationFlows.value = {};
       transformationCombinations.value = [];
       multiLayerEnergies.value = {};
       
       // 提示用戶有數據缺失
       ElMessage.warning({
-        message: '四化飛星數據缺失，部分分析功能將不可用',
+        message: '四化飛星數據缺失，部分分析功能將不可用。請檢查後端API配置。',
         duration: 5000
       });
     }
     
     // 保存命盤數據到 sessionStorage
     storageService.saveToStorage(storageService.STORAGE_KEYS.PURPLE_STAR_CHART, response.data.chart);
+    
+    // 保存四化飛星數據到 sessionStorage
+    if (response.data.transformations) {
+      console.log('保存四化飛星數據到 sessionStorage');
+      const transformations = response.data.transformations as any; // 臨時類型轉換
+      storageService.saveTransformationStarsData(
+        transformations.stars || null,
+        transformations.flows || {},
+        transformations.combinations || []
+      );
+    } else {
+      console.warn('API 響應中沒有四化飛星數據，無法保存');
+    }
     
     console.groupEnd();
     ElMessage.success('紫微斗數計算完成');
@@ -392,10 +606,16 @@ const handleSubmit = async (birthInfo: any) => {
 
 // 整合分析相關功能
 const toggleIntegratedAnalysis = () => {
-  if (showIntegratedAnalysis.value) {
-    showIntegratedAnalysis.value = false;
-  } else {
-    showIntegratedAnalysis.value = true;
+  const wasOpen = showIntegratedAnalysis.value;
+  showIntegratedAnalysis.value = !wasOpen;
+  
+  console.log(`PurpleStarView: 整合分析切換為 ${showIntegratedAnalysis.value}`);
+  
+  // 立即切換全域模組
+  if (globalDisplayState) {
+    const targetModule = showIntegratedAnalysis.value ? 'integrated' : 'purpleStar';
+    globalDisplayState.setActiveModule(targetModule);
+    console.log(`PurpleStarView: 立即切換全域模組到 ${targetModule}`);
   }
 };
 
@@ -425,7 +645,7 @@ const performIntegratedAnalysis = async () => {
     integratedAnalysisLoading.value = true;
     integratedAnalysisError.value = null;
     loadingProgress.value = 0;
-    currentLoadingStep.value = '正在準備分析...';
+    currentLoadingStep.value = '正在準備解讀...';
 
     // 進度更新函數
     const updateProgress = (step: string, progress: number) => {
@@ -455,46 +675,55 @@ const performIntegratedAnalysis = async () => {
       }
     };
 
-    console.log('發送整合分析請求:', analysisRequest);
+    console.log('發送綜合解讀請求:', analysisRequest);
     
-    updateProgress('正在進行紫微斗數與八字交叉對比...', 50);
+    updateProgress('正在整合紫微斗數與八字的傳統智慧...', 50);
     
     try {
-      // 調用整合分析服務
-      const result = await astrologyIntegrationService.performIntegratedAnalysis(analysisRequest);
+      // 調用整合分析服務，啟用使用 session 中的命盤資料
+      const result = await astrologyIntegrationService.performIntegratedAnalysis(analysisRequest, true);
       
-      updateProgress('正在分析一致性與矛盾點...', 80);
+      updateProgress('正在分析人生特質與運勢走向...', 80);
       
-      // 獲取額外的信心度評估 (使用 try/catch 避免此步驟失敗影響整體流程)
+      // 獲取額外的解讀完整度評估 (使用 try/catch 避免此步驟失敗影響整體流程)
       try {
         const confidenceResult = await astrologyIntegrationService.getConfidenceAssessment(analysisRequest);
-        console.log('信心度評估結果:', confidenceResult);
+        console.log('解讀完整度評估結果:', confidenceResult);
       } catch (confidenceError) {
-        console.warn('信心度評估獲取失敗，但不影響主要分析:', confidenceError);
+        console.warn('解讀完整度評估獲取失敗，但不影響主要解讀:', confidenceError);
       }
       
-      updateProgress('正在生成智能建議...', 95);
+      updateProgress('正在生成人生指導建議...', 95);
       
       // 整合最終結果
       integratedAnalysisResult.value = result;
+      
+      // 轉換為分層數據以供 UnifiedLayeredController 使用
+      try {
+        layeredData.value = adaptIntegratedAnalysisToLayered(result);
+        console.log('已轉換綜合分析為分層數據:', layeredData.value);
+      } catch (adaptError) {
+        console.warn('轉換分層數據時發生錯誤:', adaptError);
+        layeredData.value = null;
+      }
       
       // 保存整合分析結果到 sessionStorage
       storageService.saveToStorage(storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS, result);
       
       loadingProgress.value = 100;
-      currentLoadingStep.value = '分析完成!';
+      currentLoadingStep.value = '解讀完成!';
       
-      ElMessage.success('雙軸交互驗證分析完成');
+      ElMessage.success('綜合人生解讀完成');
     } catch (apiError: any) {
       console.error('API 請求失敗:', apiError);
       const errorMessage = apiError.response?.data?.error || apiError.message;
-      integratedAnalysisError.value = '整合分析API錯誤: ' + errorMessage;
-      ElMessage.error('整合分析API錯誤: ' + errorMessage);
+      integratedAnalysisError.value = '綜合解讀API錯誤: ' + errorMessage;
+      ElMessage.error('綜合解讀API錯誤: ' + errorMessage);
     }
     
   } catch (error: any) {
-    console.error('整合分析失敗:', error);
-    const errorMessage = error.response?.data?.error || error.message || '整合分析失敗';
+    console.error('綜合解讀失敗:', error);
+    const errorMessage = error.response?.data?.error || error.message || '綜合解讀失敗';
     integratedAnalysisError.value = errorMessage;
     ElMessage.error(errorMessage);
   } finally {
@@ -502,17 +731,18 @@ const performIntegratedAnalysis = async () => {
   }
 };
 
+
 const exportAnalysisResult = () => {
   if (!integratedAnalysisResult.value) {
-    ElMessage.warning('沒有可匯出的分析結果');
+    ElMessage.warning('沒有可匯出的解讀結果');
     return;
   }
 
   try {
     // 構建匯出數據
     const exportData = {
-      analysisDate: new Date().toLocaleDateString('zh-TW'),
-      confidence: integratedAnalysisResult.value.data.analysisInfo.confidence,
+      readingDate: new Date().toLocaleDateString('zh-TW'),
+      completeness: integratedAnalysisResult.value.data.analysisInfo.confidence,
       consensusFindings: integratedAnalysisResult.value.data.integratedAnalysis.consensusFindings,
       divergentFindings: integratedAnalysisResult.value.data.integratedAnalysis.divergentFindings,
       recommendations: integratedAnalysisResult.value.data.integratedAnalysis.recommendations,
@@ -526,13 +756,13 @@ const exportAnalysisResult = () => {
     
     const link = document.createElement('a');
     link.href = url;
-    link.download = `命理分析報告_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `綜合人生解讀報告_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    ElMessage.success('分析報告已匯出');
+    ElMessage.success('解讀報告已匯出');
   } catch (error) {
     console.error('匯出失敗:', error);
     ElMessage.error('匯出失敗，請稍後再試');
@@ -601,6 +831,31 @@ const loadFromSessionStorage = () => {
     } else {
       console.log('未找到保存的整合分析結果');
     }
+
+    // 檢查並載入四化飛星資料
+    console.log('檢查四化飛星資料...');
+    const transformationData = storageService.getTransformationStarsData();
+    
+    if (transformationData.flows && Object.keys(transformationData.flows).length > 0) {
+      console.log('找到保存的四化飛星資料:', {
+        flows: Object.keys(transformationData.flows).length,
+        combinations: transformationData.combinations.length,
+        stars: !!transformationData.stars
+      });
+      
+      transformationFlows.value = transformationData.flows;
+      transformationCombinations.value = transformationData.combinations;
+      
+      if (transformationData.stars) {
+        // 如果有四化星曜數據，也可以載入
+        console.log('載入四化星曜數據');
+      }
+    } else {
+      console.log('未找到保存的四化飛星資料');
+      transformationFlows.value = {};
+      transformationCombinations.value = [];
+      multiLayerEnergies.value = {};
+    }
     
     // 驗證數據一致性
     try {
@@ -615,10 +870,15 @@ const loadFromSessionStorage = () => {
       purpleStarChart: !!purpleStarChart.value,
       integratedAnalysis: !!integratedAnalysisResult.value
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('從 sessionStorage 載入紫微斗數數據時出錯:', error);
-    // 出現嚴重錯誤時，清除可能損壞的數據
-    storageService.clearAnalysisData('purpleStar');
+    // 只在確實有資料損壞時才清除，避免誤刪有效資料
+    if (error instanceof Error && error.message && error.message.includes('Unexpected token')) {
+      console.warn('檢測到 JSON 解析錯誤，清除可能損壞的資料');
+      storageService.clearAnalysisData('purpleStar');
+    } else {
+      console.warn('載入錯誤可能是暫時性的，保留現有資料');
+    }
   }
 };
 
@@ -627,17 +887,67 @@ const setupComponentData = () => {
   loadFromSessionStorage();
 };
 
+// 監聽全域顯示狀態變化
+watch(() => showIntegratedAnalysis.value, (newValue) => {
+  if (globalDisplayState) {
+    // 當進入/離開整合分析時，切換對應的全域模組
+    const targetModule = newValue ? 'integrated' : 'purpleStar';
+    globalDisplayState.setActiveModule(targetModule);
+    console.log(`PurpleStarView: 切換到全域模組 ${targetModule}`);
+  }
+}, { immediate: false });
+
+// 監聽全域狀態變化，同步到本地狀態
+watch(() => globalDisplayState?.activeModule.value, (newModule) => {
+  console.log(`PurpleStarView: 全域模組變更為 ${newModule}`);
+}, { immediate: true });
+
+// 監聽全域狀態變化事件
+onMounted(() => {
+  // 監聽全域狀態變化
+  const handleGlobalStateChange = (event: CustomEvent) => {
+    console.log('PurpleStarView: 收到全域狀態變化事件', event.detail);
+  };
+  
+  window.addEventListener('global-display-state-changed', handleGlobalStateChange as EventListener);
+  
+  // 清理事件監聽器
+  watch(() => null, () => {
+    window.removeEventListener('global-display-state-changed', handleGlobalStateChange as EventListener);
+  });
+});
+
 // 生命週期鉤子 - 組件掛載時載入數據
 onMounted(() => {
   console.log('PurpleStarView 組件已掛載');
   try {
     setupComponentData();
     // useDisplayMode composable 會自動從 localStorage 加載顯示偏好
-  } catch (error) {
+    
+    // 初始化全域狀態同步
+    if (globalDisplayState) {
+      console.log('PurpleStarView: 全域顯示狀態可用，初始化同步');
+      // 設置當前模組為 purpleStar
+      globalDisplayState.setActiveModule('purpleStar');
+      
+      // 將本地狀態同步到全域狀態（簡化版不再需要此步驟）
+      const currentLocalDepth = localDisplayMode.value;
+      // globalDisplayState.setDisplayDepth('purpleStar', currentLocalDepth); // 簡化版不再支援此方法
+      console.log(`PurpleStarView: 使用本地深度 ${currentLocalDepth}，無需同步到全域狀態`);
+    } else {
+      console.warn('PurpleStarView: 全域顯示狀態不可用，使用本地狀態');
+    }
+  } catch (error: unknown) {
     console.error('紫微斗數組件初始化過程中發生錯誤:', error);
-    // 在初始化失敗時嘗試回退到安全狀態
-    storageService.clearAnalysisData('purpleStar');
-    ElMessage.warning('紫微斗數數據載入時發生錯誤，已重置分析狀態');
+    // 只在確實無法恢復時才清除資料
+    if (error instanceof Error && (error.name === 'SecurityError' || error.message.includes('quota'))) {
+      console.warn('儲存空間問題，清除資料以釋放空間');
+      storageService.clearAnalysisData('purpleStar');
+      ElMessage.warning('因儲存空間問題，已重置分析狀態');
+    } else {
+      console.warn('初始化錯誤可能是暫時性的，保留現有資料');
+      ElMessage.info('載入時發生暫時性錯誤，請稍後再試');
+    }
   }
 });
 </script>
@@ -660,13 +970,37 @@ onMounted(() => {
 
 .main-content.with-sidebar {
   margin-right: 20px;
-  transition: margin-right 0.3s ease;
+}
+
+/* 紫微斗數分層控制器樣式 */
+.purple-star-controller {
+  margin-left: 16px;
+  min-width: 200px;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .purple-star-controller {
+    margin-left: 0;
+    margin-top: 8px;
+    order: 1;
+    width: 100%;
+    min-width: unset;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
+    transition: margin-right 0.3s ease;
+  }
 }
 
 .header-actions {

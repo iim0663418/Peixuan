@@ -77,3 +77,101 @@ const submitForm = () => {
   emit('submit', birthInfo);
 };
 </script>
+
+<style scoped>
+/* 響應式表單優化 */
+.el-form {
+  width: 100%;
+}
+
+/* 確保表單項目在小螢幕上正確顯示 */
+:deep(.el-form-item__label) {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+:deep(.el-form-item__content) {
+  flex: 1;
+}
+
+/* 日期和時間選擇器優化 */
+:deep(.el-date-editor),
+:deep(.el-time-picker) {
+  width: 100%;
+}
+
+/* 單選按鈕組優化 */
+:deep(.el-radio-group) {
+  display: flex;
+  gap: 15px;
+}
+
+:deep(.el-radio) {
+  margin-right: 0;
+  white-space: nowrap;
+}
+
+/* 提交按鈕優化 */
+:deep(.el-button) {
+  min-height: 44px;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+/* 移動端優化 */
+@media (max-width: 768px) {
+  :deep(.el-form-item) {
+    margin-bottom: 20px;
+  }
+  
+  :deep(.el-form-item__label) {
+    font-size: 15px;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  
+  /* 單選按鈕在小螢幕上垂直排列 */
+  :deep(.el-radio-group) {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  :deep(.el-radio) {
+    align-items: center;
+  }
+  
+  :deep(.el-radio__label) {
+    font-size: 16px;
+    padding-left: 8px;
+  }
+  
+  /* 按鈕在小螢幕上全寬 */
+  :deep(.el-button) {
+    width: 100%;
+    min-height: 48px;
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 480px) {
+  :deep(.el-form-item) {
+    margin-bottom: 18px;
+  }
+  
+  :deep(.el-form-item__label) {
+    font-size: 14px;
+  }
+  
+  :deep(.el-input__inner) {
+    font-size: 16px;
+    padding: 12px 15px;
+  }
+  
+  /* 防止iOS縮放 */
+  :deep(.el-input__inner),
+  :deep(.el-textarea__inner) {
+    font-size: 16px !important;
+  }
+}
+</style>

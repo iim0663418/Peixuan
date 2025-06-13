@@ -13,40 +13,16 @@
     <div v-else-if="integratedAnalysis" class="analysis-result">
       <!-- 信心度評分 -->
       <div class="analysis-header">
-        <div class="title-section">
           <h3>
             <el-icon><DataAnalysis /></el-icon>
-            《時運分析》命運洞察
+            《時運分析》綜合人生解讀
             <el-tag size="small" effect="dark" type="success" class="version-tag">2025版</el-tag>
           </h3>
-        </div>
-        <DisplayDepthContainer
-          v-model="displayMode"
-          :available-depths="availableDisplayDepths"
-          module-type="integrated"
-        />
-      </div>
-      
-      <div class="confidence-section">
-        
-        <div class="confidence-gauge">
-          <el-progress 
-            type="dashboard"
-            :percentage="Math.round(getConfidenceValue() * 100)" 
-            :status="getConfidenceStatus(getConfidenceValue())"
-            :stroke-width="8"
-            :width="120"
-          />
-          <div class="confidence-details">
-            <h4>信心指數: {{ Math.round(getConfidenceValue() * 100) }}%</h4>
-            <p class="confidence-desc">{{ getConfidenceDescription(getConfidenceValue()) }}</p>
-          </div>
-        </div>
       </div>
       
       <!-- 關鍵發現 -->
       <div class="key-findings-section">
-        <h3>命運關鍵點</h3>
+        <h3>人生關鍵特質</h3>
         <div class="finding-cards">
           <el-card v-for="(finding, index) in getConsensusFindings()" 
                   :key="`consensus-${index}`" 
@@ -83,7 +59,7 @@
       <div class="cycles-section" v-if="getCyclesAnalysis().length > 0">
         <h3>
           <el-icon><TrendCharts /></el-icon>
-          大運與大限同步預測
+          運勢週期與人生階段
         </h3>
         <el-timeline>
           <el-timeline-item
@@ -104,8 +80,8 @@
       <div class="divergent-section" v-if="getDivergentFindings().length > 0">
         <h3>
           <el-icon><Warning /></el-icon>
-          系統間分歧判讀
-          <el-tooltip content="以下為兩術數間的差異分析，需結合本命體質綜合判斷" placement="top">
+          深層特質解析
+          <el-tooltip content="以下為不同角度的深層解讀，幫助您全面了解自己" placement="top">
             <el-icon><InfoFilled /></el-icon>
           </el-tooltip>
         </h3>
@@ -121,7 +97,7 @@
               </div>
             </template>
             <div class="finding-explanation">
-              <p>此項需綜合考量個人八字五行特性</p>
+              <p>此為您的潛在特質，在特定情境下可能會顯現</p>
             </div>
           </el-card>
         </div>
@@ -131,7 +107,7 @@
       <div class="recommendations-section" v-if="getRecommendations().length > 0">
         <h3>
           <el-icon><Bell /></el-icon>
-          當下運勢指引
+          人生指導建議
         </h3>
         <el-collapse accordion>
           <el-collapse-item 
@@ -151,7 +127,7 @@
       <div class="methods-section">
         <h3>
           <el-icon><Document /></el-icon>
-          分析方法與權重
+          解讀方法與依據
         </h3>
         <div class="methods-info">
           <div class="methods-tags">
@@ -166,8 +142,8 @@
             </el-tag>
           </div>
           <div class="methods-details">
-            <p>本分析採用八字與紫微斗數雙軸演算，結合多維度運勢判讀</p>
-            <p class="updated-at">分析時間: {{ getCurrentDateTime() }}</p>
+            <p>本解讀整合八字與紫微斗數的傳統智慧，提供全面的人生解讀</p>
+            <p class="updated-at">解讀時間: {{ getCurrentDateTime() }}</p>
           </div>
         </div>
       </div>
@@ -176,10 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, withDefaults, onMounted, watch, computed } from 'vue';
-import { useDisplayMode } from '@/composables/useDisplayMode';
-import type { DisplayMode } from '@/types/displayModes';
-import DisplayDepthContainer from '@/components/DisplayDepthContainer.vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { 
   Loading, Warning, Check, InfoFilled, DataAnalysis, Connection, 
   TrendCharts, Bell, Document
@@ -191,36 +164,17 @@ interface Props {
   integratedAnalysis?: IntegratedAnalysisResponse | null;
   loading?: boolean;
   error?: string | null;
-  displayMode?: DisplayMode;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   integratedAnalysis: null,
   loading: false,
-  error: null,
-  displayMode: 'standard'
+  error: null
 });
 
-// 定義 emit
-const emit = defineEmits<{
-  'update:displayMode': [mode: DisplayMode];
-}>();
-
-// 可用的顯示深度選項
-const availableDisplayDepths: DisplayMode[] = ['minimal', 'compact', 'standard', 'comprehensive'];
-
-// 使用顯示模式 composable
-const { displayMode, mapDepthToMode } = useDisplayMode('integrated');
-
-// 同步本地顯示模式與 props 顯示模式
-if (props.displayMode) {
-  displayMode.value = props.displayMode;
-}
-
-// 監聽顯示模式變化
-watch(displayMode, (newMode: DisplayMode) => {
-  emit('update:displayMode', newMode);
-}, { immediate: true });
+// 響應式數據
+const isMobile = ref(window.innerWidth <= 768);
+const confidenceScore = computed(() => getConfidenceValue());
 
 // 監視分析結果變化，用於調試
 watch(() => props.integratedAnalysis, (newVal) => {
@@ -228,7 +182,7 @@ watch(() => props.integratedAnalysis, (newVal) => {
     console.log('IntegratedAnalysisDisplay 收到的分析結果:', newVal);
     // 檢查數據結構是否符合預期
     if (!newVal.data?.integratedAnalysis) {
-      console.error('分析結果缺少 data.integratedAnalysis 屬性:', newVal);
+      console.warn('分析結果缺少 data.integratedAnalysis 屬性，這可能是正常的初始狀態:', newVal);
     }
   }
 }, { immediate: true, deep: true });
@@ -240,108 +194,136 @@ onMounted(() => {
 
 // 獲取信心度值
 const getConfidenceValue = () => {
-  if (!props.integratedAnalysis?.data?.analysisInfo?.confidence) {
-    console.warn('無法獲取信心度值');
-    return 0.5; // 默認值
+  try {
+    if (!props.integratedAnalysis?.data?.analysisInfo?.confidence) {
+      return 0.5; // 默認值
+    }
+    return props.integratedAnalysis.data.analysisInfo.confidence;
+  } catch (error) {
+    console.warn('獲取信心度值時發生錯誤:', error);
+    return 0.5;
   }
-  return props.integratedAnalysis.data.analysisInfo.confidence;
 };
 
 // 獲取一致性發現
 const getConsensusFindings = () => {
-  if (!props.integratedAnalysis?.data?.integratedAnalysis?.consensusFindings) {
-    console.warn('無法獲取一致性發現');
+  try {
+    if (!props.integratedAnalysis?.data?.integratedAnalysis?.consensusFindings) {
+      return [];
+    }
+    return props.integratedAnalysis.data.integratedAnalysis.consensusFindings;
+  } catch (error) {
+    console.warn('獲取一致性發現時發生錯誤:', error);
     return [];
   }
-  return props.integratedAnalysis.data.integratedAnalysis.consensusFindings;
 };
 
 // 獲取分歧發現
 const getDivergentFindings = () => {
-  if (!props.integratedAnalysis?.data?.integratedAnalysis?.divergentFindings) {
-    console.warn('無法獲取分歧發現');
+  try {
+    if (!props.integratedAnalysis?.data?.integratedAnalysis?.divergentFindings) {
+      return [];
+    }
+    return props.integratedAnalysis.data.integratedAnalysis.divergentFindings;
+  } catch (error) {
+    console.warn('獲取分歧發現時發生錯誤:', error);
     return [];
   }
-  return props.integratedAnalysis.data.integratedAnalysis.divergentFindings;
 };
 
 // 獲取建議
 const getRecommendations = () => {
-  if (!props.integratedAnalysis?.data?.integratedAnalysis?.recommendations) {
-    console.warn('無法獲取建議');
+  try {
+    if (!props.integratedAnalysis?.data?.integratedAnalysis?.recommendations) {
+      return [];
+    }
+    return props.integratedAnalysis.data.integratedAnalysis.recommendations;
+  } catch (error) {
+    console.warn('獲取建議時發生錯誤:', error);
     return [];
   }
-  return props.integratedAnalysis.data.integratedAnalysis.recommendations;
 };
 
 // 獲取使用的方法
 const getMethodsUsed = () => {
-  if (!props.integratedAnalysis?.data?.analysisInfo?.methodsUsed) {
-    console.warn('無法獲取使用的方法');
+  try {
+    if (!props.integratedAnalysis?.data?.analysisInfo?.methodsUsed) {
+      return ['紫微斗數', '四柱八字'];
+    }
+    return props.integratedAnalysis.data.analysisInfo.methodsUsed;
+  } catch (error) {
+    console.warn('獲取使用方法時發生錯誤:', error);
     return ['紫微斗數', '四柱八字'];
   }
-  return props.integratedAnalysis.data.analysisInfo.methodsUsed;
 };
 
 // 獲取五行分析
 const getElementsAnalysis = () => {
-  if (!props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis?.elements?.matches) {
-    console.warn('無法獲取五行分析');
-    return []; // 返回空數組，不顯示預設資料
+  try {
+    if (!props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis?.elements?.matches) {
+      return []; // 返回空數組，不顯示預設資料
+    }
+    
+    // 從匹配和差異中提取五行狀態
+    const elements = [
+      { name: '木', status: 'normal' },
+      { name: '火', status: 'normal' },
+      { name: '土', status: 'normal' },
+      { name: '金', status: 'normal' },
+      { name: '水', status: 'normal' }
+    ];
+    
+    const matches = props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.elements.matches;
+    const differences = props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.elements.differences || [];
+    
+    // 處理強勢五行
+    matches.forEach(match => {
+      if (match.includes('木行強勢')) {
+        elements[0].status = 'strong';
+      } else if (match.includes('火行強勢')) {
+        elements[1].status = 'strong';
+      } else if (match.includes('土行強勢')) {
+        elements[2].status = 'strong';
+      } else if (match.includes('金行強勢')) {
+        elements[3].status = 'strong';
+      } else if (match.includes('水行強勢')) {
+        elements[4].status = 'strong';
+      }
+    });
+    
+    // 處理偏弱五行
+    differences.forEach(diff => {
+      if (diff.includes('木行偏弱')) {
+        elements[0].status = 'weak';
+      } else if (diff.includes('火行偏弱')) {
+        elements[1].status = 'weak';
+      } else if (diff.includes('土行偏弱')) {
+        elements[2].status = 'weak';
+      } else if (diff.includes('金行偏弱')) {
+        elements[3].status = 'weak';
+      } else if (diff.includes('水行偏弱')) {
+        elements[4].status = 'weak';
+      }
+    });
+    
+    return elements;
+  } catch (error) {
+    console.warn('獲取五行分析時發生錯誤:', error);
+    return [];
   }
-  
-  // 從匹配和差異中提取五行狀態
-  const elements = [
-    { name: '木', status: 'normal' },
-    { name: '火', status: 'normal' },
-    { name: '土', status: 'normal' },
-    { name: '金', status: 'normal' },
-    { name: '水', status: 'normal' }
-  ];
-  
-  const matches = props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.elements.matches;
-  const differences = props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.elements.differences || [];
-  
-  // 處理強勢五行
-  matches.forEach(match => {
-    if (match.includes('木行強勢')) {
-      elements[0].status = 'strong';
-    } else if (match.includes('火行強勢')) {
-      elements[1].status = 'strong';
-    } else if (match.includes('土行強勢')) {
-      elements[2].status = 'strong';
-    } else if (match.includes('金行強勢')) {
-      elements[3].status = 'strong';
-    } else if (match.includes('水行強勢')) {
-      elements[4].status = 'strong';
-    }
-  });
-  
-  // 處理偏弱五行
-  differences.forEach(diff => {
-    if (diff.includes('木行偏弱')) {
-      elements[0].status = 'weak';
-    } else if (diff.includes('火行偏弱')) {
-      elements[1].status = 'weak';
-    } else if (diff.includes('土行偏弱')) {
-      elements[2].status = 'weak';
-    } else if (diff.includes('金行偏弱')) {
-      elements[3].status = 'weak';
-    } else if (diff.includes('水行偏弱')) {
-      elements[4].status = 'weak';
-    }
-  });
-  
-  return elements;
 };
 
 // 獲取週期分析
 const getCyclesAnalysis = () => {
-  if (!props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis?.cycles?.matches) {
-    console.warn('無法獲取週期分析');
+  try {
+    if (!props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis?.cycles?.matches) {
+      return [];
+    }
+    return props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.cycles.matches;
+  } catch (error) {
+    console.warn('獲取週期分析時發生錯誤:', error);
     return [];
   }
-  return props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.cycles.matches;
 };
 
 // 獲取信心度狀態
@@ -353,9 +335,9 @@ const getConfidenceStatus = (confidence: number) => {
 
 // 獲取信心度描述
 const getConfidenceDescription = (confidence: number) => {
-  if (confidence > 0.7) return '雙術數高度吻合，結果可信度高';
-  if (confidence > 0.4) return '核心要素相符，細節有側重差異';
-  return '分析結果存在差異，請諮詢專業解讀';
+  if (confidence > 0.7) return '資料完整，解讀內容詳實全面';
+  if (confidence > 0.4) return '基本資料充足，解讀內容具參考價值';
+  return '資料不完整，建議進一步詢問專業師傅';
 };
 
 // 獲取五行對應的圖標
@@ -433,6 +415,10 @@ const getCurrentDateTime = () => {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  gap: 20px;
 }
 
 .confidence-section {
@@ -625,6 +611,17 @@ const getCurrentDateTime = () => {
 
 /* 響應式設計 */
 @media (max-width: 768px) {
+  .analysis-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 12px;
+  }
+  
+  .title-section h3 {
+    font-size: 1.2rem;
+  }
+  
   .finding-cards {
     grid-template-columns: 1fr;
   }

@@ -1,0 +1,272 @@
+/**
+ * 設計Token系統 - 統一視覺風格
+ * Design Tokens System - Unified Visual Style
+ */
+
+:root {
+  /* ===== 主色調 Primary Colors ===== */
+  --primary-color: #d2691e;
+  --primary-dark: #b8621b;
+  --primary-light: #ff8c00;
+  --primary-lighter: #ffa726;
+  --primary-lightest: #fff3e0;
+
+  /* ===== 功能色 Feature Colors ===== */
+  --purple-star: #9932cc;
+  --purple-star-light: #ba55d3;
+  --purple-star-lighter: #dda0dd;
+  --purple-star-lightest: #f3e5f5;
+  
+  --bazi-orange: #d2691e;
+  --bazi-orange-light: #ff8c00;
+  --bazi-orange-lighter: #ffb74d;
+  --bazi-orange-lightest: #fff8e1;
+
+  /* ===== 語意色 Semantic Colors ===== */
+  --success: #28a745;
+  --success-light: #5cbf2a;
+  --success-lighter: #c8e6c9;
+  --success-lightest: #f1f8e9;
+
+  --warning: #ffc107;
+  --warning-light: #ffca28;
+  --warning-lighter: #fff9c4;
+  --warning-lightest: #fffde7;
+
+  --error: #dc3545;
+  --error-light: #f44336;
+  --error-lighter: #ffcdd2;
+  --error-lightest: #ffebee;
+
+  --info: #17a2b8;
+  --info-light: #26c6da;
+  --info-lighter: #b2ebf2;
+  --info-lightest: #e0f2f1;
+
+  /* ===== 中性色 Neutral Colors ===== */
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --text-tertiary: #95a5a6;
+  --text-disabled: #bdc3c7;
+  --text-inverse: #ffffff;
+
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --bg-disabled: #f5f5f5;
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+
+  --border-light: #e9ecef;
+  --border-medium: #dee2e6;
+  --border-dark: #adb5bd;
+
+  /* ===== 陰影 Shadows ===== */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.18);
+  
+  /* 特殊陰影 */
+  --shadow-purple: 0 4px 20px rgba(153, 50, 204, 0.15);
+  --shadow-orange: 0 4px 20px rgba(210, 105, 30, 0.15);
+
+  /* ===== 圓角 Border Radius ===== */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* ===== 間距 Spacing ===== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+  --space-4xl: 40px;
+  --space-5xl: 48px;
+
+  /* ===== 字體 Typography ===== */
+  --font-family-primary: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono: 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', Consolas, 'Courier New', monospace;
+
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+  --font-size-5xl: 3rem;      /* 48px */
+
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* ===== 動畫 Animation ===== */
+  --transition-fast: 0.15s ease-out;
+  --transition-normal: 0.25s ease-out;
+  --transition-slow: 0.35s ease-out;
+
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ===== Z-index層級 ===== */
+  --z-dropdown: 1000;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-navbar: 1080;
+
+  /* ===== 斷點 Breakpoints (for JS usage) ===== */
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* ===== 深色主題變數 Dark Theme ===== */
+[data-theme="dark"] {
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-tertiary: #888888;
+  --text-disabled: #666666;
+  --text-inverse: #2c3e50;
+
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #404040;
+  --bg-disabled: #333333;
+  --bg-overlay: rgba(255, 255, 255, 0.1);
+
+  --border-light: #404040;
+  --border-medium: #555555;
+  --border-dark: #666666;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== 通用工具類 Utility Classes ===== */
+
+/* 陰影工具類 */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-xl { box-shadow: var(--shadow-xl); }
+.shadow-purple { box-shadow: var(--shadow-purple); }
+.shadow-orange { box-shadow: var(--shadow-orange); }
+.shadow-none { box-shadow: none; }
+
+/* 圓角工具類 */
+.rounded-xs { border-radius: var(--radius-xs); }
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-full { border-radius: var(--radius-full); }
+
+/* 間距工具類 */
+.p-xs { padding: var(--space-xs); }
+.p-sm { padding: var(--space-sm); }
+.p-md { padding: var(--space-md); }
+.p-lg { padding: var(--space-lg); }
+.p-xl { padding: var(--space-xl); }
+
+.m-xs { margin: var(--space-xs); }
+.m-sm { margin: var(--space-sm); }
+.m-md { margin: var(--space-md); }
+.m-lg { margin: var(--space-lg); }
+.m-xl { margin: var(--space-xl); }
+
+/* 文字工具類 */
+.text-xs { font-size: var(--font-size-xs); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+
+.font-light { font-weight: var(--font-weight-light); }
+.font-normal { font-weight: var(--font-weight-normal); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.font-bold { font-weight: var(--font-weight-bold); }
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+
+/* 背景工具類 */
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.bg-tertiary { background-color: var(--bg-tertiary); }
+
+/* 過渡動畫工具類 */
+.transition-fast { transition: all var(--transition-fast); }
+.transition-normal { transition: all var(--transition-normal); }
+.transition-slow { transition: all var(--transition-slow); }
+
+/* 卡片基礎樣式 */
+.card-base {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  transition: var(--transition-normal);
+}
+
+.card-hoverable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 按鈕基礎樣式 */
+.btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-medium);
+  transition: var(--transition-normal);
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  min-height: 44px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: var(--text-inverse);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-medium);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-secondary);
+  border-color: var(--border-dark);
+}

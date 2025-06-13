@@ -1,11 +1,11 @@
-import express, { Request, Response, Router, RequestHandler } from 'express';
+import express, { Request, Response, Router } from 'express';
 import { RequestValidator } from '../utils/validation';
 import logger from '../utils/logger';
 
 const router: Router = express.Router();
 
 // 八字計算端點
-const calculateHandler: RequestHandler = async (req, res) => {
+const calculateBaziHandler = async (req: Request, res: Response): Promise<void> => {
   try {
     logger.info('Bazi calculation request received', { 
       body: req.body,
@@ -14,7 +14,7 @@ const calculateHandler: RequestHandler = async (req, res) => {
 
     // 驗證輸入資料
     const validator = new RequestValidator();
-    const validationResult = validator.validatePurpleStarRequest(req.body);
+    const validationResult = validator.validateBaziRequest(req.body);
     if (!validationResult.isValid) {
       logger.warn('Invalid birth info for bazi calculation', { 
         errors: validationResult.errors,
@@ -96,6 +96,7 @@ const calculateHandler: RequestHandler = async (req, res) => {
       data: baziChart,
       message: '八字計算完成'
     });
+    return;
 
   } catch (error) {
     logger.error('Error in bazi calculation', { 
@@ -109,13 +110,14 @@ const calculateHandler: RequestHandler = async (req, res) => {
       error: 'Internal server error during bazi calculation',
       message: '八字計算過程中發生錯誤'
     });
+    return;
   }
-});
+};
 
-router.post('/calculate', calculateHandler);
+router.post('/calculate', calculateBaziHandler);
 
 // 取得八字分析歷史
-router.get('/history', async (req: Request, res: Response) => {
+const getBaziHistoryHandler = async (req: Request, res: Response): Promise<void> => {
   try {
     logger.info('Bazi history request received', { ip: req.ip });
 
@@ -132,6 +134,7 @@ router.get('/history', async (req: Request, res: Response) => {
       success: true,
       data: history
     });
+    return;
 
   } catch (error) {
     logger.error('Error fetching bazi history', { 
@@ -142,7 +145,10 @@ router.get('/history', async (req: Request, res: Response) => {
     res.status(500).json({
       error: 'Failed to fetch bazi history'
     });
+    return;
   }
-});
+};
+
+router.get('/history', getBaziHistoryHandler);
 
 export default router;

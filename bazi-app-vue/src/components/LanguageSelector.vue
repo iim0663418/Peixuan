@@ -23,10 +23,10 @@ import { useI18n } from 'vue-i18n';
 const { locale } = useI18n();
 const currentLocale = ref(locale.value);
 
-// 從 localStorage 讀取保存的語言設定
+// 從 sessionStorage 讀取保存的語言設定
 function loadLanguagePreference(): string {
   try {
-    const savedLocale = localStorage.getItem('preferred-language');
+    const savedLocale = sessionStorage.getItem('preferred-language');
     // 移除對簡體中文的支持
     if (savedLocale && ['en', 'zh_TW'].includes(savedLocale)) {
       return savedLocale;
@@ -36,17 +36,17 @@ function loadLanguagePreference(): string {
       return 'zh_TW';
     }
   } catch (error) {
-    console.warn('Failed to load language preference from localStorage:', error);
+    console.warn('Failed to load language preference from sessionStorage:', error);
   }
   return locale.value;
 }
 
-// 將語言設定保存到 localStorage
+// 將語言設定保存到 sessionStorage
 function saveLanguagePreference(language: string): void {
   try {
-    localStorage.setItem('preferred-language', language);
+    sessionStorage.setItem('preferred-language', language);
   } catch (error) {
-    console.warn('Failed to save language preference to localStorage:', error);
+    console.warn('Failed to save language preference to sessionStorage:', error);
   }
 }
 

@@ -3,11 +3,9 @@
  * 整合八字與紫微斗數的分析功能
  */
 
-import { Router, Request, Response, NextFunction } from 'express';
-import { PurpleStarCalculationService } from '../services/purpleStarCalculationService';
+import { Router, Request, Response, RequestHandler } from 'express';
 import { AstrologyIntegrationService } from '../services/astrologyIntegrationService';
-import LayeredResponseBuilder from '../services/layeredResponseService';
-import { validateToken, TokenPayload } from '../middleware/auth';
+import { TokenPayload } from '../middleware/auth';
 import logger from '../utils/logger';
 import { BaziCalculationResult, BirthInfo } from '../types/purpleStarTypes';
 
@@ -23,11 +21,11 @@ const integrationService = new AstrologyIntegrationService();
  * 多術數綜合分析端點
  * POST /api/v1/astrology/integrated-analysis
  */
-router.post('/integrated-analysis', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+const integratedAnalysisHandler = async (req: Request, res: Response): Promise<void> => {
   try {
     // 1. 暫時跳過認證檢查 (開發階段)
     // 設置預設用戶資訊用於開發測試
-    req.user = {
+    (req as AuthenticatedRequest).user = {
       userId: 'dev-user-001',
       role: 'member', // 給予會員權限以便測試整合分析功能
       features: ['integrated-analysis', 'cross-validation', 'confidence-scoring'],
@@ -65,7 +63,7 @@ router.post('/integrated-analysis', async (req: AuthenticatedRequest, res: Respo
       const jwt = require('jsonwebtoken');
       const JWT_SECRET = process.env.JWT_SECRET ?? 'development_secret';
       const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
-      req.user = decoded;
+      (req as AuthenticatedRequest).user = decoded;
     } catch (error: any) {
       res.status(401).json({ error: 'Invalid or expired token', details: error.message });
       return;
@@ -226,9 +224,8 @@ router.post('/integrated-analysis', async (req: AuthenticatedRequest, res: Respo
       baziResult
     );
 
-    // 6. 應用分層響應
-    const userRole = req.user?.role || 'anonymous';
-    const requestedLayer = (req.query.layer as string) || 'basic';
+    // 6. 檢查功能權限
+    const userRole = (req as AuthenticatedRequest).user?.role || 'anonymous';
     
     // 根據用戶角色檢查功能權限
     const hasIntegratedAccess = await checkIntegratedAnalysisAccess(userRole);
@@ -256,12 +253,10 @@ router.post('/integrated-analysis', async (req: AuthenticatedRequest, res: Respo
         analysisInfo: {
           calculationTime: new Date().toISOString(),
           methodsUsed: ['紫微斗數', '四柱八字', '交互驗證'],
-          confidence: integratedAnalysis.overallConfidence,
-          layer: requestedLayer
+          confidence: integratedAnalysis.overallConfidence
         }
       },
       meta: {
-        layer: requestedLayer,
         userRole,
         features: ['integrated-analysis', 'cross-validation', 'confidence-scoring'],
         sources: integratedAnalysis.crossValidation.validationSources
@@ -275,6 +270,7 @@ router.post('/integrated-analysis', async (req: AuthenticatedRequest, res: Respo
     });
 
     res.json(response);
+    return;
 
   } catch (error: any) {
     logger.error('多術數綜合分析失敗', { error: error.message, stack: error.stack });
@@ -285,18 +281,21 @@ router.post('/integrated-analysis', async (req: AuthenticatedRequest, res: Respo
       details: process.env.NODE_ENV === 'development' ? error.message : undefined,
       timestamp: new Date().toISOString()
     });
+    return;
   }
-});
+};
+
+router.post('/integrated-analysis', integratedAnalysisHandler);
 
 /**
  * 信心度評估端點
  * POST /api/v1/astrology/confidence-assessment
  */
-router.post('/confidence-assessment', async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+const confidenceAssessmentHandler = async (req: Request, res: Response): Promise<void> => {
   try {
     // 1. 暫時跳過認證檢查 (開發階段)
     // 設置預設用戶資訊用於開發測試
-    req.user = {
+    (req as AuthenticatedRequest).user = {
       userId: 'dev-user-001',
       role: 'member', // 給予會員權限以便測試信心度評估功能
       features: ['integrated-analysis', 'cross-validation', 'confidence-scoring'],
@@ -321,7 +320,7 @@ router.post('/confidence-assessment', async (req: AuthenticatedRequest, res: Res
       const jwt = require('jsonwebtoken');
       const JWT_SECRET = process.env.JWT_SECRET ?? 'development_secret';
       const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
-      req.user = decoded;
+      (req as AuthenticatedRequest).user = decoded;
     } catch (error: any) {
       res.status(401).json({ error: 'Invalid or expired token', details: error.message });
       return;
@@ -329,7 +328,7 @@ router.post('/confidence-assessment', async (req: AuthenticatedRequest, res: Res
     */
 
     // 需要會員權限
-    if (req.user?.role === 'anonymous') {
+    if ((req as AuthenticatedRequest).user?.role === 'anonymous') {
       res.status(403).json({
         success: false,
         error: '信心度評估需要會員權限',
@@ -415,6 +414,7 @@ router.post('/confidence-assessment', async (req: AuthenticatedRequest, res: Res
       data: confidenceAssessment,
       timestamp: new Date().toISOString()
     });
+    return;
 
   } catch (error: any) {
     logger.error('信心度評估失敗', { error: error.message });
@@ -424,19 +424,23 @@ router.post('/confidence-assessment', async (req: AuthenticatedRequest, res: Res
       error: '信心度評估服務暫時不可用',
       timestamp: new Date().toISOString()
     });
+    return;
   }
-});
+};
+
+router.post('/confidence-assessment', confidenceAssessmentHandler);
 
 /**
  * 健康檢查端點
  */
-router.get('/health', (req: Request, res: Response): void => {
+router.get('/health', (_req: Request, res: Response): void => {
   res.json({
     status: 'healthy',
     service: 'astrology-integration',
     timestamp: new Date().toISOString(),
-    features: ['integrated-analysis', 'layered-response', 'confidence-assessment']
+    features: ['integrated-analysis', 'confidence-assessment']
   });
+  return;
 });
 
 // ===== 輔助函數 =====

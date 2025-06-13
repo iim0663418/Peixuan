@@ -144,31 +144,36 @@ class PurpleStarCalculator {
       mingPalaceStdIndex: this.mingPalaceStdIndex
     });
     
-    if (["甲子", "乙丑", "壬申", "癸酉", "庚辰", "辛巳", "甲午", "乙未", "庚戌", "辛亥", "壬寅", "癸卯"].includes(mingGanZhi)) return "金四局";
-    if (["丙寅", "丁卯", "甲戌", "乙亥", "戊子", "己丑", "丙申", "丁酉", "甲辰", "乙巳"].includes(mingGanZhi)) return "火六局";
-    if (["戊辰", "己巳", "壬午", "癸未", "戊戌", "己亥", "壬子", "癸丑"].includes(mingGanZhi)) return "木三局";
-    if (["庚午", "辛未", "戊寅", "己卯", "丙戌", "丁亥", "戊申", "己酉", "庚子", "辛丑"].includes(mingGanZhi)) return "土五局";
-    if (["丙子", "丁丑", "甲申", "乙酉", "壬辰", "癸巳", "丙午", "丁未"].includes(mingGanZhi)) return "水二局";
+    // 完整的60甲子五行局對照表（基於傳統紫微斗數納音五行）
+    if (["甲子", "乙丑", "丙子", "丁丑", "甲寅", "乙卯", "甲申", "乙酉", "壬子", "癸丑", "壬戌", "癸亥"].includes(mingGanZhi)) return "水二局";
+    if (["戊辰", "己巳", "壬午", "癸未", "戊戌", "己亥", "壬申", "癸酉", "庚寅", "辛卯", "庚申", "辛酉"].includes(mingGanZhi)) return "木三局";
+    if (["甲午", "乙未", "壬寅", "癸卯", "庚辰", "辛巳", "庚戌", "辛亥", "甲辰", "乙巳", "丙申", "丁酉"].includes(mingGanZhi)) return "金四局";
+    if (["戊寅", "己卯", "丙戌", "丁亥", "庚午", "辛未", "戊申", "己酉", "庚子", "辛丑", "丙辰", "丁巳"].includes(mingGanZhi)) return "土五局";
+    if (["丙寅", "丁卯", "甲戌", "乙亥", "戊子", "己丑", "戊午", "己未", "丙午", "丁未", "壬辰", "癸巳"].includes(mingGanZhi)) return "火六局";
     
-    console.warn(`未找到命宮干支 ${mingGanZhi} 的五行局，將使用默認的水二局`);
-    return "水二局"; // 提供默認值而不是"未知局"
+    // 如果找不到對應的五行局，拋出錯誤而非使用預設值
+    throw new Error(`無法確定命宮干支 ${mingGanZhi} 的五行局，請檢查輸入資料是否正確。可能的原因：1) 農曆轉換錯誤 2) 命宮計算錯誤 3) 輸入資料不完整`);
   }
   private extractBureauNumber(bureau: string | undefined): number | undefined { 
     console.log('提取五行局數字:', { bureau });
     
     if (!bureau) {
-      console.warn('五行局為空，使用默認值 2');
-      return 2; // 默認使用水二局的數字
+      throw new Error('五行局數據為空，無法進行後續計算');
     }
     
     const match = bureau.match(/\d+/); 
     if (match) {
       const number = parseInt(match[0], 10);
       console.log('成功提取五行局數字:', number);
-      return number;
+      
+      // 驗證數字是否有效（應該是2,3,4,5,6之一）
+      if ([2, 3, 4, 5, 6].includes(number)) {
+        return number;
+      } else {
+        throw new Error(`提取到的五行局數字 ${number} 無效，應該是2,3,4,5,6之一`);
+      }
     } else {
-      console.warn('無法從五行局中提取數字，使用默認值 2:', bureau);
-      return 2; // 默認值
+      throw new Error(`無法從五行局 "${bureau}" 中提取有效數字`);
     }
   }
   private locateZiWeiStar(): number {

@@ -33,7 +33,13 @@
     </el-form-item>
 
     <el-form-item :label="$t('astrology.bazi_detail.form.location')" prop="location">
-      <el-input v-model="birthInfo.location" />
+      <el-input 
+        v-model="birthInfo.location" 
+        placeholder="出生地點（選填，影響真太陽時計算）"
+      />
+      <el-text type="info" size="small" style="margin-top: 5px; display: block;">
+        註：八字計算主要依賴時間，地點為選填項目
+      </el-text>
     </el-form-item>
 
     <el-form-item>
@@ -51,6 +57,7 @@
 import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { BirthInfo } from '@/services/astrologyIntegrationService';
+import { FrontendValidator, type ValidationResult } from '@/utils/frontendValidation';
 
 const emit = defineEmits(['submit']);
 
@@ -74,6 +81,26 @@ const formRules = {
 };
 
 const submitForm = () => {
+  // 使用前端驗證工具進行表單驗證
+  const validationResult: ValidationResult = FrontendValidator.validateBaziForm({
+    birthDate: birthInfo.birthDate,
+    birthTime: birthInfo.birthTime,
+    gender: birthInfo.gender,
+    location: { timezone: 'Asia/Taipei' } // 八字計算時區影響較小，使用預設值
+  });
+
+  if (!validationResult.isValid) {
+    ElMessage.error(validationResult.errors.join('、'));
+    return;
+  }
+
+  // 檢查 lunar-javascript 是否可用
+  const libraryCheck = FrontendValidator.checkLunarLibrary();
+  if (!libraryCheck.isValid) {
+    ElMessage.error(libraryCheck.errors.join('、'));
+    return;
+  }
+
   emit('submit', birthInfo);
 };
 </script>

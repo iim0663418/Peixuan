@@ -15,11 +15,10 @@ export class RequestValidator {
     this.validateGender(request.gender);
     this.validateLunarInfo(request.lunarInfo);
 
-    // 驗證可選字段
-    if (request.location) {
-      this.validateLocation(request.location);
-    }
+    // 加強驗證：要求提供位置資訊以確保準確計算
+    this.validateLocationRequired(request.location);
 
+    // 驗證可選字段
     if (request.options) {
       this.validateOptions(request.options);
     }
@@ -205,6 +204,57 @@ export class RequestValidator {
       if (typeof location.timezone !== 'string') {
         this.addError('location.timezone', '時區必須為字符串', 'INVALID_TYPE');
       }
+    }
+  }
+
+  /**
+   * 嚴格驗證位置資訊（為精確計算而要求）
+   */
+  private validateLocationRequired(location: any): void {
+    if (!location) {
+      this.addError('location', '位置資訊為必需字段，精確的紫微斗數計算需要地理位置', 'REQUIRED');
+      return;
+    }
+
+    if (typeof location !== 'object' || location === null) {
+      this.addError('location', '位置資訊必須為對象', 'INVALID_TYPE');
+      return;
+    }
+
+    // 要求經度
+    if (location.longitude === undefined || location.longitude === null) {
+      this.addError('location.longitude', '經度為必需字段，用於精確時辰計算', 'REQUIRED');
+    } else if (typeof location.longitude !== 'number') {
+      this.addError('location.longitude', '經度必須為數字', 'INVALID_TYPE');
+    } else if (location.longitude < -180 || location.longitude > 180) {
+      this.addError('location.longitude', '經度必須在 -180 到 180 之間', 'OUT_OF_RANGE');
+    }
+
+    // 要求緯度
+    if (location.latitude === undefined || location.latitude === null) {
+      this.addError('location.latitude', '緯度為必需字段，用於精確時辰計算', 'REQUIRED');
+    } else if (typeof location.latitude !== 'number') {
+      this.addError('location.latitude', '緯度必須為數字', 'INVALID_TYPE');
+    } else if (location.latitude < -90 || location.latitude > 90) {
+      this.addError('location.latitude', '緯度必須在 -90 到 90 之間', 'OUT_OF_RANGE');
+    }
+
+    // 要求時區
+    if (!location.timezone) {
+      this.addError('location.timezone', '時區為必需字段，用於精確時間計算', 'REQUIRED');
+    } else if (typeof location.timezone !== 'string') {
+      this.addError('location.timezone', '時區必須為字符串', 'INVALID_TYPE');
+    } else {
+      // 驗證時區格式
+      const timezonePattern = /^(UTC[+-]\d{2}:\d{2}|[A-Za-z\/]+)$/;
+      if (!timezonePattern.test(location.timezone)) {
+        this.addError('location.timezone', '時區格式無效，請使用如 "Asia/Taipei" 或 "UTC+08:00" 格式', 'INVALID_FORMAT');
+      }
+    }
+
+    // 驗證城市名稱（可選，但建議提供）
+    if (location.city && typeof location.city !== 'string') {
+      this.addError('location.city', '城市必須為字符串', 'INVALID_TYPE');
     }
   }
 

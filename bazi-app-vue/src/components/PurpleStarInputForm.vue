@@ -32,26 +32,74 @@
       </el-radio-group>
     </el-form-item>
 
-    <el-form-item label="出生地點（時區選擇）">
-      <el-select
-        v-model="formData.timezone"
-        filterable
-        placeholder="選擇時區"
-        style="width: 100%"
-      >
-        <el-option
-          v-for="tz in timezones"
-          :key="tz.value"
-          :label="tz.label"
-          :value="tz.value"
-        />
-      </el-select>
-      <el-text type="info" size="small">
-        選擇時區可提高紫微斗數計算的精確度
-        <el-tooltip content="時區會影響命盤計算的精確性。若不確定，請選擇出生地附近的城市時區。">
+    <!-- 精確地理位置輸入 -->
+    <el-form-item label="出生地點（精確計算必需）" prop="location">
+      <el-row :gutter="12">
+        <el-col :span="8">
+          <el-input 
+            v-model.number="formData.longitude" 
+            placeholder="經度"
+            type="number"
+            :min="-180"
+            :max="180"
+            :step="0.000001"
+          >
+            <template #prepend>經度</template>
+          </el-input>
+        </el-col>
+        <el-col :span="8">
+          <el-input 
+            v-model.number="formData.latitude" 
+            placeholder="緯度"
+            type="number"
+            :min="-90"
+            :max="90"
+            :step="0.000001"
+          >
+            <template #prepend>緯度</template>
+          </el-input>
+        </el-col>
+        <el-col :span="8">
+          <el-select
+            v-model="formData.timezone"
+            filterable
+            placeholder="時區"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="tz in timezones"
+              :key="tz.value"
+              :label="tz.label"
+              :value="tz.value"
+            />
+          </el-select>
+        </el-col>
+      </el-row>
+      <el-text type="warning" size="small" style="margin-top: 5px; display: block;">
+        ⚠️ 精確的經緯度和時區資訊對紫微斗數計算準確性至關重要
+        <el-tooltip content="可使用 Google Maps 或其他地圖服務獲取出生地的精確經緯度座標">
           <el-icon><QuestionFilled /></el-icon>
         </el-tooltip>
       </el-text>
+    </el-form-item>
+
+    <!-- 快速城市選擇（可選） -->
+    <el-form-item label="或選擇常用城市（自動填入座標）">
+      <el-select
+        v-model="selectedCity"
+        filterable
+        placeholder="選擇城市快速填入座標"
+        style="width: 100%"
+        @change="fillCityCoordinates"
+        clearable
+      >
+        <el-option
+          v-for="city in majorCities"
+          :key="city.value"
+          :label="city.label"
+          :value="city.value"
+        />
+      </el-select>
     </el-form-item>
 
     <el-form-item>
@@ -93,8 +141,38 @@ const formData = reactive({
   birthDate: '',
   birthTime: '',
   gender: 'male' as 'male' | 'female',
+  longitude: null as number | null,
+  latitude: null as number | null,
   timezone: 'Asia/Taipei'
 });
+
+const selectedCity = ref('');
+
+// 主要城市座標數據
+const majorCities = ref([
+  { label: '台北, 台灣', value: 'taipei', longitude: 121.5654, latitude: 25.0330, timezone: 'Asia/Taipei' },
+  { label: '高雄, 台灣', value: 'kaohsiung', longitude: 120.3014, latitude: 22.6273, timezone: 'Asia/Taipei' },
+  { label: '台中, 台灣', value: 'taichung', longitude: 120.6736, latitude: 24.1477, timezone: 'Asia/Taipei' },
+  { label: '上海, 中國', value: 'shanghai', longitude: 121.4737, latitude: 31.2304, timezone: 'Asia/Shanghai' },
+  { label: '北京, 中國', value: 'beijing', longitude: 116.4074, latitude: 39.9042, timezone: 'Asia/Shanghai' },
+  { label: '香港', value: 'hongkong', longitude: 114.1694, latitude: 22.3193, timezone: 'Asia/Hong_Kong' },
+  { label: '東京, 日本', value: 'tokyo', longitude: 139.6917, latitude: 35.6895, timezone: 'Asia/Tokyo' },
+  { label: '首爾, 韓國', value: 'seoul', longitude: 126.9780, latitude: 37.5665, timezone: 'Asia/Seoul' },
+  { label: '新加坡', value: 'singapore', longitude: 103.8198, latitude: 1.3521, timezone: 'Asia/Singapore' },
+  { label: '倫敦, 英國', value: 'london', longitude: -0.1276, latitude: 51.5074, timezone: 'Europe/London' },
+  { label: '紐約, 美國', value: 'newyork', longitude: -74.0060, latitude: 40.7128, timezone: 'America/New_York' },
+  { label: '洛杉磯, 美國', value: 'losangeles', longitude: -118.2437, latitude: 34.0522, timezone: 'America/Los_Angeles' }
+]);
+
+// 填入城市座標
+const fillCityCoordinates = (cityValue: string) => {
+  const city = majorCities.value.find(c => c.value === cityValue);
+  if (city) {
+    formData.longitude = city.longitude;
+    formData.latitude = city.latitude;
+    formData.timezone = city.timezone;
+  }
+};
 
 // 從 sessionStorage 加載保存的時區信息
 onMounted(() => {
@@ -113,6 +191,40 @@ const formRules = {
   ],
   gender: [
     { required: true, message: '請選擇性別', trigger: 'change' }
+  ],
+  location: [
+    {
+      validator: (_rule: any, _value: any, callback: any) => {
+        // 驗證經度
+        if (formData.longitude === null || formData.longitude === undefined) {
+          callback(new Error('請輸入出生地經度（可選擇城市自動填入）'));
+          return;
+        }
+        if (formData.longitude < -180 || formData.longitude > 180) {
+          callback(new Error('經度必須在 -180 到 180 之間'));
+          return;
+        }
+        
+        // 驗證緯度
+        if (formData.latitude === null || formData.latitude === undefined) {
+          callback(new Error('請輸入出生地緯度（可選擇城市自動填入）'));
+          return;
+        }
+        if (formData.latitude < -90 || formData.latitude > 90) {
+          callback(new Error('緯度必須在 -90 到 90 之間'));
+          return;
+        }
+        
+        // 驗證時區
+        if (!formData.timezone) {
+          callback(new Error('請選擇時區'));
+          return;
+        }
+        
+        callback();
+      },
+      trigger: 'blur'
+    }
   ]
 };
 
@@ -161,14 +273,20 @@ const submitForm = async () => {
       // 保存時區信息到 sessionStorage
       saveTimeZoneInfo(formData.timezone, year);
       
+      // 驗證位置資訊
+      if (formData.longitude === null || formData.latitude === null) {
+        ElMessage.error('請提供完整的出生地理位置資訊（經度和緯度）');
+        return;
+      }
+
       // 構建發送給後端的資料格式
       const birthInfo = {
         birthDate: formData.birthDate,
         birthTime: formData.birthTime,
         gender: formData.gender,
         location: {
-          longitude: 0, // 這裡可以根據時區推算一個大致經度，或者使用城市中心點
-          latitude: 0,  // 同上
+          longitude: formData.longitude,
+          latitude: formData.latitude,
           timezone: formData.timezone
         },
         lunarInfo: {

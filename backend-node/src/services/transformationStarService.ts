@@ -57,8 +57,7 @@ export class TransformationStarService {
     // 獲取四化規則
     const transformations = this.FOUR_TRANSFORMATIONS_MAP[gan];
     if (!transformations) {
-      console.warn(`找不到天干 ${gan} 的四化表`);
-      return transformedStars;
+      throw new Error(`找不到天干 "${gan}" 的四化表，請檢查天干是否正確。有效的天干：甲乙丙丁戊己庚辛壬癸`);
     }
     
     // 應用四化

@@ -135,12 +135,12 @@ export class AstronomicalTimeService {
         return sign * (hours * 60 + minutes);
       }
       
-      // 默認返回當地時區偏移
-      return -date.getTimezoneOffset();
+      // 如果無法解析時區格式，拋出錯誤而非使用預設值
+      throw new Error(`無法解析時區格式 "${timezone}"，請提供有效的時區標識符（如：Asia/Taipei, UTC+08:00）`);
     } catch (error) {
-      console.warn(`Error getting timezone offset for ${timezone}:`, error);
-      // 返回當地時區偏移作為後備
-      return -date.getTimezoneOffset();
+      console.error(`Error getting timezone offset for ${timezone}:`, error);
+      // 拋出錯誤而非使用當地時區作為後備
+      throw new Error(`時區計算失敗："${timezone}"。請確認時區格式正確，精確計算需要正確的時區資訊`);
     }
   }
   

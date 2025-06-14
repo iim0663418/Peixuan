@@ -11,9 +11,9 @@
           </div>
         </div>
         
-        <!-- 數據完整度指示器 -->
+        <!-- 資料完整度指示器 -->
         <div class="data-completeness">
-          <el-tooltip :content="`數據完整度: ${dataCompleteness}%`" placement="top">
+          <el-tooltip :content="`資料完整度: ${dataCompleteness}%`" placement="top">
             <el-progress 
               type="circle" 
               :percentage="dataCompleteness" 
@@ -105,7 +105,7 @@
       </div>
     </div>
 
-    <!-- 層級信息展示 -->
+    <!-- 層級資訊展示 -->
     <div class="level-info-panel" v-if="showInfoPanel">
       <div class="info-header">
         <h5>{{ currentLevelConfig.label }}解讀內容</h5>
@@ -124,7 +124,7 @@
         </div>
         
         <div class="info-item">
-          <span class="info-label">數據要求:</span>
+          <span class="info-label">資料要求:</span>
           <span class="info-value">{{ currentLevelConfig.minDataRequirement }}% 以上</span>
         </div>
         
@@ -175,7 +175,7 @@
 
     <!-- 操作工具欄 -->
     <div class="toolbar">
-      <el-tooltip content="顯示層級信息" placement="top">
+      <el-tooltip content="顯示層級資訊" placement="top">
         <el-button 
           :icon="InfoFilled" 
           @click="showInfoPanel = !showInfoPanel"

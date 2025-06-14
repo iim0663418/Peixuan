@@ -7,7 +7,7 @@ class AstrologyIntegrationService {
      */
     async performIntegratedAnalysis(birthInfo, useSessionCharts = false) {
         try {
-            // 確保請求數據格式正確
+            // 確保請求資料格式正確
             const requestData = {
                 birthDate: birthInfo.birthDate,
                 birthTime: birthInfo.birthTime,
@@ -24,17 +24,17 @@ class AstrologyIntegrationService {
             // 如果啟用使用 session 中的命盤資料，則添加這些資料到請求中
             if (useSessionCharts) {
                 const storageService = await import('@/utils/storageService').then(m => m.default);
-                // 獲取並添加八字命盤數據
+                // 獲取並添加八字命盤資料
                 const baziChart = storageService.getFromStorage(storageService.STORAGE_KEYS.BAZI_CHART);
                 if (baziChart) {
                     requestData.baziChart = baziChart;
-                    console.log('從 sessionStorage 獲取並添加八字命盤數據');
+                    console.log('從 sessionStorage 獲取並添加八字命盤資料');
                 }
-                // 獲取並添加紫微斗數命盤數據
+                // 獲取並添加紫微斗數命盤資料
                 const purpleStarChart = storageService.getFromStorage(storageService.STORAGE_KEYS.PURPLE_STAR_CHART);
                 if (purpleStarChart) {
                     requestData.purpleStarChart = purpleStarChart;
-                    console.log('從 sessionStorage 獲取並添加紫微斗數命盤數據');
+                    console.log('從 sessionStorage 獲取並添加紫微斗數命盤資料');
                 }
             }
             console.log('發送整合分析請求:', requestData);

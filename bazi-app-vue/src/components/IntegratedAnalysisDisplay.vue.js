@@ -6,14 +6,14 @@ const props = withDefaults(defineProps(), {
     loading: false,
     error: null
 });
-// 響應式數據
+// 響應式資料
 const isMobile = ref(window.innerWidth <= 768);
 const confidenceScore = computed(() => getConfidenceValue());
 // 監視分析結果變化，用於調試
 watch(() => props.integratedAnalysis, (newVal) => {
     if (newVal) {
         console.log('IntegratedAnalysisDisplay 收到的分析結果:', newVal);
-        // 檢查數據結構是否符合預期
+        // 檢查資料結構是否符合預期
         if (!newVal.data?.integratedAnalysis) {
             console.warn('分析結果缺少 data.integratedAnalysis 屬性，這可能是正常的初始狀態:', newVal);
         }

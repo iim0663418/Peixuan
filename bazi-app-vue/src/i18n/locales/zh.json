@@ -32,7 +32,7 @@
     "water": "水",
     "purple_star_detail": {
       "title": "紫微斗数分析",
-      "description": "根据您的出生信息进行紫微斗数排盘",
+      "description": "根据您的出生資訊进行紫微斗数排盘",
       "inputSection": "输入数据",
       "form": {
         "title": "紫微斗数排盘",
@@ -44,7 +44,7 @@
     },
     "bazi_detail": {
       "title": "八字排盘",
-      "description": "根据您的出生信息进行四柱八字分析",
+      "description": "根据您的出生資訊进行四柱八字分析",
       "inputSection": "输入数据",
       "form": {
         "title": "八字排盘",
@@ -62,7 +62,7 @@
       "howItWorks": {
         "title": "运作方式",
         "steps": [
-          "输入完整的出生信息（年月日时）",
+          "输入完整的出生資訊（年月日时）",
           "系统同时计算紫微斗数与八字命盘",
           "AI 分析两种术数的结果差异与共识",
           "提供综合信心度评估与建议",
@@ -74,7 +74,7 @@
   "chart": {
     "title": "命理图表",
     "description": "查看您的个人命理图表",
-    "birth_info": "出生信息",
+    "birth_info": "出生資訊",
     "birth_date": "出生日期",
     "birth_time": "出生时间",
     "birth_location": "出生地点",
@@ -126,7 +126,7 @@
     "displayDepthDesc": {
       "minimal": "最简洁的命盘展示，仅呈现基本框架",
       "compact": "显示主要星曜和基本效应，快速了解命盘特点",
-      "standard": "完整展示星曜信息和效应，深入解析命盘结构",
+      "standard": "完整展示星曜資訊和效应，深入解析命盘结构",
       "comprehensive": "全面详尽的命盘分析，包含所有星曜、组合和多层次能量叠加"
     },
     "tooltips": {
@@ -136,7 +136,7 @@
       "expand": "展开设置面板",
       "collapse": "收起设置面板",
       "selectModule": "选择模块：切换命理分析类型",
-      "adjustDepth": "调整深度：控制信息详细程度"
+      "adjustDepth": "调整深度：控制資訊详细程度"
     }
   }
 }

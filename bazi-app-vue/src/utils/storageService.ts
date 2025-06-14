@@ -1,6 +1,6 @@
 /**
- * 存儲服務 - 處理應用中的數據存儲與獲取
- * 使用 sessionStorage 而非 localStorage，以確保數據在關閉瀏覽器時自動清除，提高安全性
+ * 存儲服務 - 處理應用中的資料存儲與獲取
+ * 使用 sessionStorage 而非 localStorage，以確保資料在關閉瀏覽器時自動清除，提高安全性
  */
 
 // 存儲鍵名常數
@@ -12,6 +12,7 @@ export const STORAGE_KEYS = {
   TRANSFORMATION_STARS: 'peixuan_transformation_stars',
   TRANSFORMATION_FLOWS: 'peixuan_transformation_flows',
   TRANSFORMATION_COMBINATIONS: 'peixuan_transformation_combinations',
+  TRANSFORMATION_MULTI_LAYER_ENERGIES: 'peixuan_transformation_multi_layer_energies',
   INTEGRATED_ANALYSIS: 'peixuan_integrated_analysis',
   INTEGRATED_BIRTH_INFO: 'peixuan_integrated_birth_info',
   SESSION_ID: 'peixuan_session_id',
@@ -31,42 +32,42 @@ export const getOrCreateSessionId = (): string => {
 };
 
 /**
- * 保存數據到 sessionStorage
+ * 保存資料到 sessionStorage
  */
 export const saveToStorage = <T>(key: string, data: T): void => {
   try {
     sessionStorage.setItem(key, JSON.stringify(data));
   } catch (error) {
-    console.error(`保存數據到 sessionStorage 失敗 (${key}):`, error);
+    console.error(`保存資料到 sessionStorage 失敗 (${key}):`, error);
   }
 };
 
 /**
- * 從 sessionStorage 獲取數據
+ * 從 sessionStorage 獲取資料
  */
 export const getFromStorage = <T>(key: string): T | null => {
   try {
     const data = sessionStorage.getItem(key);
     return data ? JSON.parse(data) : null;
   } catch (error) {
-    console.error(`從 sessionStorage 獲取數據失敗 (${key}):`, error);
+    console.error(`從 sessionStorage 獲取資料失敗 (${key}):`, error);
     return null;
   }
 };
 
 /**
- * 刪除特定鍵的數據
+ * 刪除特定鍵的資料
  */
 export const removeFromStorage = (key: string): void => {
   try {
     sessionStorage.removeItem(key);
   } catch (error) {
-    console.error(`從 sessionStorage 刪除數據失敗 (${key}):`, error);
+    console.error(`從 sessionStorage 刪除資料失敗 (${key}):`, error);
   }
 };
 
 /**
- * 清除所有相關的數據
+ * 清除所有相關的資料
  */
 export const clearAllAstrologyData = (): void => {
   try {
@@ -74,12 +75,12 @@ export const clearAllAstrologyData = (): void => {
       sessionStorage.removeItem(key);
     });
   } catch (error) {
-    console.error('清除所有數據失敗:', error);
+    console.error('清除所有資料失敗:', error);
   }
 };
 
 /**
- * 清除特定分析的數據
+ * 清除特定分析的資料
  */
 export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'purpleStarAll' | 'integrated' | 'transformationStars'): void => {
   try {
@@ -103,11 +104,13 @@ export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'purpleS
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_STARS);
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_FLOWS);
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS);
+        sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_MULTI_LAYER_ENERGIES);
         break;
       case 'transformationStars':
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_STARS);
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_FLOWS);
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS);
+        sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_MULTI_LAYER_ENERGIES);
         break;
       case 'integrated':
         sessionStorage.removeItem(STORAGE_KEYS.INTEGRATED_ANALYSIS);
@@ -115,13 +118,13 @@ export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'purpleS
         break;
     }
   } catch (error) {
-    console.error(`清除 ${analysisType} 數據失敗:`, error);
+    console.error(`清除 ${analysisType} 資料失敗:`, error);
   }
 };
 
 /**
- * 保存時區信息到 sessionStorage
- * @param timeZone 時區信息
+ * 保存時區資訊到 sessionStorage
+ * @param timeZone 時區資訊
  * @param year 出生年份
  */
 export interface TimeZoneInfo {
@@ -139,28 +142,30 @@ export const saveTimeZoneInfo = (timeZone: string, year: number): void => {
     };
     saveToStorage(STORAGE_KEYS.TIMEZONE_INFO, timeZoneInfo);
   } catch (error) {
-    console.error('保存時區信息失敗:', error);
+    console.error('保存時區資訊失敗:', error);
   }
 };
 
 /**
- * 獲取最近選擇的時區信息
- * @returns 時區信息或 null
+ * 獲取最近選擇的時區資訊
+ * @returns 時區資訊或 null
  */
 export const getTimeZoneInfo = (): TimeZoneInfo | null => {
   return getFromStorage<TimeZoneInfo>(STORAGE_KEYS.TIMEZONE_INFO);
 };
 
 /**
- * 保存四化飛星數據到 sessionStorage
- * @param transformationStars 四化飛星數據
- * @param transformationFlows 四化流數據
- * @param transformationCombinations 四化組合數據
+ * 保存四化飛星資料到 sessionStorage
+ * @param transformationStars 四化飛星資料
+ * @param transformationFlows 四化流資料
+ * @param transformationCombinations 四化組合資料
+ * @param multiLayerEnergies 多層次能量資料
  */
 export const saveTransformationStarsData = (
   transformationStars: any = null,
   transformationFlows: Record<number, any> = {},
-  transformationCombinations: Array<any> = []
+  transformationCombinations: Array<any> = [],
+  multiLayerEnergies: Record<number, any> = {}
 ): void => {
   try {
     if (transformationStars) {
@@ -175,40 +180,46 @@ export const saveTransformationStarsData = (
       saveToStorage(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS, transformationCombinations);
     }
     
-    console.log('四化飛星數據已保存到 sessionStorage');
+    if (Object.keys(multiLayerEnergies).length > 0) {
+      saveToStorage(STORAGE_KEYS.TRANSFORMATION_MULTI_LAYER_ENERGIES, multiLayerEnergies);
+    }
+    
+    console.log('四化飛星資料已保存到 sessionStorage (包含多層次能量資料)');
   } catch (error) {
-    console.error('保存四化飛星數據失敗:', error);
+    console.error('保存四化飛星資料失敗:', error);
   }
 };
 
 /**
- * 從 sessionStorage 獲取四化飛星數據
- * @returns 四化飛星數據對象，包含 stars, flows 和 combinations
+ * 從 sessionStorage 獲取四化飛星資料
+ * @returns 四化飛星資料對象，包含 stars, flows, combinations 和 multiLayerEnergies
  */
 export const getTransformationStarsData = (): {
   stars: any | null;
   flows: Record<number, any>;
   combinations: Array<any>;
+  multiLayerEnergies: Record<number, any>;
 } => {
   try {
     const stars = getFromStorage<any>(STORAGE_KEYS.TRANSFORMATION_STARS);
     const flows = getFromStorage<Record<number, any>>(STORAGE_KEYS.TRANSFORMATION_FLOWS) || {};
     const combinations = getFromStorage<Array<any>>(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS) || [];
+    const multiLayerEnergies = getFromStorage<Record<number, any>>(STORAGE_KEYS.TRANSFORMATION_MULTI_LAYER_ENERGIES) || {};
     
-    return { stars, flows, combinations };
+    return { stars, flows, combinations, multiLayerEnergies };
   } catch (error) {
-    console.error('獲取四化飛星數據失敗:', error);
-    return { stars: null, flows: {}, combinations: [] };
+    console.error('獲取四化飛星資料失敗:', error);
+    return { stars: null, flows: {}, combinations: [], multiLayerEnergies: {} };
   }
 };
 
 /**
- * 檢查四化飛星數據是否存在
- * @returns 是否存在四化飛星數據
+ * 檢查四化飛星資料是否存在
+ * @returns 是否存在四化飛星資料
  */
 export const hasTransformationStarsData = (): boolean => {
-  const { stars, flows, combinations } = getTransformationStarsData();
-  return !!(stars || Object.keys(flows).length > 0 || combinations.length > 0);
+  const { stars, flows, combinations, multiLayerEnergies } = getTransformationStarsData();
+  return !!(stars || Object.keys(flows).length > 0 || combinations.length > 0 || Object.keys(multiLayerEnergies).length > 0);
 };
 
 export default {

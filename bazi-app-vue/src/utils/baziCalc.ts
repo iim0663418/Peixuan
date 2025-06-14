@@ -278,7 +278,7 @@ export class FortuneCycleCalculator {
     count: number = 8
   ): DecennialCycle[] {
     try {
-      // 獲取起運信息
+      // 獲取起運資訊
       const solarDate = Solar.fromDate(birthDate);
       const lunarDate = solarDate.getLunar();
       const startLuckInfo = this.calculateStartLuck(lunarDate, gender);
@@ -393,7 +393,7 @@ export class FortuneCycleCalculator {
   }
 }
 
-// 大運數據結構
+// 大運資料結構
 export interface DecennialCycle {
   index: number;       // 大運序號
   stem: HeavenlyStem;  // 天干
@@ -407,7 +407,7 @@ export interface DecennialCycle {
   analysis?: DecennialAnalysis; // 大運解讀
 }
 
-// 流年數據結構
+// 流年資料結構
 export interface AnnualLuck {
   year: number;        // 西元年
   age: number;         // 年齡

@@ -101,7 +101,7 @@ class PurpleStarCalculator {
     extractBureauNumber(bureau) {
         console.log('提取五行局數字:', { bureau });
         if (!bureau) {
-            throw new Error('五行局數據為空，無法進行後續計算');
+            throw new Error('五行局資料為空，無法進行後續計算');
         }
         const match = bureau.match(/\d+/);
         if (match) {

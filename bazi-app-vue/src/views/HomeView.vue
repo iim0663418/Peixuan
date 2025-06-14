@@ -215,7 +215,7 @@ import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 
-// 響應式數據
+// 響應式資料
 const showPurpleStarInfo = ref(false);
 const showBaziInfo = ref(false);
 

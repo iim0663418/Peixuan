@@ -6,6 +6,7 @@ import {
   PurpleStarChart, 
   Palace, 
   Star, 
+  StarBrightness,
   DaXianInfo, 
   XiaoXianInfo,
   LiuNianTaiSuiInfo,
@@ -66,7 +67,35 @@ export class PurpleStarCalculationService {
     '文昌': { attribute: '吉', propertyType: '陽', element: '金', strength: 6, description: '文學星，主學業、才華' },
     '文曲': { attribute: '吉', propertyType: '陰', element: '水', strength: 6, description: '文采星，主藝術、才情' },
     '天空': { attribute: '凶', propertyType: '陰', element: '土', strength: 4, description: '虛無星，主空虛、幻想' },
-    '地劫': { attribute: '凶', propertyType: '陽', element: '土', strength: 4, description: '災厄星，主災難、煩惱' }
+    '地劫': { attribute: '凶', propertyType: '陽', element: '土', strength: 4, description: '災厄星，主災難、煩惱' },
+    '天魁': { attribute: '吉', propertyType: '陽', element: '水', strength: 5, description: '貴人星，主助力、提攜' },
+    '天鉞': { attribute: '吉', propertyType: '陽', element: '水', strength: 5, description: '貴人星，主助力、提攜' },
+    '祿存': { attribute: '吉', propertyType: '陽', element: '金', strength: 6, description: '財祿星，主財富、祿位' },
+    '擎羊': { attribute: '凶', propertyType: '陽', element: '火', strength: 5, description: '刑星，主刑沖、變動' },
+    '陀羅': { attribute: '凶', propertyType: '陰', element: '土', strength: 5, description: '障星，主阻礙、壓力' },
+    '火星': { attribute: '凶', propertyType: '陽', element: '火', strength: 4, description: '災厄星，主災禍、煩惱' },
+    '鈴星': { attribute: '凶', propertyType: '陽', element: '金', strength: 4, description: '憂星，主憂慮、糾紛' },
+    
+    // 雜曜（乙級星、丙級星）
+    '天馬': { attribute: '中性', propertyType: '陽', element: '火', strength: 4, description: '主奔波、變動、驛動' },
+    '天姚': { attribute: '中性', propertyType: '陰', element: '水', strength: 3, description: '主桃花、人緣、風流' },
+    '天刑': { attribute: '凶', propertyType: '陽', element: '火', strength: 4, description: '主刑剋、官非、原則、自律' },
+    '龍池': { attribute: '吉', propertyType: '陽', element: '水', strength: 3, description: '主才華、品味、高雅' },
+    '鳳閣': { attribute: '吉', propertyType: '陰', element: '水', strength: 3, description: '主美感、文采、享受' },
+    '紅鸞': { attribute: '吉', propertyType: '陰', element: '水', strength: 3, description: '主婚姻、感情、喜慶' },
+    '天喜': { attribute: '吉', propertyType: '陽', element: '火', strength: 3, description: '主喜事、慶典、好消息' },
+    '孤辰': { attribute: '凶', propertyType: '陰', element: '土', strength: 2, description: '主孤獨、寡合、離群' },
+    '寡宿': { attribute: '凶', propertyType: '陰', element: '土', strength: 2, description: '主寡居、獨處、孤單' },
+    '天德': { attribute: '吉', propertyType: '陽', element: '木', strength: 4, description: '主德澤、庇佑、逢凶化吉' },
+    '月德': { attribute: '吉', propertyType: '陰', element: '木', strength: 4, description: '主恩惠、慈善、化解' },
+    '天才': { attribute: '吉', propertyType: '陽', element: '木', strength: 3, description: '主聰明、才華、技藝' },
+    '天壽': { attribute: '吉', propertyType: '陰', element: '土', strength: 3, description: '主長壽、健康、穩定' },
+    '解神': { attribute: '吉', propertyType: '陽', element: '水', strength: 3, description: '主解厄、化解、轉機' },
+    '天巫': { attribute: '中性', propertyType: '陰', element: '水', strength: 3, description: '主玄學、靈感、直覺' },
+    '天月': { attribute: '凶', propertyType: '陰', element: '水', strength: 3, description: '主疾病、陰暗、隱疾' },
+    '陰煞': { attribute: '凶', propertyType: '陰', element: '水', strength: 3, description: '主暗害、小人、陰謀' },
+    '台輔': { attribute: '吉', propertyType: '陽', element: '土', strength: 2, description: '主輔助、支持、協助' },
+    '封誥': { attribute: '吉', propertyType: '陰', element: '土', strength: 2, description: '主名譽、封誥、榮耀' }
   };
   
   // 宮位屬性配置
@@ -87,6 +116,42 @@ export class PurpleStarCalculationService {
     '田宅宮': { significance: 'medium', element: '土', description: '代表房產、家宅、不動產' },
     '福德宮': { significance: 'high', element: '火', description: '代表福氣、心靈、休閒' },
     '父母宮': { significance: 'medium', element: '金', description: '代表父母、長輩、上司' }
+  };
+  
+  // 星曜亮度配置表 - 根據地支判斷星曜亮度
+  private readonly STAR_BRIGHTNESS_CONFIG: Record<string, Record<string, StarBrightness>> = {
+    '紫微': { '子': '旺', '丑': '廟', '寅': '旺', '卯': '旺', '辰': '得地', '巳': '旺', '午': '廟', '未': '廟', '申': '旺', '酉': '旺', '戌': '得地', '亥': '旺' },
+    '天機': { '子': '旺', '丑': '落陷', '寅': '廟', '卯': '廟', '辰': '旺', '巳': '旺', '午': '旺', '未': '落陷', '申': '廟', '酉': '廟', '戌': '旺', '亥': '旺' },
+    '太陽': { '子': '落陷', '丑': '落陷', '寅': '廟', '卯': '廟', '辰': '旺', '巳': '旺', '午': '廟', '未': '平和', '申': '旺', '酉': '旺', '戌': '落陷', '亥': '落陷' },
+    '武曲': { '子': '得地', '丑': '廟', '寅': '廟', '卯': '落陷', '辰': '廟', '巳': '落陷', '午': '平和', '未': '廟', '申': '廟', '酉': '落陷', '戌': '廟', '亥': '落陷' },
+    '天同': { '子': '廟', '丑': '平和', '寅': '旺', '卯': '旺', '辰': '平和', '巳': '不得地', '午': '落陷', '未': '平和', '申': '旺', '酉': '旺', '戌': '平和', '亥': '廟' },
+    '廉貞': { '子': '平和', '丑': '廟', '寅': '廟', '卯': '落陷', '辰': '廟', '巳': '落陷', '午': '平和', '未': '廟', '申': '廟', '酉': '落陷', '戌': '廟', '亥': '落陷' },
+    '天府': { '子': '廟', '丑': '廟', '寅': '廟', '卯': '廟', '辰': '廟', '巳': '廟', '午': '廟', '未': '廟', '申': '廟', '酉': '廟', '戌': '廟', '亥': '廟' },
+    '太陰': { '子': '廟', '丑': '旺', '寅': '平和', '卯': '平和', '辰': '旺', '巳': '旺', '午': '落陷', '未': '落陷', '申': '平和', '酉': '旺', '戌': '旺', '亥': '廟' },
+    '貪狼': { '子': '旺', '丑': '利益', '寅': '廟', '卯': '廟', '辰': '利益', '巳': '旺', '午': '旺', '未': '利益', '申': '廟', '酉': '廟', '戌': '利益', '亥': '旺' },
+    '巨門': { '子': '旺', '丑': '不得地', '寅': '廟', '卯': '廟', '辰': '不得地', '巳': '旺', '午': '落陷', '未': '不得地', '申': '廟', '酉': '廟', '戌': '不得地', '亥': '旺' },
+    '天相': { '子': '廟', '丑': '廟', '寅': '廟', '卯': '廟', '辰': '廟', '巳': '廟', '午': '廟', '未': '廟', '申': '廟', '酉': '廟', '戌': '廟', '亥': '廟' },
+    '天梁': { '子': '旺', '丑': '廟', '寅': '廟', '卯': '廟', '辰': '廟', '巳': '旺', '午': '旺', '未': '廟', '申': '廟', '酉': '廟', '戌': '廟', '亥': '旺' },
+    '七殺': { '子': '廟', '丑': '得地', '寅': '廟', '卯': '平和', '辰': '得地', '巳': '廟', '午': '廟', '未': '得地', '申': '廟', '酉': '平和', '戌': '得地', '亥': '廟' },
+    '破軍': { '子': '廟', '丑': '旺', '寅': '平和', '卯': '落陷', '辰': '旺', '巳': '平和', '午': '廟', '未': '旺', '申': '平和', '酉': '落陷', '戌': '旺', '亥': '廟' },
+    '左輔': { '子': '廟', '丑': '廟', '寅': '廟', '卯': '廟', '辰': '廟', '巳': '廟', '午': '廟', '未': '廟', '申': '廟', '酉': '廟', '戌': '廟', '亥': '廟' },
+    '右弼': { '子': '廟', '丑': '廟', '寅': '廟', '卯': '廟', '辰': '廟', '巳': '廟', '午': '廟', '未': '廟', '申': '廟', '酉': '廟', '戌': '廟', '亥': '廟' },
+    '文昌': { '子': '利益', '丑': '廟', '寅': '平和', '卯': '平和', '辰': '廟', '巳': '利益', '午': '利益', '未': '廟', '申': '平和', '酉': '平和', '戌': '廟', '亥': '利益' },
+    '文曲': { '子': '利益', '丑': '平和', '寅': '平和', '卯': '廟', '辰': '利益', '巳': '利益', '午': '利益', '未': '平和', '申': '平和', '酉': '廟', '戌': '利益', '亥': '利益' },
+    '天空': { '子': '平和', '丑': '平和', '寅': '平和', '卯': '平和', '辰': '平和', '巳': '平和', '午': '平和', '未': '平和', '申': '平和', '酉': '平和', '戌': '平和', '亥': '平和' },
+    '地劫': { '子': '平和', '丑': '平和', '寅': '平和', '卯': '平和', '辰': '平和', '巳': '平和', '午': '平和', '未': '平和', '申': '平和', '酉': '平和', '戌': '平和', '亥': '平和' },
+    // 雜曜亮度
+    '天馬': { '子': '得地', '丑': '平和', '寅': '廟', '卯': '利益', '辰': '得地', '巳': '廟', '午': '利益', '未': '平和', '申': '廟', '酉': '利益', '戌': '得地', '亥': '廟' },
+    '天姚': { '子': '平和', '丑': '利益', '寅': '得地', '卯': '廟', '辰': '利益', '巳': '平和', '午': '平和', '未': '利益', '申': '得地', '酉': '廟', '戌': '利益', '亥': '平和' },
+    '天刑': { '子': '得地', '丑': '利益', '寅': '平和', '卯': '平和', '辰': '利益', '巳': '得地', '午': '得地', '未': '利益', '申': '平和', '酉': '平和', '戌': '利益', '亥': '得地' },
+    '龍池': { '子': '廟', '丑': '廟', '寅': '廟', '卯': '廟', '辰': '廟', '巳': '廟', '午': '廟', '未': '廟', '申': '廟', '酉': '廟', '戌': '廟', '亥': '廟' },
+    '鳳閣': { '子': '廟', '丑': '廟', '寅': '廟', '卯': '廟', '辰': '廟', '巳': '廟', '午': '廟', '未': '廟', '申': '廟', '酉': '廟', '戌': '廟', '亥': '廟' },
+    '天德': { '子': '廟', '丑': '廟', '寅': '廟', '卯': '廟', '辰': '廟', '巳': '廟', '午': '廟', '未': '廟', '申': '廟', '酉': '廟', '戌': '廟', '亥': '廟' },
+    '月德': { '子': '廟', '丑': '廟', '寅': '廟', '卯': '廟', '辰': '廟', '巳': '廟', '午': '廟', '未': '廟', '申': '廟', '酉': '廟', '戌': '廟', '亥': '廟' },
+    '擎羊': { '子': '得地', '丑': '平和', '寅': '廟', '卯': '落陷', '辰': '平和', '巳': '得地', '午': '廟', '未': '落陷', '申': '平和', '酉': '得地', '戌': '廟', '亥': '落陷' },
+    '陀羅': { '子': '落陷', '丑': '得地', '寅': '平和', '卯': '廟', '辰': '落陷', '巳': '平和', '午': '落陷', '未': '得地', '申': '平和', '酉': '廟', '戌': '落陷', '亥': '平和' },
+    '火星': { '子': '落陷', '丑': '平和', '寅': '廟', '卯': '得地', '辰': '平和', '巳': '落陷', '午': '落陷', '未': '平和', '申': '廟', '酉': '得地', '戌': '平和', '亥': '落陷' },
+    '鈴星': { '子': '平和', '丑': '落陷', '寅': '得地', '卯': '廟', '辰': '落陷', '巳': '平和', '午': '平和', '未': '落陷', '申': '得地', '酉': '廟', '戌': '落陷', '亥': '平和' }
   };
   
   private readonly FOUR_TRANSFORMATIONS_MAP: Record<string, FourTransformations> = {
@@ -174,6 +239,9 @@ export class PurpleStarCalculationService {
       this.calculateMainStars(palaces, ziweiLocationIndex);
       this.calculateAuxiliaryStars(palaces);
       
+      // 計算雜曜
+      this.calculateMinorStars(palaces);
+      
       // 應用四化
       this.applyFourTransformations(palaces, this.mingPalaceGan);
       
@@ -207,7 +275,7 @@ export class PurpleStarCalculationService {
         
         // 生成宮位詳細解讀
         chart.palaceInterpretations = palaces.map(palace => 
-          this.generatePalaceDetailedInterpretation(palace)
+          this.generatePalaceDetailedInterpretation(palace, palaces)
         );
         
         // 生成特定領域分析
@@ -222,6 +290,9 @@ export class PurpleStarCalculationService {
         
         // 生成綜合命盤解讀
         chart.comprehensiveInterpretation = this.generateComprehensiveInterpretation(chart);
+        
+        // 分析格局
+        chart.keyPatterns = this.analyzeKeyPatterns(chart);
         
         console.log('紫微斗數命盤解讀生成完成');
       }
@@ -371,11 +442,16 @@ export class PurpleStarCalculationService {
     // 獲取星曜屬性
     const starAttributes = this.STAR_ATTRIBUTES_CONFIG[starName];
     
+    // 獲取宮位地支以查詢亮度
+    const zhiOfPalace = this.ZHI_NAMES[palaceIndex];
+    const brightness = this.STAR_BRIGHTNESS_CONFIG[starName]?.[zhiOfPalace];
+    
     const star: Star = {
       name: starName,
       type: starType,
       palaceIndex,
-      transformations: []
+      transformations: [],
+      brightness: brightness  // 賦予亮度
     };
     
     // 添加星曜屬性
@@ -420,14 +496,29 @@ export class PurpleStarCalculationService {
     
     // 統計宮位中的星曜吉凶
     palace.stars.forEach(star => {
+      // 計算亮度修正係數
+      let strengthModifier = 1.0;
+      switch (star.brightness) {
+        case '廟': strengthModifier = 1.5; break;
+        case '旺': strengthModifier = 1.2; break;
+        case '得地': strengthModifier = 1.1; break;
+        case '利益': strengthModifier = 1.0; break;
+        case '平和': strengthModifier = 0.9; break;
+        case '不得地': strengthModifier = 0.7; break;
+        case '落陷': strengthModifier = 0.5; break;
+        default: strengthModifier = 1.0; break;
+      }
+
+      const effectiveStrength = (star.strength || 0) * strengthModifier;
+
       if (star.attribute === '吉') {
         auspiciousCount++;
-        auspiciousStrength += star.strength || 0;
+        auspiciousStrength += effectiveStrength;
       } else if (star.attribute === '凶') {
         inauspiciousCount++;
-        inauspiciousStrength += star.strength || 0;
+        inauspiciousStrength += effectiveStrength;
       }
-      totalStrength += star.strength || 0;
+      totalStrength += effectiveStrength;
     });
     
     // 判斷四化的影響
@@ -547,6 +638,118 @@ export class PurpleStarCalculationService {
     auxiliaryStars.push(this.placeStar(palaces, '地劫', 'auxiliary', diJiePalaceIndex));
     
     return auxiliaryStars;
+  }
+
+  private calculateMinorStars(palaces: Palace[]): Star[] {
+    const minorStars: Star[] = [];
+    const yearZhi = this.lunarInfo.yearZhi;
+    const lunarMonth = this.lunarInfo.month;
+    const chineseHourZhiIndex = this.getChineseHourZhiIndex();
+
+    // 安天馬 (年支三合局的驛馬位)
+    let tianMaPalaceIndex = -1;
+    if (['寅', '午', '戌'].includes(yearZhi)) tianMaPalaceIndex = this.ZHI_NAMES.indexOf('申');
+    if (['申', '子', '辰'].includes(yearZhi)) tianMaPalaceIndex = this.ZHI_NAMES.indexOf('寅');
+    if (['亥', '卯', '未'].includes(yearZhi)) tianMaPalaceIndex = this.ZHI_NAMES.indexOf('巳');
+    if (['巳', '酉', '丑'].includes(yearZhi)) tianMaPalaceIndex = this.ZHI_NAMES.indexOf('亥');
+    if (tianMaPalaceIndex !== -1) {
+      minorStars.push(this.placeStar(palaces, '天馬', 'minor', tianMaPalaceIndex));
+    }
+    
+    // 安天姚 (月系星，丑宮起正月順行)
+    const tianYaoPalaceIndex = (this.ZHI_NAMES.indexOf('丑') + (lunarMonth - 1)) % 12;
+    minorStars.push(this.placeStar(palaces, '天姚', 'minor', tianYaoPalaceIndex));
+    
+    // 安天刑 (月系星，酉宮起正月順行)
+    const tianXingPalaceIndex = (this.ZHI_NAMES.indexOf('酉') + (lunarMonth - 1)) % 12;
+    minorStars.push(this.placeStar(palaces, '天刑', 'minor', tianXingPalaceIndex));
+
+    // 安紅鸞 (年支起紅鸞，卯宮起子年順行)
+    const maoIndex = this.ZHI_NAMES.indexOf('卯');
+    const yearZhiIndex = this.ZHI_NAMES.indexOf(yearZhi);
+    const hongluanPalaceIndex = (maoIndex + yearZhiIndex) % 12;
+    minorStars.push(this.placeStar(palaces, '紅鸞', 'minor', hongluanPalaceIndex));
+
+    // 安天喜 (紅鸞對宮)
+    const tianxiPalaceIndex = (hongluanPalaceIndex + 6) % 12;
+    minorStars.push(this.placeStar(palaces, '天喜', 'minor', tianxiPalaceIndex));
+
+    // 安龍池鳳閣 (年干起龍池)
+    const yearGan = this.lunarInfo.yearGan;
+    let longchiPalaceIndex = -1;
+    let fengguePalaceIndex = -1;
+    
+    if (['甲', '乙'].includes(yearGan)) {
+      longchiPalaceIndex = this.ZHI_NAMES.indexOf('辰');
+      fengguePalaceIndex = this.ZHI_NAMES.indexOf('戌');
+    } else if (['丙', '丁'].includes(yearGan)) {
+      longchiPalaceIndex = this.ZHI_NAMES.indexOf('未');
+      fengguePalaceIndex = this.ZHI_NAMES.indexOf('丑');
+    } else if (['戊', '己'].includes(yearGan)) {
+      longchiPalaceIndex = this.ZHI_NAMES.indexOf('辰');
+      fengguePalaceIndex = this.ZHI_NAMES.indexOf('戌');
+    } else if (['庚', '辛'].includes(yearGan)) {
+      longchiPalaceIndex = this.ZHI_NAMES.indexOf('未');
+      fengguePalaceIndex = this.ZHI_NAMES.indexOf('丑');
+    } else if (['壬', '癸'].includes(yearGan)) {
+      longchiPalaceIndex = this.ZHI_NAMES.indexOf('辰');
+      fengguePalaceIndex = this.ZHI_NAMES.indexOf('戌');
+    }
+    
+    if (longchiPalaceIndex !== -1) {
+      minorStars.push(this.placeStar(palaces, '龍池', 'minor', longchiPalaceIndex));
+    }
+    if (fengguePalaceIndex !== -1) {
+      minorStars.push(this.placeStar(palaces, '鳳閣', 'minor', fengguePalaceIndex));
+    }
+
+    // 安天德月德 (根據生月起天德)
+    let tianDePalaceIndex = -1;
+    let yueDePalaceIndex = -1;
+    
+    const monthTianDeMap: Record<number, string> = {
+      1: '丁', 2: '申', 3: '壬', 4: '辛', 5: '亥', 6: '甲',
+      7: '癸', 8: '寅', 9: '丙', 10: '乙', 11: '巳', 12: '庚'
+    };
+    
+    const tianDeGan = monthTianDeMap[lunarMonth];
+    if (tianDeGan) {
+      // 天德根據天干確定位置（簡化處理）
+      const tianDeGanIndex = this.GAN_NAMES.indexOf(tianDeGan);
+      tianDePalaceIndex = (tianDeGanIndex * 2) % 12; // 簡化計算
+      minorStars.push(this.placeStar(palaces, '天德', 'minor', tianDePalaceIndex));
+      
+      // 月德在天德三合
+      yueDePalaceIndex = (tianDePalaceIndex + 4) % 12;
+      minorStars.push(this.placeStar(palaces, '月德', 'minor', yueDePalaceIndex));
+    }
+
+    // 安孤辰寡宿 (根據年支三合局)
+    let guchenPalaceIndex = -1;
+    let guasuPalaceIndex = -1;
+    
+    if (['寅', '午', '戌'].includes(yearZhi)) {
+      guchenPalaceIndex = this.ZHI_NAMES.indexOf('丑');
+      guasuPalaceIndex = this.ZHI_NAMES.indexOf('未');
+    } else if (['申', '子', '辰'].includes(yearZhi)) {
+      guchenPalaceIndex = this.ZHI_NAMES.indexOf('未');
+      guasuPalaceIndex = this.ZHI_NAMES.indexOf('丑');
+    } else if (['亥', '卯', '未'].includes(yearZhi)) {
+      guchenPalaceIndex = this.ZHI_NAMES.indexOf('戌');
+      guasuPalaceIndex = this.ZHI_NAMES.indexOf('辰');
+    } else if (['巳', '酉', '丑'].includes(yearZhi)) {
+      guchenPalaceIndex = this.ZHI_NAMES.indexOf('辰');
+      guasuPalaceIndex = this.ZHI_NAMES.indexOf('戌');
+    }
+    
+    if (guchenPalaceIndex !== -1) {
+      minorStars.push(this.placeStar(palaces, '孤辰', 'minor', guchenPalaceIndex));
+    }
+    if (guasuPalaceIndex !== -1) {
+      minorStars.push(this.placeStar(palaces, '寡宿', 'minor', guasuPalaceIndex));
+    }
+
+    return minorStars;
   }
 
   private applyFourTransformations(palaces: Palace[], targetGan: string): void {
@@ -708,6 +911,150 @@ export class PurpleStarCalculationService {
     }
     
     return liuNianTaiSuiList;
+  }
+
+  /**
+   * 分析格局模式
+   * 檢查命盤中的特殊星曜組合和格局
+   */
+  private analyzeKeyPatterns(chart: PurpleStarChart): string[] {
+    const patterns: string[] = [];
+    const palaces = chart.palaces;
+
+    // 輔助函式：檢查某宮位是否包含某星曜
+    const palaceHasStar = (palaceName: string, starName: string): boolean => {
+      const palace = palaces.find(p => p.name === palaceName);
+      return palace ? palace.stars.some(s => s.name === starName) : false;
+    };
+
+    // 輔助函式：取得三方四正宮位
+    const getSanFangSiZheng = (palaceName: string): Palace[] => {
+      const palace = palaces.find(p => p.name === palaceName);
+      if (!palace) return [];
+      
+      const palaceIndex = palace.index;
+      // 三方四正：本宮、財帛宮（+4）、官祿宮（+8）、遷移宮（+6）
+      const sanFangIndices = [
+        palaceIndex,
+        (palaceIndex + 4) % 12,  // 財帛
+        (palaceIndex + 8) % 12,  // 官祿  
+        (palaceIndex + 6) % 12   // 遷移
+      ];
+      
+      return palaces.filter(p => sanFangIndices.includes(p.index));
+    };
+
+    // 1. 殺破狼格 (Sha Po Lang)
+    const mingPalace = palaces.find(p => p.name === '命宮');
+    if (mingPalace) {
+      const sanFangPalaces = getSanFangSiZheng('命宮');
+      const sanFangStars = sanFangPalaces.flatMap(p => p.stars.map(s => s.name));
+      const hasShaPoLang = ['七殺', '破軍', '貪狼'].every(star => sanFangStars.includes(star));
+      if (hasShaPoLang) {
+        patterns.push('殺破狼格：主變動、開創與挑戰，人生起伏較大，適合在變動中求發展。');
+      }
+    }
+
+    // 2. 機月同梁格 (Ji Yue Tong Liang)
+    if (mingPalace) {
+      const sanFangPalaces = getSanFangSiZheng('命宮');
+      const sanFangStars = sanFangPalaces.flatMap(p => p.stars.map(s => s.name));
+      const hasJiYueTongLiang = ['天機', '太陰', '天同', '天梁'].every(star => sanFangStars.includes(star));
+      if (hasJiYueTongLiang) {
+        patterns.push('機月同梁格：主穩定、保守、重視精神層面，適合從事服務或文職工作。');
+      }
+    }
+
+    // 3. 日月反背 (Ri Yue Fan Bei)
+    const taiYang = palaces.flatMap(p => p.stars).find(s => s.name === '太陽');
+    const taiYin = palaces.flatMap(p => p.stars).find(s => s.name === '太陰');
+    if (taiYang?.brightness === '落陷' && taiYin?.brightness === '落陷') {
+      patterns.push('日月反背格：主辛苦勞碌，需離鄉發展，早年不順，但中年後憑藉努力可有成就。');
+    }
+
+    // 4. 紫府夾命格
+    const ziweiPalace = palaces.find(p => p.stars.some(s => s.name === '紫微'));
+    const tianfuPalace = palaces.find(p => p.stars.some(s => s.name === '天府'));
+    if (ziweiPalace && tianfuPalace && mingPalace) {
+      const mingIndex = mingPalace.index;
+      const ziweiIndex = ziweiPalace.index;
+      const tianfuIndex = tianfuPalace.index;
+      
+      // 檢查紫微天府是否夾命宮
+      if ((ziweiIndex === (mingIndex - 1 + 12) % 12 && tianfuIndex === (mingIndex + 1) % 12) ||
+          (tianfuIndex === (mingIndex - 1 + 12) % 12 && ziweiIndex === (mingIndex + 1) % 12)) {
+        patterns.push('紫府夾命格：主貴氣、有領導才能，一生多得貴人相助，事業容易成功。');
+      }
+    }
+
+    // 5. 左右夾命格
+    const zuofuPalace = palaces.find(p => p.stars.some(s => s.name === '左輔'));
+    const youbiPalace = palaces.find(p => p.stars.some(s => s.name === '右弼'));
+    if (zuofuPalace && youbiPalace && mingPalace) {
+      const mingIndex = mingPalace.index;
+      const zuofuIndex = zuofuPalace.index;
+      const youbiIndex = youbiPalace.index;
+      
+      // 檢查左輔右弼是否夾命宮
+      if ((zuofuIndex === (mingIndex - 1 + 12) % 12 && youbiIndex === (mingIndex + 1) % 12) ||
+          (youbiIndex === (mingIndex - 1 + 12) % 12 && zuofuIndex === (mingIndex + 1) % 12)) {
+        patterns.push('左右夾命格：主貴人運旺，容易得到幫助和支持，適合團隊合作。');
+      }
+    }
+
+    // 6. 文昌文曲格
+    const hasWenChang = palaces.some(p => p.stars.some(s => s.name === '文昌'));
+    const hasWenQu = palaces.some(p => p.stars.some(s => s.name === '文曲'));
+    if (hasWenChang && hasWenQu) {
+      patterns.push('文昌文曲格：主學術才華出眾，文筆佳，適合從事文化、教育、創意工作。');
+    }
+
+    // 7. 財蔭夾印格
+    const caiboHasTianfu = palaceHasStar('財帛宮', '天府');
+    const fudeHasTianliang = palaceHasStar('福德宮', '天梁');
+    if (caiboHasTianfu && fudeHasTianliang) {
+      patterns.push('財蔭夾印格：主財源穩定，有長輩庇佑，晚年安逸富足。');
+    }
+
+    // 8. 火鈴夾命格（凶格）
+    const huoxingPalaces = palaces.filter(p => p.stars.some(s => s.name === '火星'));
+    const lingxingPalaces = palaces.filter(p => p.stars.some(s => s.name === '鈴星'));
+    if (huoxingPalaces.length > 0 && lingxingPalaces.length > 0 && mingPalace) {
+      // 簡化檢查：如果命宮三方四正有火鈴
+      const sanFangPalaces = getSanFangSiZheng('命宮');
+      const hasHuoxing = sanFangPalaces.some(p => p.stars.some(s => s.name === '火星'));
+      const hasLingxing = sanFangPalaces.some(p => p.stars.some(s => s.name === '鈴星'));
+      if (hasHuoxing && hasLingxing) {
+        patterns.push('火鈴夾命格：主性格急躁，易有意外，需注意安全，但也有衝勁和行動力。');
+      }
+    }
+
+    // 9. 羊陀夾命格（凶格）
+    const qingyangPalaces = palaces.filter(p => p.stars.some(s => s.name === '擎羊'));
+    const tuoluoPalaces = palaces.filter(p => p.stars.some(s => s.name === '陀羅'));
+    if (qingyangPalaces.length > 0 && tuoluoPalaces.length > 0 && mingPalace) {
+      // 簡化檢查：如果命宮三方四正有羊陀
+      const sanFangPalaces = getSanFangSiZheng('命宮');
+      const hasQingyang = sanFangPalaces.some(p => p.stars.some(s => s.name === '擎羊'));
+      const hasTuoluo = sanFangPalaces.some(p => p.stars.some(s => s.name === '陀羅'));
+      if (hasQingyang && hasTuoluo) {
+        patterns.push('羊陀夾命格：主阻礙較多，需要更多努力才能成功，但也鍛鍊出堅韌性格。');
+      }
+    }
+
+    // 10. 空劫夾命格（凶格）
+    const tiankongPalaces = palaces.filter(p => p.stars.some(s => s.name === '天空'));
+    const dijiePalaces = palaces.filter(p => p.stars.some(s => s.name === '地劫'));
+    if (tiankongPalaces.length > 0 && dijiePalaces.length > 0 && mingPalace) {
+      const sanFangPalaces = getSanFangSiZheng('命宮');
+      const hasTiankong = sanFangPalaces.some(p => p.stars.some(s => s.name === '天空'));
+      const hasDijie = sanFangPalaces.some(p => p.stars.some(s => s.name === '地劫'));
+      if (hasTiankong && hasDijie) {
+        patterns.push('空劫夾命格：主理想性高，但實現困難，需要腳踏實地，避免不切實際的幻想。');
+      }
+    }
+
+    return patterns;
   }
 
   /**
@@ -1086,7 +1433,7 @@ export class PurpleStarCalculationService {
     }
   }
   
-  private generatePalaceDetailedInterpretation(palace: Palace): PalaceInterpretation {
+  private generatePalaceDetailedInterpretation(palace: Palace, allPalaces: Palace[]): PalaceInterpretation {
     // 基礎宮位解讀資料
     const palaceInterpretationBase: Record<string, Partial<PalaceInterpretation>> = {
       '命宮': {
@@ -1189,57 +1536,37 @@ export class PurpleStarCalculationService {
       advice: [...(baseInterpretation.advice || [])]
     };
     
-    // 分析主星影響
+    // 檢查是否為空宮（無主星）
     const mainStars = palace.stars.filter(s => s.type === 'main');
-    for (const star of mainStars) {
-      // 添加星曜影響
-      interpretation.keyStarInfluences.push(`${star.name}星：${star.description || '影響此宮位'}`);
-      
-      // 根據星曜特性調整解讀
-      if (star.name === '紫微') {
-        interpretation.personalityTraits.push('有領導才能', '重視尊嚴與地位');
-        interpretation.strengthAreas.push('組織管理', '權威建立');
-      } else if (star.name === '天機') {
-        interpretation.personalityTraits.push('思維敏捷', '觀察力強');
-        interpretation.strengthAreas.push('分析能力', '策略規劃');
-      } else if (star.name === '太陽') {
-        interpretation.personalityTraits.push('光明磊落', '樂觀開朗');
-        interpretation.strengthAreas.push('人際魅力', '獲得支持');
-      } else if (star.name === '武曲') {
-        interpretation.personalityTraits.push('意志堅定', '執行力強');
-        interpretation.strengthAreas.push('財務管理', '資源調配');
-      } else if (star.name === '天同') {
-        interpretation.personalityTraits.push('溫和善良', '富有同情心');
-        interpretation.strengthAreas.push('人際協調', '獲得援助');
-      } else if (star.name === '廉貞') {
-        interpretation.personalityTraits.push('正直清廉', '標準要求高');
-        interpretation.challengeAreas.push('可能過於理想主義', '與現實有落差');
+    
+    if (mainStars.length === 0) {
+      // 處理空宮邏輯 - 借對宮主星
+      const oppositePalaceIndex = (palace.index + 6) % 12;
+      const oppositePalace = allPalaces.find(p => p.index === oppositePalaceIndex);
+
+      if (oppositePalace) {
+        interpretation.advice.push(`此為空宮，需借對宮【${oppositePalace.name}】的星曜來進行解讀，其影響力約為七成。`);
+        const borrowedStars = oppositePalace.stars.filter(s => s.type === 'main');
+
+        // 使用借來的星曜進行解讀
+        for (const star of borrowedStars) {
+          const brightnessDesc = star.brightness ? ` (${star.brightness})` : '';
+          interpretation.keyStarInfluences.push(`(借)${star.name}星${brightnessDesc}：${star.description || '影響此宮位'}，能量約為七成`);
+          
+          // 根據借來的星曜特性調整解讀（能量打折）
+          this.addStarCharacteristics(star, interpretation, 0.7); // 借星能量打七折
+        }
+      } else {
+        interpretation.advice.push('此為空宮且無法找到對宮，需參考其他宮位星曜進行解讀。');
       }
-      // 天府星系解讀
-      else if (star.name === '天府') {
-        interpretation.personalityTraits.push('穩重踏實', '福氣深厚');
-        interpretation.strengthAreas.push('累積資源', '獲得福報');
-      } else if (star.name === '太陰') {
-        interpretation.personalityTraits.push('情感豐富', '直覺敏銳');
-        interpretation.strengthAreas.push('感性思考', '藝術鑑賞');
-      } else if (star.name === '貪狼') {
-        interpretation.personalityTraits.push('積極進取', '慾望強烈');
-        interpretation.challengeAreas.push('需控制慾望', '避免過度追求');
-      } else if (star.name === '巨門') {
-        interpretation.personalityTraits.push('口才流利', '思維細膩');
-        interpretation.challengeAreas.push('可能言過其實', '需注意言語');
-      } else if (star.name === '天相') {
-        interpretation.personalityTraits.push('善良正直', '樂於助人');
-        interpretation.strengthAreas.push('人際和諧', '獲得支持');
-      } else if (star.name === '天梁') {
-        interpretation.personalityTraits.push('慈悲為懷', '重視和平');
-        interpretation.strengthAreas.push('道德操守', '長者風範');
-      } else if (star.name === '七殺') {
-        interpretation.personalityTraits.push('果斷剛強', '決策力強');
-        interpretation.challengeAreas.push('可能過於剛烈', '需學習柔和');
-      } else if (star.name === '破軍') {
-        interpretation.personalityTraits.push('開創精神強', '不拘一格');
-        interpretation.challengeAreas.push('可能缺乏耐心', '需培養穩定性');
+    } else {
+      // 分析主星影響（正常情況）
+      for (const star of mainStars) {
+        const brightnessDesc = star.brightness ? ` (${star.brightness})` : '';
+        interpretation.keyStarInfluences.push(`${star.name}星${brightnessDesc}：${star.description || '影響此宮位'}`);
+        
+        // 根據星曜特性調整解讀
+        this.addStarCharacteristics(star, interpretation, 1.0); // 本宮星曜全力
       }
     }
     
@@ -1257,6 +1584,41 @@ export class PurpleStarCalculationService {
       } else if (star.name === '天空' || star.name === '地劫') {
         interpretation.keyStarInfluences.push(`${star.name}星：帶來變數與挑戰，需要更多耐心`);
         interpretation.challengeAreas.push('面對突發狀況', '處理意外變化');
+      }
+    }
+
+    // 分析雜曜影響
+    const minorStars = palace.stars.filter(s => s.type === 'minor');
+    for (const star of minorStars) {
+      const brightnessDesc = star.brightness ? ` (${star.brightness})` : '';
+      interpretation.keyStarInfluences.push(`${star.name}星${brightnessDesc}：${star.description}`);
+      
+      // 根據雜曜特性調整解讀
+      if (star.name === '天馬' && palace.name === '遷移宮') {
+        interpretation.advice.push('遷移宮逢天馬，一生多有外出、旅行、搬遷的機會，適合向外發展。');
+        interpretation.strengthAreas.push('適應變動環境', '旅行發展');
+      }
+      if (star.name === '天姚' && palace.name === '夫妻宮') {
+        interpretation.advice.push('夫妻宮逢天姚，感情世界豐富多彩，但需注意處理情感關係的智慧。');
+        interpretation.personalityTraits.push('感情豐富', '人際魅力');
+      }
+      if (star.name === '紅鸞' || star.name === '天喜') {
+        interpretation.personalityTraits.push('感情運佳', '喜慶事多');
+        if (palace.name === '夫妻宮') {
+          interpretation.advice.push(`${palace.name}逢${star.name}，婚姻感情方面有喜慶之事，感情發展順利。`);
+        }
+      }
+      if (star.name === '龍池' || star.name === '鳳閣') {
+        interpretation.personalityTraits.push('文藝氣質', '品味高雅');
+        interpretation.strengthAreas.push('藝術創作', '文化修養');
+      }
+      if (star.name === '天德' || star.name === '月德') {
+        interpretation.strengthAreas.push('逢凶化吉', '獲得庇佑');
+        interpretation.advice.push(`${palace.name}逢${star.name}，有德澤庇佑，能化解困難。`);
+      }
+      if (star.name === '孤辰' || star.name === '寡宿') {
+        interpretation.challengeAreas.push('容易感到孤獨', '需要主動社交');
+        interpretation.advice.push(`${palace.name}逢${star.name}，需要主動建立人際關係，避免過於孤僻。`);
       }
     }
     
@@ -1291,5 +1653,61 @@ export class PurpleStarCalculationService {
     }
     
     return interpretation;
+  }
+
+  /**
+   * 添加星曜特性到宮位解讀中
+   * @param star 星曜
+   * @param interpretation 宮位解讀
+   * @param powerFactor 力量係數（1.0為正常，0.7為借星）
+   */
+  private addStarCharacteristics(star: Star, interpretation: PalaceInterpretation, powerFactor: number = 1.0): void {
+    const strengthPrefix = powerFactor < 1.0 ? '(借星影響較弱)' : '';
+    
+    if (star.name === '紫微') {
+      interpretation.personalityTraits.push(`${strengthPrefix}有領導才能`, `${strengthPrefix}重視尊嚴與地位`);
+      interpretation.strengthAreas.push(`${strengthPrefix}組織管理`, `${strengthPrefix}權威建立`);
+    } else if (star.name === '天機') {
+      interpretation.personalityTraits.push(`${strengthPrefix}思維敏捷`, `${strengthPrefix}觀察力強`);
+      interpretation.strengthAreas.push(`${strengthPrefix}分析能力`, `${strengthPrefix}策略規劃`);
+    } else if (star.name === '太陽') {
+      interpretation.personalityTraits.push(`${strengthPrefix}光明磊落`, `${strengthPrefix}樂觀開朗`);
+      interpretation.strengthAreas.push(`${strengthPrefix}人際魅力`, `${strengthPrefix}獲得支持`);
+    } else if (star.name === '武曲') {
+      interpretation.personalityTraits.push(`${strengthPrefix}意志堅定`, `${strengthPrefix}執行力強`);
+      interpretation.strengthAreas.push(`${strengthPrefix}財務管理`, `${strengthPrefix}資源調配`);
+    } else if (star.name === '天同') {
+      interpretation.personalityTraits.push(`${strengthPrefix}溫和善良`, `${strengthPrefix}富有同情心`);
+      interpretation.strengthAreas.push(`${strengthPrefix}人際協調`, `${strengthPrefix}獲得援助`);
+    } else if (star.name === '廉貞') {
+      interpretation.personalityTraits.push(`${strengthPrefix}正直清廉`, `${strengthPrefix}標準要求高`);
+      interpretation.challengeAreas.push(`${strengthPrefix}可能過於理想主義`, `${strengthPrefix}與現實有落差`);
+    }
+    // 天府星系解讀
+    else if (star.name === '天府') {
+      interpretation.personalityTraits.push(`${strengthPrefix}穩重踏實`, `${strengthPrefix}福氣深厚`);
+      interpretation.strengthAreas.push(`${strengthPrefix}累積資源`, `${strengthPrefix}獲得福報`);
+    } else if (star.name === '太陰') {
+      interpretation.personalityTraits.push(`${strengthPrefix}情感豐富`, `${strengthPrefix}直覺敏銳`);
+      interpretation.strengthAreas.push(`${strengthPrefix}感性思考`, `${strengthPrefix}藝術鑑賞`);
+    } else if (star.name === '貪狼') {
+      interpretation.personalityTraits.push(`${strengthPrefix}積極進取`, `${strengthPrefix}慾望強烈`);
+      interpretation.challengeAreas.push(`${strengthPrefix}需控制慾望`, `${strengthPrefix}避免過度追求`);
+    } else if (star.name === '巨門') {
+      interpretation.personalityTraits.push(`${strengthPrefix}口才流利`, `${strengthPrefix}思維細膩`);
+      interpretation.challengeAreas.push(`${strengthPrefix}可能言過其實`, `${strengthPrefix}需注意言語`);
+    } else if (star.name === '天相') {
+      interpretation.personalityTraits.push(`${strengthPrefix}善良正直`, `${strengthPrefix}樂於助人`);
+      interpretation.strengthAreas.push(`${strengthPrefix}人際和諧`, `${strengthPrefix}獲得支持`);
+    } else if (star.name === '天梁') {
+      interpretation.personalityTraits.push(`${strengthPrefix}慈悲為懷`, `${strengthPrefix}重視和平`);
+      interpretation.strengthAreas.push(`${strengthPrefix}道德操守`, `${strengthPrefix}長者風範`);
+    } else if (star.name === '七殺') {
+      interpretation.personalityTraits.push(`${strengthPrefix}果斷剛強`, `${strengthPrefix}決策力強`);
+      interpretation.challengeAreas.push(`${strengthPrefix}可能過於剛烈`, `${strengthPrefix}需學習柔和`);
+    } else if (star.name === '破軍') {
+      interpretation.personalityTraits.push(`${strengthPrefix}開創精神強`, `${strengthPrefix}不拘一格`);
+      interpretation.challengeAreas.push(`${strengthPrefix}可能缺乏耐心`, `${strengthPrefix}需培養穩定性`);
+    }
   }
 }

@@ -162,7 +162,7 @@ export function useSharedLayeredReading(moduleType: 'purpleStar' | 'transformati
     downgradeLevel: syncedDowngradeLevel,
     autoSelectOptimalLevel: syncedAutoSelectOptimalLevel,
 
-    // 模組信息
+    // 模組資訊
     moduleType,
     isPrimaryModule,
     getModuleDisplayName,

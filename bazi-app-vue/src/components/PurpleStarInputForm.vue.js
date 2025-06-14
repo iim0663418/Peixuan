@@ -28,7 +28,7 @@ const formData = reactive({
     timezone: 'Asia/Taipei'
 });
 const selectedCity = ref('');
-// 主要城市座標數據
+// 主要城市座標資料
 const majorCities = ref([
     { label: '台北, 台灣', value: 'taipei', longitude: 121.5654, latitude: 25.0330, timezone: 'Asia/Taipei' },
     { label: '高雄, 台灣', value: 'kaohsiung', longitude: 120.3014, latitude: 22.6273, timezone: 'Asia/Taipei' },
@@ -52,7 +52,7 @@ const fillCityCoordinates = (cityValue) => {
         formData.timezone = city.timezone;
     }
 };
-// 從 sessionStorage 加載保存的時區信息
+// 從 sessionStorage 加載保存的時區資訊
 onMounted(() => {
     const savedTimezone = getTimeZoneInfo();
     if (savedTimezone && savedTimezone.timeZone) {
@@ -129,7 +129,7 @@ const submitForm = async () => {
             // 直接使用解析出的數值創建 Solar 實例，避免 Date 對象的潛在問題
             const solarInstance = Solar.fromYmdHms(year, month, day, hour, minute, 0);
             const lunarDate = solarInstance.getLunar();
-            // 保存時區信息到 sessionStorage
+            // 保存時區資訊到 sessionStorage
             saveTimeZoneInfo(formData.timezone, year);
             // 驗證位置資訊
             if (formData.longitude === null || formData.latitude === null) {

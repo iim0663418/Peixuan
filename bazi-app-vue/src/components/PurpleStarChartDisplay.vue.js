@@ -1,7 +1,12 @@
 /// <reference types="../../node_modules/.vue-global-types/vue_3.5_0_0_0.d.ts" />
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useDisplayMode } from '@/composables/useDisplayMode';
+import StarBrightnessIndicator from './StarBrightnessIndicator.vue';
+import PatternAnalysisPanel from './PatternAnalysisPanel.vue';
+import MinorStarsPanel from './MinorStarsPanel.vue';
+import EmptyPalaceIndicator from './EmptyPalaceIndicator.vue';
+import PurpleStarGuideModal from './PurpleStarGuideModal.vue';
+import FeatureHintsDisplay from '@/components/FeatureHintsDisplay.vue';
 const { t } = useI18n();
 const props = withDefaults(defineProps(), {
     chartData: null,
@@ -12,116 +17,22 @@ const props = withDefaults(defineProps(), {
 });
 const emit = defineEmits();
 // 響應式資料
-const viewMode = ref('simple');
-const displayMode = ref('compact'); // 保留舊的控制變數，保持向後兼容
+const viewMode = ref('detailed');
+const displayMode = ref('expanded'); // 保留舊的控制變數，保持向後兼容
 const selectedStar = ref(null);
 const selectedPalace = ref(null); // 選中的宮位
 const showInteractionTips = ref(true); // 顯示互動提示
 const showSummary = ref(true); // 顯示簡要解讀
+const showGuideModal = ref(false); // 顯示功能指南彈窗
 const interpretationMode = ref('comprehensive');
 const activeDomain = ref('career');
 const activePalaceName = ref('');
-// 使用顯示模式 composable
-const { displayMode: displayDepth, mapDepthToMode } = useDisplayMode('purpleStar');
-const availableDisplayDepths = ['minimal', 'compact', 'standard', 'comprehensive'];
-// 設定顯示深度的方法
-const setDisplayDepth = (depth) => {
-    displayDepth.value = depth;
-    // 發送事件通知父組件顯示深度已變更
-    emit('update:displayDepth', depth);
-    // 保存顯示深度設定到 sessionStorage
-    try {
-        sessionStorage.setItem('purple-star-display-depth', depth);
-    }
-    catch (error) {
-        console.warn('無法保存顯示深度設定:', error);
-    }
-    // 根據深度應用不同的顯示效果
-    setTimeout(() => {
-        const chartGrid = document.querySelector('.chart-grid');
-        // 清除所有深度相關的類
-        document.querySelectorAll('.palace-cell').forEach((el) => {
-            el.classList.remove('depth-minimal', 'depth-compact', 'depth-standard', 'depth-comprehensive');
-            el.classList.add(`depth-${depth}`);
-        });
-        if (chartGrid) {
-            chartGrid.classList.remove('detailed', 'simple');
-        }
-        switch (depth) {
-            case 'minimal':
-                // 最簡潔預覽模式
-                if (chartGrid)
-                    chartGrid.classList.add('simple');
-                document.querySelectorAll('.cycles-info').forEach((el) => {
-                    el.style.display = 'none';
-                });
-                document.querySelectorAll('.star-item:not(.star-main)').forEach((el) => {
-                    el.style.opacity = '0.4';
-                });
-                document.querySelectorAll('.palace-cell').forEach((el) => {
-                    el.style.pointerEvents = 'none';
-                });
-                viewMode.value = 'simple';
-                displayMode.value = 'compact';
-                break;
-            case 'compact':
-                // 精簡檢視模式
-                if (chartGrid)
-                    chartGrid.classList.add('simple');
-                document.querySelectorAll('.cycles-info').forEach((el) => {
-                    el.style.display = 'none';
-                });
-                document.querySelectorAll('.star-item:not(.star-main)').forEach((el) => {
-                    el.style.opacity = '0.7';
-                });
-                document.querySelectorAll('.palace-cell').forEach((el) => {
-                    el.style.pointerEvents = 'auto';
-                });
-                viewMode.value = 'simple';
-                displayMode.value = 'compact';
-                break;
-            case 'standard':
-                // 標準解讀模式
-                if (chartGrid)
-                    chartGrid.classList.add('detailed');
-                document.querySelectorAll('.cycles-info').forEach((el) => {
-                    el.style.display = 'block';
-                });
-                document.querySelectorAll('.star-item').forEach((el) => {
-                    el.style.opacity = '1';
-                });
-                document.querySelectorAll('.palace-cell').forEach((el) => {
-                    el.style.pointerEvents = 'auto';
-                });
-                viewMode.value = 'detailed';
-                displayMode.value = 'expanded';
-                break;
-            case 'comprehensive':
-                // 深度分析模式
-                if (chartGrid)
-                    chartGrid.classList.add('detailed');
-                document.querySelectorAll('.cycles-info').forEach((el) => {
-                    el.style.display = 'block';
-                });
-                document.querySelectorAll('.star-item').forEach((el) => {
-                    el.style.opacity = '1';
-                });
-                document.querySelectorAll('.palace-cell').forEach((el) => {
-                    el.style.pointerEvents = 'auto';
-                });
-                // 這裡可以增加額外深度分析效果
-                viewMode.value = 'detailed';
-                displayMode.value = 'expanded';
-                break;
-        }
-    }, 50);
-};
 // 計算屬性
 // 命盤概要解讀
 const chartSummary = computed(() => {
     if (!props.chartData || !props.chartData.palaces || !Array.isArray(props.chartData.palaces))
         return null;
-    // 從命盤數據中提取重要信息生成簡要解讀
+    // 從命盤資料中提取重要資訊生成簡要解讀
     const mainStars = props.chartData.palaces.flatMap(p => p.stars && Array.isArray(p.stars)
         ? p.stars.filter(s => s.type === 'main' || (s.transformations && s.transformations.length))
         : []);
@@ -237,8 +148,21 @@ const getStarClasses = (star) => {
 };
 const getStarTooltip = (star) => {
     let tooltip = `${star.name} (${t(`purpleStarChart.starTypes.${star.type}`)})`;
+    // 添加亮度資訊
+    if (star.brightness) {
+        tooltip += ` - 亮度: ${star.brightness}`;
+    }
+    // 添加星曜屬性
+    if (star.attribute) {
+        tooltip += ` - 屬性: ${star.attribute}`;
+    }
+    // 添加四化資訊
     if (star.transformations && star.transformations.length > 0) {
-        tooltip += ` - ${star.transformations.map(t => t).join(', ')}`;
+        tooltip += ` - 四化: ${star.transformations.map(t => t).join(', ')}`;
+    }
+    // 添加描述
+    if (star.description) {
+        tooltip += `\n${star.description}`;
     }
     return tooltip;
 };
@@ -327,6 +251,30 @@ const getStarPalaceName = (star) => {
         return '';
     const palace = props.chartData.palaces.find(p => p.index === star.palaceIndex);
     return palace?.name || '';
+};
+// 檢查是否為空宮（無主星）
+const isEmptyPalace = (zhiName) => {
+    const palace = getPalaceByZhi(zhiName);
+    if (!palace)
+        return false;
+    const mainStars = palace.stars.filter(star => star.type === 'main');
+    return mainStars.length === 0;
+};
+// 獲取借星資訊
+const getBorrowedPalaceInfo = (zhiName) => {
+    const palace = getPalaceByZhi(zhiName);
+    if (!palace || !isEmptyPalace(zhiName))
+        return undefined;
+    // 計算對宮索引
+    const oppositePalaceIndex = (palace.index + 6) % 12;
+    const oppositePalace = props.chartData?.palaces.find(p => p.index === oppositePalaceIndex);
+    if (!oppositePalace)
+        return undefined;
+    const mainStars = oppositePalace.stars.filter(star => star.type === 'main');
+    return {
+        name: oppositePalace.name,
+        mainStars: mainStars
+    };
 };
 const getPalaceFortuneClass = (palace) => {
     if (!palace || !palace.fortuneType)
@@ -460,24 +408,29 @@ const getFortuneDisplayName = (fortune) => {
 };
 // 生命週期
 onMounted(() => {
-    // 設置初始顯示深度
-    try {
-        const savedDepth = sessionStorage.getItem('purple-star-display-depth');
-        if (savedDepth && availableDisplayDepths.includes(savedDepth)) {
-            displayDepth.value = savedDepth;
-            // 應用顯示深度效果
-            setTimeout(() => setDisplayDepth(displayDepth.value), 100);
-        }
-        else {
-            // 預設為標準解讀
-            setDisplayDepth('standard');
-        }
+    // 設置為最詳細展開模式
+    const chartGrid = document.querySelector('.chart-grid');
+    // 清除所有深度相關的類
+    document.querySelectorAll('.palace-cell').forEach((el) => {
+        el.classList.remove('depth-minimal', 'depth-compact', 'depth-standard', 'depth-comprehensive');
+        el.classList.add('depth-comprehensive');
+    });
+    if (chartGrid) {
+        chartGrid.classList.remove('simple');
+        chartGrid.classList.add('detailed');
     }
-    catch (error) {
-        console.warn('無法讀取顯示深度設定:', error);
-        // 預設為標準解讀
-        setDisplayDepth('standard');
-    }
+    // 顯示所有大限小限資訊
+    document.querySelectorAll('.cycles-info').forEach((el) => {
+        el.style.display = 'block';
+    });
+    // 顯示所有星曜
+    document.querySelectorAll('.star-item').forEach((el) => {
+        el.style.opacity = '1';
+    });
+    // 啟用宮位互動
+    document.querySelectorAll('.palace-cell').forEach((el) => {
+        el.style.pointerEvents = 'auto';
+    });
 });
 // 監聽
 watch(() => props.chartData, (newData) => {
@@ -508,6 +461,7 @@ let __VLS_components;
 let __VLS_directives;
 /** @type {__VLS_StyleScopedClasses['retry-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['chart-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['guide-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['view-toggle-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['view-toggle-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
@@ -519,8 +473,12 @@ let __VLS_directives;
 /** @type {__VLS_StyleScopedClasses['palace-cell']} */ ;
 /** @type {__VLS_StyleScopedClasses['chart-header']} */ ;
 /** @type {__VLS_StyleScopedClasses['chart-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['header-actions']} */ ;
+/** @type {__VLS_StyleScopedClasses['intro-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['feature-content']} */ ;
 /** @type {__VLS_StyleScopedClasses['summary-header']} */ ;
 /** @type {__VLS_StyleScopedClasses['toggle-summary-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['feature-item']} */ ;
 /** @type {__VLS_StyleScopedClasses['summary-detailed']} */ ;
 /** @type {__VLS_StyleScopedClasses['close-hint']} */ ;
 /** @type {__VLS_StyleScopedClasses['show-summary-button']} */ ;
@@ -530,6 +488,10 @@ let __VLS_directives;
 /** @type {__VLS_StyleScopedClasses['palace-center']} */ ;
 /** @type {__VLS_StyleScopedClasses['shen-indicator']} */ ;
 /** @type {__VLS_StyleScopedClasses['star-item']} */ ;
+/** @type {__VLS_StyleScopedClasses['transformations']} */ ;
+/** @type {__VLS_StyleScopedClasses['transformations']} */ ;
+/** @type {__VLS_StyleScopedClasses['detailed-transformations']} */ ;
+/** @type {__VLS_StyleScopedClasses['star-type-badge']} */ ;
 /** @type {__VLS_StyleScopedClasses['da-xian-info']} */ ;
 /** @type {__VLS_StyleScopedClasses['xiao-xian-info']} */ ;
 /** @type {__VLS_StyleScopedClasses['cycles-detail-header']} */ ;
@@ -549,6 +511,10 @@ let __VLS_directives;
 /** @type {__VLS_StyleScopedClasses['attribute-tag']} */ ;
 /** @type {__VLS_StyleScopedClasses['attribute-tag']} */ ;
 /** @type {__VLS_StyleScopedClasses['star-description']} */ ;
+/** @type {__VLS_StyleScopedClasses['cycles-info']} */ ;
+/** @type {__VLS_StyleScopedClasses['da-xian-info']} */ ;
+/** @type {__VLS_StyleScopedClasses['xiao-xian-info']} */ ;
+/** @type {__VLS_StyleScopedClasses['da-xian-info']} */ ;
 /** @type {__VLS_StyleScopedClasses['interpretation-header']} */ ;
 /** @type {__VLS_StyleScopedClasses['tab-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
@@ -570,16 +536,57 @@ let __VLS_directives;
 /** @type {__VLS_StyleScopedClasses['palace-section']} */ ;
 /** @type {__VLS_StyleScopedClasses['palace-section']} */ ;
 /** @type {__VLS_StyleScopedClasses['chart-grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['interpretation-section']} */ ;
+/** @type {__VLS_StyleScopedClasses['chart-grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['comprehensive-interpretation']} */ ;
+/** @type {__VLS_StyleScopedClasses['domain-periods']} */ ;
+/** @type {__VLS_StyleScopedClasses['chart-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['chart-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['header-actions']} */ ;
+/** @type {__VLS_StyleScopedClasses['guide-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['chart-grid']} */ ;
 /** @type {__VLS_StyleScopedClasses['chart-grid']} */ ;
 /** @type {__VLS_StyleScopedClasses['detailed']} */ ;
 /** @type {__VLS_StyleScopedClasses['palace-cell']} */ ;
-/** @type {__VLS_StyleScopedClasses['star-item']} */ ;
-/** @type {__VLS_StyleScopedClasses['cycles-grid']} */ ;
-/** @type {__VLS_StyleScopedClasses['chart-grid']} */ ;
-/** @type {__VLS_StyleScopedClasses['palace-cell']} */ ;
+/** @type {__VLS_StyleScopedClasses['palace-header']} */ ;
 /** @type {__VLS_StyleScopedClasses['palace-name']} */ ;
 /** @type {__VLS_StyleScopedClasses['palace-zhi']} */ ;
 /** @type {__VLS_StyleScopedClasses['star-item']} */ ;
+/** @type {__VLS_StyleScopedClasses['star-name']} */ ;
+/** @type {__VLS_StyleScopedClasses['feature-hints']} */ ;
+/** @type {__VLS_StyleScopedClasses['cycles-info']} */ ;
+/** @type {__VLS_StyleScopedClasses['da-xian-info']} */ ;
+/** @type {__VLS_StyleScopedClasses['xiao-xian-info']} */ ;
+/** @type {__VLS_StyleScopedClasses['interpretation-section']} */ ;
+/** @type {__VLS_StyleScopedClasses['interpretation-tabs']} */ ;
+/** @type {__VLS_StyleScopedClasses['tab-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['cycles-grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['purple-star-chart-container']} */ ;
+/** @type {__VLS_StyleScopedClasses['chart-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['chart-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['guide-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['chart-grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['palace-cell']} */ ;
+/** @type {__VLS_StyleScopedClasses['palace-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['center-info']} */ ;
+/** @type {__VLS_StyleScopedClasses['palace-name']} */ ;
+/** @type {__VLS_StyleScopedClasses['palace-zhi']} */ ;
+/** @type {__VLS_StyleScopedClasses['star-item']} */ ;
+/** @type {__VLS_StyleScopedClasses['star-name']} */ ;
+/** @type {__VLS_StyleScopedClasses['transformations']} */ ;
+/** @type {__VLS_StyleScopedClasses['star-attribute']} */ ;
+/** @type {__VLS_StyleScopedClasses['interpretation-section']} */ ;
+/** @type {__VLS_StyleScopedClasses['interpretation-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['interpretation-tabs']} */ ;
+/** @type {__VLS_StyleScopedClasses['tab-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['lifecycle-grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['domain-tabs']} */ ;
+/** @type {__VLS_StyleScopedClasses['palace-tabs']} */ ;
+/** @type {__VLS_StyleScopedClasses['chart-grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['palace-cell']} */ ;
+/** @type {__VLS_StyleScopedClasses['star-item']} */ ;
+/** @type {__VLS_StyleScopedClasses['interpretation-section']} */ ;
 // CSS variable injection 
 // CSS variable injection end 
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
@@ -645,6 +652,24 @@ else if (__VLS_ctx.chartData) {
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({});
     (__VLS_ctx.$t('purpleStarChart.title'));
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "header-actions" },
+    });
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
+        ...{ onClick: (...[$event]) => {
+                if (!!(__VLS_ctx.isLoading))
+                    return;
+                if (!!(__VLS_ctx.error))
+                    return;
+                if (!(__VLS_ctx.chartData))
+                    return;
+                __VLS_ctx.showGuideModal = true;
+            } },
+        ...{ class: "guide-button" },
+    });
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+        ...{ class: "guide-icon" },
+    });
     if (__VLS_ctx.showSummary && __VLS_ctx.chartSummary) {
         __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
             ...{ class: "chart-summary" },
@@ -709,7 +734,7 @@ else if (__VLS_ctx.chartData) {
             __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
                 ...{ class: "hint-text" },
             });
-            (__VLS_ctx.$t(`purpleStarChart.interactionTips.${__VLS_ctx.displayDepth}`));
+            (__VLS_ctx.$t('purpleStarChart.interactionTips.comprehensive'));
             __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
                 ...{ class: "swipe-hint" },
             });
@@ -830,6 +855,18 @@ else if (__VLS_ctx.chartData) {
             __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
                 ...{ class: "stars-container" },
             });
+            if (__VLS_ctx.isEmptyPalace(position)) {
+                /** @type {[typeof EmptyPalaceIndicator, ]} */ ;
+                // @ts-ignore
+                const __VLS_0 = __VLS_asFunctionalComponent(EmptyPalaceIndicator, new EmptyPalaceIndicator({
+                    borrowedPalace: (__VLS_ctx.getBorrowedPalaceInfo(position)),
+                    ...{ class: "empty-palace-indicator" },
+                }));
+                const __VLS_1 = __VLS_0({
+                    borrowedPalace: (__VLS_ctx.getBorrowedPalaceInfo(position)),
+                    ...{ class: "empty-palace-indicator" },
+                }, ...__VLS_functionalComponentArgsRest(__VLS_0));
+            }
             for (const [star] of __VLS_getVForSourceType((__VLS_ctx.getPalaceByZhi(position)?.stars))) {
                 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
                     ...{ onClick: (...[$event]) => {
@@ -853,11 +890,27 @@ else if (__VLS_ctx.chartData) {
                     ...{ class: "star-name" },
                 });
                 (star.name);
+                if (star.brightness) {
+                    /** @type {[typeof StarBrightnessIndicator, ]} */ ;
+                    // @ts-ignore
+                    const __VLS_3 = __VLS_asFunctionalComponent(StarBrightnessIndicator, new StarBrightnessIndicator({
+                        brightness: (star.brightness),
+                    }));
+                    const __VLS_4 = __VLS_3({
+                        brightness: (star.brightness),
+                    }, ...__VLS_functionalComponentArgsRest(__VLS_3));
+                }
                 if (star.transformations && star.transformations.length > 0) {
                     __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-                        ...{ class: "transformations" },
+                        ...{ class: (['transformations', { 'detailed-transformations': __VLS_ctx.viewMode === 'detailed' }]) },
                     });
-                    (star.transformations.join(''));
+                    for (const [trans] of __VLS_getVForSourceType((star.transformations))) {
+                        __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+                            key: (trans),
+                            ...{ class: (`transformation-${trans}`) },
+                        });
+                        (trans);
+                    }
                 }
                 if (star.attribute) {
                     __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
@@ -865,6 +918,30 @@ else if (__VLS_ctx.chartData) {
                     });
                     (star.attribute);
                 }
+                if (star.type === 'minor') {
+                    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+                        ...{ class: "star-type-badge minor" },
+                    });
+                }
+            }
+            if (__VLS_ctx.viewMode === 'detailed') {
+                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                    ...{ class: "feature-hints" },
+                });
+                /** @type {[typeof FeatureHintsDisplay, ]} */ ;
+                // @ts-ignore
+                const __VLS_6 = __VLS_asFunctionalComponent(FeatureHintsDisplay, new FeatureHintsDisplay({
+                    palace: (__VLS_ctx.getPalaceByZhi(position)),
+                    position: (position),
+                    isEmpty: (__VLS_ctx.isEmptyPalace(position)),
+                    borrowedInfo: (__VLS_ctx.getBorrowedPalaceInfo(position)),
+                }));
+                const __VLS_7 = __VLS_6({
+                    palace: (__VLS_ctx.getPalaceByZhi(position)),
+                    position: (position),
+                    isEmpty: (__VLS_ctx.isEmptyPalace(position)),
+                    borrowedInfo: (__VLS_ctx.getBorrowedPalaceInfo(position)),
+                }, ...__VLS_functionalComponentArgsRest(__VLS_6));
             }
             if (__VLS_ctx.viewMode === 'detailed') {
                 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
@@ -944,6 +1021,30 @@ else if (__VLS_ctx.chartData) {
             ...{ class: ({ active: __VLS_ctx.interpretationMode === 'palace' }) },
             ...{ class: "tab-button" },
         });
+        if (__VLS_ctx.interpretationMode === 'comprehensive') {
+            /** @type {[typeof PatternAnalysisPanel, ]} */ ;
+            // @ts-ignore
+            const __VLS_9 = __VLS_asFunctionalComponent(PatternAnalysisPanel, new PatternAnalysisPanel({
+                patterns: (__VLS_ctx.chartData.keyPatterns),
+                ...{ class: "interpretation-panel" },
+            }));
+            const __VLS_10 = __VLS_9({
+                patterns: (__VLS_ctx.chartData.keyPatterns),
+                ...{ class: "interpretation-panel" },
+            }, ...__VLS_functionalComponentArgsRest(__VLS_9));
+        }
+        if (__VLS_ctx.interpretationMode === 'comprehensive') {
+            /** @type {[typeof MinorStarsPanel, ]} */ ;
+            // @ts-ignore
+            const __VLS_12 = __VLS_asFunctionalComponent(MinorStarsPanel, new MinorStarsPanel({
+                palaces: (__VLS_ctx.chartData.palaces),
+                ...{ class: "interpretation-panel" },
+            }));
+            const __VLS_13 = __VLS_12({
+                palaces: (__VLS_ctx.chartData.palaces),
+                ...{ class: "interpretation-panel" },
+            }, ...__VLS_functionalComponentArgsRest(__VLS_12));
+        }
         if (__VLS_ctx.interpretationMode === 'comprehensive' && __VLS_ctx.chartData.comprehensiveInterpretation) {
             __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
                 ...{ class: "comprehensive-interpretation" },
@@ -987,6 +1088,19 @@ else if (__VLS_ctx.chartData) {
                     key: (`challenge-${idx}`),
                 });
                 (challenge);
+            }
+            if (__VLS_ctx.chartData.comprehensiveInterpretation.keyCrossPalacePatterns && __VLS_ctx.chartData.comprehensiveInterpretation.keyCrossPalacePatterns.length > 0) {
+                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                    ...{ class: "interpretation-card" },
+                });
+                __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
+                __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
+                for (const [pattern, idx] of __VLS_getVForSourceType((__VLS_ctx.chartData.comprehensiveInterpretation.keyCrossPalacePatterns))) {
+                    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
+                        key: (`pattern-${idx}`),
+                    });
+                    (pattern);
+                }
             }
             __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
                 ...{ class: "interpretation-card" },
@@ -1379,6 +1493,31 @@ else if (__VLS_ctx.chartData) {
             }
         }
     }
+    /** @type {[typeof PurpleStarGuideModal, ]} */ ;
+    // @ts-ignore
+    const __VLS_15 = __VLS_asFunctionalComponent(PurpleStarGuideModal, new PurpleStarGuideModal({
+        ...{ 'onClose': {} },
+        visible: (__VLS_ctx.showGuideModal),
+    }));
+    const __VLS_16 = __VLS_15({
+        ...{ 'onClose': {} },
+        visible: (__VLS_ctx.showGuideModal),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_15));
+    let __VLS_18;
+    let __VLS_19;
+    let __VLS_20;
+    const __VLS_21 = {
+        onClose: (...[$event]) => {
+            if (!!(__VLS_ctx.isLoading))
+                return;
+            if (!!(__VLS_ctx.error))
+                return;
+            if (!(__VLS_ctx.chartData))
+                return;
+            __VLS_ctx.showGuideModal = false;
+        }
+    };
+    var __VLS_17;
 }
 /** @type {__VLS_StyleScopedClasses['purple-star-chart-container']} */ ;
 /** @type {__VLS_StyleScopedClasses['loading-state']} */ ;
@@ -1389,6 +1528,9 @@ else if (__VLS_ctx.chartData) {
 /** @type {__VLS_StyleScopedClasses['chart-content']} */ ;
 /** @type {__VLS_StyleScopedClasses['debug-info']} */ ;
 /** @type {__VLS_StyleScopedClasses['chart-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['header-actions']} */ ;
+/** @type {__VLS_StyleScopedClasses['guide-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['guide-icon']} */ ;
 /** @type {__VLS_StyleScopedClasses['chart-summary']} */ ;
 /** @type {__VLS_StyleScopedClasses['summary-header']} */ ;
 /** @type {__VLS_StyleScopedClasses['toggle-summary-button']} */ ;
@@ -1420,9 +1562,14 @@ else if (__VLS_ctx.chartData) {
 /** @type {__VLS_StyleScopedClasses['shen-indicator']} */ ;
 /** @type {__VLS_StyleScopedClasses['fortune-indicator']} */ ;
 /** @type {__VLS_StyleScopedClasses['stars-container']} */ ;
+/** @type {__VLS_StyleScopedClasses['empty-palace-indicator']} */ ;
 /** @type {__VLS_StyleScopedClasses['star-name']} */ ;
 /** @type {__VLS_StyleScopedClasses['transformations']} */ ;
+/** @type {__VLS_StyleScopedClasses['detailed-transformations']} */ ;
 /** @type {__VLS_StyleScopedClasses['star-attribute']} */ ;
+/** @type {__VLS_StyleScopedClasses['star-type-badge']} */ ;
+/** @type {__VLS_StyleScopedClasses['minor']} */ ;
+/** @type {__VLS_StyleScopedClasses['feature-hints']} */ ;
 /** @type {__VLS_StyleScopedClasses['cycles-info']} */ ;
 /** @type {__VLS_StyleScopedClasses['da-xian-info']} */ ;
 /** @type {__VLS_StyleScopedClasses['xiao-xian-info']} */ ;
@@ -1435,7 +1582,10 @@ else if (__VLS_ctx.chartData) {
 /** @type {__VLS_StyleScopedClasses['tab-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
 /** @type {__VLS_StyleScopedClasses['tab-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['interpretation-panel']} */ ;
+/** @type {__VLS_StyleScopedClasses['interpretation-panel']} */ ;
 /** @type {__VLS_StyleScopedClasses['comprehensive-interpretation']} */ ;
+/** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
 /** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
 /** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
 /** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
@@ -1505,14 +1655,20 @@ var __VLS_dollars;
 const __VLS_self = (await import('vue')).defineComponent({
     setup() {
         return {
+            StarBrightnessIndicator: StarBrightnessIndicator,
+            PatternAnalysisPanel: PatternAnalysisPanel,
+            MinorStarsPanel: MinorStarsPanel,
+            EmptyPalaceIndicator: EmptyPalaceIndicator,
+            PurpleStarGuideModal: PurpleStarGuideModal,
+            FeatureHintsDisplay: FeatureHintsDisplay,
             viewMode: viewMode,
             selectedStar: selectedStar,
             showInteractionTips: showInteractionTips,
             showSummary: showSummary,
+            showGuideModal: showGuideModal,
             interpretationMode: interpretationMode,
             activeDomain: activeDomain,
             activePalaceName: activePalaceName,
-            displayDepth: displayDepth,
             chartSummary: chartSummary,
             activeDomainAnalysis: activeDomainAnalysis,
             activePalaceInterpretation: activePalaceInterpretation,
@@ -1531,6 +1687,8 @@ const __VLS_self = (await import('vue')).defineComponent({
             formatXiaoXianInfo: formatXiaoXianInfo,
             isCurrentCycle: isCurrentCycle,
             getStarPalaceName: getStarPalaceName,
+            isEmptyPalace: isEmptyPalace,
+            getBorrowedPalaceInfo: getBorrowedPalaceInfo,
             getPalaceFortuneClass: getPalaceFortuneClass,
             getCycleTheme: getCycleTheme,
             handlePalaceClick: handlePalaceClick,

@@ -74,7 +74,7 @@ const getTrendText = () => {
         return '平穩發展';
     return '需要注意';
 };
-// 監聽數據變化，自動調整展示
+// 監聽資料變化，自動調整展示
 watch(() => props.coreTraits.length, (newLength) => {
     if (newLength <= maxDisplayedTraits.value) {
         expanded.value = false;

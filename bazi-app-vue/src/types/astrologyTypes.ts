@@ -11,6 +11,32 @@ export interface PurpleStarChart {
   palaceInterpretations?: PalaceInterpretation[];
   domainAnalyses?: DomainSpecificAnalysis[];
   comprehensiveInterpretation?: ComprehensiveChartInterpretation;
+  // 新增的格局分析
+  keyPatterns?: string[];
+  // 四化飛星相關
+  transformationFlows?: Record<number, {
+    palaceIndex: number;
+    palaceName: string;
+    energyScore: number;
+    majorInfluences: string[];
+  }>;
+  transformationCombinations?: Array<{
+    palaceIndex: number;
+    palaceName: string;
+    combination: string;
+    effect: string;
+    significance: 'high' | 'medium' | 'low';
+  }>;
+  multiLayerEnergies?: Record<number, {
+    palaceIndex: number;
+    palaceName: string;
+    baseEnergy: number;
+    daXianEnergy: number;
+    liuNianEnergy: number;
+    liuYueEnergy: number;
+    totalEnergy: number;
+    interpretation: string;
+  }>;
 }
 
 // 宮位詳細解讀
@@ -76,6 +102,8 @@ export interface Star {
   element?: '水' | '木' | '火' | '土' | '金';
   strength?: number;
   description?: string;
+  // 新增的星曜亮度屬性
+  brightness?: '廟' | '旺' | '得地' | '利益' | '平和' | '不得地' | '落陷';
 }
 
 export interface DaXianInfo {

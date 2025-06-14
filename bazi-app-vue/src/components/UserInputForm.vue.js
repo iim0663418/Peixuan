@@ -1,7 +1,7 @@
+/// <reference types="../../node_modules/.vue-global-types/vue_3.5_0_0_0.d.ts" />
 import { reactive, onMounted, onUnmounted, ref, watch, computed } from 'vue';
 import { BaziCalculator, TenGodsCalculator, FiveElementsAnalyzer, FortuneCycleCalculator } from '../utils/baziCalc';
 import { YearlyInteractionAnalyzer } from '../utils/yearlyInteractionUtils';
-import { LocalStorageService } from '../utils/storageService';
 import { FrontendValidator } from '../utils/frontendValidation';
 import BaziChart from './BaziChart.vue';
 import ElementsChart from './ElementsChart.vue';
@@ -97,7 +97,7 @@ function updateResultsDisplayBasedOnLibStatus() {
         parsedStartLuckResult.value = { error: calendarLibLoadErrorText.value };
     }
     else if (activeCalendarLib.value && activeCalendarLib.value.startsWith('lunarJS') && isCalendarLibFullyAvailable.value) {
-        if (parsedStartLuckResult.value && parsedStartLuckResult.value.error === calendarLibLoadErrorText.value) {
+        if (parsedStartLuckResult.value && 'error' in parsedStartLuckResult.value && parsedStartLuckResult.value.error === calendarLibLoadErrorText.value) {
             parsedStartLuckResult.value = null;
         }
     }
@@ -295,13 +295,12 @@ watch(() => [formState.calendarType, formState.year, formState.month, formState.
                         startLuckDisplayResult.value = JSON.stringify(calculatedStartLuck, null, 2);
                     }
                     else {
-                        parsedStartLuckResult.value = { error: '起運信息計算失敗。' };
-                        startLuckDisplayResult.value = JSON.stringify({ error: '起運信息計算失敗。' }, null, 2);
+                        parsedStartLuckResult.value = { error: '起運資訊計算失敗。' };
+                        startLuckDisplayResult.value = JSON.stringify({ error: '起運資訊計算失敗。' }, null, 2);
                     }
                 }
                 else {
                     parsedStartLuckResult.value = { error: calendarLibLoadErrorText.value };
-                    startLuckDisplayResult.value = JSON.stringify({ error: calendarLibLoadErrorText.value }, null, 2);
                 }
             }
             else {
@@ -412,7 +411,7 @@ const handleSubmit = async () => {
             return;
         }
         if (isCalendarLibFullyAvailable.value && (!startLuckDisplayResult.value || startLuckDisplayResult.value.includes('失敗'))) {
-            alert('起運信息計算失敗，請檢查輸入或日曆庫。');
+            alert('起運資訊計算失敗，請檢查輸入或日曆庫。');
             isLoading.value = false;
             return;
         }
@@ -431,22 +430,10 @@ const handleSubmit = async () => {
             }
         }
         emit('submitBaziData', dataToEmit);
-        if (activeCalendarLib.value && activeCalendarLib.value.startsWith('lunarJS') && isCalendarLibFullyAvailable.value) {
-            if (baziDisplayResult.value && tenGodsDisplayResult.value && elementsDistributionDisplayResult.value && startLuckDisplayResult.value &&
-                !baziDisplayResult.value.includes('失敗') && !tenGodsDisplayResult.value.includes('失敗') &&
-                !elementsDistributionDisplayResult.value.includes('失敗') && !startLuckDisplayResult.value.includes('失敗') && !startLuckDisplayResult.value.includes('受限')) {
-                const recordToSave = {
-                    userId: userId.value, inputData: { ...formState },
-                    baziResult: JSON.parse(baziDisplayResult.value), tenGods: JSON.parse(tenGodsDisplayResult.value),
-                    elementsDistribution: JSON.parse(elementsDistributionDisplayResult.value), startLuckInfo: JSON.parse(startLuckDisplayResult.value)
-                };
-                LocalStorageService.saveQueryRecord(recordToSave);
-            }
-        }
     }
     catch (e) {
-        console.error("解析結果或保存查詢紀錄到 localStorage 失敗:", e);
-        alert("處理結果或保存紀錄時發生錯誤。");
+        console.error("解析結果失敗:", e);
+        alert("處理結果時發生錯誤。");
     }
     finally {
         isLoading.value = false;
@@ -889,7 +876,7 @@ if (__VLS_ctx.parsedStartLuckResult && __VLS_ctx.activeCalendarLib && __VLS_ctx.
         ...{ class: "start-luck-result section-card" },
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
-    if (__VLS_ctx.parsedStartLuckResult.error) {
+    if ('error' in __VLS_ctx.parsedStartLuckResult) {
         __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
         (__VLS_ctx.parsedStartLuckResult.error);
     }

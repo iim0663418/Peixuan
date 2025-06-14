@@ -120,7 +120,7 @@ export default defineComponent({
       return t('storage.healthy');
     });
     
-    // 更新存儲統計數據
+    // 更新存儲統計資料
     const updateStats = () => {
       storageAvailable.value = enhancedStorageService.isStorageAvailable();
       if (storageAvailable.value) {
@@ -128,7 +128,7 @@ export default defineComponent({
       }
     };
     
-    // 切換詳細信息顯示
+    // 切換詳細資訊顯示
     const toggleDetails = () => {
       showDetails.value = !showDetails.value;
       if (showDetails.value) {
@@ -136,22 +136,22 @@ export default defineComponent({
       }
     };
     
-    // 清除所有數據
+    // 清除所有資料
     const clearAllData = async () => {
       try {
         enhancedStorageService.clearChartData();
         ElMessage.success(t('storage.dataCleared'));
         updateStats();
       } catch (error) {
-        console.error('清除數據時發生錯誤:', error);
+        console.error('清除資料時發生錯誤:', error);
         ElMessage.error(t('storage.clearError'));
       }
     };
     
-    // 驗證數據
+    // 驗證資料
     const validateData = () => {
       try {
-        // 初始化數據（如果需要）
+        // 初始化資料（如果需要）
         enhancedStorageService.initializeStorage();
         
         const isValid = enhancedStorageService.validateStorageData();
@@ -164,7 +164,7 @@ export default defineComponent({
           details?: Record<string, string[]>;
         }>('peixuan_storage_warnings');
         
-        // 更新統一數據引用
+        // 更新統一資料引用
         unifiedData.value = enhancedStorageService.getUnifiedSessionData();
         
         if (isValid && !storageWarnings) {
@@ -174,7 +174,7 @@ export default defineComponent({
           // 有警告但不影響系統運行
           validationStatus.value = 'warning';
           
-          // 如果有詳細的欄位缺失信息，顯示更具體的警告
+          // 如果有詳細的欄位缺失資訊，顯示更具體的警告
           let warningMessage = storageWarnings?.message || t('storage.validationWarning');
           if (storageWarnings?.details) {
             const details = Object.entries(storageWarnings.details)
@@ -189,11 +189,11 @@ export default defineComponent({
             duration: 5000
           });
           
-          // 自動嘗試修復數據
+          // 自動嘗試修復資料
           if (storageWarnings.details) {
             const success = enhancedStorageService.syncChartsToUnifiedData();
             if (success) {
-              console.log('自動嘗試修復數據不一致');
+              console.log('自動嘗試修復資料不一致');
             }
           }
         } else {
@@ -201,7 +201,7 @@ export default defineComponent({
           ElMessage.error(t('storage.validationError'));
         }
       } catch (error) {
-        console.error('驗證數據時發生錯誤:', error);
+        console.error('驗證資料時發生錯誤:', error);
         validationStatus.value = 'error';
         ElMessage.error(t('storage.validationError'));
       }
@@ -209,7 +209,7 @@ export default defineComponent({
       updateStats();
     };
     
-    // 同步所有圖表數據到統一存儲
+    // 同步所有圖表資料到統一存儲
     const syncAllCharts = () => {
       try {
         const success = enhancedStorageService.syncChartsToUnifiedData();
@@ -221,7 +221,7 @@ export default defineComponent({
           ElMessage.error(t('storage.syncError'));
         }
       } catch (error) {
-        console.error('同步圖表數據時發生錯誤:', error);
+        console.error('同步圖表資料時發生錯誤:', error);
         ElMessage.error(t('storage.syncError'));
       }
     };

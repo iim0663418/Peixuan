@@ -15,7 +15,7 @@ const router = Router();
 
 const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Response) => {
   try {
-    // 驗證請求數據
+    // 驗證請求資料
     const validator = new RequestValidator();
     const validation = validator.validatePurpleStarRequest(req.body);
 
@@ -23,8 +23,8 @@ const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Res
       console.error('Validation failed:', validation.errors);
       console.error('Request body:', JSON.stringify(req.body, null, 2));
       const errorResponse = createErrorResponse(
-        '請求數據驗證失敗',
-        '請檢查輸入的出生信息是否正確',
+        '請求資料驗證失敗',
+        '請檢查輸入的出生資訊是否正確',
         validation.errors
       );
       res.status(400).json(errorResponse);
@@ -43,7 +43,7 @@ const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Res
       return;
     }
 
-    // 解析輸入數據
+    // 解析輸入資料
     const birthDateTime = parseDateTime(request.birthDate, request.birthTime);
     const birthInfo: BirthInfo = {
       solarDate: birthDateTime,
@@ -65,7 +65,7 @@ const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Res
       lunarInfo: request.lunarInfo
     });
     
-    // 如果提供位置信息，轉換為字符串格式添加到birthInfo
+    // 如果提供位置資訊，轉換為字符串格式添加到birthInfo
     if (request.location) {
       // 轉換位置對象為字符串 "longitude,latitude,timezone"
       const locationParts = [
@@ -85,17 +85,17 @@ const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Res
     const chart = await calculator.calculateChart(options);
     console.log('Chart calculation completed:', chart);
 
-    // 構建四化飛星數據
+    // 構建四化飛星資料
     let transformationData;
     
-    // 檢查是否包含四化飛星數據請求
+    // 檢查是否包含四化飛星資料請求
     if (request.options?.includeFourTransformations) {
-      console.log('計算四化飛星數據...');
+      console.log('計算四化飛星資料...');
       
       try {
-        // 確保命盤中有命宮天干信息
+        // 確保命盤中有命宮天干資訊
         if (!chart.mingGan) {
-          console.warn('命盤中缺少命宮天干信息，嘗試獲取命宮天干...');
+          console.warn('命盤中缺少命宮天干資訊，嘗試獲取命宮天干...');
           
           // 從 transformationStarService 獲取命宮天干
           const transformationService = new TransformationStarService();
@@ -145,23 +145,23 @@ const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Res
           }
         }
         
-        // 封裝四化數據
+        // 封裝四化資料
         transformationData = {
           flows,
           combinations,
           layeredEnergies
         };
         
-        console.log('四化飛星數據處理完成');
+        console.log('四化飛星資料處理完成');
       } catch (error) {
         console.error('四化飛星計算錯誤:', error);
-        console.error('繼續處理，但不包含四化飛星數據');
+        console.error('繼續處理，但不包含四化飛星資料');
       }
     } else {
-      console.log('未請求四化飛星數據，跳過計算');
+      console.log('未請求四化飛星資料，跳過計算');
     }
     
-    // 構建回應數據
+    // 構建回應資料
     const responseData = {
       chart,
       calculationInfo: {
@@ -173,7 +173,7 @@ const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Res
         },
         options
       },
-      // 添加四化飛星數據（如果有）
+      // 添加四化飛星資料（如果有）
       transformations: transformationData
     };
 
@@ -207,7 +207,7 @@ function parseDateTime(dateStr: string, timeStr: string): Date {
   return date;
 }
 
-// 生成模擬紫微斗數命盤數據（臨時使用，之後會被真實計算邏輯替換）
+// 生成模擬紫微斗數命盤資料（臨時使用，之後會被真實計算邏輯替換）
 function generateMockPurpleStarChart(birthInfo: BirthInfo, options: any): PurpleStarChart {
   const palaceNames = [
     '命宮', '兄弟宮', '夫妻宮', '子女宮', '財帛宮', '疾厄宮',
@@ -252,7 +252,7 @@ function generateMockPurpleStarChart(birthInfo: BirthInfo, options: any): Purple
     ]
   }));
 
-  // 模擬大限和小限數據
+  // 模擬大限和小限資料
   const daXian = options.includeMajorCycles ? Array.from({ length: 12 }, (_, i) => ({
     startAge: 6 + i * 10,
     endAge: 15 + i * 10,

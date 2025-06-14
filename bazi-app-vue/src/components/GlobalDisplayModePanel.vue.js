@@ -2,8 +2,6 @@
 import { ref, computed, onMounted } from 'vue';
 // 預設深度設定
 const defaultDepth = 'standard';
-const props = defineProps();
-const emit = defineEmits();
 // 模組顏色映射 (無障礙色彩方案)
 const moduleColors = {
     purpleStar: 'linear-gradient(135deg, #8E4585 0%, #6A0DAD 100%)',
@@ -25,16 +23,23 @@ const moduleTextColors = {
     transformationStars: '#FFFFFF', // 白色
     integrated: '#FFFFFF' // 白色
 };
-// 響應式狀態（僅保留面板收縮狀態）
+// 響應式狀態
 const isCollapsed = ref(true);
+const activeModule = ref('purpleStar');
+const moduleDepths = ref({
+    purpleStar: defaultDepth,
+    bazi: defaultDepth,
+    transformationStars: defaultDepth,
+    integrated: defaultDepth
+});
 // 可用的顯示深度選項
 const availableDepths = ['minimal', 'compact', 'standard', 'comprehensive'];
 // 計算當前模組的顯示深度
 const getModuleDepth = (module) => {
-    return props.moduleDepths[module] || defaultDepth;
+    return moduleDepths.value[module] || defaultDepth;
 };
 // 提供給外部的顯示深度
-const displayDepth = computed(() => getModuleDepth(props.activeModule));
+const displayDepth = computed(() => getModuleDepth(activeModule.value));
 // 方法: 切換收起/展開
 const toggleCollapse = () => {
     isCollapsed.value = !isCollapsed.value;
@@ -51,8 +56,12 @@ const toggleCollapse = () => {
 };
 // 方法: 設置當前模組
 const setActiveModule = (module) => {
-    // 觸發事件通知父組件
-    emit('update:activeModule', module);
+    activeModule.value = module;
+    // 從 sessionStorage 讀取深度設定
+    const savedDepth = sessionStorage.getItem(`${module}-display-depth`);
+    if (savedDepth && availableDepths.includes(savedDepth)) {
+        moduleDepths.value[module] = savedDepth;
+    }
     // 觸發動畫效果
     const buttons = document.querySelectorAll('.module-button');
     buttons.forEach(button => {
@@ -62,7 +71,7 @@ const setActiveModule = (module) => {
     if (activeButton) {
         activeButton.classList.add('rotate-animation');
     }
-    // 優化的無障礙宣告 - 僅在存在無障礙元素時通知
+    // 無障礙宣告 - 通知螢幕閱讀器
     const announcement = document.getElementById('a11y-announcement');
     if (announcement) {
         announcement.textContent = `已選擇${getModuleLabel(module)}模組`;
@@ -70,9 +79,25 @@ const setActiveModule = (module) => {
 };
 // 方法: 設置顯示深度
 const setDisplayDepth = (depth) => {
-    // 觸發事件通知父組件
-    emit('update:displayDepth', depth);
-    console.log(`全域面板：請求更新${getModuleLabel(props.activeModule)}的顯示深度為: ${depth}`);
+    moduleDepths.value[activeModule.value] = depth;
+    // 保存到 sessionStorage
+    try {
+        sessionStorage.setItem(`${activeModule.value}-display-depth`, depth);
+        // 觸發自定義事件，通知其他組件顯示深度已更改
+        const event = new CustomEvent('display-depth-changed', {
+            detail: { module: activeModule.value, depth }
+        });
+        window.dispatchEvent(event);
+        // 額外發送 module-changed 事件以確保兼容性和同步
+        const compatEvent = new CustomEvent('module-changed', {
+            detail: { module: activeModule.value, depth }
+        });
+        window.dispatchEvent(compatEvent);
+        console.log(`更新${getModuleLabel(activeModule.value)}的顯示深度為: ${depth}`);
+    }
+    catch (error) {
+        console.warn('無法保存顯示深度設定:', error);
+    }
     // 播放按鈕動畫
     const depthButton = document.querySelector(`.depth-button.active`);
     if (depthButton) {
@@ -107,30 +132,36 @@ const getDefaultDescription = (depth) => {
     const descriptions = {
         'minimal': '最簡潔的命盤展示，僅呈現基本框架',
         'compact': '顯示主要星曜和基本效應，快速了解命盤特點',
-        'standard': '完整展示星曜信息和效應，深入解析命盤結構',
+        'standard': '完整展示星曜資訊和效應，深入解析命盤結構',
         'comprehensive': '全面詳盡的命盤分析'
     };
     return descriptions[depth] || '';
 };
-// 組件掛載時初始化
+// 監聽路由變化
 onMounted(() => {
-    // 無障礙宣告功能改為完全按需啟用
-    // 用戶可以透過 sessionStorage.setItem('enable-accessibility-announcements', 'true') 來啟用
-    const enableA11yAnnouncements = sessionStorage.getItem('enable-accessibility-announcements') === 'true';
-    if (enableA11yAnnouncements) {
-        const announcement = document.createElement('div');
-        announcement.id = 'a11y-announcement';
-        announcement.setAttribute('role', 'status');
-        announcement.setAttribute('aria-live', 'polite');
-        announcement.className = 'sr-only';
-        document.body.appendChild(announcement);
-    }
+    // 初始化: 從 sessionStorage 讀取各模組的顯示深度設定
+    Object.keys(moduleDepths.value).forEach(module => {
+        const moduleType = module;
+        const savedDepth = sessionStorage.getItem(`${moduleType}-display-depth`);
+        if (savedDepth && availableDepths.includes(savedDepth)) {
+            moduleDepths.value[moduleType] = savedDepth;
+        }
+    });
+    // 監聽自定義事件，接收組件發出的顯示模式變更通知
+    window.addEventListener('module-changed', ((event) => {
+        if (event.detail && event.detail.module) {
+            setActiveModule(event.detail.module);
+        }
+    }));
+    // 添加無障礙宣告區域
+    const announcement = document.createElement('div');
+    announcement.id = 'a11y-announcement';
+    announcement.setAttribute('role', 'status');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.className = 'sr-only';
+    document.body.appendChild(announcement);
     // 添加鍵盤事件處理
     document.addEventListener('keydown', handleKeyboardNavigation);
-    console.log('GlobalDisplayModePanel 初始化，當前狀態:', {
-        activeModule: props.activeModule,
-        moduleDepths: props.moduleDepths
-    });
 });
 // 鍵盤無障礙導航
 const handleKeyboardNavigation = (event) => {
@@ -254,7 +285,7 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.d
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "panel-content" },
-    ...{ style: ({ background: __VLS_ctx.moduleColors[props.activeModule] }) },
+    ...{ style: ({ background: __VLS_ctx.moduleColors[__VLS_ctx.activeModule] }) },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "panel-header" },
@@ -290,8 +321,8 @@ if (!__VLS_ctx.isCollapsed) {
                 } },
             key: (module),
             ...{ class: "module-button" },
-            ...{ class: ({ active: props.activeModule === module }) },
-            ...{ style: ({ backgroundColor: props.activeModule === module ? color : 'transparent', borderColor: color }) },
+            ...{ class: ({ active: __VLS_ctx.activeModule === module }) },
+            ...{ style: ({ backgroundColor: __VLS_ctx.activeModule === module ? color : 'transparent', borderColor: color }) },
             title: (__VLS_ctx.$t('display.tooltips.selectModule') || '選擇模組：切換命理分析類型'),
             'aria-label': (`${__VLS_ctx.$t('display.tooltips.selectModule') || '選擇模組'}: ${__VLS_ctx.getModuleLabel(module)}`),
         });
@@ -315,7 +346,7 @@ if (!__VLS_ctx.isCollapsed) {
             key: (depth),
             ...{ class: "depth-button" },
             ...{ class: ({
-                    active: __VLS_ctx.getModuleDepth(props.activeModule) === depth,
+                    active: __VLS_ctx.getModuleDepth(__VLS_ctx.activeModule) === depth,
                     'depth-minimal': depth === 'minimal',
                     'depth-compact': depth === 'compact',
                     'depth-standard': depth === 'standard',
@@ -329,7 +360,7 @@ if (!__VLS_ctx.isCollapsed) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "depth-description" },
     });
-    (__VLS_ctx.$t(`display.displayDepthDesc.${__VLS_ctx.getModuleDepth(props.activeModule)}`) || __VLS_ctx.getDefaultDescription(__VLS_ctx.getModuleDepth(props.activeModule)));
+    (__VLS_ctx.$t(`display.displayDepthDesc.${__VLS_ctx.getModuleDepth(__VLS_ctx.activeModule)}`) || __VLS_ctx.getDefaultDescription(__VLS_ctx.getModuleDepth(__VLS_ctx.activeModule)));
 }
 var __VLS_3;
 /** @type {__VLS_StyleScopedClasses['global-display-panel']} */ ;
@@ -357,6 +388,7 @@ const __VLS_self = (await import('vue')).defineComponent({
         return {
             moduleColors: moduleColors,
             isCollapsed: isCollapsed,
+            activeModule: activeModule,
             availableDepths: availableDepths,
             getModuleDepth: getModuleDepth,
             toggleCollapse: toggleCollapse,
@@ -367,8 +399,6 @@ const __VLS_self = (await import('vue')).defineComponent({
             getDefaultDescription: getDefaultDescription,
         };
     },
-    __typeEmits: {},
-    __typeProps: {},
 });
 export default (await import('vue')).defineComponent({
     setup() {
@@ -376,8 +406,6 @@ export default (await import('vue')).defineComponent({
             ...__VLS_exposed,
         };
     },
-    __typeEmits: {},
-    __typeProps: {},
 });
 ; /* PartiallyEnd: #4569/main.vue */
 //# sourceMappingURL=GlobalDisplayModePanel.vue.js.map

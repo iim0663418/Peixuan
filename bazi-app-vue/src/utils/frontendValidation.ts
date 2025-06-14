@@ -239,7 +239,7 @@ export class FrontendValidator {
 }
 
 /**
- * 預設座標數據
+ * 預設座標資料
  */
 export const DEFAULT_CITY_COORDINATES = {
   taipei: { longitude: 121.5654, latitude: 25.0330, timezone: 'Asia/Taipei', name: '台北' },

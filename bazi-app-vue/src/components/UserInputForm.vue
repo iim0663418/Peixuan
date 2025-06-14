@@ -384,7 +384,7 @@ watch(
             if (calculatedStartLuck) {
               parsedStartLuckResult.value = calculatedStartLuck; startLuckDisplayResult.value = JSON.stringify(calculatedStartLuck, null, 2);
             } else {
-              parsedStartLuckResult.value = { error: '起運信息計算失敗。' }; startLuckDisplayResult.value = JSON.stringify({ error: '起運信息計算失敗。' }, null, 2);
+              parsedStartLuckResult.value = { error: '起運資訊計算失敗。' }; startLuckDisplayResult.value = JSON.stringify({ error: '起運資訊計算失敗。' }, null, 2);
             }
           } else {
             parsedStartLuckResult.value = { error: calendarLibLoadErrorText.value };
@@ -466,7 +466,7 @@ const handleSubmit = async () => {
     if (!tenGodsDisplayResult.value || tenGodsDisplayResult.value.includes('失敗')) { alert('十神分析失敗，請檢查輸入。'); isLoading.value = false; return; }
     if (!elementsDistributionDisplayResult.value || elementsDistributionDisplayResult.value.includes('失敗')) { alert('五行分佈分析失敗，請檢查輸入。'); isLoading.value = false; return; }
     if (isCalendarLibFullyAvailable.value && (!startLuckDisplayResult.value || startLuckDisplayResult.value.includes('失敗'))) { 
-      alert('起運信息計算失敗，請檢查輸入或日曆庫。'); isLoading.value = false; return; 
+      alert('起運資訊計算失敗，請檢查輸入或日曆庫。'); isLoading.value = false; return; 
     }
   }
   

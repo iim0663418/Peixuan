@@ -365,7 +365,7 @@ export class LayeredResponseBuilder {
     // 基於多個因素計算詳細信心度
     let confidence = 0.90;
     
-    // 可以根據實際數據調整信心度
+    // 可以根據實際資料調整信心度
     // 例如：星曜強弱、五行平衡等因素
     
     return Math.min(confidence, 0.95);

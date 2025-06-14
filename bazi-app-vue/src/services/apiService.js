@@ -6,7 +6,7 @@ class ApiService {
             console.group('紫微斗數API服務調用');
             console.log('發送紫微斗數計算請求:', JSON.stringify(requestData, null, 2));
             console.log('請求選項:', JSON.stringify(requestData.options, null, 2));
-            // 確保請求中指定了四化飛星數據
+            // 確保請求中指定了四化飛星資料
             if (!requestData.options) {
                 requestData.options = {};
             }
@@ -18,24 +18,24 @@ class ApiService {
             // 詳細記錄API響應
             console.log('API響應狀態碼:', response.status);
             console.log('響應頂層結構:', Object.keys(response.data || {}));
-            // 檢查四化飛星數據是否存在
+            // 檢查四化飛星資料是否存在
             if (response.data?.data?.transformations) {
-                console.log('四化飛星數據存在，結構:', {
+                console.log('四化飛星資料存在，結構:', {
                     flows: response.data.data.transformations.flows ? Object.keys(response.data.data.transformations.flows).length : 0,
                     combinations: response.data.data.transformations.combinations ? response.data.data.transformations.combinations.length : 0,
                     layeredEnergies: response.data.data.transformations.layeredEnergies ? Object.keys(response.data.data.transformations.layeredEnergies).length : 0
                 });
             }
             else {
-                console.warn('API響應中缺少四化飛星數據');
-                // 深度檢查命盤數據以提供更多線索
+                console.warn('API響應中缺少四化飛星資料');
+                // 深度檢查命盤資料以提供更多線索
                 if (response.data?.data?.chart) {
-                    console.log('命盤數據存在');
+                    console.log('命盤資料存在');
                     if (response.data.data.chart.mingGan) {
                         console.log('命宮天干存在:', response.data.data.chart.mingGan);
                     }
                     else {
-                        console.warn('命宮天干數據缺失');
+                        console.warn('命宮天干資料缺失');
                     }
                     // 檢查星曜是否存在四化屬性
                     let hasTransformation = false;
@@ -57,7 +57,7 @@ class ApiService {
                     }
                 }
                 else {
-                    console.error('API響應中缺少命盤數據');
+                    console.error('API響應中缺少命盤資料');
                 }
             }
             console.groupEnd();
@@ -71,7 +71,7 @@ class ApiService {
             console.error('錯誤類型:', error.constructor.name);
             if (error?.response) {
                 console.error('HTTP狀態碼:', error.response.status);
-                console.error('錯誤回應數據:', error.response.data);
+                console.error('錯誤回應資料:', error.response.data);
                 console.error('錯誤響應頭:', error.response.headers);
             }
             else if (error?.request) {

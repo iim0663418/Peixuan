@@ -38,7 +38,7 @@
             <p v-if="chartData.fiveElementsBureau">
               <strong>{{ $t('purpleStarChart.fiveElementsBureau') }}:</strong> {{ chartData.fiveElementsBureau }}
             </p>
-            <p><strong>數據概況:</strong> 
+            <p><strong>資料概況:</strong> 
               {{ chartData.palaces?.length || 0 }}宮位, 
               {{ chartData.daXian?.length || 0 }}個大限, 
               {{ chartData.xiaoXian?.length || 0 }}個小限,

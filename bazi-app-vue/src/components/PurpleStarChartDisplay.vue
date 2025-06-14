@@ -31,6 +31,12 @@
       <!-- 命盤資訊標題 -->
       <div class="chart-header">
         <h2>{{ $t('purpleStarChart.title') }}</h2>
+        <div class="header-actions">
+          <button @click="showGuideModal = true" class="guide-button">
+            <span class="guide-icon">💡</span>
+            進階功能說明
+          </button>
+        </div>
       </div>
       
       <!-- 簡要解讀區域 -->
@@ -55,7 +61,7 @@
           <div class="hint-content">
             <span class="hint-icon">💡</span>
             <div class="hint-text-container">
-              <span class="hint-text">{{ $t(`purpleStarChart.interactionTips.${displayDepth}`) }}</span>
+              <span class="hint-text">{{ $t('purpleStarChart.interactionTips.comprehensive') }}</span>
               <span class="swipe-hint">{{ $t('purpleStarChart.interactionTipDesc') }} <span class="swipe-arrow">↔️</span></span>
             </div>
             <button @click="showInteractionTips = false" class="close-hint">×</button>
@@ -70,6 +76,7 @@
           {{ $t('purpleStarChart.showSummary') }}
         </button>
       </div>
+
 
       <!-- 主命盤網格 -->
       <div class="chart-grid" :class="viewMode">
@@ -105,6 +112,14 @@
             </div>
 
             <div class="stars-container">
+              <!-- 檢查是否為空宮 -->
+              <EmptyPalaceIndicator 
+                v-if="isEmptyPalace(position)"
+                :borrowed-palace="getBorrowedPalaceInfo(position)"
+                class="empty-palace-indicator"
+              />
+              
+              <!-- 顯示星曜 -->
               <div 
                 v-for="star in getPalaceByZhi(position)?.stars" 
                 :key="star.name"
@@ -113,14 +128,42 @@
                 :title="getStarTooltip(star)"
               >
                 <span class="star-name">{{ star.name }}</span>
-                <span v-if="star.transformations && star.transformations.length > 0" class="transformations">
-                  {{ star.transformations.join('') }}
+                
+                <!-- 星曜亮度指示器 -->
+                <StarBrightnessIndicator 
+                  v-if="star.brightness" 
+                  :brightness="star.brightness" 
+                />
+                
+                <!-- 四化顯示 -->
+                <span v-if="star.transformations && star.transformations.length > 0" 
+                      :class="['transformations', { 'detailed-transformations': viewMode === 'detailed' }]">
+                  <span v-for="trans in star.transformations" 
+                        :key="trans" 
+                        :class="`transformation-${trans}`">{{ trans }}</span>
                 </span>
+                
+                <!-- 星曜屬性 -->
                 <span v-if="star.attribute" 
                       :class="['star-attribute', `attribute-${star.attribute}`]">
                   {{ star.attribute }}
                 </span>
+                
+                <!-- 星曜類型標記 -->
+                <span v-if="star.type === 'minor'" class="star-type-badge minor">
+                  雜
+                </span>
               </div>
+            </div>
+
+            <!-- 特徵解析提示 (詳細模式) -->
+            <div v-if="viewMode === 'detailed'" class="feature-hints">
+              <FeatureHintsDisplay 
+                :palace="getPalaceByZhi(position)"
+                :position="position"
+                :is-empty="isEmptyPalace(position)"
+                :borrowed-info="getBorrowedPalaceInfo(position)"
+              />
             </div>
 
             <!-- 大限小限資訊 (詳細模式) -->
@@ -165,6 +208,20 @@
           </div>
         </div>
 
+        <!-- 格局分析面板 -->
+        <PatternAnalysisPanel 
+          v-if="interpretationMode === 'comprehensive'"
+          :patterns="chartData.keyPatterns"
+          class="interpretation-panel"
+        />
+
+        <!-- 雜曜分析面板 -->
+        <MinorStarsPanel 
+          v-if="interpretationMode === 'comprehensive'"
+          :palaces="chartData.palaces"
+          class="interpretation-panel"
+        />
+
         <!-- 綜合解讀 -->
         <div v-if="interpretationMode === 'comprehensive' && chartData.comprehensiveInterpretation" class="comprehensive-interpretation">
           <div class="interpretation-card">
@@ -195,6 +252,15 @@
             <ul>
               <li v-for="(challenge, idx) in chartData.comprehensiveInterpretation.potentialChallenges" 
                   :key="`challenge-${idx}`">{{ challenge }}</li>
+            </ul>
+          </div>
+
+          <!-- 關鍵跨宮位模式 -->
+          <div v-if="chartData.comprehensiveInterpretation.keyCrossPalacePatterns && chartData.comprehensiveInterpretation.keyCrossPalacePatterns.length > 0" class="interpretation-card">
+            <h4>關鍵跨宮位模式</h4>
+            <ul>
+              <li v-for="(pattern, idx) in chartData.comprehensiveInterpretation.keyCrossPalacePatterns" 
+                  :key="`pattern-${idx}`">{{ pattern }}</li>
             </ul>
           </div>
 
@@ -396,7 +462,7 @@
             <p><strong>{{ $t('purpleStarChart.starType') }}:</strong> {{ $t(`purpleStarChart.starTypes.${selectedStar.type}`) }}</p>
             <p><strong>{{ $t('purpleStarChart.palace') }}:</strong> {{ getStarPalaceName(selectedStar) }}</p>
             
-            <!-- 星曜屬性信息 -->
+            <!-- 星曜屬性資訊 -->
             <div class="star-attributes-section">
               <div v-if="selectedStar.attribute" class="attribute-item">
                 <strong>吉凶屬性：</strong>
@@ -422,7 +488,7 @@
               <p>{{ selectedStar.description }}</p>
             </div>
             
-            <!-- 四化信息 -->
+            <!-- 四化資訊 -->
             <div v-if="selectedStar.transformations && selectedStar.transformations.length > 0">
               <strong>{{ $t('purpleStarChart.transformations') }}:</strong>
               <ul>
@@ -434,6 +500,12 @@
           </div>
         </div>
       </div>
+
+      <!-- 功能指南彈窗 -->
+      <PurpleStarGuideModal 
+        :visible="showGuideModal"
+        @close="showGuideModal = false"
+      />
     </div>
   </div>
 </template>
@@ -441,8 +513,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useDisplayMode } from '@/composables/useDisplayMode';
-import type { DisplayMode } from '@/types/displayModes';
+import StarBrightnessIndicator from './StarBrightnessIndicator.vue';
+import PatternAnalysisPanel from './PatternAnalysisPanel.vue';
+import MinorStarsPanel from './MinorStarsPanel.vue';
+import EmptyPalaceIndicator from './EmptyPalaceIndicator.vue';
+import PurpleStarGuideModal from './PurpleStarGuideModal.vue';
+import FeatureHintsDisplay from '@/components/FeatureHintsDisplay.vue';
+import TransformationStarsDisplay from './TransformationStarsDisplay.vue';
 import type { 
   PurpleStarChart, 
   Palace, 
@@ -488,128 +565,27 @@ const emit = defineEmits<{
   palaceClick: [palace: Palace];
   starClick: [star: Star];
   export: [format: string];
-  'update:displayDepth': [depth: DisplayMode];
 }>();
 
 // 響應式資料
-const viewMode = ref<'simple' | 'detailed'>('simple');
-const displayMode = ref<'compact' | 'expanded'>('compact'); // 保留舊的控制變數，保持向後兼容
+const viewMode = ref<'simple' | 'detailed'>('detailed');
+const displayMode = ref<'compact' | 'expanded'>('expanded'); // 保留舊的控制變數，保持向後兼容
 const selectedStar = ref<Star | null>(null);
 const selectedPalace = ref<Palace | null>(null); // 選中的宮位
 const showInteractionTips = ref<boolean>(true); // 顯示互動提示
 const showSummary = ref<boolean>(true); // 顯示簡要解讀
+const showGuideModal = ref<boolean>(false); // 顯示功能指南彈窗
 const interpretationMode = ref<'comprehensive' | 'domain' | 'palace'>('comprehensive');
 const activeDomain = ref<'career' | 'wealth' | 'marriage' | 'health' | 'education' | 'social'>('career');
 const activePalaceName = ref<string>('');
 
-// 使用顯示模式 composable
-const { displayMode: displayDepth, mapDepthToMode } = useDisplayMode('purpleStar');
-const availableDisplayDepths: DisplayMode[] = ['minimal', 'compact', 'standard', 'comprehensive'];
-
-// 設定顯示深度的方法
-const setDisplayDepth = (depth: DisplayMode) => {
-  displayDepth.value = depth;
-  
-  // 發送事件通知父組件顯示深度已變更
-  emit('update:displayDepth', depth);
-  
-  // 保存顯示深度設定到 sessionStorage
-  try {
-    sessionStorage.setItem('purple-star-display-depth', depth);
-  } catch (error) {
-    console.warn('無法保存顯示深度設定:', error);
-  }
-  
-  
-  // 根據深度應用不同的顯示效果
-  setTimeout(() => {
-    const chartGrid = document.querySelector('.chart-grid');
-    
-    // 清除所有深度相關的類
-    document.querySelectorAll('.palace-cell').forEach((el) => {
-      (el as HTMLElement).classList.remove('depth-minimal', 'depth-compact', 'depth-standard', 'depth-comprehensive');
-      (el as HTMLElement).classList.add(`depth-${depth}`);
-    });
-    
-    if (chartGrid) {
-      (chartGrid as HTMLElement).classList.remove('detailed', 'simple');
-    }
-    
-    switch (depth) {
-      case 'minimal':
-        // 最簡潔預覽模式
-        if (chartGrid) (chartGrid as HTMLElement).classList.add('simple');
-        document.querySelectorAll('.cycles-info').forEach((el) => {
-          (el as HTMLElement).style.display = 'none';
-        });
-        document.querySelectorAll('.star-item:not(.star-main)').forEach((el) => {
-          (el as HTMLElement).style.opacity = '0.4';
-        });
-        document.querySelectorAll('.palace-cell').forEach((el) => {
-          (el as HTMLElement).style.pointerEvents = 'none';
-        });
-        viewMode.value = 'simple';
-        displayMode.value = 'compact';
-        break;
-        
-      case 'compact':
-        // 精簡檢視模式
-        if (chartGrid) (chartGrid as HTMLElement).classList.add('simple');
-        document.querySelectorAll('.cycles-info').forEach((el) => {
-          (el as HTMLElement).style.display = 'none';
-        });
-        document.querySelectorAll('.star-item:not(.star-main)').forEach((el) => {
-          (el as HTMLElement).style.opacity = '0.7';
-        });
-        document.querySelectorAll('.palace-cell').forEach((el) => {
-          (el as HTMLElement).style.pointerEvents = 'auto';
-        });
-        viewMode.value = 'simple';
-        displayMode.value = 'compact';
-        break;
-        
-      case 'standard':
-        // 標準解讀模式
-        if (chartGrid) (chartGrid as HTMLElement).classList.add('detailed');
-        document.querySelectorAll('.cycles-info').forEach((el) => {
-          (el as HTMLElement).style.display = 'block';
-        });
-        document.querySelectorAll('.star-item').forEach((el) => {
-          (el as HTMLElement).style.opacity = '1';
-        });
-        document.querySelectorAll('.palace-cell').forEach((el) => {
-          (el as HTMLElement).style.pointerEvents = 'auto';
-        });
-        viewMode.value = 'detailed';
-        displayMode.value = 'expanded';
-        break;
-        
-      case 'comprehensive':
-        // 深度分析模式
-        if (chartGrid) (chartGrid as HTMLElement).classList.add('detailed');
-        document.querySelectorAll('.cycles-info').forEach((el) => {
-          (el as HTMLElement).style.display = 'block';
-        });
-        document.querySelectorAll('.star-item').forEach((el) => {
-          (el as HTMLElement).style.opacity = '1';
-        });
-        document.querySelectorAll('.palace-cell').forEach((el) => {
-          (el as HTMLElement).style.pointerEvents = 'auto';
-        });
-        // 這裡可以增加額外深度分析效果
-        viewMode.value = 'detailed';
-        displayMode.value = 'expanded';
-        break;
-    }
-  }, 50);
-};
 
 // 計算屬性
 // 命盤概要解讀
 const chartSummary = computed(() => {
   if (!props.chartData || !props.chartData.palaces || !Array.isArray(props.chartData.palaces)) return null;
   
-  // 從命盤數據中提取重要信息生成簡要解讀
+  // 從命盤資料中提取重要資訊生成簡要解讀
   const mainStars = props.chartData.palaces.flatMap(p => 
     p.stars && Array.isArray(p.stars) 
       ? p.stars.filter(s => s.type === 'main' || (s.transformations && s.transformations.length)) 
@@ -743,9 +719,27 @@ const getStarClasses = (star: Star): string[] => {
 
 const getStarTooltip = (star: Star): string => {
   let tooltip = `${star.name} (${t(`purpleStarChart.starTypes.${star.type}`)})`;
-  if (star.transformations && star.transformations.length > 0) {
-    tooltip += ` - ${star.transformations.map(t => t).join(', ')}`;
+  
+  // 添加亮度資訊
+  if (star.brightness) {
+    tooltip += ` - 亮度: ${star.brightness}`;
   }
+  
+  // 添加星曜屬性
+  if (star.attribute) {
+    tooltip += ` - 屬性: ${star.attribute}`;
+  }
+  
+  // 添加四化資訊
+  if (star.transformations && star.transformations.length > 0) {
+    tooltip += ` - 四化: ${star.transformations.map(t => t).join(', ')}`;
+  }
+  
+  // 添加描述
+  if (star.description) {
+    tooltip += `\n${star.description}`;
+  }
+  
   return tooltip;
 };
 
@@ -844,6 +838,34 @@ const getStarPalaceName = (star: Star): string => {
   if (!props.chartData) return '';
   const palace = props.chartData.palaces.find(p => p.index === star.palaceIndex);
   return palace?.name || '';
+};
+
+// 檢查是否為空宮（無主星）
+const isEmptyPalace = (zhiName: string): boolean => {
+  const palace = getPalaceByZhi(zhiName);
+  if (!palace) return false;
+  
+  const mainStars = palace.stars.filter(star => star.type === 'main');
+  return mainStars.length === 0;
+};
+
+// 獲取借星資訊
+const getBorrowedPalaceInfo = (zhiName: string) => {
+  const palace = getPalaceByZhi(zhiName);
+  if (!palace || !isEmptyPalace(zhiName)) return undefined;
+  
+  // 計算對宮索引
+  const oppositePalaceIndex = (palace.index + 6) % 12;
+  const oppositePalace = props.chartData?.palaces.find(p => p.index === oppositePalaceIndex);
+  
+  if (!oppositePalace) return undefined;
+  
+  const mainStars = oppositePalace.stars.filter(star => star.type === 'main');
+  
+  return {
+    name: oppositePalace.name,
+    mainStars: mainStars
+  };
 };
 
 const getPalaceFortuneClass = (palace?: Palace): string => {
@@ -993,22 +1015,34 @@ const getFortuneDisplayName = (fortune: string): string => {
 
 // 生命週期
 onMounted(() => {
-  // 設置初始顯示深度
-  try {
-    const savedDepth = sessionStorage.getItem('purple-star-display-depth');
-    if (savedDepth && availableDisplayDepths.includes(savedDepth as DisplayMode)) {
-      displayDepth.value = savedDepth as DisplayMode;
-      // 應用顯示深度效果
-      setTimeout(() => setDisplayDepth(displayDepth.value), 100);
-    } else {
-      // 預設為標準解讀
-      setDisplayDepth('standard');
-    }
-  } catch (error) {
-    console.warn('無法讀取顯示深度設定:', error);
-    // 預設為標準解讀
-    setDisplayDepth('standard');
+  // 設置為最詳細展開模式
+  const chartGrid = document.querySelector('.chart-grid');
+  
+  // 清除所有深度相關的類
+  document.querySelectorAll('.palace-cell').forEach((el) => {
+    (el as HTMLElement).classList.remove('depth-minimal', 'depth-compact', 'depth-standard', 'depth-comprehensive');
+    (el as HTMLElement).classList.add('depth-comprehensive');
+  });
+  
+  if (chartGrid) {
+    (chartGrid as HTMLElement).classList.remove('simple');
+    (chartGrid as HTMLElement).classList.add('detailed');
   }
+  
+  // 顯示所有大限小限資訊
+  document.querySelectorAll('.cycles-info').forEach((el) => {
+    (el as HTMLElement).style.display = 'block';
+  });
+  
+  // 顯示所有星曜
+  document.querySelectorAll('.star-item').forEach((el) => {
+    (el as HTMLElement).style.opacity = '1';
+  });
+  
+  // 啟用宮位互動
+  document.querySelectorAll('.palace-cell').forEach((el) => {
+    (el as HTMLElement).style.pointerEvents = 'auto';
+  });
 });
 
 // 監聽
@@ -1096,6 +1130,36 @@ watch(() => props.chartData, (newData) => {
   margin: 0;
   color: #2c3e50;
   flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.guide-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+}
+
+.guide-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.guide-icon {
+  font-size: 16px;
 }
 
 .view-toggle-button, .export-button {
@@ -1187,6 +1251,45 @@ watch(() => props.chartData, (newData) => {
   
   .chart-header h2 {
     font-size: 1.2rem;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* intro-card 響應式優化 */
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .feature-item {
+    padding: 16px;
+    min-height: 100px;
+  }
+  
+  .intro-card {
+    padding: 20px;
+  }
+  
+  .intro-card h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+  
+  .feature-content h4 {
+    font-size: 15px;
+  }
+  
+  .feature-content p {
+    font-size: 13px;
+  }
+  
+  .learn-more-button {
+    padding: 10px 24px;
+    font-size: 13px;
+    min-width: 120px;
   }
 }
 
@@ -1363,6 +1466,7 @@ watch(() => props.chartData, (newData) => {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+
 /* 命盤網格 */
 .chart-grid {
   display: grid;
@@ -1378,7 +1482,7 @@ watch(() => props.chartData, (newData) => {
 }
 
 .chart-grid.detailed {
-  grid-template-rows: repeat(4, minmax(150px, auto));
+  grid-template-rows: repeat(4, minmax(170px, auto));
 }
 
 .palace-cell {
@@ -1493,6 +1597,39 @@ watch(() => props.chartData, (newData) => {
 .transformations {
   font-size: 0.75rem;
   font-weight: bold;
+  display: flex;
+  gap: 2px;
+}
+
+.transformations.detailed-transformations {
+  gap: 3px;
+}
+
+.transformations.detailed-transformations span {
+  padding: 1px 3px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.transformation-祿 {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.transformation-權 {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.transformation-科 {
+  background-color: #28a745;
+  color: white;
+}
+
+.transformation-忌 {
+  background-color: #dc3545;
+  color: white;
 }
 
 /* 星曜類型樣式 */
@@ -1513,6 +1650,21 @@ watch(() => props.chartData, (newData) => {
   background: #d4edda;
   color: #155724;
   border-color: #c3e6cb;
+}
+
+/* 星曜類型標記樣式 */
+.star-type-badge {
+  font-size: 8px;
+  padding: 1px 3px;
+  border-radius: 2px;
+  margin-left: 2px;
+  font-weight: bold;
+  color: white;
+}
+
+.star-type-badge.minor {
+  background: #9c27b0;
+  color: white;
 }
 
 /* 四化樣式 */
@@ -1859,6 +2011,48 @@ watch(() => props.chartData, (newData) => {
   border-radius: 8px;
 }
 
+/* 解讀面板通用樣式 */
+.interpretation-panel {
+  margin-bottom: 20px;
+}
+
+/* 空宮指示器樣式 */
+.empty-palace-indicator {
+  margin-bottom: 8px;
+}
+
+/* 年齡分段資訊樣式 */
+.cycles-info {
+  margin-top: 12px;
+  margin-bottom: 4px;
+  padding: 6px 8px;
+  background: rgba(248, 249, 250, 0.8);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.da-xian-info, .xiao-xian-info {
+  margin: 3px 0;
+  font-size: 0.8rem;
+  color: #555;
+  line-height: 1.3;
+}
+
+.da-xian-info {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+/* 特徵提示樣式 */
+.feature-hints {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  min-height: 24px;
+  position: relative;
+  z-index: 1;
+}
+
 .interpretation-header {
   display: flex;
   justify-content: space-between;
@@ -2126,27 +2320,84 @@ watch(() => props.chartData, (newData) => {
   line-height: 1.6;
 }
 
-/* 響應式設計 */
+/* 響應式設計優化 */
+/* 大螢幕 (桌機) */
+@media (min-width: 1200px) {
+  .chart-grid {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .interpretation-section {
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* 中等螢幕 (平板橫向) */
+@media (max-width: 1024px) {
+  .chart-grid {
+    max-width: 100%;
+  }
+  
+  .comprehensive-interpretation {
+    grid-template-columns: 1fr;
+  }
+  
+  .domain-periods {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 平板直向 */
 @media (max-width: 768px) {
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 12px;
+  }
+  
+  .chart-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .guide-button {
+    font-size: 13px;
+    padding: 6px 16px;
+  }
+  
   .chart-grid {
     grid-template-rows: repeat(4, minmax(100px, auto));
+    gap: 1px;
   }
   
   .chart-grid.detailed {
-    grid-template-rows: repeat(4, minmax(120px, auto));
-  }
-  
-  .chart-info {
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .chart-controls {
-    flex-direction: column;
+    grid-template-rows: repeat(4, minmax(160px, auto));
   }
   
   .palace-cell {
     padding: 6px;
+    font-size: 0.9rem;
+  }
+  
+  .palace-header {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .palace-name {
+    font-size: 0.85rem;
+  }
+  
+  .palace-zhi {
+    font-size: 0.75rem;
   }
   
   .star-item {
@@ -2154,27 +2405,171 @@ watch(() => props.chartData, (newData) => {
     padding: 2px 4px;
   }
   
+  .star-name {
+    font-size: 0.8rem;
+  }
+
+  /* 特徵提示響應式樣式 */
+  .feature-hints {
+    margin-top: 6px;
+    padding-top: 6px;
+    min-height: 20px;
+  }
+
+  /* 年齡分段資訊響應式樣式 */
+  .cycles-info {
+    margin-top: 8px;
+    margin-bottom: 2px;
+    padding: 4px 6px;
+  }
+  
+  .da-xian-info, .xiao-xian-info {
+    font-size: 0.75rem;
+    margin: 2px 0;
+  }
+  
+  .interpretation-section {
+    margin-top: 20px;
+    padding: 16px;
+  }
+  
+  .interpretation-tabs {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .tab-button {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+  
   .cycles-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
 }
 
+/* 手機螢幕 */
 @media (max-width: 480px) {
+  .purple-star-chart-container {
+    padding: 8px;
+  }
+  
+  .chart-header {
+    padding: 8px;
+  }
+  
+  .chart-header h2 {
+    font-size: 1.1rem;
+  }
+  
+  .guide-button {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  
   .chart-grid {
     grid-template-rows: repeat(4, minmax(80px, auto));
+    gap: 1px;
   }
   
   .palace-cell {
     padding: 4px;
+    font-size: 0.8rem;
   }
   
-  .palace-name, .palace-zhi {
+  .palace-center {
+    padding: 8px;
+  }
+  
+  .center-info p {
     font-size: 0.8rem;
+  }
+  
+  .palace-name {
+    font-size: 0.8rem;
+  }
+  
+  .palace-zhi {
+    font-size: 0.7rem;
+    padding: 1px 4px;
   }
   
   .star-item {
     font-size: 0.75rem;
     padding: 1px 3px;
+    margin: 1px;
+  }
+  
+  .star-name {
+    font-size: 0.75rem;
+  }
+  
+  .transformations {
+    font-size: 0.65rem;
+  }
+  
+  .star-attribute {
+    font-size: 0.6rem;
+    padding: 1px 2px;
+  }
+  
+  .interpretation-section {
+    padding: 12px;
+  }
+  
+  .interpretation-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .interpretation-tabs {
+    justify-content: stretch;
+  }
+  
+  .tab-button {
+    flex: 1;
+    font-size: 12px;
+    padding: 8px 4px;
+    text-align: center;
+  }
+  
+  .interpretation-card {
+    padding: 12px;
+  }
+  
+  .lifecycle-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .domain-tabs {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .palace-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+/* 極小螢幕 */
+@media (max-width: 360px) {
+  .chart-grid {
+    grid-template-rows: repeat(4, minmax(70px, auto));
+  }
+  
+  .palace-cell {
+    padding: 3px;
+  }
+  
+  .star-item {
+    font-size: 0.7rem;
+    padding: 1px 2px;
+  }
+  
+  .interpretation-section {
+    padding: 8px;
   }
 }
 </style>

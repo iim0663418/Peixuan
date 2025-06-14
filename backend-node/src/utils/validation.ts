@@ -167,17 +167,17 @@ export class RequestValidator {
   }
 
   private validateLocation(location: any): void {
-    // 支援字符串格式的位置信息（地名）或對象格式（經緯度）
+    // 支援字符串格式的位置資訊（地名）或對象格式（經緯度）
     if (typeof location === 'string') {
       // 字符串格式：地名，如 "台北市"
       if (location.trim().length === 0) {
-        this.addError('location', '位置信息不能為空字符串', 'INVALID_VALUE');
+        this.addError('location', '位置資訊不能為空字符串', 'INVALID_VALUE');
       }
       return;
     }
 
     if (typeof location !== 'object' || location === null) {
-      this.addError('location', '位置信息必須為字符串或對象', 'INVALID_TYPE');
+      this.addError('location', '位置資訊必須為字符串或對象', 'INVALID_TYPE');
       return;
     }
 

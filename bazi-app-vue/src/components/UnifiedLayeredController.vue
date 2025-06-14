@@ -11,9 +11,9 @@
           </div>
         </div>
         
-        <!-- 數據完整度指示器 -->
+        <!-- 資料完整度指示器 -->
         <div class="data-completeness" v-if="showDataStatus && !ignoreDataCompleteness">
-          <el-tooltip :content="`數據完整度: ${dataCompleteness}%`" placement="top">
+          <el-tooltip :content="`資料完整度: ${dataCompleteness}%`" placement="top">
             <el-progress 
               type="circle" 
               :percentage="dataCompleteness" 
@@ -127,7 +127,7 @@ const READING_LEVEL_CONFIGS = {
   [ReadingLevel.COMPACT]: {
     icon: '📊',
     label: '精簡檢視',
-    description: '重點信息精煉呈現',
+    description: '重點資訊精煉呈現',
     estimatedReadTime: '5-8分鐘',
     minDataRequirement: 50
   },
@@ -264,7 +264,7 @@ const canDowngrade = computed(() => {
   return currentIndex > 0;
 });
 
-// 數據完整度狀態
+// 資料完整度狀態
 const getCompletenessStatus = (percentage: number) => {
   if (percentage >= 80) return 'success';
   if (percentage >= 60) return 'warning';

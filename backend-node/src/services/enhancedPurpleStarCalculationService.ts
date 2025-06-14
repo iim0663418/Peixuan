@@ -26,7 +26,7 @@ export class EnhancedPurpleStarCalculationService {
   private readonly starPlacementService: StarPlacementService;
   private readonly transformationStarService: TransformationStarService;
   
-  // 基本數據
+  // 基本資料
   private birthInfo: BirthInfo;
   private lunarInfo: LunarInfo;
   private solarDate: Date;
@@ -43,8 +43,8 @@ export class EnhancedPurpleStarCalculationService {
   
   /**
    * 構造函數
-   * @param birthInfo 出生信息
-   * @param lunarInfo 農曆信息
+   * @param birthInfo 出生資訊
+   * @param lunarInfo 農曆資訊
    */
   constructor(birthInfo: BirthInfo, lunarInfo: LunarInfo) {
     this.birthInfo = birthInfo;
@@ -68,7 +68,7 @@ export class EnhancedPurpleStarCalculationService {
     try {
       console.log('開始初始化紫微斗數計算...', { lunarInfo: this.lunarInfo });
       
-      // 解析地理位置信息（如果有提供）
+      // 解析地理位置資訊（如果有提供）
       if (this.birthInfo.location) {
         try {
           const locationParts = this.birthInfo.location.split(',');
@@ -205,7 +205,7 @@ export class EnhancedPurpleStarCalculationService {
         palaces,
         mingPalaceIndex: this.mingPalaceStdIndex,
         shenPalaceIndex: this.shenPalaceStdIndex,
-        mingGan: this.mingPalaceGan,  // 添加命宮天干信息
+        mingGan: this.mingPalaceGan,  // 添加命宮天干資訊
         fiveElementsBureau: this.fiveElementsBureau,
         daXian,
         xiaoXian,
@@ -509,7 +509,7 @@ export class EnhancedPurpleStarCalculationService {
    * 計算大限
    * @param palaces 宮位數組
    * @param maxAge 最大年齡
-   * @returns 大限信息
+   * @returns 大限資訊
    */
   private calculateDaXian(palaces: Palace[], maxAge: number = 120): DaXianInfo[] {
     const daXianList: DaXianInfo[] = [];
@@ -562,7 +562,7 @@ export class EnhancedPurpleStarCalculationService {
    * 計算小限
    * @param palaces 宮位數組
    * @param maxAge 最大年齡
-   * @returns 小限信息
+   * @returns 小限資訊
    */
   private calculateXiaoXian(palaces: Palace[], maxAge: number = 100): XiaoXianInfo[] {
     const xiaoXianList: XiaoXianInfo[] = [];
@@ -608,7 +608,7 @@ export class EnhancedPurpleStarCalculationService {
    * 計算流年太歲
    * @param palaces 宮位數組
    * @param maxAge 最大年齡
-   * @returns 流年太歲信息
+   * @returns 流年太歲資訊
    */
   private calculateLiuNianTaiSui(palaces: Palace[], maxAge: number = 100): LiuNianTaiSuiInfo[] {
     const liuNianTaiSuiList: LiuNianTaiSuiInfo[] = [];

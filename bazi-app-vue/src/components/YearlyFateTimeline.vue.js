@@ -12,7 +12,7 @@ const props = defineProps({
 });
 const emit = defineEmits(['yearSelected']);
 const selectedIndex = ref(0);
-// 生成從出生年開始的100個流年信息
+// 生成從出生年開始的100個流年資訊
 const yearlyFatesToDisplay = computed(() => {
     if (!props.birthYear || typeof window.Solar === 'undefined' || typeof window.Lunar === 'undefined') {
         return [];

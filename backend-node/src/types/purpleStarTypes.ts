@@ -40,7 +40,7 @@ export interface PurpleStarCalculationRequest {
     includeMajorCycles?: boolean;     // 是否包含大限計算
     includeMinorCycles?: boolean;     // 是否包含小限計算
     includeAnnualCycles?: boolean;    // 是否包含流年計算
-    includeFourTransformations?: boolean; // 是否包含四化飛星數據計算
+    includeFourTransformations?: boolean; // 是否包含四化飛星資料計算
     detailLevel?: 'basic' | 'advanced' | 'expert';  // 詳細程度
     maxAge?: number;                  // 計算到多少歲，預設 100
   };
@@ -88,6 +88,9 @@ export interface PurpleStarCalculationResponse {
 }
 
 // 從前端 ziweiCalc.ts 導入的接口定義
+// 定義亮度等級
+export type StarBrightness = '廟' | '旺' | '得地' | '利益' | '平和' | '不得地' | '落陷';
+
 export interface Star {
   name: string;
   type: 'main' | 'auxiliary' | 'minor';
@@ -99,6 +102,7 @@ export interface Star {
   element?: '水' | '木' | '火' | '土' | '金'; // 五行屬性
   strength?: number;                // 星曜強度 (1-10)
   description?: string;            // 星曜描述
+  brightness?: StarBrightness;     // 新增亮度屬性
 }
 
 export interface Palace {
@@ -200,6 +204,7 @@ export interface PurpleStarChart {
   palaceInterpretations?: PalaceInterpretation[];
   domainAnalyses?: DomainSpecificAnalysis[];
   comprehensiveInterpretation?: ComprehensiveChartInterpretation;
+  keyPatterns?: string[];      // 新增格局列表
 }
 
 export interface BirthInfo {

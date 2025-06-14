@@ -25,7 +25,7 @@
                     @click="clearData"
                     size="small"
                   >
-                    清除數據
+                    清除資料
                   </el-button>
                 </div>
               </div>
@@ -66,22 +66,6 @@
               <div class="card-header">
                 <span>分析結果</span>
                 
-                <!-- 紫微斗數分層控制器 -->
-                <UnifiedLayeredController
-                  :module-type="'purpleStar'"
-                  :layered-data="layeredData"
-                  :data-completeness="dataCompleteness"
-                  :enable-sync="true"
-                  :is-mobile="isMobile"
-                  :is-compact="true"
-                  :show-toolbar="false"
-                  :model-value="displayMode"
-                  @level-changed="handleLevelChanged"
-                  @update:model-value="handleDisplayModeUpdate"
-                  class="purple-star-controller"
-
-                  :ignore-data-completeness="true" 
-                />
               </div>
             </template>
             
@@ -106,11 +90,11 @@
               class="mt-4"
             />
             
-            <!-- 四化飛星數據缺失提示 -->
+            <!-- 四化飛星資料缺失提示 -->
             <el-alert
               v-else-if="displayMode !== 'minimal' && Object.keys(transformationFlows).length === 0 && purpleStarChart"
-              title="四化飛星數據缺失"
-              :description="`當前命盤缺少四化飛星數據。命宮天干：${purpleStarChart.mingGan || '未知'}，請檢查API響應是否包含四化數據。`"
+              title="四化飛星資料缺失"
+              :description="`當前命盤缺少四化飛星資料。命宮天干：${purpleStarChart.mingGan || '未知'}，請檢查API響應是否包含四化資料。`"
               type="warning"
               :closable="false"
               class="mt-4"
@@ -244,19 +228,14 @@ import PurpleStarInputForm from '@/components/PurpleStarInputForm.vue';
 import PurpleStarChartDisplay from '@/components/PurpleStarChartDisplay.vue';
 import TransformationStarsDisplay from '@/components/TransformationStarsDisplay.vue';
 import IntegratedAnalysisDisplay from '@/components/IntegratedAnalysisDisplay.vue';
-import UnifiedLayeredController from '@/components/UnifiedLayeredController.vue';
 import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
 import apiService from '@/services/apiService';
 import astrologyIntegrationService from '@/services/astrologyIntegrationService';
 import storageService from '@/utils/storageService';
 import enhancedStorageService from '@/utils/enhancedStorageService';
 import { useDisplayMode } from '@/composables/useDisplayMode';
-import { useSharedLayeredReading } from '@/composables/useSharedLayeredReading';
 import type { DisplayMode } from '@/types/displayModes';
 import type { PurpleStarChart, IntegratedAnalysisResponse, PurpleStarAPIResponse } from '@/types/astrologyTypes';
-import type { LayeredIntegratedAnalysis } from '@/types/layeredReading';
-import { ReadingLevel } from '@/types/layeredReading';
-import { adaptIntegratedAnalysisToLayered } from '@/composables/useLayeredReading';
 
 // 確保 session ID 存在
 const sessionId = storageService.getOrCreateSessionId();
@@ -274,19 +253,6 @@ const transformationFlows = ref<Record<number, any>>({});
 const transformationCombinations = ref<Array<any>>([]);
 const multiLayerEnergies = ref<Record<number, any>>({});
 
-// 使用共享分層閱覽系統
-const {
-  readingState,
-  effectiveReadingLevel,
-  availableLevels,
-  currentLevelConfig,
-  canUpgrade,
-  canDowngrade,
-  switchToLevel,
-  updateLayeredData,
-  isPrimaryModule,
-  syncStatusDescription
-} = useSharedLayeredReading('purpleStar');
 
 // 使用顯示模式 composable（作為後備）
 const { displayMode: localDisplayMode, mapDepthToMode } = useDisplayMode('purpleStar');
@@ -315,12 +281,10 @@ const displayMode = computed(() => {
 const displayModeOptions = [
   { value: 'minimal', label: '簡要預覽', tooltip: '最簡潔的命盤展示，僅呈現基本框架' },
   { value: 'compact', label: '精簡檢視', tooltip: '顯示主要星曜和基本四化效應，快速了解命盤特點' },
-  { value: 'standard', label: '標準解讀', tooltip: '完整展示星曜信息和四化效應，深入解析命盤結構' },
+  { value: 'standard', label: '標準解讀', tooltip: '完整展示星曜資訊和四化效應，深入解析命盤結構' },
   { value: 'comprehensive', label: '深度分析', tooltip: '全面詳盡的命盤分析，包含所有星曜、四化組合和多層次能量疊加' }
 ];
 
-// 分層相關狀態
-const layeredData = ref<LayeredIntegratedAnalysis | null>(null);
 const dataCompleteness = computed(() => {
   if (!purpleStarChart.value) return 0;
   
@@ -356,35 +320,6 @@ const changeDisplayMode = (mode: DisplayMode) => {
 };
 
 // 處理顯示模式更新
-const handleDisplayModeUpdate = (mode: DisplayMode) => {
-  console.log(`PurpleStarView: handleDisplayModeUpdate 被調用，mode=${mode}`);
-  localDisplayMode.value = mode;
-};
-
-// 處理層級變化
-const handleLevelChanged = (level: ReadingLevel) => {
-  console.log(`PurpleStarView: handleLevelChanged 被調用，level=${level}`);
-  
-  // 將 ReadingLevel 映射到 DisplayMode
-  const levelToModeMap: Record<ReadingLevel, DisplayMode> = {
-    [ReadingLevel.SUMMARY]: 'minimal',
-    [ReadingLevel.COMPACT]: 'compact', 
-    [ReadingLevel.STANDARD]: 'standard',
-    [ReadingLevel.DEEP_ANALYSIS]: 'comprehensive'
-  };
-  
-  const newDisplayMode = levelToModeMap[level] || 'standard';
-  console.log(`PurpleStarView: 層級 ${level} 映射到顯示模式 ${newDisplayMode}`);
-  
-  // 更新本地顯示模式
-  localDisplayMode.value = newDisplayMode;
-  
-  // 通過 useSharedLayeredReading 系統更新層級以同步四化飛星
-  if (effectiveReadingLevel) {
-    effectiveReadingLevel.value = level;
-    console.log(`PurpleStarView: 已同步層級到共享系統: ${level}`);
-  }
-};
 
 // 整合分析狀態
 const showIntegratedAnalysis = ref(false);
@@ -420,12 +355,12 @@ const analysisCompleteness = computed(() => {
   }
 });
 
-// 數據清除函數
+// 資料清除函數
 const clearData = async () => {
   try {
     await ElMessageBox.confirm(
       '確定要清除基本命盤資料嗎？（四化飛星資料將保留）',
-      '清除數據',
+      '清除資料',
       {
         confirmButtonText: '確定',
         cancelButtonText: '取消',
@@ -479,7 +414,7 @@ const handleSubmit = async (birthInfo: any) => {
     // 保存出生資訊到 sessionStorage
     storageService.saveToStorage(storageService.STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO, birthInfo);
     
-    // 構建包含完整選項的請求數據
+    // 構建包含完整選項的請求資料
     const requestData = {
       ...birthInfo,
       options: {
@@ -487,12 +422,12 @@ const handleSubmit = async (birthInfo: any) => {
         includeMinorCycles: true,
         includeAnnualCycles: true, // 確保流年太歲計算被啟用
         detailLevel: 'advanced',
-        includeFourTransformations: true, // 明確請求四化飛星數據
+        includeFourTransformations: true, // 明確請求四化飛星資料
         maxAge: 100
       }
     };
     
-    console.log('發送請求數據:', requestData);
+    console.log('發送請求資料:', requestData);
     console.log('請求選項配置:', requestData.options);
     
     // 使用後端 API 進行紫微斗數計算
@@ -504,55 +439,55 @@ const handleSubmit = async (birthInfo: any) => {
     console.log('API data 存在:', !!response?.data);
     console.log('API data 鍵:', Object.keys(response?.data || {}));
     
-    // 檢查命盤數據完整性
+    // 檢查命盤資料完整性
     if (!response?.data?.chart) {
-      console.error('API 未返回紫微斗數命盤數據');
-      throw new Error('紫微斗數命盤數據缺失');
+      console.error('API 未返回紫微斗數命盤資料');
+      throw new Error('紫微斗數命盤資料缺失');
     }
     
-    // 記錄命盤基本信息
-    console.log('命盤數據:', response.data.chart);
+    // 記錄命盤基本資訊
+    console.log('命盤資料:', response.data.chart);
     console.log('命宮天干:', response.data.chart.mingGan || '未返回命宮天干');
     console.log('大限資訊:', response.data.chart.daXian || '無大限資訊');
     console.log('小限資訊:', response.data.chart.xiaoXian || '無小限資訊');
     console.log('流年太歲資訊:', response.data.chart.liuNianTaiSui || '無流年太歲資訊');
     
-    // 正確提取命盤數據
+    // 正確提取命盤資料
     purpleStarChart.value = response.data.chart;
     
-    // 檢查四化飛星數據
-    console.log('四化飛星數據存在:', !!response.data.transformations);
+    // 檢查四化飛星資料
+    console.log('四化飛星資料存在:', !!response.data.transformations);
     
-    // 提取四化飛星數據
+    // 提取四化飛星資料
     if (response.data.transformations) {
       transformationFlows.value = response.data.transformations.flows || {};
       transformationCombinations.value = response.data.transformations.combinations || [];
       multiLayerEnergies.value = response.data.transformations.layeredEnergies || {};
       
-      // 詳細記錄四化飛星數據結構
-      console.log('四化飛星數據載入成功:', {
+      // 詳細記錄四化飛星資料結構
+      console.log('四化飛星資料載入成功:', {
         flows: Object.keys(transformationFlows.value).length,
         combinations: transformationCombinations.value.length,
         layeredEnergies: Object.keys(multiLayerEnergies.value).length
       });
       
-      // 檢查數據的具體內容
+      // 檢查資料的具體內容
       if (Object.keys(transformationFlows.value).length === 0) {
-        console.warn('四化飛星flows數據為空，可能影響顯示');
+        console.warn('四化飛星flows資料為空，可能影響顯示');
       } else {
-        console.log('四化飛星flows數據樣本:', Object.keys(transformationFlows.value).slice(0, 3));
+        console.log('四化飛星flows資料樣本:', Object.keys(transformationFlows.value).slice(0, 3));
       }
     } else {
-      console.error('API 未返回四化飛星數據，詳細檢查API響應結構');
+      console.error('API 未返回四化飛星資料，詳細檢查API響應結構');
       console.log('API響應的完整data結構鍵:', Object.keys(response.data));
       
-      // 檢查是否有其他可能的四化數據字段
+      // 檢查是否有其他可能的四化資料字段
       const possibleKeys = ['fourTransformations', 'sihua', 'transformedStars', 'starTransformations'];
       const responseData = response.data as any; // 臨時類型轉換以處理動態屬性訪問
       const foundAlternative = possibleKeys.find(key => responseData[key]);
       
       if (foundAlternative) {
-        console.log(`發現替代四化數據字段: ${foundAlternative}`, responseData[foundAlternative]);
+        console.log(`發現替代四化資料字段: ${foundAlternative}`, responseData[foundAlternative]);
       }
       
       // 清空相關引用避免錯誤
@@ -560,27 +495,28 @@ const handleSubmit = async (birthInfo: any) => {
       transformationCombinations.value = [];
       multiLayerEnergies.value = {};
       
-      // 提示用戶有數據缺失
+      // 提示用戶有資料缺失
       ElMessage.warning({
-        message: '四化飛星數據缺失，部分分析功能將不可用。請檢查後端API配置。',
+        message: '四化飛星資料缺失，部分分析功能將不可用。請檢查後端API配置。',
         duration: 5000
       });
     }
     
-    // 保存命盤數據到 sessionStorage
+    // 保存命盤資料到 sessionStorage
     storageService.saveToStorage(storageService.STORAGE_KEYS.PURPLE_STAR_CHART, response.data.chart);
     
-    // 保存四化飛星數據到 sessionStorage
+    // 保存四化飛星資料到 sessionStorage
     if (response.data.transformations) {
-      console.log('保存四化飛星數據到 sessionStorage');
+      console.log('保存四化飛星資料到 sessionStorage');
       const transformations = response.data.transformations as any; // 臨時類型轉換
       storageService.saveTransformationStarsData(
         transformations.stars || null,
         transformations.flows || {},
-        transformations.combinations || []
+        transformations.combinations || [],
+        transformations.layeredEnergies || {}
       );
     } else {
-      console.warn('API 響應中沒有四化飛星數據，無法保存');
+      console.warn('API 響應中沒有四化飛星資料，無法保存');
     }
     
     console.groupEnd();
@@ -589,7 +525,7 @@ const handleSubmit = async (birthInfo: any) => {
     // 確保關閉日誌組
     console.groupEnd();
     
-    // 詳細記錄錯誤信息
+    // 詳細記錄錯誤資訊
     console.error('紫微斗數計算錯誤:', error);
     console.error('錯誤類型:', error.constructor.name);
     console.error('錯誤訊息:', error.message);
@@ -655,7 +591,7 @@ const performIntegratedAnalysis = async () => {
 
     updateProgress('正在計算八字命盤...', 20);
     
-    // 確保位置數據格式正確
+    // 確保位置資料格式正確
     const locationValue = typeof birthInfoForIntegration.value.location === 'string' 
       ? birthInfoForIntegration.value.location 
       : (birthInfoForIntegration.value.location?.name || '台北市');
@@ -698,14 +634,6 @@ const performIntegratedAnalysis = async () => {
       // 整合最終結果
       integratedAnalysisResult.value = result;
       
-      // 轉換為分層數據以供 UnifiedLayeredController 使用
-      try {
-        layeredData.value = adaptIntegratedAnalysisToLayered(result);
-        console.log('已轉換綜合分析為分層數據:', layeredData.value);
-      } catch (adaptError) {
-        console.warn('轉換分層數據時發生錯誤:', adaptError);
-        layeredData.value = null;
-      }
       
       // 保存整合分析結果到 sessionStorage
       storageService.saveToStorage(storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS, result);
@@ -739,7 +667,7 @@ const exportAnalysisResult = () => {
   }
 
   try {
-    // 構建匯出數據
+    // 構建匯出資料
     const exportData = {
       readingDate: new Date().toLocaleDateString('zh-TW'),
       completeness: integratedAnalysisResult.value.data.analysisInfo.confidence,
@@ -769,10 +697,10 @@ const exportAnalysisResult = () => {
   }
 };
 
-// 從 sessionStorage 加載數據
+// 從 sessionStorage 加載資料
 const loadFromSessionStorage = () => {
   try {
-    console.log('開始從 sessionStorage 載入紫微斗數數據');
+    console.log('開始從 sessionStorage 載入紫微斗數資料');
     
     // 記錄當前 sessionStorage 狀態
     const keysInStorage = Object.keys(sessionStorage).filter(key => 
@@ -781,34 +709,34 @@ const loadFromSessionStorage = () => {
     
     console.log('sessionStorage 中的相關鍵:', keysInStorage);
     
-    // 檢查出生信息
+    // 檢查出生資訊
     const savedBirthInfo = storageService.getFromStorage(storageService.STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO);
     if (savedBirthInfo) {
-      console.log('找到保存的紫微斗數出生信息');
+      console.log('找到保存的紫微斗數出生資訊');
       birthInfoForIntegration.value = savedBirthInfo;
     } else {
-      console.log('未找到保存的紫微斗數出生信息');
+      console.log('未找到保存的紫微斗數出生資訊');
     }
 
     // 檢查紫微斗數命盤
     const savedPurpleStarChart = storageService.getFromStorage<PurpleStarChart>(storageService.STORAGE_KEYS.PURPLE_STAR_CHART);
     if (savedPurpleStarChart) {
-      console.log('找到保存的紫微斗數命盤數據');
+      console.log('找到保存的紫微斗數命盤資料');
       try {
-        // 進行基本的數據驗證，確保數據完整性
+        // 進行基本的資料驗證，確保資料完整性
         if (!savedPurpleStarChart.palaces || !Array.isArray(savedPurpleStarChart.palaces) || 
             savedPurpleStarChart.palaces.length === 0) {
-          console.warn('保存的紫微斗數命盤數據缺少宮位信息');
-          throw new Error('命盤數據不完整');
+          console.warn('保存的紫微斗數命盤資料缺少宮位資訊');
+          throw new Error('命盤資料不完整');
         }
         
         purpleStarChart.value = savedPurpleStarChart as PurpleStarChart;
       } catch (parseError) {
-        console.error('解析保存的紫微斗數命盤數據時出錯:', parseError);
-        // 不設置命盤數據，確保數據完整性
+        console.error('解析保存的紫微斗數命盤資料時出錯:', parseError);
+        // 不設置命盤資料，確保資料完整性
       }
     } else {
-      console.log('未找到保存的紫微斗數命盤數據');
+      console.log('未找到保存的紫微斗數命盤資料');
     }
 
     // 檢查整合分析結果
@@ -816,16 +744,16 @@ const loadFromSessionStorage = () => {
     if (savedIntegratedAnalysis) {
       console.log('找到保存的整合分析結果');
       try {
-        // 驗證整合分析數據
+        // 驗證整合分析資料
         if (!savedIntegratedAnalysis.data || !savedIntegratedAnalysis.data.integratedAnalysis) {
-          console.warn('保存的整合分析結果缺少必要的分析數據');
-          throw new Error('整合分析數據不完整');
+          console.warn('保存的整合分析結果缺少必要的分析資料');
+          throw new Error('整合分析資料不完整');
         }
         
         integratedAnalysisResult.value = savedIntegratedAnalysis as IntegratedAnalysisResponse;
       } catch (parseError) {
         console.error('解析保存的整合分析結果時出錯:', parseError);
-        // 清除可能損壞的數據
+        // 清除可能損壞的資料
         storageService.clearAnalysisData('integrated');
       }
     } else {
@@ -840,15 +768,17 @@ const loadFromSessionStorage = () => {
       console.log('找到保存的四化飛星資料:', {
         flows: Object.keys(transformationData.flows).length,
         combinations: transformationData.combinations.length,
+        multiLayerEnergies: Object.keys(transformationData.multiLayerEnergies).length,
         stars: !!transformationData.stars
       });
       
       transformationFlows.value = transformationData.flows;
       transformationCombinations.value = transformationData.combinations;
+      multiLayerEnergies.value = transformationData.multiLayerEnergies;
       
       if (transformationData.stars) {
-        // 如果有四化星曜數據，也可以載入
-        console.log('載入四化星曜數據');
+        // 如果有四化星曜資料，也可以載入
+        console.log('載入四化星曜資料');
       }
     } else {
       console.log('未找到保存的四化飛星資料');
@@ -857,21 +787,21 @@ const loadFromSessionStorage = () => {
       multiLayerEnergies.value = {};
     }
     
-    // 驗證數據一致性
+    // 驗證資料一致性
     try {
-      console.log('使用增強版存儲服務驗證紫微斗數數據');
+      console.log('使用增強版存儲服務驗證紫微斗數資料');
       enhancedStorageService.validateStorageData();
     } catch (validateError) {
-      console.error('驗證紫微斗數數據時出錯:', validateError);
+      console.error('驗證紫微斗數資料時出錯:', validateError);
     }
     
-    console.log('從 sessionStorage 載入的紫微斗數數據總結:', {
+    console.log('從 sessionStorage 載入的紫微斗數資料總結:', {
       birthInfo: !!birthInfoForIntegration.value,
       purpleStarChart: !!purpleStarChart.value,
       integratedAnalysis: !!integratedAnalysisResult.value
     });
   } catch (error: unknown) {
-    console.error('從 sessionStorage 載入紫微斗數數據時出錯:', error);
+    console.error('從 sessionStorage 載入紫微斗數資料時出錯:', error);
     // 只在確實有資料損壞時才清除，避免誤刪有效資料
     if (error instanceof Error && error.message && error.message.includes('Unexpected token')) {
       console.warn('檢測到 JSON 解析錯誤，清除可能損壞的資料');
@@ -917,7 +847,7 @@ onMounted(() => {
   });
 });
 
-// 生命週期鉤子 - 組件掛載時載入數據
+// 生命週期鉤子 - 組件掛載時載入資料
 onMounted(() => {
   console.log('PurpleStarView 組件已掛載');
   try {

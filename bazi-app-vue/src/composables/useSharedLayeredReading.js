@@ -131,7 +131,7 @@ export function useSharedLayeredReading(moduleType) {
         upgradeLevel: syncedUpgradeLevel,
         downgradeLevel: syncedDowngradeLevel,
         autoSelectOptimalLevel: syncedAutoSelectOptimalLevel,
-        // 模組信息
+        // 模組資訊
         moduleType,
         isPrimaryModule,
         getModuleDisplayName,

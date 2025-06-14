@@ -16,7 +16,7 @@ watch(() => analysisState.integratedAnalysis.value, (newVal) => {
         console.log('IntegratedAnalysisView - 分析結果更新:', newVal);
     }
 });
-// 生成或獲取表單數據
+// 生成或獲取表單資料
 const birthInfo = reactive({
     birthDate: '',
     birthTime: '',
@@ -42,9 +42,9 @@ const formRules = {
         { required: true, message: '請選擇性別', trigger: 'change' }
     ]
 };
-// 數據清除函數
+// 資料清除函數
 const clearData = () => {
-    ElMessageBox.confirm('確定要清除當前的時運分析結果嗎？', '清除數據', {
+    ElMessageBox.confirm('確定要清除當前的時運分析結果嗎？', '清除資料', {
         confirmButtonText: '確定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -53,19 +53,19 @@ const clearData = () => {
         analysisState.integratedAnalysis.value = null;
         analysisState.confidenceAssessment.value = null;
         analysisState.error.value = null;
-        ElMessage.success('時運分析數據已清除');
+        ElMessage.success('時運分析資料已清除');
     }).catch(() => {
         // 用戶取消操作
     });
 };
 const submitAnalysis = async (useSessionData = false) => {
     try {
-        console.log('提交分析請求，出生信息:', birthInfo);
+        console.log('提交分析請求，出生資訊:', birthInfo);
         if (!useSessionData) {
             // 保存出生資訊到 sessionStorage
             storageService.saveToStorage(storageService.STORAGE_KEYS.INTEGRATED_BIRTH_INFO, birthInfo);
         }
-        // 執行分析，傳入是否使用 sessionStorage 中的數據標識
+        // 執行分析，傳入是否使用 sessionStorage 中的資料標識
         await analysisState.analyze(birthInfo, useSessionData);
         // 檢查分析結果
         if (analysisState.integratedAnalysis.value) {
@@ -86,17 +86,17 @@ const submitAnalysis = async (useSessionData = false) => {
             : '分析失敗，請稍後再試');
     }
 };
-// 從 sessionStorage 加載數據
+// 從 sessionStorage 加載資料
 const loadFromSessionStorage = () => {
     try {
-        console.log('開始從 sessionStorage 載入數據');
+        console.log('開始從 sessionStorage 載入資料');
         // 記錄當前 sessionStorage 狀態
         const keysInStorage = Object.keys(sessionStorage).filter(key => key.startsWith('peixuan_'));
         console.log('sessionStorage 中的相關鍵:', keysInStorage);
-        // 檢查出生信息
+        // 檢查出生資訊
         const savedBirthInfo = storageService.getFromStorage(storageService.STORAGE_KEYS.INTEGRATED_BIRTH_INFO);
         if (savedBirthInfo) {
-            console.log('找到保存的出生信息');
+            console.log('找到保存的出生資訊');
             // 安全地更新各個字段，添加默認值
             birthInfo.birthDate = savedBirthInfo.birthDate || '';
             birthInfo.birthTime = savedBirthInfo.birthTime || '';
@@ -125,16 +125,16 @@ const loadFromSessionStorage = () => {
             }
         }
         else {
-            console.log('未找到保存的出生信息');
+            console.log('未找到保存的出生資訊');
         }
         // 檢查整合分析結果
         const savedAnalysis = storageService.getFromStorage(storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS);
         console.log('保存的分析結果:', savedAnalysis ? '已找到' : '未找到');
         if (savedAnalysis && analysisState.integratedAnalysis) {
             try {
-                // 驗證數據完整性
+                // 驗證資料完整性
                 if (!savedAnalysis.data || typeof savedAnalysis.data !== 'object') {
-                    console.warn('保存的分析結果數據格式不正確，將清除');
+                    console.warn('保存的分析結果資料格式不正確，將清除');
                     storageService.clearAnalysisData('integrated');
                     return;
                 }
@@ -145,7 +145,7 @@ const loadFromSessionStorage = () => {
                     success: savedAnalysis.success !== false,
                     data: {
                         ...savedAnalysis.data,
-                        // 確保必要的數據結構存在
+                        // 確保必要的資料結構存在
                         integratedAnalysis: savedAnalysis.data.integratedAnalysis || {},
                         analysisInfo: savedAnalysis.data.analysisInfo || {
                             calculationTime: new Date().toISOString(),
@@ -163,7 +163,7 @@ const loadFromSessionStorage = () => {
                 // 設置分析狀態
                 analysisState.integratedAnalysis.value = formattedResult;
                 console.log('已從 sessionStorage 載入並格式化分析結果');
-                // 如果有已保存的分析結果但缺少完整數據，重新分析
+                // 如果有已保存的分析結果但缺少完整資料，重新分析
                 if (savedBirthInfo && formattedResult.data.integratedAnalysis &&
                     Object.keys(formattedResult.data.integratedAnalysis).length === 0) {
                     console.log('檢測到不完整的分析結果，準備重新分析');
@@ -172,26 +172,26 @@ const loadFromSessionStorage = () => {
             }
             catch (parseError) {
                 console.error('解析儲存的分析結果時出錯:', parseError);
-                // 在出現錯誤時清除可能損壞的數據
+                // 在出現錯誤時清除可能損壞的資料
                 storageService.clearAnalysisData('integrated');
             }
         }
-        // 使用增強版存儲服務驗證數據
+        // 使用增強版存儲服務驗證資料
         try {
-            console.log('使用增強版存儲服務驗證數據');
+            console.log('使用增強版存儲服務驗證資料');
             enhancedStorageService.validateStorageData();
         }
         catch (validateError) {
-            console.error('驗證數據時出錯:', validateError);
+            console.error('驗證資料時出錯:', validateError);
         }
-        console.log('從 sessionStorage 載入的整合分析數據總結:', {
+        console.log('從 sessionStorage 載入的整合分析資料總結:', {
             birthInfo: !!savedBirthInfo,
             analysis: !!savedAnalysis
         });
     }
     catch (error) {
-        console.error('從 sessionStorage 載入數據時出錯:', error);
-        // 出現嚴重錯誤時，清除可能損壞的數據
+        console.error('從 sessionStorage 載入資料時出錯:', error);
+        // 出現嚴重錯誤時，清除可能損壞的資料
         storageService.clearAllAstrologyData();
     }
 };
@@ -200,7 +200,7 @@ const setupComponentData = () => {
     console.log('IntegratedAnalysisView 組件初始化');
     loadFromSessionStorage();
 };
-// 生命週期鉤子 - 組件掛載時載入數據
+// 生命週期鉤子 - 組件掛載時載入資料
 onMounted(() => {
     console.log('IntegratedAnalysisView 組件已掛載');
     try {
@@ -210,7 +210,7 @@ onMounted(() => {
         console.error('組件初始化過程中發生錯誤:', error);
         // 在初始化失敗時嘗試回退到安全狀態
         storageService.clearAnalysisData('integrated');
-        ElMessage.warning('數據載入時發生錯誤，已重置分析狀態');
+        ElMessage.warning('資料載入時發生錯誤，已重置分析狀態');
     }
 });
 debugger; /* PartiallyEnd: #3632/scriptSetup.vue */

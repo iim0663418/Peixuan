@@ -4,12 +4,12 @@ import apiService from '../services/apiService';
 const { t } = useI18n();
 // 地支名稱
 const ZHI_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-// 響應式數據
+// 響應式資料
 const isLoading = ref(false);
 const errorMessage = ref('');
 const chartResult = ref(null);
 const selectedPalace = ref(null);
-// 表單數據
+// 表單資料
 const formData = reactive({
     year: new Date().getFullYear() - 25,
     month: 1,
@@ -89,7 +89,7 @@ const calculateChart = async () => {
         const birthDate = new Date(formData.year, formData.month - 1, formData.day, formData.hour, formData.minute);
         // 轉換為農曆
         const lunarInfo = convertToLunar(birthDate);
-        // 組裝請求數據
+        // 組裝請求資料
         const requestData = {
             birthDate: birthDate.toISOString().split('T')[0], // YYYY-MM-DD 格式
             birthTime: `${formData.hour.toString().padStart(2, '0')}:${formData.minute.toString().padStart(2, '0')}:00`, // HH:MM:SS 格式

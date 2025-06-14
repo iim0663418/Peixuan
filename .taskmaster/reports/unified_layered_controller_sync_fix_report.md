@@ -56,14 +56,14 @@
 - **文件**: `src/composables/useSharedLayeredReading.ts`
 - **變更**:
   - 在 `effectiveReadingLevel` setter 中添加詳細日誌
-  - 增強四化飛星事件監聽器的調試信息
+  - 增強四化飛星事件監聽器的調試資訊
   - 修復 `PurpleStarView` 中的同步調用方式
 
 ### 6. 修復四化飛星顯示條件
 - **文件**: `src/views/PurpleStarView.vue`
 - **變更**:
   - 移除 `displayMode !== 'minimal'` 條件
-  - 四化飛星現在在所有層級都會顯示（只要有數據）
+  - 四化飛星現在在所有層級都會顯示（只要有資料）
 
 ## 📊 技術細節
 
@@ -152,7 +152,7 @@ if (effectiveReadingLevel) {
 - 紫微斗數分層顯示系統
 - 四化飛星同步機制
 - 移動端響應式體驗
-- 數據持久化和快取
+- 資料持久化和快取
 
 ## 🔄 後續維護
 
@@ -162,7 +162,7 @@ if (effectiveReadingLevel) {
 3. 增加更多的錯誤處理和恢復機制
 
 ### 監控要點
-- 確保四化飛星數據正確載入和保存
+- 確保四化飛星資料正確載入和保存
 - 監控分層切換的性能表現
 - 追蹤用戶在不同層級的使用情況
 

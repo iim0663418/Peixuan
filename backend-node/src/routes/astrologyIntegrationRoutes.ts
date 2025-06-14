@@ -110,15 +110,15 @@ const integratedAnalysisHandler = async (req: Request, res: Response): Promise<v
       
       if (baziChartFromSession) {
         baziResult = baziChartFromSession;
-        logger.info('使用前端提供的八字命盤數據');
+        logger.info('使用前端提供的八字命盤資料');
       } else {
-        // 如果沒有提供，生成模擬數據
-        logger.info('前端未提供八字命盤，使用模擬數據');
+        // 如果沒有提供，生成模擬資料
+        logger.info('前端未提供八字命盤，使用模擬資料');
         baziResult = generateMockBaziData(birthInfo);
       }
       
       if (purpleStarChartFromSession) {
-        logger.info('使用前端提供的紫微斗數命盤數據');
+        logger.info('使用前端提供的紫微斗數命盤資料');
         // 假設 purpleStarChartFromSession 包含標準格式或可轉換為標準格式
         purpleStarResult = {
           success: true as const,
@@ -143,8 +143,8 @@ const integratedAnalysisHandler = async (req: Request, res: Response): Promise<v
           timestamp: new Date().toISOString()
         };
       } else {
-        // 如果沒有提供，生成模擬數據
-        logger.info('前端未提供紫微斗數命盤，使用模擬數據');
+        // 如果沒有提供，生成模擬資料
+        logger.info('前端未提供紫微斗數命盤，使用模擬資料');
         const purpleStarChart = {
           palaces: [],
           mingPalaceIndex: 0,
@@ -355,7 +355,7 @@ const confidenceAssessmentHandler = async (req: Request, res: Response): Promise
       location: location || '台北市'
     };
 
-    // 計算兩套系統的結果（暫時使用模擬數據，因為需要農曆資訊）
+    // 計算兩套系統的結果（暫時使用模擬資料，因為需要農曆資訊）
     const purpleStarChart = {
       palaces: [],
       mingPalaceIndex: 0,
@@ -446,7 +446,7 @@ router.get('/health', (_req: Request, res: Response): void => {
 // ===== 輔助函數 =====
 
 /**
- * 生成模擬八字數據
+ * 生成模擬八字資料
  */
 function generateMockBaziData(birthInfo: BirthInfo): BaziCalculationResult {
   const birthDate = birthInfo.solarDate;

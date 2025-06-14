@@ -1,131 +1,49 @@
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { Connection } from '@element-plus/icons-vue';
-import { useDisplayMode } from '@/composables/useDisplayMode';
-import { useSharedLayeredReading } from '@/composables/useSharedLayeredReading';
-import UnifiedLayeredController from '@/components/UnifiedLayeredController.vue';
-// 是否啟用共享分層閱讀
-const enableSharedReading = ref(true);
-// 使用共享分層閱讀系統（如果啟用）
-const sharedLayeredReading = enableSharedReading.value
-    ? useSharedLayeredReading('transformationStars')
-    : null;
-// 使用傳統顯示模式 composable（作為後備）
-const { displayMode: localDisplayMode, mapDepthToMode } = useDisplayMode('transformationStars');
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 const emit = defineEmits();
 const props = withDefaults(defineProps(), {
     mingGan: '',
-    displayMode: 'standard',
     transformationFlows: () => ({}),
     transformationCombinations: () => [],
     multiLayerEnergies: () => ({})
 });
-// 響應式狀態
+// 響應式狀態 - 固定為最詳細顯示
 const isAnimationActive = ref(false);
-const isDetailView = ref(true);
+const isDetailView = ref(true); // 固定為詳細視圖
 const selectedLayer = ref('total');
 const animationInterval = ref(null);
-// 新增移動端檢測和數據相關屬性
+// 新增移動端檢測和資料相關屬性
 const isMobile = ref(window.innerWidth <= 768);
-const layeredData = computed(() => null); // 待實現分層數據
+const layeredData = computed(() => null); // 待實現分層資料
 const dataCompleteness = computed(() => {
     let score = 0;
     if (!props.chartData)
         return 0;
-    // 核心數據：命宮天干是計算四化的基礎
+    // 核心資料：命宮天干是計算四化的基礎
     if (props.mingGan && props.mingGan.length > 0) {
         score += 40;
     }
-    // 核心數據：命盤宮位和星曜資訊
+    // 核心資料：命盤宮位和星曜資訊
     const hasTransformedStars = props.chartData.palaces?.some(p => p.stars.some(s => s.transformations && s.transformations.length > 0));
     if (hasTransformedStars) {
         score += 30;
     }
-    // 輔助數據：特殊組合，用於深度分析
+    // 輔助資料：特殊組合，用於深度分析
     if (props.transformationCombinations && props.transformationCombinations.length > 0) {
         score += 15;
     }
-    // 輔助數據：多層次能量，用於深度分析
+    // 輔助資料：多層次能量，用於深度分析
     if (props.multiLayerEnergies && Object.keys(props.multiLayerEnergies).length > 0) {
         score += 15;
     }
     return Math.min(score, 100); // 確保最高為 100
-}); // 四化飛星數據完整度
+}); // 四化飛星資料完整度
 // 處理層級變化
 const handleLevelChanged = (level) => {
     console.log('四化飛星層級變化:', level);
     // TODO: 實現層級變化邏輯
 };
-// 計算當前層級標籤
-const currentSyncLevel = computed(() => {
-    if (enableSharedReading.value && sharedLayeredReading?.effectiveReadingLevel) {
-        const levelLabels = {
-            'summary': '簡要',
-            'compact': '精簡',
-            'standard': '標準',
-            'deep': '深度'
-        };
-        return levelLabels[sharedLayeredReading.effectiveReadingLevel.value] || '標準';
-    }
-    return '標準';
-});
-// 映射表定義（在外部定義以供重複使用）
-const levelToModeMap = {
-    'summary': 'minimal',
-    'compact': 'compact',
-    'standard': 'standard',
-    'deep': 'comprehensive'
-};
-// 計算顯示模式
-const displayMode = computed({
-    get: () => {
-        if (enableSharedReading.value && sharedLayeredReading?.effectiveReadingLevel) {
-            // 將 ReadingLevel 映射到 DisplayMode
-            return levelToModeMap[sharedLayeredReading.effectiveReadingLevel.value] || 'standard';
-        }
-        // 後備方案：使用 props 或本地狀態
-        return props.displayMode || localDisplayMode.value;
-    },
-    set: (newMode) => {
-        if (!enableSharedReading.value) {
-            localDisplayMode.value = newMode;
-            emit('update:displayMode', newMode);
-        }
-        // 如果啟用同步，則忽略設置（由紫微斗數控制）
-    }
-});
-// 監聽紫微斗數層級變化（如果啟用同步）
-if (enableSharedReading.value && sharedLayeredReading?.effectiveReadingLevel) {
-    watch(sharedLayeredReading.effectiveReadingLevel, (newLevel) => {
-        if (newLevel) {
-            console.log(`四化飛星同步新層級: ${newLevel}`);
-            // 強制更新詳細視圖狀態
-            const newMode = levelToModeMap[newLevel] || 'standard';
-            isDetailView.value = newMode === 'standard' || newMode === 'comprehensive';
-        }
-    }, { immediate: true });
-}
-// 傳統同步方式（為了向下相容）
-watch(() => props.displayMode, (newMode) => {
-    if (newMode && !enableSharedReading.value) {
-        localDisplayMode.value = newMode;
-        console.log('TransformationStarsDisplay: props displayMode 已同步', newMode);
-    }
-}, { immediate: true });
-// 根據顯示模式設置詳細程度
-watch(displayMode, (newMode) => {
-    if (newMode === 'minimal' || newMode === 'compact') {
-        isDetailView.value = false;
-    }
-    else if (newMode === 'standard' || newMode === 'comprehensive') {
-        isDetailView.value = true;
-    }
-    // 將顯示模式變更記錄到控制台並向上傳遞更新
-    console.log('四化飛星顯示模式已更新:', newMode, '詳細視圖:', isDetailView.value);
-    // 只有在未啟用共享分層時才發送更新事件
-    if (!enableSharedReading.value) {
-        emit('update:displayMode', newMode);
-    }
-}, { immediate: true });
+// 固定為最高詳細顯示模式
+const displayMode = ref('comprehensive'); // 固定為 comprehensive 模式
 // 處理事件監聽
 // 移除重複的事件處理，useDisplayMode 已經處理了這些邏輯
 // 計算屬性
@@ -330,23 +248,14 @@ const getEnergySummary = () => {
 // 生命週期鉤子
 onMounted(() => {
     console.log('TransformationStarsDisplay: 組件已掛載');
-    console.log('TransformationStarsDisplay: Props數據檢查', {
+    console.log('TransformationStarsDisplay: Props資料檢查', {
         chartData: !!props.chartData,
         mingGan: props.mingGan,
         transformationFlows: Object.keys(props.transformationFlows || {}).length,
         transformationCombinations: (props.transformationCombinations || []).length,
         multiLayerEnergies: Object.keys(props.multiLayerEnergies || {}).length,
-        displayMode: displayMode.value,
-        enableSharedReading: enableSharedReading.value
+        displayMode: 'comprehensive' // 固定為最高詳細模式
     });
-    // 檢查分層系統狀態
-    if (enableSharedReading.value && sharedLayeredReading) {
-        console.log('TransformationStarsDisplay: 共享分層閱讀狀態', {
-            effectiveReadingLevel: sharedLayeredReading.effectiveReadingLevel?.value,
-            isPrimaryModule: sharedLayeredReading.isPrimaryModule?.value,
-            syncStatusDescription: sharedLayeredReading.syncStatusDescription?.value
-        });
-    }
 });
 // 組件卸載時清理
 onUnmounted(() => {
@@ -359,7 +268,6 @@ onUnmounted(() => {
 debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
 const __VLS_withDefaultsArg = (function (t) { return t; })({
     mingGan: '',
-    displayMode: 'standard',
     transformationFlows: () => ({}),
     transformationCombinations: () => [],
     multiLayerEnergies: () => ({})
@@ -430,82 +338,6 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.d
     ...{ class: "display-header" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
-if (__VLS_ctx.enableSharedReading) {
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "sync-status" },
-    });
-    const __VLS_0 = {}.ElTag;
-    /** @type {[typeof __VLS_components.ElTag, typeof __VLS_components.elTag, typeof __VLS_components.ElTag, typeof __VLS_components.elTag, ]} */ ;
-    // @ts-ignore
-    const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({
-        type: "success",
-        size: "small",
-        effect: "plain",
-    }));
-    const __VLS_2 = __VLS_1({
-        type: "success",
-        size: "small",
-        effect: "plain",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-    __VLS_3.slots.default;
-    const __VLS_4 = {}.ElIcon;
-    /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
-    // @ts-ignore
-    const __VLS_5 = __VLS_asFunctionalComponent(__VLS_4, new __VLS_4({}));
-    const __VLS_6 = __VLS_5({}, ...__VLS_functionalComponentArgsRest(__VLS_5));
-    __VLS_7.slots.default;
-    const __VLS_8 = {}.Connection;
-    /** @type {[typeof __VLS_components.Connection, ]} */ ;
-    // @ts-ignore
-    const __VLS_9 = __VLS_asFunctionalComponent(__VLS_8, new __VLS_8({}));
-    const __VLS_10 = __VLS_9({}, ...__VLS_functionalComponentArgsRest(__VLS_9));
-    var __VLS_7;
-    var __VLS_3;
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-        ...{ class: "sync-description" },
-    });
-    (__VLS_ctx.currentSyncLevel);
-}
-if (!__VLS_ctx.enableSharedReading) {
-    /** @type {[typeof UnifiedLayeredController, ]} */ ;
-    // @ts-ignore
-    const __VLS_12 = __VLS_asFunctionalComponent(UnifiedLayeredController, new UnifiedLayeredController({
-        ...{ 'onLevelChanged': {} },
-        ...{ 'onToggleAnimation': {} },
-        moduleType: ('transformationStars'),
-        layeredData: (__VLS_ctx.layeredData),
-        dataCompleteness: (__VLS_ctx.dataCompleteness),
-        enableSync: (false),
-        isMobile: (__VLS_ctx.isMobile),
-        isCompact: (true),
-        showToolbar: (false),
-        modelValue: (__VLS_ctx.displayMode),
-        ...{ class: "transformation-controller" },
-    }));
-    const __VLS_13 = __VLS_12({
-        ...{ 'onLevelChanged': {} },
-        ...{ 'onToggleAnimation': {} },
-        moduleType: ('transformationStars'),
-        layeredData: (__VLS_ctx.layeredData),
-        dataCompleteness: (__VLS_ctx.dataCompleteness),
-        enableSync: (false),
-        isMobile: (__VLS_ctx.isMobile),
-        isCompact: (true),
-        showToolbar: (false),
-        modelValue: (__VLS_ctx.displayMode),
-        ...{ class: "transformation-controller" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_12));
-    let __VLS_15;
-    let __VLS_16;
-    let __VLS_17;
-    const __VLS_18 = {
-        onLevelChanged: (__VLS_ctx.handleLevelChanged)
-    };
-    const __VLS_19 = {
-        onToggleAnimation: (__VLS_ctx.toggleAnimation)
-    };
-    var __VLS_14;
-}
 if (__VLS_ctx.isDetailView) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "explanation-panel" },
@@ -872,9 +704,6 @@ if (__VLS_ctx.isDetailView && __VLS_ctx.hasMultiLayerData) {
 /** @type {__VLS_StyleScopedClasses['transformation-stars-display']} */ ;
 /** @type {__VLS_StyleScopedClasses['animation-active']} */ ;
 /** @type {__VLS_StyleScopedClasses['display-header']} */ ;
-/** @type {__VLS_StyleScopedClasses['sync-status']} */ ;
-/** @type {__VLS_StyleScopedClasses['sync-description']} */ ;
-/** @type {__VLS_StyleScopedClasses['transformation-controller']} */ ;
 /** @type {__VLS_StyleScopedClasses['explanation-panel']} */ ;
 /** @type {__VLS_StyleScopedClasses['explanation-header']} */ ;
 /** @type {__VLS_StyleScopedClasses['info-icon']} */ ;
@@ -964,22 +793,12 @@ var __VLS_dollars;
 const __VLS_self = (await import('vue')).defineComponent({
     setup() {
         return {
-            Connection: Connection,
-            UnifiedLayeredController: UnifiedLayeredController,
-            enableSharedReading: enableSharedReading,
             isAnimationActive: isAnimationActive,
             isDetailView: isDetailView,
             selectedLayer: selectedLayer,
-            isMobile: isMobile,
-            layeredData: layeredData,
-            dataCompleteness: dataCompleteness,
-            handleLevelChanged: handleLevelChanged,
-            currentSyncLevel: currentSyncLevel,
-            displayMode: displayMode,
             transformedStars: transformedStars,
             combinations: combinations,
             hasMultiLayerData: hasMultiLayerData,
-            toggleAnimation: toggleAnimation,
             getPalaceNameByIndex: getPalaceNameByIndex,
             getTransformationEffect: getTransformationEffect,
             getEnergyValue: getEnergyValue,

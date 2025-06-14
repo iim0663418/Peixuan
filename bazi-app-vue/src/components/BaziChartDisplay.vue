@@ -220,22 +220,22 @@ watch(displayMode, (newMode: DisplayMode) => {
 
 // 計算屬性
 const pillarsDisplay = computed(() => {
-  // 完全沒有數據的情況
+  // 完全沒有資料的情況
   if (!props.baziResult) return [];
   
-  // 檢查是否有正確的數據結構
+  // 檢查是否有正確的資料結構
   const hasValidYearPillar = props.baziResult.yearPillar && props.baziResult.yearPillar.stem && props.baziResult.yearPillar.branch;
   const hasValidMonthPillar = props.baziResult.monthPillar && props.baziResult.monthPillar.stem && props.baziResult.monthPillar.branch;
   const hasValidDayPillar = props.baziResult.dayPillar && props.baziResult.dayPillar.stem && props.baziResult.dayPillar.branch;
   const hasValidHourPillar = props.baziResult.hourPillar && props.baziResult.hourPillar.stem && props.baziResult.hourPillar.branch;
   
-  // 如果數據不完整，返回空數組
+  // 如果資料不完整，返回空數組
   if (!hasValidYearPillar || !hasValidMonthPillar || !hasValidDayPillar || !hasValidHourPillar) {
-    console.warn('BaziChartDisplay: 不完整的命盤數據', props.baziResult);
+    console.warn('BaziChartDisplay: 不完整的命盤資料', props.baziResult);
     return [];
   }
   
-  // 所有數據都存在，安全構建柱子顯示
+  // 所有資料都存在，安全構建柱子顯示
   return [
     {
       name: t('baziChart.yearPillar'),

@@ -115,7 +115,7 @@ export class StarPlacementService {
   /**
    * 計算輔星位置
    * @param palaces 宮位數組
-   * @param lunarInfo 農曆信息
+   * @param lunarInfo 農曆資訊
    * @returns 所有輔星數組
    */
   public calculateAuxiliaryStars(palaces: Palace[], lunarInfo: LunarInfo): Star[] {
@@ -167,7 +167,7 @@ export class StarPlacementService {
    * 計算其他輔星位置
    * 可以擴展更多輔星的計算
    * @param palaces 宮位數組
-   * @param lunarInfo 農曆信息
+   * @param lunarInfo 農曆資訊
    * @param auxiliaryStars 現有輔星數組
    */
   private calculateAdditionalAuxiliaryStars(
@@ -191,7 +191,7 @@ export class StarPlacementService {
   /**
    * 計算天魁、天鉞位置
    * @param palaces 宮位數組
-   * @param lunarInfo 農曆信息
+   * @param lunarInfo 農曆資訊
    * @param auxiliaryStars 輔星數組
    */
   private calculateTianKuiTianYue(
@@ -241,7 +241,7 @@ export class StarPlacementService {
   /**
    * 計算祿存位置
    * @param palaces 宮位數組
-   * @param lunarInfo 農曆信息
+   * @param lunarInfo 農曆資訊
    * @param auxiliaryStars 輔星數組
    */
   private calculateLuCun(
@@ -274,7 +274,7 @@ export class StarPlacementService {
   /**
    * 計算火星、鈴星位置
    * @param palaces 宮位數組
-   * @param lunarInfo 農曆信息
+   * @param lunarInfo 農曆資訊
    * @param auxiliaryStars 輔星數組
    */
   private calculateHuoXingLingXing(
@@ -345,7 +345,7 @@ export class StarPlacementService {
   /**
    * 計算擎羊、陀羅位置
    * @param palaces 宮位數組
-   * @param lunarInfo 農曆信息
+   * @param lunarInfo 農曆資訊
    * @param auxiliaryStars 輔星數組
    */
   private calculateQingYangTuoLuo(

@@ -161,7 +161,7 @@ export class AstrologyIntegrationService {
       overallConfidence: 0.3,
       consensusFindings: ['基於現有資料進行分析'],
       divergentFindings: ['需要完整命盤資料以獲得更准確的解讀'],
-      recommendations: ['建議提供完整的出生時間和地點信息', '可嘗試重新輸入資料獲得更詳細的分析'],
+      recommendations: ['建議提供完整的出生時間和地點資訊', '可嘗試重新輸入資料獲得更詳細的分析'],
       detailedAnalysis: {
         personality: {
           category: 'personality',
@@ -200,7 +200,7 @@ export class AstrologyIntegrationService {
       crossValidation: {
         agreementPercentage: 30,
         reliabilityScore: 0.3,
-        validationSources: ['基礎數據']
+        validationSources: ['基礎資料']
       }
     };
   }

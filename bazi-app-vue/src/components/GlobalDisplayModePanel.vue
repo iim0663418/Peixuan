@@ -208,7 +208,7 @@ const getDefaultDescription = (depth: string): string => {
   const descriptions: Record<string, string> = {
     'minimal': '最簡潔的命盤展示，僅呈現基本框架',
     'compact': '顯示主要星曜和基本效應，快速了解命盤特點',
-    'standard': '完整展示星曜信息和效應，深入解析命盤結構',
+    'standard': '完整展示星曜資訊和效應，深入解析命盤結構',
     'comprehensive': '全面詳盡的命盤分析'
   };
   

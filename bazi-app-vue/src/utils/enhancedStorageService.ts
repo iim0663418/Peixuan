@@ -1,11 +1,11 @@
 /**
- * 強化版存儲服務 - 提供更完整的數據存儲、驗證與管理功能
- * 擴展基本的 storageService 功能，添加數據一致性檢查和統一數據模型
+ * 強化版存儲服務 - 提供更完整的資料存儲、驗證與管理功能
+ * 擴展基本的 storageService 功能，添加資料一致性檢查和統一資料模型
  */
 
 import storageService, { STORAGE_KEYS, getFromStorage, saveToStorage } from './storageService';
 
-// 存儲統計信息接口
+// 存儲統計資訊接口
 export interface StorageStats {
   totalSize: number;
   usagePercentage: number;
@@ -13,7 +13,7 @@ export interface StorageStats {
   lastUpdated: number;
 }
 
-// 統一會話數據接口
+// 統一會話資料接口
 export interface UnifiedSessionData {
   sessionId: string;
   lastUpdated: number;
@@ -37,7 +37,7 @@ export interface UnifiedSessionData {
   validationStatus: 'valid' | 'warning' | 'error';
 }
 
-// 統一數據的存儲鍵
+// 統一資料的存儲鍵
 const UNIFIED_DATA_KEY = 'peixuan_unified_session_data';
 // 存儲警告的存儲鍵
 const STORAGE_WARNINGS_KEY = 'peixuan_storage_warnings';
@@ -57,7 +57,7 @@ export const isStorageAvailable = (): boolean => {
 };
 
 /**
- * 獲取存儲使用統計信息
+ * 獲取存儲使用統計資訊
  */
 export const getStorageUsage = (): StorageStats => {
   const stats: StorageStats = {
@@ -89,7 +89,7 @@ export const getStorageUsage = (): StorageStats => {
     const maxSize = 5 * 1024 * 1024;
     stats.usagePercentage = (totalSize / maxSize) * 100;
   } catch (error) {
-    console.error('獲取存儲使用統計信息時出錯:', error);
+    console.error('獲取存儲使用統計資訊時出錯:', error);
   }
 
   return stats;
@@ -97,18 +97,18 @@ export const getStorageUsage = (): StorageStats => {
 
 /**
  * 初始化存儲系統
- * 確保必要的數據結構已創建
+ * 確保必要的資料結構已創建
  */
 export const initializeStorage = (): boolean => {
   try {
     // 確保 session ID 存在
     const sessionId = storageService.getOrCreateSessionId();
 
-    // 檢查並初始化統一數據結構，使用更安全的初始化邏輯
+    // 檢查並初始化統一資料結構，使用更安全的初始化邏輯
     let unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
     
     if (!unifiedData) {
-      // 創建新的統一數據結構，確保所有必要的子對象都被初始化
+      // 創建新的統一資料結構，確保所有必要的子對象都被初始化
       unifiedData = {
         sessionId,
         lastUpdated: Date.now(),
@@ -168,15 +168,15 @@ export const initializeStorage = (): boolean => {
       saveToStorage(UNIFIED_DATA_KEY, unifiedData);
     }
     
-    // 嘗試初始化命盤數據，但處理可能的錯誤
+    // 嘗試初始化命盤資料，但處理可能的錯誤
     try {
       initializeChartData();
     } catch (chartError) {
-      console.error('初始化命盤數據時出錯:', chartError);
+      console.error('初始化命盤資料時出錯:', chartError);
       // 記錄錯誤但不中斷初始化流程
       saveToStorage(STORAGE_WARNINGS_KEY, {
         timestamp: Date.now(),
-        message: '命盤數據初始化失敗',
+        message: '命盤資料初始化失敗',
         level: 'warning',
         details: chartError instanceof Error ? chartError.message : '未知錯誤'
       });
@@ -185,7 +185,7 @@ export const initializeStorage = (): boolean => {
     return true;
   } catch (error) {
     console.error('初始化存儲系統時出錯:', error);
-    // 記錄詳細的錯誤信息
+    // 記錄詳細的錯誤資訊
     saveToStorage(STORAGE_WARNINGS_KEY, {
       timestamp: Date.now(),
       message: '存儲初始化失敗',
@@ -197,15 +197,15 @@ export const initializeStorage = (): boolean => {
 };
 
 /**
- * 初始化命盤數據
- * 確保所有現有的命盤數據都被納入統一數據結構
+ * 初始化命盤資料
+ * 確保所有現有的命盤資料都被納入統一資料結構
  */
 export const initializeChartData = (): boolean => {
   try {
-    // 獲取統一數據
+    // 獲取統一資料
     let unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
     if (!unifiedData) {
-      // 如果統一數據不存在，創建一個完整的初始結構而不是遞歸調用
+      // 如果統一資料不存在，創建一個完整的初始結構而不是遞歸調用
       unifiedData = {
         sessionId: storageService.getOrCreateSessionId(),
         lastUpdated: Date.now(),
@@ -256,17 +256,17 @@ export const initializeChartData = (): boolean => {
       };
     }
     
-    // 獲取各種命盤數據
+    // 獲取各種命盤資料
     const baziChart = getFromStorage(STORAGE_KEYS.BAZI_CHART);
     const purpleStarChart = getFromStorage(STORAGE_KEYS.PURPLE_STAR_CHART);
     const integratedAnalysis = getFromStorage(STORAGE_KEYS.INTEGRATED_ANALYSIS);
     
-    // 獲取各種出生信息
+    // 獲取各種出生資訊
     const baziBirthInfo = getFromStorage(STORAGE_KEYS.BAZI_BIRTH_INFO);
     const purpleStarBirthInfo = getFromStorage(STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO);
     const integratedBirthInfo = getFromStorage(STORAGE_KEYS.INTEGRATED_BIRTH_INFO);
     
-    // 檢查並添加命盤數據
+    // 檢查並添加命盤資料
     let isUpdated = false;
     
     // 使用更安全的賦值方式
@@ -288,7 +288,7 @@ export const initializeChartData = (): boolean => {
       isUpdated = true;
     }
     
-    // 檢查並添加出生信息
+    // 檢查並添加出生資訊
     if (baziBirthInfo) {
       unifiedData.birthInfo.bazi = baziBirthInfo;
       isUpdated = true;
@@ -304,17 +304,17 @@ export const initializeChartData = (): boolean => {
       isUpdated = true;
     }
     
-    // 更新並保存統一數據
+    // 更新並保存統一資料
     unifiedData.lastUpdated = Date.now();
     saveToStorage(UNIFIED_DATA_KEY, unifiedData);
     
     return true;
   } catch (error) {
-    console.error('初始化命盤數據時出錯:', error);
-    // 記錄詳細的錯誤信息
+    console.error('初始化命盤資料時出錯:', error);
+    // 記錄詳細的錯誤資訊
     saveToStorage(STORAGE_WARNINGS_KEY, {
       timestamp: Date.now(),
-      message: '命盤數據初始化失敗',
+      message: '命盤資料初始化失敗',
       level: 'error',
       details: error instanceof Error ? error.message : '未知錯誤'
     });
@@ -323,11 +323,11 @@ export const initializeChartData = (): boolean => {
 };
 
 /**
- * 同步各個命盤數據到統一數據
+ * 同步各個命盤資料到統一資料
  */
 export const syncChartsToUnifiedData = (): boolean => {
   try {
-    // 獲取各個獨立的命盤和出生信息
+    // 獲取各個獨立的命盤和出生資訊
     const baziChart = getFromStorage(STORAGE_KEYS.BAZI_CHART);
     const baziInfo = getFromStorage(STORAGE_KEYS.BAZI_BIRTH_INFO);
     const purpleStarChart = getFromStorage(STORAGE_KEYS.PURPLE_STAR_CHART);
@@ -335,10 +335,10 @@ export const syncChartsToUnifiedData = (): boolean => {
     const integratedChart = getFromStorage(STORAGE_KEYS.INTEGRATED_ANALYSIS);
     const integratedInfo = getFromStorage(STORAGE_KEYS.INTEGRATED_BIRTH_INFO);
     
-    // 獲取統一數據
+    // 獲取統一資料
     let unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
     if (!unifiedData) {
-      // 如果統一數據不存在，初始化它
+      // 如果統一資料不存在，初始化它
       initializeStorage();
       unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
       if (!unifiedData) return false;
@@ -362,7 +362,7 @@ export const syncChartsToUnifiedData = (): boolean => {
       };
     }
     
-    // 更新統一數據中的命盤和信息
+    // 更新統一資料中的命盤和資訊
     if (baziChart) {
       unifiedData.charts.bazi = baziChart;
       unifiedData.status.bazi = true;
@@ -395,37 +395,37 @@ export const syncChartsToUnifiedData = (): boolean => {
     unifiedData.validationStatus = 'valid';
     saveToStorage(UNIFIED_DATA_KEY, unifiedData);
     
-    // 檢查數據一致性
+    // 檢查資料一致性
     try {
       validateStorageData();
     } catch (validateError) {
-      console.error('同步後驗證數據時出錯:', validateError);
+      console.error('同步後驗證資料時出錯:', validateError);
     }
     
     return true;
   } catch (error) {
-    console.error('同步命盤數據到統一數據時出錯:', error);
+    console.error('同步命盤資料到統一資料時出錯:', error);
     return false;
   }
 };
 
 /**
- * 驗證存儲數據的一致性
+ * 驗證存儲資料的一致性
  */
 export const validateStorageData = (): boolean => {
   try {
-    // 獲取統一數據
+    // 獲取統一資料
     let unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
     if (!unifiedData) {
-      // 如果統一數據不存在，初始化它
-      console.warn('未找到統一數據，重新初始化');
+      // 如果統一資料不存在，初始化它
+      console.warn('未找到統一資料，重新初始化');
       initializeStorage();
       // 重新獲取，而不是遞歸調用（避免潛在的無限遞歸）
       unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
       
-      // 如果初始化後仍然沒有數據，則退出
+      // 如果初始化後仍然沒有資料，則退出
       if (!unifiedData) {
-        console.error('即使在初始化後仍未能獲取統一數據');
+        console.error('即使在初始化後仍未能獲取統一資料');
         return false;
       }
     }
@@ -456,7 +456,7 @@ export const validateStorageData = (): boolean => {
       };
     }
     
-    // 檢查與獨立存儲的數據是否一致
+    // 檢查與獨立存儲的資料是否一致
     const baziChart = getFromStorage(STORAGE_KEYS.BAZI_CHART);
     const purpleStarChart = getFromStorage(STORAGE_KEYS.PURPLE_STAR_CHART);
     const integratedChart = getFromStorage(STORAGE_KEYS.INTEGRATED_ANALYSIS);
@@ -484,11 +484,11 @@ export const validateStorageData = (): boolean => {
         missingFields['bazi'] = ['validation_error'];
       }
     } else if (baziChart && (!unifiedData.charts || unifiedData.charts.bazi === undefined)) {
-      // 統一數據中缺少八字命盤
+      // 統一資料中缺少八字命盤
       hasInconsistency = true;
       missingFields['bazi'] = ['entire chart'];
       
-      // 修復：添加到統一數據
+      // 修復：添加到統一資料
       if (unifiedData.charts) {
         unifiedData.charts.bazi = baziChart;
         if (unifiedData.status) {
@@ -518,11 +518,11 @@ export const validateStorageData = (): boolean => {
         missingFields['purpleStar'] = ['validation_error'];
       }
     } else if (purpleStarChart && (!unifiedData.charts || unifiedData.charts.purpleStar === undefined)) {
-      // 統一數據中缺少紫微斗數命盤
+      // 統一資料中缺少紫微斗數命盤
       hasInconsistency = true;
       missingFields['purpleStar'] = ['entire chart'];
       
-      // 修復：添加到統一數據
+      // 修復：添加到統一資料
       if (unifiedData.charts) {
         unifiedData.charts.purpleStar = purpleStarChart;
         if (unifiedData.status) {
@@ -552,11 +552,11 @@ export const validateStorageData = (): boolean => {
         missingFields['integrated'] = ['validation_error'];
       }
     } else if (integratedChart && (!unifiedData.charts || unifiedData.charts.integrated === undefined)) {
-      // 統一數據中缺少整合分析
+      // 統一資料中缺少整合分析
       hasInconsistency = true;
       missingFields['integrated'] = ['entire analysis'];
       
-      // 修復：添加到統一數據
+      // 修復：添加到統一資料
       if (unifiedData.charts) {
         unifiedData.charts.integrated = integratedChart;
         if (unifiedData.status) {
@@ -595,7 +595,7 @@ export const validateStorageData = (): boolean => {
       // 記錄警告
       saveToStorage(STORAGE_WARNINGS_KEY, {
         timestamp: Date.now(),
-        message: '存儲數據存在不一致',
+        message: '存儲資料存在不一致',
         level: 'warning',
         details: missingFields
       });
@@ -604,7 +604,7 @@ export const validateStorageData = (): boolean => {
       try {
         repairDataConsistency();
       } catch (repairError) {
-        console.error('修復數據一致性時出錯:', repairError);
+        console.error('修復資料一致性時出錯:', repairError);
       }
       
       return false;
@@ -618,12 +618,12 @@ export const validateStorageData = (): boolean => {
       return true;
     }
   } catch (error) {
-    console.error('驗證存儲數據一致性時出錯:', error);
+    console.error('驗證存儲資料一致性時出錯:', error);
     
     // 記錄錯誤
     saveToStorage(STORAGE_WARNINGS_KEY, {
       timestamp: Date.now(),
-      message: '驗證數據時發生錯誤',
+      message: '驗證資料時發生錯誤',
       level: 'error',
       details: error instanceof Error ? error.message : '未知錯誤'
     });
@@ -633,7 +633,7 @@ export const validateStorageData = (): boolean => {
 };
 
 /**
- * 交叉驗證命盤數據
+ * 交叉驗證命盤資料
  */
 export const crossValidateChartData = (chart1: any, chart2: any, chartType: string): { isConsistent: boolean; missingFields: string[] } => {
   const result = {
@@ -655,7 +655,7 @@ export const crossValidateChartData = (chart1: any, chart2: any, chartType: stri
       return result;
     }
     
-    // 如果是基本數據類型，直接比較
+    // 如果是基本資料類型，直接比較
     if (typeof chart1 !== 'object' || typeof chart2 !== 'object') {
       result.isConsistent = chart1 === chart2;
       if (!result.isConsistent) {
@@ -715,7 +715,7 @@ export const crossValidateChartData = (chart1: any, chart2: any, chartType: stri
     }
     
   } catch (error) {
-    console.error('交叉驗證命盤數據時出錯:', error);
+    console.error('交叉驗證命盤資料時出錯:', error);
     result.isConsistent = false;
     result.missingFields.push('validation_error');
   }
@@ -724,7 +724,7 @@ export const crossValidateChartData = (chart1: any, chart2: any, chartType: stri
 };
 
 /**
- * 修復數據一致性
+ * 修復資料一致性
  */
 export const repairDataConsistency = (): boolean => {
   try {
@@ -737,14 +737,14 @@ export const repairDataConsistency = (): boolean => {
     }>(STORAGE_WARNINGS_KEY);
     
     if (!warnings || !warnings.details) {
-      // 沒有詳細信息，無法修復
+      // 沒有詳細資訊，無法修復
       return false;
     }
     
-    // 獲取統一數據
+    // 獲取統一資料
     let unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
     if (!unifiedData) {
-      // 如果統一數據不存在，初始化它
+      // 如果統一資料不存在，初始化它
       initializeStorage();
       unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
       if (!unifiedData) return false;
@@ -789,7 +789,7 @@ export const repairDataConsistency = (): boolean => {
       }
     }
     
-    // 更新統一數據
+    // 更新統一資料
     unifiedData.lastUpdated = Date.now();
     saveToStorage(UNIFIED_DATA_KEY, unifiedData);
     
@@ -798,40 +798,40 @@ export const repairDataConsistency = (): boolean => {
     
     return true;
   } catch (error) {
-    console.error('修復數據一致性時出錯:', error);
+    console.error('修復資料一致性時出錯:', error);
     return false;
   }
 };
 
 /**
- * 獲取統一會話數據
+ * 獲取統一會話資料
  */
 export const getUnifiedSessionData = (): UnifiedSessionData | null => {
   try {
-    // 獲取統一數據
+    // 獲取統一資料
     let unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
     if (!unifiedData) {
-      // 如果統一數據不存在，初始化它
+      // 如果統一資料不存在，初始化它
       initializeStorage();
       unifiedData = getFromStorage<UnifiedSessionData>(UNIFIED_DATA_KEY);
     }
     
     return unifiedData;
   } catch (error) {
-    console.error('獲取統一會話數據時出錯:', error);
+    console.error('獲取統一會話資料時出錯:', error);
     return null;
   }
 };
 
 /**
- * 清除所有命盤數據
+ * 清除所有命盤資料
  */
 export const clearChartData = (): boolean => {
   try {
-    // 清除獨立存儲的數據
+    // 清除獨立存儲的資料
     storageService.clearAllAstrologyData();
     
-    // 清除統一數據
+    // 清除統一資料
     sessionStorage.removeItem(UNIFIED_DATA_KEY);
     sessionStorage.removeItem(STORAGE_WARNINGS_KEY);
     
@@ -840,7 +840,7 @@ export const clearChartData = (): boolean => {
     
     return true;
   } catch (error) {
-    console.error('清除命盤數據時出錯:', error);
+    console.error('清除命盤資料時出錯:', error);
     return false;
   }
 };

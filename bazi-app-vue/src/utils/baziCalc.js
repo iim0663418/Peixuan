@@ -207,7 +207,7 @@ export class FortuneCycleCalculator {
      */
     static calculateDecennialCycles(baziResult, birthDate, gender, count = 8) {
         try {
-            // 獲取起運信息
+            // 獲取起運資訊
             const solarDate = Solar.fromDate(birthDate);
             const lunarDate = solarDate.getLunar();
             const startLuckInfo = this.calculateStartLuck(lunarDate, gender);

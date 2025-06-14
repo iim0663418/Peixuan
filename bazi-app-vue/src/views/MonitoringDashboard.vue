@@ -189,7 +189,7 @@ const fetchMetricsData = async (): Promise<void> => {
 };
 
 const fetchRecentErrors = async (): Promise<void> => {
-  // 模擬數據，實際應從後端 API 獲取
+  // 模擬資料，實際應從後端 API 獲取
   recentErrors.value = [
     {
       id: '1',
@@ -222,7 +222,7 @@ const exportLogs = (): void => {
 onMounted(() => {
   refreshData();
   
-  // 每30秒自動刷新數據
+  // 每30秒自動刷新資料
   setInterval(refreshData, 30000);
 });
 </script>

@@ -120,7 +120,7 @@ export class AstronomicalTimeService {
         timeStyle: 'long'
       });
       
-      // 格式化日期，提取時區信息
+      // 格式化日期，提取時區資訊
       const formattedDate = formatter.format(date);
       
       // 解析時區偏移（格式如 GMT+8）
@@ -172,8 +172,8 @@ export class AstronomicalTimeService {
   }
   
   /**
-   * 通過農曆信息計算命宮索引，使用精確時間
-   * @param lunarInfo 農曆信息
+   * 通過農曆資訊計算命宮索引，使用精確時間
+   * @param lunarInfo 農曆資訊
    * @param longitude 出生地經度
    * @param timezone 時區
    * @param birthTime 出生時間（Date物件）

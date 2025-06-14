@@ -10,7 +10,7 @@
 完整的 OpenAPI 3.0.3 規格文檔，包含：
 
 - **API 端點定義**：所有可用的 API 端點及其參數
-- **請求/回應格式**：詳細的數據結構定義
+- **請求/回應格式**：詳細的資料結構定義
 - **錯誤處理**：完整的錯誤場景和錯誤代碼
 - **示例**：實際的請求和回應示例
 - **驗證規則**：所有輸入參數的驗證約束
@@ -22,7 +22,7 @@
 POST /api/v1/purple-star/calculate
 ```
 
-**功能**：根據出生信息計算完整的紫微斗數命盤
+**功能**：根據出生資訊計算完整的紫微斗數命盤
 
 **必需參數**：
 - `birthDate`：出生日期 (YYYY-MM-DD 格式)
@@ -30,7 +30,7 @@ POST /api/v1/purple-star/calculate
 - `gender`：性別 ("male" 或 "female")
 
 **可選參數**：
-- `location`：出生地點信息（緯度、經度、時區）
+- `location`：出生地點資訊（緯度、經度、時區）
 - `options`：計算選項配置
 
 ### 2. 服務健康檢查
@@ -47,8 +47,8 @@ GET /api/v1/purple-star/health
 {
   "success": true,
   "data": {
-    "chart": { /* 命盤數據 */ },
-    "calculationInfo": { /* 計算信息 */ }
+    "chart": { /* 命盤資料 */ },
+    "calculationInfo": { /* 計算資訊 */ }
   },
   "timestamp": "2023-11-22T10:30:00.000Z"
 }
@@ -59,21 +59,21 @@ GET /api/v1/purple-star/health
 {
   "success": false,
   "error": "錯誤描述",
-  "details": "詳細錯誤信息",
+  "details": "詳細錯誤資訊",
   "validationErrors": [ /* 驗證錯誤列表 */ ],
   "timestamp": "2023-11-22T10:30:00.000Z"
 }
 ```
 
-## 數據結構
+## 資料結構
 
 ### 命盤結構 (PurpleStarChart)
-- `palaces`：十二宮位信息數組
+- `palaces`：十二宮位資訊數組
 - `mingPalaceIndex`：命宮地支索引 (0-11)
 - `shenPalaceIndex`：身宮地支索引 (0-11)
-- `fiveElementsBureau`：五行局信息
-- `daXian`：大限信息（可選）
-- `xiaoXian`：小限信息（可選）
+- `fiveElementsBureau`：五行局資訊
+- `daXian`：大限資訊（可選）
+- `xiaoXian`：小限資訊（可選）
 
 ### 宮位結構 (Palace)
 - `name`：宮位名稱（如"命宮"、"兄弟宮"等）
@@ -91,9 +91,9 @@ GET /api/v1/purple-star/health
 ## 計算選項
 
 ### 詳細程度 (detailLevel)
-- `basic`：基礎信息（默認）
+- `basic`：基礎資訊（默認）
 - `advanced`：進階分析
-- `expert`：專家級詳細信息
+- `expert`：專家級詳細資訊
 
 ### 週期計算選項
 - `includeMajorCycles`：是否包含大限計算（默認：true）
@@ -136,7 +136,7 @@ swagger-ui-serve purpleStarApi.yaml
 
 ### 添加新端點
 1. 在 `purpleStarApi.yaml` 中添加新的路徑定義
-2. 在 `components/schemas` 中定義新的數據結構
+2. 在 `components/schemas` 中定義新的資料結構
 3. 添加適當的示例和錯誤場景
 4. 更新相關的 TypeScript 類型定義
 

@@ -17,7 +17,7 @@ export interface ReadingLevelConfig {
   label: string;
   description: string;
   icon: string;
-  minDataRequirement: number;    // 最低數據完整度要求 (0-100)
+  minDataRequirement: number;    // 最低資料完整度要求 (0-100)
   estimatedReadTime: string;     // 預估閱讀時間
 }
 
@@ -57,7 +57,7 @@ export const READING_LEVEL_CONFIGS: Record<ReadingLevel, ReadingLevelConfig> = {
   }
 };
 
-// 分層內容數據結構
+// 分層內容資料結構
 export interface LayeredContent {
   level: ReadingLevel;
   visible: boolean;
@@ -73,14 +73,14 @@ export interface LayeredContent {
 export interface LayeredReadingState {
   currentLevel: ReadingLevel;
   availableLevels: ReadingLevel[];
-  dataCompleteness: number;      // 數據完整度 (0-100)
+  dataCompleteness: number;      // 資料完整度 (0-100)
   isTransitioning: boolean;      // 是否正在切換層級
   lastUpdated: Date;
 }
 
-// 綜合解讀的分層數據
+// 綜合解讀的分層資料
 export interface LayeredIntegratedAnalysis {
-  // 基本信息
+  // 基本資訊
   metadata: {
     analysisId: string;
     timestamp: Date;
@@ -188,7 +188,7 @@ export const RESPONSIVE_CONFIGS: Record<ResponsiveBreakpoint, ResponsiveConfig> 
   }
 };
 
-// 數據轉換器類型
+// 資料轉換器類型
 export interface DataAdapter<T> {
   adaptToLevel(data: T, level: ReadingLevel): LayeredContent[];
   getDataCompleteness(data: T): number;
@@ -198,7 +198,7 @@ export interface DataAdapter<T> {
 // 用戶偏好設置
 export interface UserReadingPreferences {
   preferredLevel: ReadingLevel;
-  autoUpgrade: boolean;          // 數據完整時自動升級層級
+  autoUpgrade: boolean;          // 資料完整時自動升級層級
   animationsEnabled: boolean;
   compactMode: boolean;          // 緊湊模式
   customizations: {

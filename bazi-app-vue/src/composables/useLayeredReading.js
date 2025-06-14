@@ -122,14 +122,14 @@ export function useLayeredReading() {
         return switchToLevel(prevLevel);
     };
     /**
-     * 更新分層數據
+     * 更新分層資料
      */
     const updateLayeredData = (newData) => {
         layeredData.value = newData;
         globalReadingState.dataCompleteness = newData.metadata.dataCompleteness;
         globalReadingState.availableLevels = availableLevels.value;
         globalReadingState.lastUpdated = new Date();
-        // 如果啟用自動升級且數據完整度提高
+        // 如果啟用自動升級且資料完整度提高
         if (userPreferences.value.autoUpgrade) {
             autoSelectOptimalLevel();
         }
@@ -252,8 +252,8 @@ export function useLayeredReading() {
     };
 }
 /**
- * 數據適配器 Composable
- * 將現有的綜合分析數據轉換為分層結構
+ * 資料適配器 Composable
+ * 將現有的綜合分析資料轉換為分層結構
  */
 export function useDataAdapter() {
     /**
@@ -263,7 +263,7 @@ export function useDataAdapter() {
         const now = new Date();
         const analysisData = originalData.data?.integratedAnalysis || {};
         const analysisInfo = originalData.data?.analysisInfo || {};
-        // 計算數據完整度
+        // 計算資料完整度
         const completeness = calculateDataCompleteness(originalData);
         return {
             metadata: {
@@ -327,7 +327,7 @@ export function useDataAdapter() {
     const getAvailableLevelsForCompleteness = (completeness) => {
         return Object.values(ReadingLevel).filter(level => completeness >= READING_LEVEL_CONFIGS[level].minDataRequirement);
     };
-    // 數據提取函數
+    // 資料提取函數
     const extractCoreTraits = (data) => {
         const traits = data?.consensusFindings?.slice(0, 3) || [];
         return traits.length > 0 ? traits : ['穩重務實', '思維敏捷', '待人和善'];

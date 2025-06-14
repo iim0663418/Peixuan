@@ -131,7 +131,7 @@
       </div>
     </div>
 
-    <!-- 數據來源標示 -->
+    <!-- 資料來源標示 -->
     <div class="data-source">
       <el-icon><InfoFilled /></el-icon>
       <span>基於八字與紫微斗數的綜合分析</span>
@@ -249,7 +249,7 @@ const getTrendText = () => {
   return '需要注意';
 };
 
-// 監聽數據變化，自動調整展示
+// 監聽資料變化，自動調整展示
 watch(() => props.coreTraits.length, (newLength) => {
   if (newLength <= maxDisplayedTraits.value) {
     expanded.value = false;

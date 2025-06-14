@@ -2,8 +2,8 @@ openapi: 3.0.3
 info:
   title: 紫微斗數計算 API
   description: |
-    紫微斗數命盤計算和分析 API。提供基於出生信息的完整命盤計算，
-    包括宮位、主星、輔星、四化、大限、小限等詳細信息。
+    紫微斗數命盤計算和分析 API。提供基於出生資訊的完整命盤計算，
+    包括宮位、主星、輔星、四化、大限、小限等詳細資訊。
     
     ## 功能特色
     - 精確的命盤計算算法
@@ -31,7 +31,7 @@ paths:
     post:
       summary: 計算紫微斗數命盤
       description: |
-        根據提供的出生信息計算完整的紫微斗數命盤。
+        根據提供的出生資訊計算完整的紫微斗數命盤。
         
         該端點支持多種選項來自定義計算結果：
         - 是否包含大限、小限計算
@@ -139,8 +139,8 @@ paths:
                   description: 請求參數驗證失敗
                   value:
                     success: false
-                    error: "請求數據驗證失敗"
-                    details: "請檢查輸入的出生信息是否正確"
+                    error: "請求資料驗證失敗"
+                    details: "請檢查輸入的出生資訊是否正確"
                     validationErrors:
                       - field: "birthDate"
                         message: "出生日期格式必須為 YYYY-MM-DD"
@@ -223,7 +223,7 @@ components:
 
     Location:
       type: object
-      description: 出生地點信息（可選）
+      description: 出生地點資訊（可選）
       properties:
         latitude:
           type: number
@@ -304,7 +304,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Palace'
-          description: 十二宮位信息
+          description: 十二宮位資訊
         mingPalaceIndex:
           type: integer
           minimum: 0
@@ -325,16 +325,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DaXianInfo'
-          description: 大限信息
+          description: 大限資訊
         xiaoXian:
           type: array
           items:
             $ref: '#/components/schemas/XiaoXianInfo'
-          description: 小限信息
+          description: 小限資訊
 
     Palace:
       type: object
-      description: 宮位信息
+      description: 宮位資訊
       properties:
         name:
           type: string
@@ -362,7 +362,7 @@ components:
 
     Star:
       type: object
-      description: 星曜信息
+      description: 星曜資訊
       properties:
         name:
           type: string
@@ -389,7 +389,7 @@ components:
 
     DaXianInfo:
       type: object
-      description: 大限信息
+      description: 大限資訊
       properties:
         startAge:
           type: integer
@@ -416,7 +416,7 @@ components:
 
     XiaoXianInfo:
       type: object
-      description: 小限信息
+      description: 小限資訊
       properties:
         age:
           type: integer
@@ -439,7 +439,7 @@ components:
 
     CalculationInfo:
       type: object
-      description: 計算相關信息
+      description: 計算相關資訊
       properties:
         birthInfo:
           $ref: '#/components/schemas/BirthInfo'
@@ -448,7 +448,7 @@ components:
 
     BirthInfo:
       type: object
-      description: 出生信息
+      description: 出生資訊
       properties:
         solarDate:
           type: string
@@ -498,11 +498,11 @@ components:
         error:
           type: string
           description: 錯誤描述
-          example: "請求數據驗證失敗"
+          example: "請求資料驗證失敗"
         details:
           type: string
-          description: 錯誤詳細信息
-          example: "請檢查輸入的出生信息是否正確"
+          description: 錯誤詳細資訊
+          example: "請檢查輸入的出生資訊是否正確"
         validationErrors:
           type: array
           items:
@@ -524,7 +524,7 @@ components:
           example: "birthDate"
         message:
           type: string
-          description: 錯誤信息
+          description: 錯誤資訊
           example: "出生日期格式必須為 YYYY-MM-DD"
         code:
           type: string

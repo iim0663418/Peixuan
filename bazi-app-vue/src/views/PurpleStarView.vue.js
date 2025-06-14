@@ -7,16 +7,12 @@ import PurpleStarInputForm from '@/components/PurpleStarInputForm.vue';
 import PurpleStarChartDisplay from '@/components/PurpleStarChartDisplay.vue';
 import TransformationStarsDisplay from '@/components/TransformationStarsDisplay.vue';
 import IntegratedAnalysisDisplay from '@/components/IntegratedAnalysisDisplay.vue';
-import UnifiedLayeredController from '@/components/UnifiedLayeredController.vue';
 import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
 import apiService from '@/services/apiService';
 import astrologyIntegrationService from '@/services/astrologyIntegrationService';
 import storageService from '@/utils/storageService';
 import enhancedStorageService from '@/utils/enhancedStorageService';
 import { useDisplayMode } from '@/composables/useDisplayMode';
-import { useSharedLayeredReading } from '@/composables/useSharedLayeredReading';
-import { ReadingLevel } from '@/types/layeredReading';
-import { adaptIntegratedAnalysisToLayered } from '@/composables/useLayeredReading';
 // 確保 session ID 存在
 const sessionId = storageService.getOrCreateSessionId();
 // 注入全域顯示狀態
@@ -27,8 +23,6 @@ const birthInfoForIntegration = ref(null);
 const transformationFlows = ref({});
 const transformationCombinations = ref([]);
 const multiLayerEnergies = ref({});
-// 使用共享分層閱覽系統
-const { readingState, effectiveReadingLevel, availableLevels, currentLevelConfig, canUpgrade, canDowngrade, switchToLevel, updateLayeredData, isPrimaryModule, syncStatusDescription } = useSharedLayeredReading('purpleStar');
 // 使用顯示模式 composable（作為後備）
 const { displayMode: localDisplayMode, mapDepthToMode } = useDisplayMode('purpleStar');
 // 監聽本地顯示模式的變化
@@ -52,11 +46,9 @@ const displayMode = computed(() => {
 const displayModeOptions = [
     { value: 'minimal', label: '簡要預覽', tooltip: '最簡潔的命盤展示，僅呈現基本框架' },
     { value: 'compact', label: '精簡檢視', tooltip: '顯示主要星曜和基本四化效應，快速了解命盤特點' },
-    { value: 'standard', label: '標準解讀', tooltip: '完整展示星曜信息和四化效應，深入解析命盤結構' },
+    { value: 'standard', label: '標準解讀', tooltip: '完整展示星曜資訊和四化效應，深入解析命盤結構' },
     { value: 'comprehensive', label: '深度分析', tooltip: '全面詳盡的命盤分析，包含所有星曜、四化組合和多層次能量疊加' }
 ];
-// 分層相關狀態
-const layeredData = ref(null);
 const dataCompleteness = computed(() => {
     if (!purpleStarChart.value)
         return 0;
@@ -85,30 +77,6 @@ const changeDisplayMode = (mode) => {
     localDisplayMode.value = mode;
 };
 // 處理顯示模式更新
-const handleDisplayModeUpdate = (mode) => {
-    console.log(`PurpleStarView: handleDisplayModeUpdate 被調用，mode=${mode}`);
-    localDisplayMode.value = mode;
-};
-// 處理層級變化
-const handleLevelChanged = (level) => {
-    console.log(`PurpleStarView: handleLevelChanged 被調用，level=${level}`);
-    // 將 ReadingLevel 映射到 DisplayMode
-    const levelToModeMap = {
-        [ReadingLevel.SUMMARY]: 'minimal',
-        [ReadingLevel.COMPACT]: 'compact',
-        [ReadingLevel.STANDARD]: 'standard',
-        [ReadingLevel.DEEP_ANALYSIS]: 'comprehensive'
-    };
-    const newDisplayMode = levelToModeMap[level] || 'standard';
-    console.log(`PurpleStarView: 層級 ${level} 映射到顯示模式 ${newDisplayMode}`);
-    // 更新本地顯示模式
-    localDisplayMode.value = newDisplayMode;
-    // 通過 useSharedLayeredReading 系統更新層級以同步四化飛星
-    if (effectiveReadingLevel) {
-        effectiveReadingLevel.value = level;
-        console.log(`PurpleStarView: 已同步層級到共享系統: ${level}`);
-    }
-};
 // 整合分析狀態
 const showIntegratedAnalysis = ref(false);
 const integratedAnalysisLoading = ref(false);
@@ -139,10 +107,10 @@ const analysisCompleteness = computed(() => {
         return 0;
     }
 });
-// 數據清除函數
+// 資料清除函數
 const clearData = async () => {
     try {
-        await ElMessageBox.confirm('確定要清除基本命盤資料嗎？（四化飛星資料將保留）', '清除數據', {
+        await ElMessageBox.confirm('確定要清除基本命盤資料嗎？（四化飛星資料將保留）', '清除資料', {
             confirmButtonText: '確定',
             cancelButtonText: '取消',
             type: 'warning'
@@ -184,7 +152,7 @@ const handleSubmit = async (birthInfo) => {
         birthInfoForIntegration.value = birthInfo;
         // 保存出生資訊到 sessionStorage
         storageService.saveToStorage(storageService.STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO, birthInfo);
-        // 構建包含完整選項的請求數據
+        // 構建包含完整選項的請求資料
         const requestData = {
             ...birthInfo,
             options: {
@@ -192,11 +160,11 @@ const handleSubmit = async (birthInfo) => {
                 includeMinorCycles: true,
                 includeAnnualCycles: true, // 確保流年太歲計算被啟用
                 detailLevel: 'advanced',
-                includeFourTransformations: true, // 明確請求四化飛星數據
+                includeFourTransformations: true, // 明確請求四化飛星資料
                 maxAge: 100
             }
         };
-        console.log('發送請求數據:', requestData);
+        console.log('發送請求資料:', requestData);
         console.log('請求選項配置:', requestData.options);
         // 使用後端 API 進行紫微斗數計算
         const response = await apiService.calculatePurpleStar(requestData);
@@ -205,70 +173,70 @@ const handleSubmit = async (birthInfo) => {
         console.log('API 響應頂層鍵:', Object.keys(response || {}));
         console.log('API data 存在:', !!response?.data);
         console.log('API data 鍵:', Object.keys(response?.data || {}));
-        // 檢查命盤數據完整性
+        // 檢查命盤資料完整性
         if (!response?.data?.chart) {
-            console.error('API 未返回紫微斗數命盤數據');
-            throw new Error('紫微斗數命盤數據缺失');
+            console.error('API 未返回紫微斗數命盤資料');
+            throw new Error('紫微斗數命盤資料缺失');
         }
-        // 記錄命盤基本信息
-        console.log('命盤數據:', response.data.chart);
+        // 記錄命盤基本資訊
+        console.log('命盤資料:', response.data.chart);
         console.log('命宮天干:', response.data.chart.mingGan || '未返回命宮天干');
         console.log('大限資訊:', response.data.chart.daXian || '無大限資訊');
         console.log('小限資訊:', response.data.chart.xiaoXian || '無小限資訊');
         console.log('流年太歲資訊:', response.data.chart.liuNianTaiSui || '無流年太歲資訊');
-        // 正確提取命盤數據
+        // 正確提取命盤資料
         purpleStarChart.value = response.data.chart;
-        // 檢查四化飛星數據
-        console.log('四化飛星數據存在:', !!response.data.transformations);
-        // 提取四化飛星數據
+        // 檢查四化飛星資料
+        console.log('四化飛星資料存在:', !!response.data.transformations);
+        // 提取四化飛星資料
         if (response.data.transformations) {
             transformationFlows.value = response.data.transformations.flows || {};
             transformationCombinations.value = response.data.transformations.combinations || [];
             multiLayerEnergies.value = response.data.transformations.layeredEnergies || {};
-            // 詳細記錄四化飛星數據結構
-            console.log('四化飛星數據載入成功:', {
+            // 詳細記錄四化飛星資料結構
+            console.log('四化飛星資料載入成功:', {
                 flows: Object.keys(transformationFlows.value).length,
                 combinations: transformationCombinations.value.length,
                 layeredEnergies: Object.keys(multiLayerEnergies.value).length
             });
-            // 檢查數據的具體內容
+            // 檢查資料的具體內容
             if (Object.keys(transformationFlows.value).length === 0) {
-                console.warn('四化飛星flows數據為空，可能影響顯示');
+                console.warn('四化飛星flows資料為空，可能影響顯示');
             }
             else {
-                console.log('四化飛星flows數據樣本:', Object.keys(transformationFlows.value).slice(0, 3));
+                console.log('四化飛星flows資料樣本:', Object.keys(transformationFlows.value).slice(0, 3));
             }
         }
         else {
-            console.error('API 未返回四化飛星數據，詳細檢查API響應結構');
+            console.error('API 未返回四化飛星資料，詳細檢查API響應結構');
             console.log('API響應的完整data結構鍵:', Object.keys(response.data));
-            // 檢查是否有其他可能的四化數據字段
+            // 檢查是否有其他可能的四化資料字段
             const possibleKeys = ['fourTransformations', 'sihua', 'transformedStars', 'starTransformations'];
             const responseData = response.data; // 臨時類型轉換以處理動態屬性訪問
             const foundAlternative = possibleKeys.find(key => responseData[key]);
             if (foundAlternative) {
-                console.log(`發現替代四化數據字段: ${foundAlternative}`, responseData[foundAlternative]);
+                console.log(`發現替代四化資料字段: ${foundAlternative}`, responseData[foundAlternative]);
             }
             // 清空相關引用避免錯誤
             transformationFlows.value = {};
             transformationCombinations.value = [];
             multiLayerEnergies.value = {};
-            // 提示用戶有數據缺失
+            // 提示用戶有資料缺失
             ElMessage.warning({
-                message: '四化飛星數據缺失，部分分析功能將不可用。請檢查後端API配置。',
+                message: '四化飛星資料缺失，部分分析功能將不可用。請檢查後端API配置。',
                 duration: 5000
             });
         }
-        // 保存命盤數據到 sessionStorage
+        // 保存命盤資料到 sessionStorage
         storageService.saveToStorage(storageService.STORAGE_KEYS.PURPLE_STAR_CHART, response.data.chart);
-        // 保存四化飛星數據到 sessionStorage
+        // 保存四化飛星資料到 sessionStorage
         if (response.data.transformations) {
-            console.log('保存四化飛星數據到 sessionStorage');
+            console.log('保存四化飛星資料到 sessionStorage');
             const transformations = response.data.transformations; // 臨時類型轉換
-            storageService.saveTransformationStarsData(transformations.stars || null, transformations.flows || {}, transformations.combinations || []);
+            storageService.saveTransformationStarsData(transformations.stars || null, transformations.flows || {}, transformations.combinations || [], transformations.layeredEnergies || {});
         }
         else {
-            console.warn('API 響應中沒有四化飛星數據，無法保存');
+            console.warn('API 響應中沒有四化飛星資料，無法保存');
         }
         console.groupEnd();
         ElMessage.success('紫微斗數計算完成');
@@ -276,7 +244,7 @@ const handleSubmit = async (birthInfo) => {
     catch (error) {
         // 確保關閉日誌組
         console.groupEnd();
-        // 詳細記錄錯誤信息
+        // 詳細記錄錯誤資訊
         console.error('紫微斗數計算錯誤:', error);
         console.error('錯誤類型:', error.constructor.name);
         console.error('錯誤訊息:', error.message);
@@ -333,7 +301,7 @@ const performIntegratedAnalysis = async () => {
             loadingProgress.value = progress;
         };
         updateProgress('正在計算八字命盤...', 20);
-        // 確保位置數據格式正確
+        // 確保位置資料格式正確
         const locationValue = typeof birthInfoForIntegration.value.location === 'string'
             ? birthInfoForIntegration.value.location
             : (birthInfoForIntegration.value.location?.name || '台北市');
@@ -368,15 +336,6 @@ const performIntegratedAnalysis = async () => {
             updateProgress('正在生成人生指導建議...', 95);
             // 整合最終結果
             integratedAnalysisResult.value = result;
-            // 轉換為分層數據以供 UnifiedLayeredController 使用
-            try {
-                layeredData.value = adaptIntegratedAnalysisToLayered(result);
-                console.log('已轉換綜合分析為分層數據:', layeredData.value);
-            }
-            catch (adaptError) {
-                console.warn('轉換分層數據時發生錯誤:', adaptError);
-                layeredData.value = null;
-            }
             // 保存整合分析結果到 sessionStorage
             storageService.saveToStorage(storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS, result);
             loadingProgress.value = 100;
@@ -406,7 +365,7 @@ const exportAnalysisResult = () => {
         return;
     }
     try {
-        // 構建匯出數據
+        // 構建匯出資料
         const exportData = {
             readingDate: new Date().toLocaleDateString('zh-TW'),
             completeness: integratedAnalysisResult.value.data.analysisInfo.confidence,
@@ -433,58 +392,58 @@ const exportAnalysisResult = () => {
         ElMessage.error('匯出失敗，請稍後再試');
     }
 };
-// 從 sessionStorage 加載數據
+// 從 sessionStorage 加載資料
 const loadFromSessionStorage = () => {
     try {
-        console.log('開始從 sessionStorage 載入紫微斗數數據');
+        console.log('開始從 sessionStorage 載入紫微斗數資料');
         // 記錄當前 sessionStorage 狀態
         const keysInStorage = Object.keys(sessionStorage).filter(key => key.startsWith('peixuan_'));
         console.log('sessionStorage 中的相關鍵:', keysInStorage);
-        // 檢查出生信息
+        // 檢查出生資訊
         const savedBirthInfo = storageService.getFromStorage(storageService.STORAGE_KEYS.PURPLE_STAR_BIRTH_INFO);
         if (savedBirthInfo) {
-            console.log('找到保存的紫微斗數出生信息');
+            console.log('找到保存的紫微斗數出生資訊');
             birthInfoForIntegration.value = savedBirthInfo;
         }
         else {
-            console.log('未找到保存的紫微斗數出生信息');
+            console.log('未找到保存的紫微斗數出生資訊');
         }
         // 檢查紫微斗數命盤
         const savedPurpleStarChart = storageService.getFromStorage(storageService.STORAGE_KEYS.PURPLE_STAR_CHART);
         if (savedPurpleStarChart) {
-            console.log('找到保存的紫微斗數命盤數據');
+            console.log('找到保存的紫微斗數命盤資料');
             try {
-                // 進行基本的數據驗證，確保數據完整性
+                // 進行基本的資料驗證，確保資料完整性
                 if (!savedPurpleStarChart.palaces || !Array.isArray(savedPurpleStarChart.palaces) ||
                     savedPurpleStarChart.palaces.length === 0) {
-                    console.warn('保存的紫微斗數命盤數據缺少宮位信息');
-                    throw new Error('命盤數據不完整');
+                    console.warn('保存的紫微斗數命盤資料缺少宮位資訊');
+                    throw new Error('命盤資料不完整');
                 }
                 purpleStarChart.value = savedPurpleStarChart;
             }
             catch (parseError) {
-                console.error('解析保存的紫微斗數命盤數據時出錯:', parseError);
-                // 不設置命盤數據，確保數據完整性
+                console.error('解析保存的紫微斗數命盤資料時出錯:', parseError);
+                // 不設置命盤資料，確保資料完整性
             }
         }
         else {
-            console.log('未找到保存的紫微斗數命盤數據');
+            console.log('未找到保存的紫微斗數命盤資料');
         }
         // 檢查整合分析結果
         const savedIntegratedAnalysis = storageService.getFromStorage(storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS);
         if (savedIntegratedAnalysis) {
             console.log('找到保存的整合分析結果');
             try {
-                // 驗證整合分析數據
+                // 驗證整合分析資料
                 if (!savedIntegratedAnalysis.data || !savedIntegratedAnalysis.data.integratedAnalysis) {
-                    console.warn('保存的整合分析結果缺少必要的分析數據');
-                    throw new Error('整合分析數據不完整');
+                    console.warn('保存的整合分析結果缺少必要的分析資料');
+                    throw new Error('整合分析資料不完整');
                 }
                 integratedAnalysisResult.value = savedIntegratedAnalysis;
             }
             catch (parseError) {
                 console.error('解析保存的整合分析結果時出錯:', parseError);
-                // 清除可能損壞的數據
+                // 清除可能損壞的資料
                 storageService.clearAnalysisData('integrated');
             }
         }
@@ -498,13 +457,15 @@ const loadFromSessionStorage = () => {
             console.log('找到保存的四化飛星資料:', {
                 flows: Object.keys(transformationData.flows).length,
                 combinations: transformationData.combinations.length,
+                multiLayerEnergies: Object.keys(transformationData.multiLayerEnergies).length,
                 stars: !!transformationData.stars
             });
             transformationFlows.value = transformationData.flows;
             transformationCombinations.value = transformationData.combinations;
+            multiLayerEnergies.value = transformationData.multiLayerEnergies;
             if (transformationData.stars) {
-                // 如果有四化星曜數據，也可以載入
-                console.log('載入四化星曜數據');
+                // 如果有四化星曜資料，也可以載入
+                console.log('載入四化星曜資料');
             }
         }
         else {
@@ -513,22 +474,22 @@ const loadFromSessionStorage = () => {
             transformationCombinations.value = [];
             multiLayerEnergies.value = {};
         }
-        // 驗證數據一致性
+        // 驗證資料一致性
         try {
-            console.log('使用增強版存儲服務驗證紫微斗數數據');
+            console.log('使用增強版存儲服務驗證紫微斗數資料');
             enhancedStorageService.validateStorageData();
         }
         catch (validateError) {
-            console.error('驗證紫微斗數數據時出錯:', validateError);
+            console.error('驗證紫微斗數資料時出錯:', validateError);
         }
-        console.log('從 sessionStorage 載入的紫微斗數數據總結:', {
+        console.log('從 sessionStorage 載入的紫微斗數資料總結:', {
             birthInfo: !!birthInfoForIntegration.value,
             purpleStarChart: !!purpleStarChart.value,
             integratedAnalysis: !!integratedAnalysisResult.value
         });
     }
     catch (error) {
-        console.error('從 sessionStorage 載入紫微斗數數據時出錯:', error);
+        console.error('從 sessionStorage 載入紫微斗數資料時出錯:', error);
         // 只在確實有資料損壞時才清除，避免誤刪有效資料
         if (error instanceof Error && error.message && error.message.includes('Unexpected token')) {
             console.warn('檢測到 JSON 解析錯誤，清除可能損壞的資料');
@@ -568,7 +529,7 @@ onMounted(() => {
         window.removeEventListener('global-display-state-changed', handleGlobalStateChange);
     });
 });
-// 生命週期鉤子 - 組件掛載時載入數據
+// 生命週期鉤子 - 組件掛載時載入資料
 onMounted(() => {
     console.log('PurpleStarView 組件已掛載');
     try {
@@ -844,74 +805,34 @@ if (__VLS_ctx.purpleStarChart) {
             ...{ class: "card-header" },
         });
         __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-        /** @type {[typeof UnifiedLayeredController, ]} */ ;
-        // @ts-ignore
-        const __VLS_58 = __VLS_asFunctionalComponent(UnifiedLayeredController, new UnifiedLayeredController({
-            ...{ 'onLevelChanged': {} },
-            ...{ 'onUpdate:modelValue': {} },
-            moduleType: ('purpleStar'),
-            layeredData: (__VLS_ctx.layeredData),
-            dataCompleteness: (__VLS_ctx.dataCompleteness),
-            enableSync: (true),
-            isMobile: (__VLS_ctx.isMobile),
-            isCompact: (true),
-            showToolbar: (false),
-            modelValue: (__VLS_ctx.displayMode),
-            ...{ class: "purple-star-controller" },
-            ignoreDataCompleteness: (true),
-        }));
-        const __VLS_59 = __VLS_58({
-            ...{ 'onLevelChanged': {} },
-            ...{ 'onUpdate:modelValue': {} },
-            moduleType: ('purpleStar'),
-            layeredData: (__VLS_ctx.layeredData),
-            dataCompleteness: (__VLS_ctx.dataCompleteness),
-            enableSync: (true),
-            isMobile: (__VLS_ctx.isMobile),
-            isCompact: (true),
-            showToolbar: (false),
-            modelValue: (__VLS_ctx.displayMode),
-            ...{ class: "purple-star-controller" },
-            ignoreDataCompleteness: (true),
-        }, ...__VLS_functionalComponentArgsRest(__VLS_58));
-        let __VLS_61;
-        let __VLS_62;
-        let __VLS_63;
-        const __VLS_64 = {
-            onLevelChanged: (__VLS_ctx.handleLevelChanged)
-        };
-        const __VLS_65 = {
-            'onUpdate:modelValue': (__VLS_ctx.handleDisplayModeUpdate)
-        };
-        var __VLS_60;
     }
     /** @type {[typeof PurpleStarChartDisplay, ]} */ ;
     // @ts-ignore
-    const __VLS_66 = __VLS_asFunctionalComponent(PurpleStarChartDisplay, new PurpleStarChartDisplay({
+    const __VLS_58 = __VLS_asFunctionalComponent(PurpleStarChartDisplay, new PurpleStarChartDisplay({
         ...{ 'onUpdate:displayDepth': {} },
         chartData: (__VLS_ctx.purpleStarChart),
         isLoading: (false),
         showCyclesDetail: (true),
         displayDepth: (__VLS_ctx.displayMode),
     }));
-    const __VLS_67 = __VLS_66({
+    const __VLS_59 = __VLS_58({
         ...{ 'onUpdate:displayDepth': {} },
         chartData: (__VLS_ctx.purpleStarChart),
         isLoading: (false),
         showCyclesDetail: (true),
         displayDepth: (__VLS_ctx.displayMode),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_66));
-    let __VLS_69;
-    let __VLS_70;
-    let __VLS_71;
-    const __VLS_72 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_58));
+    let __VLS_61;
+    let __VLS_62;
+    let __VLS_63;
+    const __VLS_64 = {
         'onUpdate:displayDepth': (__VLS_ctx.changeDisplayMode)
     };
-    var __VLS_68;
+    var __VLS_60;
     if (Object.keys(__VLS_ctx.transformationFlows).length > 0) {
         /** @type {[typeof TransformationStarsDisplay, ]} */ ;
         // @ts-ignore
-        const __VLS_73 = __VLS_asFunctionalComponent(TransformationStarsDisplay, new TransformationStarsDisplay({
+        const __VLS_65 = __VLS_asFunctionalComponent(TransformationStarsDisplay, new TransformationStarsDisplay({
             ...{ 'onUpdate:displayMode': {} },
             chartData: (__VLS_ctx.purpleStarChart),
             mingGan: (__VLS_ctx.purpleStarChart.mingGan || ''),
@@ -919,102 +840,102 @@ if (__VLS_ctx.purpleStarChart) {
             transformationFlows: (__VLS_ctx.transformationFlows),
             transformationCombinations: (__VLS_ctx.transformationCombinations || []),
             multiLayerEnergies: (__VLS_ctx.multiLayerEnergies),
+            ...{ class: "mt-4" },
+        }));
+        const __VLS_66 = __VLS_65({
+            ...{ 'onUpdate:displayMode': {} },
+            chartData: (__VLS_ctx.purpleStarChart),
+            mingGan: (__VLS_ctx.purpleStarChart.mingGan || ''),
+            displayMode: (__VLS_ctx.displayMode),
+            transformationFlows: (__VLS_ctx.transformationFlows),
+            transformationCombinations: (__VLS_ctx.transformationCombinations || []),
+            multiLayerEnergies: (__VLS_ctx.multiLayerEnergies),
+            ...{ class: "mt-4" },
+        }, ...__VLS_functionalComponentArgsRest(__VLS_65));
+        let __VLS_68;
+        let __VLS_69;
+        let __VLS_70;
+        const __VLS_71 = {
+            'onUpdate:displayMode': (__VLS_ctx.changeDisplayMode)
+        };
+        var __VLS_67;
+    }
+    else if (__VLS_ctx.displayMode !== 'minimal' && Object.keys(__VLS_ctx.transformationFlows).length === 0 && __VLS_ctx.purpleStarChart) {
+        const __VLS_72 = {}.ElAlert;
+        /** @type {[typeof __VLS_components.ElAlert, typeof __VLS_components.elAlert, ]} */ ;
+        // @ts-ignore
+        const __VLS_73 = __VLS_asFunctionalComponent(__VLS_72, new __VLS_72({
+            title: "四化飛星資料缺失",
+            description: (`當前命盤缺少四化飛星資料。命宮天干：${__VLS_ctx.purpleStarChart.mingGan || '未知'}，請檢查API響應是否包含四化資料。`),
+            type: "warning",
+            closable: (false),
             ...{ class: "mt-4" },
         }));
         const __VLS_74 = __VLS_73({
-            ...{ 'onUpdate:displayMode': {} },
-            chartData: (__VLS_ctx.purpleStarChart),
-            mingGan: (__VLS_ctx.purpleStarChart.mingGan || ''),
-            displayMode: (__VLS_ctx.displayMode),
-            transformationFlows: (__VLS_ctx.transformationFlows),
-            transformationCombinations: (__VLS_ctx.transformationCombinations || []),
-            multiLayerEnergies: (__VLS_ctx.multiLayerEnergies),
+            title: "四化飛星資料缺失",
+            description: (`當前命盤缺少四化飛星資料。命宮天干：${__VLS_ctx.purpleStarChart.mingGan || '未知'}，請檢查API響應是否包含四化資料。`),
+            type: "warning",
+            closable: (false),
             ...{ class: "mt-4" },
         }, ...__VLS_functionalComponentArgsRest(__VLS_73));
-        let __VLS_76;
-        let __VLS_77;
-        let __VLS_78;
-        const __VLS_79 = {
-            'onUpdate:displayMode': (__VLS_ctx.changeDisplayMode)
-        };
-        var __VLS_75;
-    }
-    else if (__VLS_ctx.displayMode !== 'minimal' && Object.keys(__VLS_ctx.transformationFlows).length === 0 && __VLS_ctx.purpleStarChart) {
-        const __VLS_80 = {}.ElAlert;
-        /** @type {[typeof __VLS_components.ElAlert, typeof __VLS_components.elAlert, ]} */ ;
-        // @ts-ignore
-        const __VLS_81 = __VLS_asFunctionalComponent(__VLS_80, new __VLS_80({
-            title: "四化飛星數據缺失",
-            description: (`當前命盤缺少四化飛星數據。命宮天干：${__VLS_ctx.purpleStarChart.mingGan || '未知'}，請檢查API響應是否包含四化數據。`),
-            type: "warning",
-            closable: (false),
-            ...{ class: "mt-4" },
-        }));
-        const __VLS_82 = __VLS_81({
-            title: "四化飛星數據缺失",
-            description: (`當前命盤缺少四化飛星數據。命宮天干：${__VLS_ctx.purpleStarChart.mingGan || '未知'}，請檢查API響應是否包含四化數據。`),
-            type: "warning",
-            closable: (false),
-            ...{ class: "mt-4" },
-        }, ...__VLS_functionalComponentArgsRest(__VLS_81));
     }
     var __VLS_57;
 }
 else {
-    const __VLS_84 = {}.ElCard;
+    const __VLS_76 = {}.ElCard;
     /** @type {[typeof __VLS_components.ElCard, typeof __VLS_components.elCard, typeof __VLS_components.ElCard, typeof __VLS_components.elCard, ]} */ ;
     // @ts-ignore
-    const __VLS_85 = __VLS_asFunctionalComponent(__VLS_84, new __VLS_84({
+    const __VLS_77 = __VLS_asFunctionalComponent(__VLS_76, new __VLS_76({
         shadow: "hover",
     }));
-    const __VLS_86 = __VLS_85({
+    const __VLS_78 = __VLS_77({
         shadow: "hover",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_85));
-    __VLS_87.slots.default;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_77));
+    __VLS_79.slots.default;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "placeholder" },
     });
-    const __VLS_88 = {}.ElIcon;
+    const __VLS_80 = {}.ElIcon;
     /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
     // @ts-ignore
-    const __VLS_89 = __VLS_asFunctionalComponent(__VLS_88, new __VLS_88({
+    const __VLS_81 = __VLS_asFunctionalComponent(__VLS_80, new __VLS_80({
         size: (64),
         color: "#c0c4cc",
     }));
-    const __VLS_90 = __VLS_89({
+    const __VLS_82 = __VLS_81({
         size: (64),
         color: "#c0c4cc",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_89));
-    __VLS_91.slots.default;
-    const __VLS_92 = {}.StarFilled;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_81));
+    __VLS_83.slots.default;
+    const __VLS_84 = {}.StarFilled;
     /** @type {[typeof __VLS_components.StarFilled, ]} */ ;
     // @ts-ignore
-    const __VLS_93 = __VLS_asFunctionalComponent(__VLS_92, new __VLS_92({}));
-    const __VLS_94 = __VLS_93({}, ...__VLS_functionalComponentArgsRest(__VLS_93));
-    var __VLS_91;
+    const __VLS_85 = __VLS_asFunctionalComponent(__VLS_84, new __VLS_84({}));
+    const __VLS_86 = __VLS_85({}, ...__VLS_functionalComponentArgsRest(__VLS_85));
+    var __VLS_83;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
-    var __VLS_87;
+    var __VLS_79;
 }
 var __VLS_53;
 var __VLS_3;
-const __VLS_96 = {}.ElDrawer;
+const __VLS_88 = {}.ElDrawer;
 /** @type {[typeof __VLS_components.ElDrawer, typeof __VLS_components.elDrawer, typeof __VLS_components.ElDrawer, typeof __VLS_components.elDrawer, ]} */ ;
 // @ts-ignore
-const __VLS_97 = __VLS_asFunctionalComponent(__VLS_96, new __VLS_96({
+const __VLS_89 = __VLS_asFunctionalComponent(__VLS_88, new __VLS_88({
     modelValue: (__VLS_ctx.showIntegratedAnalysis),
     title: (__VLS_ctx.integratedAnalysisTitle),
     direction: "rtl",
     size: "45%",
     beforeClose: (__VLS_ctx.handleSidebarClose),
 }));
-const __VLS_98 = __VLS_97({
+const __VLS_90 = __VLS_89({
     modelValue: (__VLS_ctx.showIntegratedAnalysis),
     title: (__VLS_ctx.integratedAnalysisTitle),
     direction: "rtl",
     size: "45%",
     beforeClose: (__VLS_ctx.handleSidebarClose),
-}, ...__VLS_functionalComponentArgsRest(__VLS_97));
-__VLS_99.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_89));
+__VLS_91.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "integrated-analysis-sidebar" },
 });
@@ -1025,24 +946,24 @@ if (!__VLS_ctx.integratedAnalysisResult && !__VLS_ctx.integratedAnalysisLoading)
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "intro-header" },
     });
-    const __VLS_100 = {}.ElIcon;
+    const __VLS_92 = {}.ElIcon;
     /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
     // @ts-ignore
-    const __VLS_101 = __VLS_asFunctionalComponent(__VLS_100, new __VLS_100({
+    const __VLS_93 = __VLS_asFunctionalComponent(__VLS_92, new __VLS_92({
         size: (48),
         color: "#409EFF",
     }));
-    const __VLS_102 = __VLS_101({
+    const __VLS_94 = __VLS_93({
         size: (48),
         color: "#409EFF",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_101));
-    __VLS_103.slots.default;
-    const __VLS_104 = {}.TrendCharts;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_93));
+    __VLS_95.slots.default;
+    const __VLS_96 = {}.TrendCharts;
     /** @type {[typeof __VLS_components.TrendCharts, ]} */ ;
     // @ts-ignore
-    const __VLS_105 = __VLS_asFunctionalComponent(__VLS_104, new __VLS_104({}));
-    const __VLS_106 = __VLS_105({}, ...__VLS_functionalComponentArgsRest(__VLS_105));
-    var __VLS_103;
+    const __VLS_97 = __VLS_asFunctionalComponent(__VLS_96, new __VLS_96({}));
+    const __VLS_98 = __VLS_97({}, ...__VLS_functionalComponentArgsRest(__VLS_97));
+    var __VLS_95;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "intro-content" },
@@ -1054,18 +975,38 @@ if (!__VLS_ctx.integratedAnalysisResult && !__VLS_ctx.integratedAnalysisLoading)
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "feature-item" },
     });
+    const __VLS_100 = {}.ElIcon;
+    /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
+    // @ts-ignore
+    const __VLS_101 = __VLS_asFunctionalComponent(__VLS_100, new __VLS_100({
+        color: "#67C23A",
+    }));
+    const __VLS_102 = __VLS_101({
+        color: "#67C23A",
+    }, ...__VLS_functionalComponentArgsRest(__VLS_101));
+    __VLS_103.slots.default;
+    const __VLS_104 = {}.Check;
+    /** @type {[typeof __VLS_components.Check, ]} */ ;
+    // @ts-ignore
+    const __VLS_105 = __VLS_asFunctionalComponent(__VLS_104, new __VLS_104({}));
+    const __VLS_106 = __VLS_105({}, ...__VLS_functionalComponentArgsRest(__VLS_105));
+    var __VLS_103;
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "feature-item" },
+    });
     const __VLS_108 = {}.ElIcon;
     /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
     // @ts-ignore
     const __VLS_109 = __VLS_asFunctionalComponent(__VLS_108, new __VLS_108({
-        color: "#67C23A",
+        color: "#E6A23C",
     }));
     const __VLS_110 = __VLS_109({
-        color: "#67C23A",
+        color: "#E6A23C",
     }, ...__VLS_functionalComponentArgsRest(__VLS_109));
     __VLS_111.slots.default;
-    const __VLS_112 = {}.Check;
-    /** @type {[typeof __VLS_components.Check, ]} */ ;
+    const __VLS_112 = {}.Warning;
+    /** @type {[typeof __VLS_components.Warning, ]} */ ;
     // @ts-ignore
     const __VLS_113 = __VLS_asFunctionalComponent(__VLS_112, new __VLS_112({}));
     const __VLS_114 = __VLS_113({}, ...__VLS_functionalComponentArgsRest(__VLS_113));
@@ -1078,14 +1019,14 @@ if (!__VLS_ctx.integratedAnalysisResult && !__VLS_ctx.integratedAnalysisLoading)
     /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
     // @ts-ignore
     const __VLS_117 = __VLS_asFunctionalComponent(__VLS_116, new __VLS_116({
-        color: "#E6A23C",
+        color: "#409EFF",
     }));
     const __VLS_118 = __VLS_117({
-        color: "#E6A23C",
+        color: "#409EFF",
     }, ...__VLS_functionalComponentArgsRest(__VLS_117));
     __VLS_119.slots.default;
-    const __VLS_120 = {}.Warning;
-    /** @type {[typeof __VLS_components.Warning, ]} */ ;
+    const __VLS_120 = {}.DataAnalysis;
+    /** @type {[typeof __VLS_components.DataAnalysis, ]} */ ;
     // @ts-ignore
     const __VLS_121 = __VLS_asFunctionalComponent(__VLS_120, new __VLS_120({}));
     const __VLS_122 = __VLS_121({}, ...__VLS_functionalComponentArgsRest(__VLS_121));
@@ -1098,100 +1039,80 @@ if (!__VLS_ctx.integratedAnalysisResult && !__VLS_ctx.integratedAnalysisLoading)
     /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
     // @ts-ignore
     const __VLS_125 = __VLS_asFunctionalComponent(__VLS_124, new __VLS_124({
-        color: "#409EFF",
+        color: "#F56C6C",
     }));
     const __VLS_126 = __VLS_125({
-        color: "#409EFF",
+        color: "#F56C6C",
     }, ...__VLS_functionalComponentArgsRest(__VLS_125));
     __VLS_127.slots.default;
-    const __VLS_128 = {}.DataAnalysis;
-    /** @type {[typeof __VLS_components.DataAnalysis, ]} */ ;
+    const __VLS_128 = {}.Bell;
+    /** @type {[typeof __VLS_components.Bell, ]} */ ;
     // @ts-ignore
     const __VLS_129 = __VLS_asFunctionalComponent(__VLS_128, new __VLS_128({}));
     const __VLS_130 = __VLS_129({}, ...__VLS_functionalComponentArgsRest(__VLS_129));
     var __VLS_127;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "feature-item" },
-    });
-    const __VLS_132 = {}.ElIcon;
-    /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
-    // @ts-ignore
-    const __VLS_133 = __VLS_asFunctionalComponent(__VLS_132, new __VLS_132({
-        color: "#F56C6C",
-    }));
-    const __VLS_134 = __VLS_133({
-        color: "#F56C6C",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_133));
-    __VLS_135.slots.default;
-    const __VLS_136 = {}.Bell;
-    /** @type {[typeof __VLS_components.Bell, ]} */ ;
-    // @ts-ignore
-    const __VLS_137 = __VLS_asFunctionalComponent(__VLS_136, new __VLS_136({}));
-    const __VLS_138 = __VLS_137({}, ...__VLS_functionalComponentArgsRest(__VLS_137));
-    var __VLS_135;
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-    const __VLS_140 = {}.ElButton;
+    const __VLS_132 = {}.ElButton;
     /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
     // @ts-ignore
-    const __VLS_141 = __VLS_asFunctionalComponent(__VLS_140, new __VLS_140({
+    const __VLS_133 = __VLS_asFunctionalComponent(__VLS_132, new __VLS_132({
         ...{ 'onClick': {} },
         type: "primary",
         size: "large",
         loading: (__VLS_ctx.integratedAnalysisLoading),
         ...{ class: "start-analysis-btn" },
     }));
-    const __VLS_142 = __VLS_141({
+    const __VLS_134 = __VLS_133({
         ...{ 'onClick': {} },
         type: "primary",
         size: "large",
         loading: (__VLS_ctx.integratedAnalysisLoading),
         ...{ class: "start-analysis-btn" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_141));
-    let __VLS_144;
-    let __VLS_145;
-    let __VLS_146;
-    const __VLS_147 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_133));
+    let __VLS_136;
+    let __VLS_137;
+    let __VLS_138;
+    const __VLS_139 = {
         onClick: (__VLS_ctx.performIntegratedAnalysis)
     };
-    __VLS_143.slots.default;
-    var __VLS_143;
+    __VLS_135.slots.default;
+    var __VLS_135;
 }
 else if (__VLS_ctx.integratedAnalysisLoading) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "analysis-loading" },
     });
-    const __VLS_148 = {}.ElIcon;
+    const __VLS_140 = {}.ElIcon;
     /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
     // @ts-ignore
-    const __VLS_149 = __VLS_asFunctionalComponent(__VLS_148, new __VLS_148({
+    const __VLS_141 = __VLS_asFunctionalComponent(__VLS_140, new __VLS_140({
         size: (60),
         ...{ class: "is-loading" },
     }));
-    const __VLS_150 = __VLS_149({
+    const __VLS_142 = __VLS_141({
         size: (60),
         ...{ class: "is-loading" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_149));
-    __VLS_151.slots.default;
-    const __VLS_152 = {}.Loading;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_141));
+    __VLS_143.slots.default;
+    const __VLS_144 = {}.Loading;
     /** @type {[typeof __VLS_components.Loading, ]} */ ;
     // @ts-ignore
-    const __VLS_153 = __VLS_asFunctionalComponent(__VLS_152, new __VLS_152({}));
-    const __VLS_154 = __VLS_153({}, ...__VLS_functionalComponentArgsRest(__VLS_153));
-    var __VLS_151;
+    const __VLS_145 = __VLS_asFunctionalComponent(__VLS_144, new __VLS_144({}));
+    const __VLS_146 = __VLS_145({}, ...__VLS_functionalComponentArgsRest(__VLS_145));
+    var __VLS_143;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
     __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
-    const __VLS_156 = {}.ElProgress;
+    const __VLS_148 = {}.ElProgress;
     /** @type {[typeof __VLS_components.ElProgress, typeof __VLS_components.elProgress, ]} */ ;
     // @ts-ignore
-    const __VLS_157 = __VLS_asFunctionalComponent(__VLS_156, new __VLS_156({
+    const __VLS_149 = __VLS_asFunctionalComponent(__VLS_148, new __VLS_148({
         percentage: (__VLS_ctx.loadingProgress),
         showText: (false),
     }));
-    const __VLS_158 = __VLS_157({
+    const __VLS_150 = __VLS_149({
         percentage: (__VLS_ctx.loadingProgress),
         showText: (false),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_157));
+    }, ...__VLS_functionalComponentArgsRest(__VLS_149));
     __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
         ...{ class: "loading-step" },
     });
@@ -1203,100 +1124,100 @@ else if (__VLS_ctx.integratedAnalysisResult) {
     });
     /** @type {[typeof IntegratedAnalysisDisplay, ]} */ ;
     // @ts-ignore
-    const __VLS_160 = __VLS_asFunctionalComponent(IntegratedAnalysisDisplay, new IntegratedAnalysisDisplay({
+    const __VLS_152 = __VLS_asFunctionalComponent(IntegratedAnalysisDisplay, new IntegratedAnalysisDisplay({
         integratedAnalysis: (__VLS_ctx.integratedAnalysisResult),
         loading: (false),
         error: (__VLS_ctx.integratedAnalysisError),
     }));
-    const __VLS_161 = __VLS_160({
+    const __VLS_153 = __VLS_152({
         integratedAnalysis: (__VLS_ctx.integratedAnalysisResult),
         loading: (false),
         error: (__VLS_ctx.integratedAnalysisError),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_160));
+    }, ...__VLS_functionalComponentArgsRest(__VLS_152));
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "result-actions" },
     });
+    const __VLS_155 = {}.ElButton;
+    /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
+    // @ts-ignore
+    const __VLS_156 = __VLS_asFunctionalComponent(__VLS_155, new __VLS_155({
+        ...{ 'onClick': {} },
+        loading: (__VLS_ctx.integratedAnalysisLoading),
+    }));
+    const __VLS_157 = __VLS_156({
+        ...{ 'onClick': {} },
+        loading: (__VLS_ctx.integratedAnalysisLoading),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_156));
+    let __VLS_159;
+    let __VLS_160;
+    let __VLS_161;
+    const __VLS_162 = {
+        onClick: (__VLS_ctx.performIntegratedAnalysis)
+    };
+    __VLS_158.slots.default;
+    var __VLS_158;
     const __VLS_163 = {}.ElButton;
     /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
     // @ts-ignore
     const __VLS_164 = __VLS_asFunctionalComponent(__VLS_163, new __VLS_163({
         ...{ 'onClick': {} },
-        loading: (__VLS_ctx.integratedAnalysisLoading),
+        type: "success",
     }));
     const __VLS_165 = __VLS_164({
         ...{ 'onClick': {} },
-        loading: (__VLS_ctx.integratedAnalysisLoading),
+        type: "success",
     }, ...__VLS_functionalComponentArgsRest(__VLS_164));
     let __VLS_167;
     let __VLS_168;
     let __VLS_169;
     const __VLS_170 = {
-        onClick: (__VLS_ctx.performIntegratedAnalysis)
+        onClick: (__VLS_ctx.exportAnalysisResult)
     };
     __VLS_166.slots.default;
     var __VLS_166;
-    const __VLS_171 = {}.ElButton;
-    /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
-    // @ts-ignore
-    const __VLS_172 = __VLS_asFunctionalComponent(__VLS_171, new __VLS_171({
-        ...{ 'onClick': {} },
-        type: "success",
-    }));
-    const __VLS_173 = __VLS_172({
-        ...{ 'onClick': {} },
-        type: "success",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_172));
-    let __VLS_175;
-    let __VLS_176;
-    let __VLS_177;
-    const __VLS_178 = {
-        onClick: (__VLS_ctx.exportAnalysisResult)
-    };
-    __VLS_174.slots.default;
-    var __VLS_174;
 }
 if (__VLS_ctx.integratedAnalysisError) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "analysis-error" },
     });
-    const __VLS_179 = {}.ElAlert;
+    const __VLS_171 = {}.ElAlert;
     /** @type {[typeof __VLS_components.ElAlert, typeof __VLS_components.elAlert, ]} */ ;
     // @ts-ignore
-    const __VLS_180 = __VLS_asFunctionalComponent(__VLS_179, new __VLS_179({
+    const __VLS_172 = __VLS_asFunctionalComponent(__VLS_171, new __VLS_171({
         title: (__VLS_ctx.integratedAnalysisError),
         type: "error",
         closable: (false),
         showIcon: true,
     }));
-    const __VLS_181 = __VLS_180({
+    const __VLS_173 = __VLS_172({
         title: (__VLS_ctx.integratedAnalysisError),
         type: "error",
         closable: (false),
         showIcon: true,
-    }, ...__VLS_functionalComponentArgsRest(__VLS_180));
-    const __VLS_183 = {}.ElButton;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_172));
+    const __VLS_175 = {}.ElButton;
     /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
     // @ts-ignore
-    const __VLS_184 = __VLS_asFunctionalComponent(__VLS_183, new __VLS_183({
+    const __VLS_176 = __VLS_asFunctionalComponent(__VLS_175, new __VLS_175({
         ...{ 'onClick': {} },
         type: "primary",
         ...{ class: "retry-btn" },
     }));
-    const __VLS_185 = __VLS_184({
+    const __VLS_177 = __VLS_176({
         ...{ 'onClick': {} },
         type: "primary",
         ...{ class: "retry-btn" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_184));
-    let __VLS_187;
-    let __VLS_188;
-    let __VLS_189;
-    const __VLS_190 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_176));
+    let __VLS_179;
+    let __VLS_180;
+    let __VLS_181;
+    const __VLS_182 = {
         onClick: (__VLS_ctx.performIntegratedAnalysis)
     };
-    __VLS_186.slots.default;
-    var __VLS_186;
+    __VLS_178.slots.default;
+    var __VLS_178;
 }
-var __VLS_99;
+var __VLS_91;
 /** @type {__VLS_StyleScopedClasses['purple-star-container']} */ ;
 /** @type {__VLS_StyleScopedClasses['main-content']} */ ;
 /** @type {__VLS_StyleScopedClasses['with-sidebar']} */ ;
@@ -1308,7 +1229,6 @@ var __VLS_99;
 /** @type {__VLS_StyleScopedClasses['text-center-alert']} */ ;
 /** @type {__VLS_StyleScopedClasses['mt-3']} */ ;
 /** @type {__VLS_StyleScopedClasses['card-header']} */ ;
-/** @type {__VLS_StyleScopedClasses['purple-star-controller']} */ ;
 /** @type {__VLS_StyleScopedClasses['mt-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['mt-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['placeholder']} */ ;
@@ -1346,7 +1266,6 @@ const __VLS_self = (await import('vue')).defineComponent({
             PurpleStarChartDisplay: PurpleStarChartDisplay,
             TransformationStarsDisplay: TransformationStarsDisplay,
             IntegratedAnalysisDisplay: IntegratedAnalysisDisplay,
-            UnifiedLayeredController: UnifiedLayeredController,
             StorageStatusIndicator: StorageStatusIndicator,
             purpleStarChart: purpleStarChart,
             birthInfoForIntegration: birthInfoForIntegration,
@@ -1354,18 +1273,13 @@ const __VLS_self = (await import('vue')).defineComponent({
             transformationCombinations: transformationCombinations,
             multiLayerEnergies: multiLayerEnergies,
             displayMode: displayMode,
-            layeredData: layeredData,
-            dataCompleteness: dataCompleteness,
             changeDisplayMode: changeDisplayMode,
-            handleDisplayModeUpdate: handleDisplayModeUpdate,
-            handleLevelChanged: handleLevelChanged,
             showIntegratedAnalysis: showIntegratedAnalysis,
             integratedAnalysisLoading: integratedAnalysisLoading,
             integratedAnalysisResult: integratedAnalysisResult,
             integratedAnalysisError: integratedAnalysisError,
             loadingProgress: loadingProgress,
             currentLoadingStep: currentLoadingStep,
-            isMobile: isMobile,
             integratedAnalysisTitle: integratedAnalysisTitle,
             clearData: clearData,
             handleSubmit: handleSubmit,

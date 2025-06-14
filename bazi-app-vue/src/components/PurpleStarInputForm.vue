@@ -148,7 +148,7 @@ const formData = reactive({
 
 const selectedCity = ref('');
 
-// 主要城市座標數據
+// 主要城市座標資料
 const majorCities = ref([
   { label: '台北, 台灣', value: 'taipei', longitude: 121.5654, latitude: 25.0330, timezone: 'Asia/Taipei' },
   { label: '高雄, 台灣', value: 'kaohsiung', longitude: 120.3014, latitude: 22.6273, timezone: 'Asia/Taipei' },
@@ -174,7 +174,7 @@ const fillCityCoordinates = (cityValue: string) => {
   }
 };
 
-// 從 sessionStorage 加載保存的時區信息
+// 從 sessionStorage 加載保存的時區資訊
 onMounted(() => {
   const savedTimezone = getTimeZoneInfo();
   if (savedTimezone && savedTimezone.timeZone) {
@@ -270,7 +270,7 @@ const submitForm = async () => {
       );
       const lunarDate = solarInstance.getLunar();
       
-      // 保存時區信息到 sessionStorage
+      // 保存時區資訊到 sessionStorage
       saveTimeZoneInfo(formData.timezone, year);
       
       // 驗證位置資訊

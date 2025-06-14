@@ -159,11 +159,11 @@ const __VLS_0 = {}.ElTooltip;
 /** @type {[typeof __VLS_components.ElTooltip, typeof __VLS_components.elTooltip, typeof __VLS_components.ElTooltip, typeof __VLS_components.elTooltip, ]} */ ;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({
-    content: (`數據完整度: ${__VLS_ctx.dataCompleteness}%`),
+    content: (`資料完整度: ${__VLS_ctx.dataCompleteness}%`),
     placement: "top",
 }));
 const __VLS_2 = __VLS_1({
-    content: (`數據完整度: ${__VLS_ctx.dataCompleteness}%`),
+    content: (`資料完整度: ${__VLS_ctx.dataCompleteness}%`),
     placement: "top",
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 __VLS_3.slots.default;
@@ -635,11 +635,11 @@ const __VLS_124 = {}.ElTooltip;
 /** @type {[typeof __VLS_components.ElTooltip, typeof __VLS_components.elTooltip, typeof __VLS_components.ElTooltip, typeof __VLS_components.elTooltip, ]} */ ;
 // @ts-ignore
 const __VLS_125 = __VLS_asFunctionalComponent(__VLS_124, new __VLS_124({
-    content: "顯示層級信息",
+    content: "顯示層級資訊",
     placement: "top",
 }));
 const __VLS_126 = __VLS_125({
-    content: "顯示層級信息",
+    content: "顯示層級資訊",
     placement: "top",
 }, ...__VLS_functionalComponentArgsRest(__VLS_125));
 __VLS_127.slots.default;

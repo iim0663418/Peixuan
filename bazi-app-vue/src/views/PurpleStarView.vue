@@ -188,12 +188,20 @@
                   <span class="tab-icon">📊</span>
                   綜合人生解讀
                 </button>
+                <button 
+                  @click="setInterpretationMode('currentYear')" 
+                  :class="{ active: interpretationMode === 'currentYear' }"
+                  class="dashboard-tab-button"
+                >
+                  <span class="tab-icon">🎯</span>
+                  今年運勢分析
+                </button>
               </div>
             </div>
 
             <div class="dashboard-content">
               <!-- 綜合人生解讀 -->
-              <div class="dashboard-panel">
+              <div v-if="interpretationMode === 'fortune'" class="dashboard-panel">
                 <FortuneOverview 
                   :chart-data="purpleStarChart"
                   :transformation-flows="transformationFlows"
@@ -201,6 +209,16 @@
                   @palace-click="handleFortuneOverviewPalaceClick"
                   @talent-click="handleTalentClick"
                   @potential-click="handlePotentialClick"
+                />
+              </div>
+              
+              <!-- 今年運勢分析 -->
+              <div v-if="interpretationMode === 'currentYear'" class="dashboard-panel">
+                <CurrentYearFortune 
+                  :chart-data="purpleStarChart"
+                  :transformation-flows="transformationFlows"
+                  :multi-layer-energies="multiLayerEnergies"
+                  @palace-click="handleFortuneOverviewPalaceClick"
                 />
               </div>
             </div>
@@ -227,6 +245,7 @@ import PurpleStarChartDisplay from '@/components/PurpleStarChartDisplay.vue';
 import TransformationStarsDisplay from '@/components/TransformationStarsDisplay.vue';
 import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
 import FortuneOverview from '@/components/FortuneOverview.vue';
+import CurrentYearFortune from '@/components/CurrentYearFortune.vue';
 import apiService from '@/services/apiService';
 import astrologyIntegrationService from '@/services/astrologyIntegrationService';
 import storageService from '@/utils/storageService';
@@ -333,7 +352,7 @@ const loadingProgress = ref(0);
 const currentLoadingStep = ref('正在準備分析...');
 
 // 綜合人生解讀儀表板狀態
-const interpretationMode = ref<'fortune'>('fortune');
+const interpretationMode = ref<'fortune' | 'currentYear'>('fortune');
 
 // 響應式斷點檢測  
 const responsiveBreakpoints = useBreakpoints({
@@ -362,7 +381,7 @@ const analysisCompleteness = computed(() => {
 });
 
 // 綜合人生解讀儀表板相關函數
-const setInterpretationMode = (mode: 'fortune') => {
+const setInterpretationMode = (mode: 'fortune' | 'currentYear') => {
   interpretationMode.value = mode;
 };
 

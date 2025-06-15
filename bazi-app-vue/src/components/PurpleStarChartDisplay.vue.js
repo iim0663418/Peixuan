@@ -2,8 +2,6 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import StarBrightnessIndicator from './StarBrightnessIndicator.vue';
-import PatternAnalysisPanel from './PatternAnalysisPanel.vue';
-import MinorStarsPanel from './MinorStarsPanel.vue';
 import EmptyPalaceIndicator from './EmptyPalaceIndicator.vue';
 import PurpleStarGuideModal from './PurpleStarGuideModal.vue';
 import FeatureHintsDisplay from '@/components/FeatureHintsDisplay.vue';
@@ -24,9 +22,97 @@ const selectedPalace = ref(null); // 選中的宮位
 const showInteractionTips = ref(true); // 顯示互動提示
 const showSummary = ref(true); // 顯示簡要解讀
 const showGuideModal = ref(false); // 顯示功能指南彈窗
-const interpretationMode = ref('comprehensive');
 const activeDomain = ref('career');
 const activePalaceName = ref('');
+const interpretationMode = ref('fortune');
+// 四化流動和多層次能量數據
+const transformationFlows = computed(() => {
+    // 從 TransformationStarsDisplay 的邏輯中提取能量流動數據
+    const flows = {};
+    if (props.chartData?.palaces) {
+        props.chartData.palaces.forEach(palace => {
+            let energyScore = 0;
+            const influences = [];
+            // 計算宮位能量分數
+            palace.stars.forEach(star => {
+                if (star.transformations) {
+                    star.transformations.forEach(trans => {
+                        switch (trans) {
+                            case '祿':
+                                energyScore += 3;
+                                influences.push(`${star.name}化祿`);
+                                break;
+                            case '權':
+                                energyScore += 2;
+                                influences.push(`${star.name}化權`);
+                                break;
+                            case '科':
+                                energyScore += 1;
+                                influences.push(`${star.name}化科`);
+                                break;
+                            case '忌':
+                                energyScore -= 3;
+                                influences.push(`${star.name}化忌`);
+                                break;
+                        }
+                    });
+                }
+                // 根據星曜屬性調整分數
+                if (star.attribute === '吉') {
+                    energyScore += 1;
+                }
+                else if (star.attribute === '凶') {
+                    energyScore -= 1;
+                }
+            });
+            flows[palace.index] = {
+                palaceIndex: palace.index,
+                palaceName: palace.name,
+                energyScore,
+                majorInfluences: influences
+            };
+        });
+    }
+    return flows;
+});
+const multiLayerEnergies = computed(() => {
+    // 模擬多層次能量數據
+    const energies = {};
+    if (props.chartData?.palaces) {
+        props.chartData.palaces.forEach(palace => {
+            const baseEnergy = transformationFlows.value[palace.index]?.energyScore || 0;
+            const daXianEnergy = Math.floor(Math.random() * 6) - 3; // 模擬大限能量 -3 to +3
+            const liuNianEnergy = Math.floor(Math.random() * 4) - 2; // 模擬流年能量 -2 to +2
+            const totalEnergy = baseEnergy + daXianEnergy + liuNianEnergy;
+            let interpretation = '';
+            if (totalEnergy > 5) {
+                interpretation = '能量極佳，是發展的黃金時期';
+            }
+            else if (totalEnergy > 2) {
+                interpretation = '能量良好，適合積極行動';
+            }
+            else if (totalEnergy > -2) {
+                interpretation = '能量平穩，宜穩健發展';
+            }
+            else if (totalEnergy > -5) {
+                interpretation = '能量偏弱，需謹慎行事';
+            }
+            else {
+                interpretation = '能量低迷，宜保守觀望';
+            }
+            energies[palace.index] = {
+                palaceIndex: palace.index,
+                palaceName: palace.name,
+                baseEnergy,
+                daXianEnergy,
+                liuNianEnergy,
+                totalEnergy,
+                interpretation
+            };
+        });
+    }
+    return energies;
+});
 // 計算屬性
 // 命盤概要解讀
 const chartSummary = computed(() => {
@@ -119,7 +205,7 @@ const zhiToIndex = {
 };
 // 方法
 const getPalaceByZhi = (zhiName) => {
-    if (!props.chartData || zhiName === 'center')
+    if (!props.chartData || !props.chartData.palaces || zhiName === 'center')
         return undefined;
     return props.chartData.palaces.find(palace => palace.zhi === zhiName);
 };
@@ -374,11 +460,65 @@ const handleStarClick = (star) => {
 const closeStarDetail = () => {
     selectedStar.value = null;
 };
+// FortuneOverview 相關事件處理
+const handleFortuneOverviewPalaceClick = (palaceIndex) => {
+    console.log(`正在導航到宮位 ${palaceIndex}`);
+    // 滾動到對應的宮位並高亮
+    const palace = props.chartData?.palaces.find(p => p.index === palaceIndex);
+    if (palace) {
+        console.log(`找到宮位: ${palace.name} (${palace.zhi})`);
+        // 使用多種選擇器嘗試找到宮位元素
+        let palaceElement = document.querySelector(`[data-palace-zhi="${palace.zhi}"]`);
+        if (!palaceElement) {
+            palaceElement = document.querySelector(`[data-palace-index="${palaceIndex}"]`);
+        }
+        if (!palaceElement) {
+            palaceElement = document.querySelector(`.palace-${palace.zhi}`);
+        }
+        if (palaceElement) {
+            console.log('找到宮位元素，開始滾動和高亮');
+            // 先移除任何現有的高亮
+            document.querySelectorAll('.palace-highlight').forEach(el => {
+                el.classList.remove('palace-highlight');
+            });
+            // 滾動到宮位
+            palaceElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'center'
+            });
+            // 添加高亮效果
+            palaceElement.classList.add('palace-highlight');
+            // 設置選中的宮位
+            selectedPalace.value = palace;
+            // 3秒後移除高亮
+            setTimeout(() => {
+                palaceElement.classList.remove('palace-highlight');
+            }, 3000);
+            // 發送宮位點擊事件
+            emit('palaceClick', palace);
+        }
+        else {
+            console.warn(`無法找到宮位 ${palace.name} (${palace.zhi}) 的 DOM 元素`);
+            // 仍然設置選中的宮位並發送事件
+            selectedPalace.value = palace;
+            emit('palaceClick', palace);
+        }
+    }
+    else {
+        console.warn(`無法找到索引為 ${palaceIndex} 的宮位資料`);
+    }
+};
+const handleStrengthClick = (strength) => {
+    console.log('優勢點擊:', strength);
+    handleFortuneOverviewPalaceClick(strength.palaceIndex);
+};
+const handleChallengeClick = (challenge) => {
+    console.log('挑戰點擊:', challenge);
+    handleFortuneOverviewPalaceClick(challenge.palaceIndex);
+};
 // 移除匯出功能
 // 解讀相關方法
-const setInterpretationMode = (mode) => {
-    interpretationMode.value = mode;
-};
 const setActiveDomain = (domain) => {
     activeDomain.value = domain;
 };
@@ -438,7 +578,7 @@ watch(() => props.chartData, (newData) => {
         // 重置選中狀態
         selectedStar.value = null;
         // 設置默認解讀模式
-        interpretationMode.value = 'comprehensive';
+        interpretationMode.value = 'fortune';
         // 設置默認領域和宮位
         if (newData.domainAnalyses && newData.domainAnalyses.length > 0) {
             activeDomain.value = newData.domainAnalyses[0].domain;
@@ -448,6 +588,13 @@ watch(() => props.chartData, (newData) => {
         }
     }
 });
+// 暴露方法給父組件使用
+const __VLS_exposed = {
+    handleFortuneOverviewPalaceClick,
+    handleStrengthClick,
+    handleChallengeClick
+};
+defineExpose(__VLS_exposed);
 debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
 const __VLS_withDefaultsArg = (function (t) { return t; })({
     chartData: null,
@@ -536,7 +683,6 @@ let __VLS_directives;
 /** @type {__VLS_StyleScopedClasses['palace-section']} */ ;
 /** @type {__VLS_StyleScopedClasses['palace-section']} */ ;
 /** @type {__VLS_StyleScopedClasses['chart-grid']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-section']} */ ;
 /** @type {__VLS_StyleScopedClasses['chart-grid']} */ ;
 /** @type {__VLS_StyleScopedClasses['comprehensive-interpretation']} */ ;
 /** @type {__VLS_StyleScopedClasses['domain-periods']} */ ;
@@ -558,8 +704,6 @@ let __VLS_directives;
 /** @type {__VLS_StyleScopedClasses['da-xian-info']} */ ;
 /** @type {__VLS_StyleScopedClasses['xiao-xian-info']} */ ;
 /** @type {__VLS_StyleScopedClasses['interpretation-section']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-tabs']} */ ;
-/** @type {__VLS_StyleScopedClasses['tab-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['cycles-grid']} */ ;
 /** @type {__VLS_StyleScopedClasses['purple-star-chart-container']} */ ;
 /** @type {__VLS_StyleScopedClasses['chart-header']} */ ;
@@ -586,7 +730,8 @@ let __VLS_directives;
 /** @type {__VLS_StyleScopedClasses['chart-grid']} */ ;
 /** @type {__VLS_StyleScopedClasses['palace-cell']} */ ;
 /** @type {__VLS_StyleScopedClasses['star-item']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-section']} */ ;
+/** @type {__VLS_StyleScopedClasses['palace-highlight']} */ ;
+/** @type {__VLS_StyleScopedClasses['palace-content']} */ ;
 // CSS variable injection 
 // CSS variable injection end 
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
@@ -799,6 +944,8 @@ else if (__VLS_ctx.chartData) {
                 } },
             key: (`position-${index}`),
             ...{ class: (['palace-cell', __VLS_ctx.getPositionClass(position, index)]) },
+            'data-palace-zhi': (position !== 'center' ? position : undefined),
+            'data-palace-index': (position !== 'center' ? __VLS_ctx.getPalaceByZhi(position)?.index : undefined),
         });
         if (position === 'center') {
             __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
@@ -824,6 +971,7 @@ else if (__VLS_ctx.chartData) {
             __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
                 ...{ class: "palace-content" },
                 ...{ class: (__VLS_ctx.getPalaceFortuneClass(__VLS_ctx.getPalaceByZhi(position))) },
+                'data-palace-zhi': (position),
             });
             __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
                 ...{ class: "palace-header" },
@@ -960,391 +1108,6 @@ else if (__VLS_ctx.chartData) {
                     });
                     __VLS_asFunctionalElement(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
                     (__VLS_ctx.formatXiaoXianInfo(__VLS_ctx.getXiaoXianInfo(position)));
-                }
-            }
-        }
-    }
-    if (__VLS_ctx.chartData.comprehensiveInterpretation || __VLS_ctx.chartData.domainAnalyses) {
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-            ...{ class: "interpretation-section" },
-        });
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-            ...{ class: "interpretation-header" },
-        });
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
-        (__VLS_ctx.$t('purpleStarChart.interpretation') || '命盤解讀');
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-            ...{ class: "interpretation-tabs" },
-        });
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
-            ...{ onClick: (...[$event]) => {
-                    if (!!(__VLS_ctx.isLoading))
-                        return;
-                    if (!!(__VLS_ctx.error))
-                        return;
-                    if (!(__VLS_ctx.chartData))
-                        return;
-                    if (!(__VLS_ctx.chartData.comprehensiveInterpretation || __VLS_ctx.chartData.domainAnalyses))
-                        return;
-                    __VLS_ctx.setInterpretationMode('comprehensive');
-                } },
-            ...{ class: ({ active: __VLS_ctx.interpretationMode === 'comprehensive' }) },
-            ...{ class: "tab-button" },
-        });
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
-            ...{ onClick: (...[$event]) => {
-                    if (!!(__VLS_ctx.isLoading))
-                        return;
-                    if (!!(__VLS_ctx.error))
-                        return;
-                    if (!(__VLS_ctx.chartData))
-                        return;
-                    if (!(__VLS_ctx.chartData.comprehensiveInterpretation || __VLS_ctx.chartData.domainAnalyses))
-                        return;
-                    __VLS_ctx.setInterpretationMode('domain');
-                } },
-            ...{ class: ({ active: __VLS_ctx.interpretationMode === 'domain' }) },
-            ...{ class: "tab-button" },
-        });
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
-            ...{ onClick: (...[$event]) => {
-                    if (!!(__VLS_ctx.isLoading))
-                        return;
-                    if (!!(__VLS_ctx.error))
-                        return;
-                    if (!(__VLS_ctx.chartData))
-                        return;
-                    if (!(__VLS_ctx.chartData.comprehensiveInterpretation || __VLS_ctx.chartData.domainAnalyses))
-                        return;
-                    __VLS_ctx.setInterpretationMode('palace');
-                } },
-            ...{ class: ({ active: __VLS_ctx.interpretationMode === 'palace' }) },
-            ...{ class: "tab-button" },
-        });
-        if (__VLS_ctx.interpretationMode === 'comprehensive') {
-            /** @type {[typeof PatternAnalysisPanel, ]} */ ;
-            // @ts-ignore
-            const __VLS_9 = __VLS_asFunctionalComponent(PatternAnalysisPanel, new PatternAnalysisPanel({
-                patterns: (__VLS_ctx.chartData.keyPatterns),
-                ...{ class: "interpretation-panel" },
-            }));
-            const __VLS_10 = __VLS_9({
-                patterns: (__VLS_ctx.chartData.keyPatterns),
-                ...{ class: "interpretation-panel" },
-            }, ...__VLS_functionalComponentArgsRest(__VLS_9));
-        }
-        if (__VLS_ctx.interpretationMode === 'comprehensive') {
-            /** @type {[typeof MinorStarsPanel, ]} */ ;
-            // @ts-ignore
-            const __VLS_12 = __VLS_asFunctionalComponent(MinorStarsPanel, new MinorStarsPanel({
-                palaces: (__VLS_ctx.chartData.palaces),
-                ...{ class: "interpretation-panel" },
-            }));
-            const __VLS_13 = __VLS_12({
-                palaces: (__VLS_ctx.chartData.palaces),
-                ...{ class: "interpretation-panel" },
-            }, ...__VLS_functionalComponentArgsRest(__VLS_12));
-        }
-        if (__VLS_ctx.interpretationMode === 'comprehensive' && __VLS_ctx.chartData.comprehensiveInterpretation) {
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "comprehensive-interpretation" },
-            });
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "interpretation-card" },
-            });
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
-            (__VLS_ctx.chartData.comprehensiveInterpretation.overallLifePattern);
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "interpretation-card" },
-            });
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
-            (__VLS_ctx.chartData.comprehensiveInterpretation.lifePurpose);
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "interpretation-card" },
-            });
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
-            (__VLS_ctx.chartData.comprehensiveInterpretation.spiritualGrowthPath);
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "interpretation-card" },
-            });
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-            for (const [strength, idx] of __VLS_getVForSourceType((__VLS_ctx.chartData.comprehensiveInterpretation.uniqueStrengths))) {
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                    key: (`strength-${idx}`),
-                });
-                (strength);
-            }
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "interpretation-card" },
-            });
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-            for (const [challenge, idx] of __VLS_getVForSourceType((__VLS_ctx.chartData.comprehensiveInterpretation.potentialChallenges))) {
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                    key: (`challenge-${idx}`),
-                });
-                (challenge);
-            }
-            if (__VLS_ctx.chartData.comprehensiveInterpretation.keyCrossPalacePatterns && __VLS_ctx.chartData.comprehensiveInterpretation.keyCrossPalacePatterns.length > 0) {
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "interpretation-card" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-                for (const [pattern, idx] of __VLS_getVForSourceType((__VLS_ctx.chartData.comprehensiveInterpretation.keyCrossPalacePatterns))) {
-                    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                        key: (`pattern-${idx}`),
-                    });
-                    (pattern);
-                }
-            }
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "interpretation-card" },
-            });
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "lifecycle-grid" },
-            });
-            for (const [cycle, idx] of __VLS_getVForSourceType((__VLS_ctx.chartData.comprehensiveInterpretation.majorLifeCycles))) {
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    key: (`cycle-${idx}`),
-                    ...{ class: "lifecycle-item" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "lifecycle-period" },
-                });
-                (cycle.period);
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "lifecycle-content" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "lifecycle-theme" },
-                });
-                (cycle.theme);
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "lifecycle-focus" },
-                });
-                (cycle.focus);
-            }
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "interpretation-card" },
-            });
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-            for (const [pattern, idx] of __VLS_getVForSourceType((__VLS_ctx.chartData.comprehensiveInterpretation.keyCrossPalacePatterns))) {
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                    key: (`pattern-${idx}`),
-                });
-                (pattern);
-            }
-        }
-        if (__VLS_ctx.interpretationMode === 'domain' && __VLS_ctx.chartData.domainAnalyses) {
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "domain-analysis" },
-            });
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "domain-tabs" },
-            });
-            for (const [domain] of __VLS_getVForSourceType((__VLS_ctx.chartData.domainAnalyses))) {
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
-                    ...{ onClick: (...[$event]) => {
-                            if (!!(__VLS_ctx.isLoading))
-                                return;
-                            if (!!(__VLS_ctx.error))
-                                return;
-                            if (!(__VLS_ctx.chartData))
-                                return;
-                            if (!(__VLS_ctx.chartData.comprehensiveInterpretation || __VLS_ctx.chartData.domainAnalyses))
-                                return;
-                            if (!(__VLS_ctx.interpretationMode === 'domain' && __VLS_ctx.chartData.domainAnalyses))
-                                return;
-                            __VLS_ctx.setActiveDomain(domain.domain);
-                        } },
-                    key: (domain.domain),
-                    ...{ class: ({ active: __VLS_ctx.activeDomain === domain.domain }) },
-                    ...{ class: "domain-tab-button" },
-                });
-                (__VLS_ctx.getDomainDisplayName(domain.domain));
-            }
-            if (__VLS_ctx.activeDomainAnalysis) {
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "domain-content" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "domain-header" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
-                (__VLS_ctx.getDomainDisplayName(__VLS_ctx.activeDomainAnalysis.domain));
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: (`fortune-badge fortune-${__VLS_ctx.activeDomainAnalysis.overallFortune}`) },
-                });
-                (__VLS_ctx.getFortuneDisplayName(__VLS_ctx.activeDomainAnalysis.overallFortune));
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "domain-insights" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h5, __VLS_intrinsicElements.h5)({});
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-                for (const [insight, idx] of __VLS_getVForSourceType((__VLS_ctx.activeDomainAnalysis.keyInsights))) {
-                    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                        key: (`insight-${idx}`),
-                    });
-                    (insight);
-                }
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "domain-influences" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h5, __VLS_intrinsicElements.h5)({});
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-                for (const [influence, idx] of __VLS_getVForSourceType((__VLS_ctx.activeDomainAnalysis.starInfluences))) {
-                    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                        key: (`influence-${idx}`),
-                    });
-                    (influence);
-                }
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "domain-actions" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h5, __VLS_intrinsicElements.h5)({});
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-                for (const [action, idx] of __VLS_getVForSourceType((__VLS_ctx.activeDomainAnalysis.recommendedActions))) {
-                    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                        key: (`action-${idx}`),
-                    });
-                    (action);
-                }
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "domain-periods" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "periods-column" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h5, __VLS_intrinsicElements.h5)({});
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-                for (const [period, idx] of __VLS_getVForSourceType((__VLS_ctx.activeDomainAnalysis.periods.favorable))) {
-                    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                        key: (`favorable-${idx}`),
-                    });
-                    (period);
-                }
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "periods-column" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h5, __VLS_intrinsicElements.h5)({});
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-                for (const [period, idx] of __VLS_getVForSourceType((__VLS_ctx.activeDomainAnalysis.periods.challenging))) {
-                    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                        key: (`challenging-${idx}`),
-                    });
-                    (period);
-                }
-            }
-        }
-        if (__VLS_ctx.interpretationMode === 'palace' && __VLS_ctx.chartData.palaceInterpretations) {
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "palace-interpretation" },
-            });
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "palace-tabs" },
-            });
-            for (const [interp] of __VLS_getVForSourceType((__VLS_ctx.chartData.palaceInterpretations))) {
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
-                    ...{ onClick: (...[$event]) => {
-                            if (!!(__VLS_ctx.isLoading))
-                                return;
-                            if (!!(__VLS_ctx.error))
-                                return;
-                            if (!(__VLS_ctx.chartData))
-                                return;
-                            if (!(__VLS_ctx.chartData.comprehensiveInterpretation || __VLS_ctx.chartData.domainAnalyses))
-                                return;
-                            if (!(__VLS_ctx.interpretationMode === 'palace' && __VLS_ctx.chartData.palaceInterpretations))
-                                return;
-                            __VLS_ctx.setActivePalace(interp.palaceName);
-                        } },
-                    key: (interp.palaceName),
-                    ...{ class: ({ active: __VLS_ctx.activePalaceName === interp.palaceName }) },
-                    ...{ class: "palace-tab-button" },
-                });
-                (interp.palaceName);
-            }
-            if (__VLS_ctx.activePalaceInterpretation) {
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "palace-content" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
-                (__VLS_ctx.activePalaceInterpretation.palaceName);
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "palace-section" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h5, __VLS_intrinsicElements.h5)({});
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "trait-tags" },
-                });
-                for (const [trait, idx] of __VLS_getVForSourceType((__VLS_ctx.activePalaceInterpretation.personalityTraits))) {
-                    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-                        key: (`trait-${idx}`),
-                        ...{ class: "trait-tag" },
-                    });
-                    (trait);
-                }
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "palace-section" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h5, __VLS_intrinsicElements.h5)({});
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-                for (const [strength, idx] of __VLS_getVForSourceType((__VLS_ctx.activePalaceInterpretation.strengthAreas))) {
-                    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                        key: (`strength-${idx}`),
-                    });
-                    (strength);
-                }
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "palace-section" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h5, __VLS_intrinsicElements.h5)({});
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-                for (const [challenge, idx] of __VLS_getVForSourceType((__VLS_ctx.activePalaceInterpretation.challengeAreas))) {
-                    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                        key: (`challenge-${idx}`),
-                    });
-                    (challenge);
-                }
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "palace-section" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h5, __VLS_intrinsicElements.h5)({});
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-                for (const [theme, idx] of __VLS_getVForSourceType((__VLS_ctx.activePalaceInterpretation.lifeThemes))) {
-                    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                        key: (`theme-${idx}`),
-                    });
-                    (theme);
-                }
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "palace-section" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h5, __VLS_intrinsicElements.h5)({});
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-                for (const [influence, idx] of __VLS_getVForSourceType((__VLS_ctx.activePalaceInterpretation.keyStarInfluences))) {
-                    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                        key: (`influence-${idx}`),
-                    });
-                    (influence);
-                }
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                    ...{ class: "palace-section" },
-                });
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.h5, __VLS_intrinsicElements.h5)({});
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-                for (const [advice, idx] of __VLS_getVForSourceType((__VLS_ctx.activePalaceInterpretation.advice))) {
-                    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
-                        key: (`advice-${idx}`),
-                    });
-                    (advice);
                 }
             }
         }
@@ -1495,18 +1258,18 @@ else if (__VLS_ctx.chartData) {
     }
     /** @type {[typeof PurpleStarGuideModal, ]} */ ;
     // @ts-ignore
-    const __VLS_15 = __VLS_asFunctionalComponent(PurpleStarGuideModal, new PurpleStarGuideModal({
+    const __VLS_9 = __VLS_asFunctionalComponent(PurpleStarGuideModal, new PurpleStarGuideModal({
         ...{ 'onClose': {} },
         visible: (__VLS_ctx.showGuideModal),
     }));
-    const __VLS_16 = __VLS_15({
+    const __VLS_10 = __VLS_9({
         ...{ 'onClose': {} },
         visible: (__VLS_ctx.showGuideModal),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_15));
-    let __VLS_18;
-    let __VLS_19;
-    let __VLS_20;
-    const __VLS_21 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_9));
+    let __VLS_12;
+    let __VLS_13;
+    let __VLS_14;
+    const __VLS_15 = {
         onClose: (...[$event]) => {
             if (!!(__VLS_ctx.isLoading))
                 return;
@@ -1517,7 +1280,7 @@ else if (__VLS_ctx.chartData) {
             __VLS_ctx.showGuideModal = false;
         }
     };
-    var __VLS_17;
+    var __VLS_11;
 }
 /** @type {__VLS_StyleScopedClasses['purple-star-chart-container']} */ ;
 /** @type {__VLS_StyleScopedClasses['loading-state']} */ ;
@@ -1573,57 +1336,6 @@ else if (__VLS_ctx.chartData) {
 /** @type {__VLS_StyleScopedClasses['cycles-info']} */ ;
 /** @type {__VLS_StyleScopedClasses['da-xian-info']} */ ;
 /** @type {__VLS_StyleScopedClasses['xiao-xian-info']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-section']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-header']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-tabs']} */ ;
-/** @type {__VLS_StyleScopedClasses['active']} */ ;
-/** @type {__VLS_StyleScopedClasses['tab-button']} */ ;
-/** @type {__VLS_StyleScopedClasses['active']} */ ;
-/** @type {__VLS_StyleScopedClasses['tab-button']} */ ;
-/** @type {__VLS_StyleScopedClasses['active']} */ ;
-/** @type {__VLS_StyleScopedClasses['tab-button']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-panel']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-panel']} */ ;
-/** @type {__VLS_StyleScopedClasses['comprehensive-interpretation']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
-/** @type {__VLS_StyleScopedClasses['lifecycle-grid']} */ ;
-/** @type {__VLS_StyleScopedClasses['lifecycle-item']} */ ;
-/** @type {__VLS_StyleScopedClasses['lifecycle-period']} */ ;
-/** @type {__VLS_StyleScopedClasses['lifecycle-content']} */ ;
-/** @type {__VLS_StyleScopedClasses['lifecycle-theme']} */ ;
-/** @type {__VLS_StyleScopedClasses['lifecycle-focus']} */ ;
-/** @type {__VLS_StyleScopedClasses['interpretation-card']} */ ;
-/** @type {__VLS_StyleScopedClasses['domain-analysis']} */ ;
-/** @type {__VLS_StyleScopedClasses['domain-tabs']} */ ;
-/** @type {__VLS_StyleScopedClasses['active']} */ ;
-/** @type {__VLS_StyleScopedClasses['domain-tab-button']} */ ;
-/** @type {__VLS_StyleScopedClasses['domain-content']} */ ;
-/** @type {__VLS_StyleScopedClasses['domain-header']} */ ;
-/** @type {__VLS_StyleScopedClasses['domain-insights']} */ ;
-/** @type {__VLS_StyleScopedClasses['domain-influences']} */ ;
-/** @type {__VLS_StyleScopedClasses['domain-actions']} */ ;
-/** @type {__VLS_StyleScopedClasses['domain-periods']} */ ;
-/** @type {__VLS_StyleScopedClasses['periods-column']} */ ;
-/** @type {__VLS_StyleScopedClasses['periods-column']} */ ;
-/** @type {__VLS_StyleScopedClasses['palace-interpretation']} */ ;
-/** @type {__VLS_StyleScopedClasses['palace-tabs']} */ ;
-/** @type {__VLS_StyleScopedClasses['active']} */ ;
-/** @type {__VLS_StyleScopedClasses['palace-tab-button']} */ ;
-/** @type {__VLS_StyleScopedClasses['palace-content']} */ ;
-/** @type {__VLS_StyleScopedClasses['palace-section']} */ ;
-/** @type {__VLS_StyleScopedClasses['trait-tags']} */ ;
-/** @type {__VLS_StyleScopedClasses['trait-tag']} */ ;
-/** @type {__VLS_StyleScopedClasses['palace-section']} */ ;
-/** @type {__VLS_StyleScopedClasses['palace-section']} */ ;
-/** @type {__VLS_StyleScopedClasses['palace-section']} */ ;
-/** @type {__VLS_StyleScopedClasses['palace-section']} */ ;
-/** @type {__VLS_StyleScopedClasses['palace-section']} */ ;
 /** @type {__VLS_StyleScopedClasses['cycles-detail']} */ ;
 /** @type {__VLS_StyleScopedClasses['cycles-detail-header']} */ ;
 /** @type {__VLS_StyleScopedClasses['cycles-explanation']} */ ;
@@ -1656,8 +1368,6 @@ const __VLS_self = (await import('vue')).defineComponent({
     setup() {
         return {
             StarBrightnessIndicator: StarBrightnessIndicator,
-            PatternAnalysisPanel: PatternAnalysisPanel,
-            MinorStarsPanel: MinorStarsPanel,
             EmptyPalaceIndicator: EmptyPalaceIndicator,
             PurpleStarGuideModal: PurpleStarGuideModal,
             FeatureHintsDisplay: FeatureHintsDisplay,
@@ -1666,12 +1376,7 @@ const __VLS_self = (await import('vue')).defineComponent({
             showInteractionTips: showInteractionTips,
             showSummary: showSummary,
             showGuideModal: showGuideModal,
-            interpretationMode: interpretationMode,
-            activeDomain: activeDomain,
-            activePalaceName: activePalaceName,
             chartSummary: chartSummary,
-            activeDomainAnalysis: activeDomainAnalysis,
-            activePalaceInterpretation: activePalaceInterpretation,
             gridLayout: gridLayout,
             getPalaceByZhi: getPalaceByZhi,
             getPositionClass: getPositionClass,
@@ -1694,11 +1399,6 @@ const __VLS_self = (await import('vue')).defineComponent({
             handlePalaceClick: handlePalaceClick,
             handleStarClick: handleStarClick,
             closeStarDetail: closeStarDetail,
-            setInterpretationMode: setInterpretationMode,
-            setActiveDomain: setActiveDomain,
-            setActivePalace: setActivePalace,
-            getDomainDisplayName: getDomainDisplayName,
-            getFortuneDisplayName: getFortuneDisplayName,
         };
     },
     __typeEmits: {},
@@ -1707,7 +1407,9 @@ const __VLS_self = (await import('vue')).defineComponent({
 });
 export default (await import('vue')).defineComponent({
     setup() {
-        return {};
+        return {
+            ...__VLS_exposed,
+        };
     },
     __typeEmits: {},
     __typeProps: {},

@@ -70,6 +70,7 @@
             </template>
             
             <PurpleStarChartDisplay 
+              ref="purpleStarChartRef"
               :chartData="purpleStarChart" 
               :isLoading="false"
               :showCyclesDetail="true"
@@ -113,83 +114,27 @@
       </el-row>
     </div>
 
-    <!-- 綜合人生解讀側邊欄 -->
+    <!-- 三段式智慧解讀儀表板側邊欄 -->
     <el-drawer
       v-model="showIntegratedAnalysis"
-      :title="integratedAnalysisTitle"
+      title="綜合人生解讀儀表板"
       direction="rtl"
-      size="45%"
+      size="50%"
       :before-close="handleSidebarClose"
+      class="intelligent-dashboard-drawer"
     >
-      <div class="integrated-analysis-sidebar">
-        <div v-if="!integratedAnalysisResult && !integratedAnalysisLoading" class="analysis-intro">
-          <div class="intro-header">
-            <el-icon :size="48" color="#409EFF"><TrendCharts /></el-icon>
-            <h3>綜合人生解讀</h3>
-          </div>
-          
-          <div class="intro-content">
-            <p>整合八字與紫微斗數的傳統智慧，為您提供更加全面和深入的人生解讀。</p>
-            
-            <div class="features-grid">
-              <div class="feature-item">
-                <el-icon color="#67C23A"><Check /></el-icon>
-                <span>多角度全面分析</span>
-              </div>
-              <div class="feature-item">
-                <el-icon color="#E6A23C"><Warning /></el-icon>
-                <span>深層特質解析</span>
-              </div>
-              <div class="feature-item">
-                <el-icon color="#409EFF"><DataAnalysis /></el-icon>
-                <span>解讀完整度</span>
-              </div>
-              <div class="feature-item">
-                <el-icon color="#F56C6C"><Bell /></el-icon>
-                <span>個性化建議</span>
-              </div>
-            </div>
-
-            <el-button 
-              type="primary" 
-              size="large" 
-              @click="performIntegratedAnalysis"
-              :loading="integratedAnalysisLoading"
-              class="start-analysis-btn"
-            >
-              開始綜合解讀
-            </el-button>
-          </div>
-        </div>
-
-        <div v-else-if="integratedAnalysisLoading" class="analysis-loading">
+      <div class="dashboard-sidebar-container">
+        <!-- 載入狀態 -->
+        <div v-if="integratedAnalysisLoading" class="analysis-loading">
           <el-icon :size="60" class="is-loading"><Loading /></el-icon>
-          <h3>正在進行綜合人生解讀...</h3>
-          <p>系統正在整合八字與紫微斗數，為您準備全面的人生解讀</p>
+          <h3>正在準備智慧解讀...</h3>
+          <p>系統正在整合命盤資料，為您準備全面的人生解讀</p>
           <el-progress :percentage="loadingProgress" :show-text="false" />
           <p class="loading-step">{{ currentLoadingStep }}</p>
         </div>
 
-        <div v-else-if="integratedAnalysisResult" class="analysis-results">
-          <!-- 綜合分析顯示 -->
-          <IntegratedAnalysisDisplay 
-            :integratedAnalysis="integratedAnalysisResult"
-            :loading="false"
-            :error="integratedAnalysisError"
-          />
-          
-          <!-- 操作按鈕 -->
-          <div class="result-actions">
-            <el-button @click="performIntegratedAnalysis" :loading="integratedAnalysisLoading">
-              重新分析
-            </el-button>
-            <el-button type="success" @click="exportAnalysisResult">
-              匯出報告
-            </el-button>
-          </div>
-        </div>
-
-        <div v-if="integratedAnalysisError" class="analysis-error">
+        <!-- 錯誤狀態 -->
+        <div v-else-if="integratedAnalysisError" class="analysis-error">
           <el-alert
             :title="integratedAnalysisError"
             type="error"
@@ -201,8 +146,65 @@
             @click="performIntegratedAnalysis" 
             class="retry-btn"
           >
-            重試
+            重試分析
           </el-button>
+        </div>
+
+        <!-- 主要儀表板內容 -->
+        <div v-else class="dashboard-main-content">
+          <!-- 如果沒有命盤資料，顯示提示 -->
+          <div v-if="!purpleStarChart" class="no-chart-notice">
+            <el-icon :size="48" color="#c0c4cc"><StarFilled /></el-icon>
+            <h3>請先計算命盤</h3>
+            <p>請先在左側輸入出生資訊並計算紫微斗數命盤，然後即可使用智慧解讀功能。</p>
+          </div>
+
+          <!-- 三段式智慧解讀儀表板 -->
+          <div v-else class="intelligent-dashboard-content">
+            <div class="dashboard-header">
+              <!-- 手動更新控制區 -->
+              <div class="dashboard-controls">
+                <el-button 
+                  @click="forceRefreshDashboard"
+                  type="primary" 
+                  size="small"
+                  :icon="Refresh"
+                  title="強制更新所有儀表板組件"
+                  class="refresh-dashboard-btn"
+                >
+                  更新儀表板
+                </el-button>
+                <el-tag v-if="lastDashboardUpdate" size="small" type="info">
+                  更新: {{ lastDashboardUpdate }}
+                </el-tag>
+              </div>
+              
+              <div class="dashboard-tabs">
+                <button 
+                  @click="setInterpretationMode('fortune')" 
+                  :class="{ active: interpretationMode === 'fortune' }"
+                  class="dashboard-tab-button"
+                >
+                  <span class="tab-icon">📊</span>
+                  綜合人生解讀
+                </button>
+              </div>
+            </div>
+
+            <div class="dashboard-content">
+              <!-- 綜合人生解讀 -->
+              <div class="dashboard-panel">
+                <FortuneOverview 
+                  :chart-data="purpleStarChart"
+                  :transformation-flows="transformationFlows"
+                  :multi-layer-energies="multiLayerEnergies"
+                  @palace-click="handleFortuneOverviewPalaceClick"
+                  @talent-click="handleTalentClick"
+                  @potential-click="handlePotentialClick"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </el-drawer>
@@ -210,25 +212,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, inject } from 'vue';
+import { ref, computed, onMounted, watch, inject, nextTick } from 'vue';
 import { useBreakpoints } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { 
   StarFilled, 
   Connection, 
-  TrendCharts, 
-  Check, 
-  Warning, 
-  DataAnalysis, 
-  Bell, 
   Loading,
-  Delete
+  Delete,
+  Refresh
 } from '@element-plus/icons-vue';
 import PurpleStarInputForm from '@/components/PurpleStarInputForm.vue';
 import PurpleStarChartDisplay from '@/components/PurpleStarChartDisplay.vue';
 import TransformationStarsDisplay from '@/components/TransformationStarsDisplay.vue';
-import IntegratedAnalysisDisplay from '@/components/IntegratedAnalysisDisplay.vue';
 import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
+import FortuneOverview from '@/components/FortuneOverview.vue';
 import apiService from '@/services/apiService';
 import astrologyIntegrationService from '@/services/astrologyIntegrationService';
 import storageService from '@/utils/storageService';
@@ -248,10 +246,15 @@ const globalDisplayState = inject('globalDisplayState') as {
 
 // 主要狀態
 const purpleStarChart = ref<PurpleStarChart | null>(null);
+const purpleStarChartRef = ref<any>(null);
 const birthInfoForIntegration = ref<any>(null);
 const transformationFlows = ref<Record<number, any>>({});
 const transformationCombinations = ref<Array<any>>([]);
 const multiLayerEnergies = ref<Record<number, any>>({});
+
+// 儀表板手動更新相關
+const lastDashboardUpdate = ref<string>('');
+const dashboardUpdateKey = ref(0);
 
 
 // 使用顯示模式 composable（作為後備）
@@ -329,6 +332,9 @@ const integratedAnalysisError = ref<string | null>(null);
 const loadingProgress = ref(0);
 const currentLoadingStep = ref('正在準備分析...');
 
+// 綜合人生解讀儀表板狀態
+const interpretationMode = ref<'fortune'>('fortune');
+
 // 響應式斷點檢測  
 const responsiveBreakpoints = useBreakpoints({
   mobile: 768,
@@ -354,6 +360,103 @@ const analysisCompleteness = computed(() => {
     return 0;
   }
 });
+
+// 綜合人生解讀儀表板相關函數
+const setInterpretationMode = (mode: 'fortune') => {
+  interpretationMode.value = mode;
+};
+
+// 強制更新儀表板
+const forceRefreshDashboard = () => {
+  console.log('=== 手動強制更新儀表板 ===');
+  console.log('當前 purpleStarChart:', purpleStarChart.value);
+  console.log('宮位數量:', purpleStarChart.value?.palaces?.length || 0);
+  console.log('當前解讀模式:', interpretationMode.value);
+  
+  // 更新時間戳記
+  lastDashboardUpdate.value = new Date().toLocaleTimeString('zh-TW');
+  
+  // 增加更新鍵值強制組件重新渲染
+  dashboardUpdateKey.value++;
+  console.log('新的更新鍵值:', dashboardUpdateKey.value);
+  
+  // 觸發全域事件通知所有組件更新
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('purpleStarChartUpdated', {
+      detail: {
+        chart: purpleStarChart.value,
+        updateKey: dashboardUpdateKey.value,
+        timestamp: new Date().toISOString(),
+        source: 'manualRefresh'
+      }
+    }));
+    console.log('已發送 purpleStarChartUpdated 全域事件');
+  }
+  
+  // 強制更新當前命盤資料
+  if (purpleStarChart.value) {
+    const currentChart = { ...purpleStarChart.value };
+    purpleStarChart.value = null;
+    
+    nextTick(() => {
+      purpleStarChart.value = currentChart;
+      console.log('儀表板已強制更新，當前模式:', interpretationMode.value);
+      console.log('更新後命盤資料:', purpleStarChart.value);
+      ElMessage.success(`儀表板已更新 (${lastDashboardUpdate.value})`);
+    });
+  } else {
+    console.log('沒有命盤資料可供更新');
+    ElMessage.warning('沒有可用的命盤資料');
+  }
+};
+
+// Fortune Overview 事件處理
+const handleFortuneOverviewPalaceClick = (palaceIndex: number) => {
+  console.log('Fortune Overview 宮位點擊:', palaceIndex);
+  
+  // 自動收合側邊欄以提供更好的命盤查看體驗
+  const shouldCloseSidebar = showIntegratedAnalysis.value;
+  if (shouldCloseSidebar) {
+    showIntegratedAnalysis.value = false;
+    console.log('自動收合側邊欄以便查看命盤');
+    ElMessage.info('正在導航到命盤宮位...');
+  }
+  
+  // 如果當前在智慧解讀模式，自動收合側邊欄並導航到命盤
+  if (!shouldCloseSidebar) {
+    ElMessage.info('正在導航到命盤宮位...');
+  }
+  
+  // 直接跳轉，但要等待側邊欄動畫完成
+  const delay = shouldCloseSidebar ? 400 : 0;
+  setTimeout(() => {
+    if (purpleStarChartRef.value) {
+      purpleStarChartRef.value.handleFortuneOverviewPalaceClick(palaceIndex);
+    }
+  }, delay);
+};
+
+const handleTalentClick = (talent: any) => {
+  console.log('天賦點擊:', talent);
+  // 添加更詳細的用戶反饋
+  if (talent.palaceIndex !== undefined) {
+    handleFortuneOverviewPalaceClick(talent.palaceIndex);
+  } else {
+    console.warn('天賦項目缺少宮位索引:', talent);
+    ElMessage.warning('無法定位到對應的命盤宮位');
+  }
+};
+
+const handlePotentialClick = (potential: any) => {
+  console.log('潛能點擊:', potential);
+  // 添加更詳細的用戶反饋
+  if (potential.palaceIndex !== undefined) {
+    handleFortuneOverviewPalaceClick(potential.palaceIndex);
+  } else {
+    console.warn('潛能項目缺少宮位索引:', potential);
+    ElMessage.warning('無法定位到對應的命盤宮位');
+  }
+};
 
 // 資料清除函數
 const clearData = async () => {
@@ -454,6 +557,24 @@ const handleSubmit = async (birthInfo: any) => {
     
     // 正確提取命盤資料
     purpleStarChart.value = response.data.chart;
+    
+    // 自動觸發儀表板更新
+    dashboardUpdateKey.value++;
+    lastDashboardUpdate.value = new Date().toLocaleTimeString('zh-TW');
+    
+    // 發送全域事件通知所有組件更新
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('purpleStarChartUpdated', {
+        detail: {
+          chart: purpleStarChart.value,
+          updateKey: dashboardUpdateKey.value,
+          timestamp: new Date().toISOString(),
+          source: 'apiResponse'
+        }
+      }));
+    }
+    
+    console.log('紫微斗數資料已更新，儀表板同步更新');
     
     // 檢查四化飛星資料
     console.log('四化飛星資料存在:', !!response.data.transformations);
@@ -731,6 +852,15 @@ const loadFromSessionStorage = () => {
         }
         
         purpleStarChart.value = savedPurpleStarChart as PurpleStarChart;
+        
+        // 發送全域事件通知組件資料已從 sessionStorage 載入
+        window.dispatchEvent(new CustomEvent('purple-star-chart-updated', {
+          detail: { 
+            chartData: savedPurpleStarChart,
+            timestamp: Date.now(),
+            source: 'session-storage'
+          }
+        }));
       } catch (parseError) {
         console.error('解析保存的紫微斗數命盤資料時出錯:', parseError);
         // 不設置命盤資料，確保資料完整性
@@ -1086,6 +1216,298 @@ onMounted(() => {
   margin-top: 15px;
 }
 
+/* 三段式智慧解讀儀表板側邊欄樣式 */
+.intelligent-dashboard-drawer {
+  --el-drawer-bg-color: #f8f9fa;
+}
+
+.dashboard-sidebar-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+}
+
+.dashboard-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.no-chart-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 20px;
+  color: #909399;
+  flex: 1;
+}
+
+.no-chart-notice h3 {
+  margin: 16px 0 8px 0;
+  color: #606266;
+  font-size: 1.2rem;
+}
+
+.no-chart-notice p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+.intelligent-dashboard-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafe 100%);
+  border-radius: 20px;
+  margin: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 
+              0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dashboard-header {
+  padding: 24px 24px 0 24px;
+  border-bottom: 2px solid rgba(64, 158, 255, 0.1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 254, 0.95) 100%);
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.dashboard-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  border-radius: 20px 20px 0 0;
+}
+
+.dashboard-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  backdrop-filter: blur(8px);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-controls::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  pointer-events: none;
+}
+
+.refresh-dashboard-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+
+.refresh-dashboard-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.refresh-dashboard-btn:hover::before {
+  left: 100%;
+}
+
+.refresh-dashboard-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.dashboard-tabs {
+  display: flex;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 249, 250, 0.8) 100%);
+  padding: 6px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-tab-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+.dashboard-tab-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  opacity: 0;
+  transition: all 0.4s ease;
+  z-index: -1;
+  border-radius: 12px;
+}
+
+.dashboard-tab-button .tab-icon {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.dashboard-tab-button.active {
+  color: #ffffff;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-tab-button.active::before {
+  opacity: 1;
+}
+
+.dashboard-tab-button.active .tab-icon {
+  transform: scale(1.1);
+}
+
+.dashboard-tab-button:hover:not(.active) {
+  color: #495057;
+  background: #e9ecef;
+  transform: translateY(-1px);
+}
+
+.tab-icon {
+  font-size: 1rem;
+}
+
+.dashboard-content {
+  flex: 1;
+  overflow-y: auto;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 254, 0.95) 100%);
+  position: relative;
+}
+
+.dashboard-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+}
+
+.dashboard-panel {
+  animation: fadeInUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  height: 100%;
+  padding: 24px;
+  position: relative;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 載入和錯誤狀態樣式調整 */
+.analysis-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  flex: 1;
+}
+
+.analysis-error {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* 無命盤資料狀態 */
+.no-chart-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin: 20px;
+}
+
+.no-chart-data p {
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
+.no-chart-data p:first-child {
+  font-weight: 500;
+  color: #495057;
+  font-size: 1.1rem;
+}
+
+.no-chart-data p:last-child {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
 @media (max-width: 768px) {
   .features-grid {
     grid-template-columns: 1fr;
@@ -1093,6 +1515,26 @@ onMounted(() => {
   
   .el-col {
     margin-bottom: 20px;
+  }
+  
+  /* 側邊欄響應式調整 */
+  .intelligent-dashboard-content {
+    margin: 8px;
+  }
+  
+  .dashboard-header {
+    padding: 16px 16px 0 16px;
+  }
+  
+  .dashboard-tabs {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .dashboard-tab-button {
+    padding: 8px 12px;
+    justify-content: flex-start;
+    font-size: 0.85rem;
   }
 }
 </style>

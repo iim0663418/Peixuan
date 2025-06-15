@@ -3,6 +3,7 @@ import { ref, reactive, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { QuestionFilled } from '@element-plus/icons-vue';
 import { saveTimeZoneInfo, getTimeZoneInfo } from '../utils/storageService';
+import { GeocodeService } from '../services/geocodeService';
 const emit = defineEmits(['submit']);
 // 時區選項
 const timezones = ref([
@@ -28,6 +29,16 @@ const formData = reactive({
     timezone: 'Asia/Taipei'
 });
 const selectedCity = ref('');
+// 地址輸入和地理編碼相關
+const addressInput = ref('');
+const geocoding = ref(false);
+const candidateAddresses = ref([]);
+const selectedCandidateIndex = ref(null);
+const geocodeStatus = reactive({
+    message: '',
+    type: 'info'
+});
+let geocodeTimeout = null;
 // 主要城市座標資料
 const majorCities = ref([
     { label: '台北, 台灣', value: 'taipei', longitude: 121.5654, latitude: 25.0330, timezone: 'Asia/Taipei' },
@@ -43,13 +54,106 @@ const majorCities = ref([
     { label: '紐約, 美國', value: 'newyork', longitude: -74.0060, latitude: 40.7128, timezone: 'America/New_York' },
     { label: '洛杉磯, 美國', value: 'losangeles', longitude: -118.2437, latitude: 34.0522, timezone: 'America/Los_Angeles' }
 ]);
+// 地址輸入處理（防抖）
+const handleAddressInput = () => {
+    if (geocodeTimeout) {
+        clearTimeout(geocodeTimeout);
+    }
+    // 清除之前的狀態
+    clearGeocodeStatus();
+    candidateAddresses.value = [];
+    selectedCandidateIndex.value = null;
+    if (!addressInput.value || addressInput.value.trim().length < 3) {
+        return;
+    }
+    // 防抖處理，避免頻繁請求API
+    geocodeTimeout = setTimeout(() => {
+        geocodeCurrentAddress();
+    }, 800);
+};
+// 執行地址解析
+const geocodeCurrentAddress = async () => {
+    if (!addressInput.value || geocoding.value) {
+        return;
+    }
+    geocoding.value = true;
+    clearGeocodeStatus();
+    try {
+        const result = await GeocodeService.geocodeAddress(addressInput.value);
+        if (result.success && result.candidates.length > 0) {
+            candidateAddresses.value = result.candidates;
+            if (result.candidates.length === 1) {
+                // 單一結果直接填入
+                fillCoordinatesFromCandidate(result.candidates[0]);
+                setGeocodeStatus('地址解析成功！座標已自動填入', 'success');
+            }
+            else {
+                // 多個結果讓用戶選擇
+                setGeocodeStatus(`找到 ${result.candidates.length} 個匹配地址，請選擇最準確的`, 'warning');
+            }
+        }
+        else {
+            setGeocodeStatus(result.error || '找不到匹配的地址，請檢查地址格式', 'danger');
+            candidateAddresses.value = [];
+        }
+    }
+    catch (error) {
+        console.error('Geocoding error:', error);
+        setGeocodeStatus('地址解析失敗，請稍後再試', 'danger');
+    }
+    finally {
+        geocoding.value = false;
+    }
+};
+// 從候選地址填入座標
+const fillCoordinatesFromCandidate = (candidate) => {
+    const coords = GeocodeService.formatCoordinates(candidate.location.x, candidate.location.y);
+    formData.longitude = coords.longitude;
+    formData.latitude = coords.latitude;
+    // 根據地址嘗試設置時區（台灣地區）
+    if (candidate.attributes.Match_addr?.includes('台灣') ||
+        candidate.attributes.City?.includes('台') ||
+        candidate.location.x > 119 && candidate.location.x < 122 &&
+            candidate.location.y > 21 && candidate.location.y < 26) {
+        formData.timezone = 'Asia/Taipei';
+    }
+};
+// 選擇候選地址
+const selectCandidate = (index) => {
+    if (candidateAddresses.value[index]) {
+        fillCoordinatesFromCandidate(candidateAddresses.value[index]);
+        setGeocodeStatus('座標已填入，請確認是否正確', 'success');
+        // 隱藏候選列表
+        setTimeout(() => {
+            candidateAddresses.value = [candidateAddresses.value[index]];
+        }, 1000);
+    }
+};
+// 格式化候選地址顯示
+const formatCandidateDisplay = (candidate) => {
+    return GeocodeService.formatCandidateForDisplay(candidate);
+};
+// 設置地理編碼狀態
+const setGeocodeStatus = (message, type) => {
+    geocodeStatus.message = message;
+    geocodeStatus.type = type;
+};
+// 清除地理編碼狀態
+const clearGeocodeStatus = () => {
+    geocodeStatus.message = '';
+    geocodeStatus.type = 'info';
+};
 // 填入城市座標
 const fillCityCoordinates = (cityValue) => {
     const city = majorCities.value.find(c => c.value === cityValue);
     if (city) {
-        formData.longitude = city.longitude;
-        formData.latitude = city.latitude;
-        formData.timezone = city.timezone;
+        // 只有在沒有通過地址解析填入座標時才覆蓋
+        if (!addressInput.value || candidateAddresses.value.length === 0) {
+            formData.longitude = city.longitude;
+            formData.latitude = city.latitude;
+            formData.timezone = city.timezone;
+            clearGeocodeStatus();
+        }
     }
 };
 // 從 sessionStorage 加載保存的時區資訊
@@ -329,262 +433,385 @@ const __VLS_46 = {}.ElFormItem;
 /** @type {[typeof __VLS_components.ElFormItem, typeof __VLS_components.elFormItem, typeof __VLS_components.ElFormItem, typeof __VLS_components.elFormItem, ]} */ ;
 // @ts-ignore
 const __VLS_47 = __VLS_asFunctionalComponent(__VLS_46, new __VLS_46({
-    label: "出生地點（精確計算必需）",
-    prop: "location",
+    label: "出生地址（自動轉換座標）",
 }));
 const __VLS_48 = __VLS_47({
-    label: "出生地點（精確計算必需）",
-    prop: "location",
+    label: "出生地址（自動轉換座標）",
 }, ...__VLS_functionalComponentArgsRest(__VLS_47));
 __VLS_49.slots.default;
-const __VLS_50 = {}.ElRow;
-/** @type {[typeof __VLS_components.ElRow, typeof __VLS_components.elRow, typeof __VLS_components.ElRow, typeof __VLS_components.elRow, ]} */ ;
+const __VLS_50 = {}.ElInput;
+/** @type {[typeof __VLS_components.ElInput, typeof __VLS_components.elInput, typeof __VLS_components.ElInput, typeof __VLS_components.elInput, ]} */ ;
 // @ts-ignore
 const __VLS_51 = __VLS_asFunctionalComponent(__VLS_50, new __VLS_50({
-    gutter: (12),
+    ...{ 'onInput': {} },
+    modelValue: (__VLS_ctx.addressInput),
+    placeholder: "請輸入中文地址，例如：雲林縣虎尾鎮新生路74號",
+    loading: (__VLS_ctx.geocoding),
+    clearable: true,
 }));
 const __VLS_52 = __VLS_51({
-    gutter: (12),
+    ...{ 'onInput': {} },
+    modelValue: (__VLS_ctx.addressInput),
+    placeholder: "請輸入中文地址，例如：雲林縣虎尾鎮新生路74號",
+    loading: (__VLS_ctx.geocoding),
+    clearable: true,
 }, ...__VLS_functionalComponentArgsRest(__VLS_51));
+let __VLS_54;
+let __VLS_55;
+let __VLS_56;
+const __VLS_57 = {
+    onInput: (__VLS_ctx.handleAddressInput)
+};
 __VLS_53.slots.default;
-const __VLS_54 = {}.ElCol;
-/** @type {[typeof __VLS_components.ElCol, typeof __VLS_components.elCol, typeof __VLS_components.ElCol, typeof __VLS_components.elCol, ]} */ ;
-// @ts-ignore
-const __VLS_55 = __VLS_asFunctionalComponent(__VLS_54, new __VLS_54({
-    span: (8),
-}));
-const __VLS_56 = __VLS_55({
-    span: (8),
-}, ...__VLS_functionalComponentArgsRest(__VLS_55));
-__VLS_57.slots.default;
-const __VLS_58 = {}.ElInput;
-/** @type {[typeof __VLS_components.ElInput, typeof __VLS_components.elInput, typeof __VLS_components.ElInput, typeof __VLS_components.elInput, ]} */ ;
-// @ts-ignore
-const __VLS_59 = __VLS_asFunctionalComponent(__VLS_58, new __VLS_58({
-    modelValue: (__VLS_ctx.formData.longitude),
-    modelModifiers: { number: true, },
-    placeholder: "經度",
-    type: "number",
-    min: (-180),
-    max: (180),
-    step: (0.000001),
-}));
-const __VLS_60 = __VLS_59({
-    modelValue: (__VLS_ctx.formData.longitude),
-    modelModifiers: { number: true, },
-    placeholder: "經度",
-    type: "number",
-    min: (-180),
-    max: (180),
-    step: (0.000001),
-}, ...__VLS_functionalComponentArgsRest(__VLS_59));
-__VLS_61.slots.default;
 {
-    const { prepend: __VLS_thisSlot } = __VLS_61.slots;
-}
-var __VLS_61;
-var __VLS_57;
-const __VLS_62 = {}.ElCol;
-/** @type {[typeof __VLS_components.ElCol, typeof __VLS_components.elCol, typeof __VLS_components.ElCol, typeof __VLS_components.elCol, ]} */ ;
-// @ts-ignore
-const __VLS_63 = __VLS_asFunctionalComponent(__VLS_62, new __VLS_62({
-    span: (8),
-}));
-const __VLS_64 = __VLS_63({
-    span: (8),
-}, ...__VLS_functionalComponentArgsRest(__VLS_63));
-__VLS_65.slots.default;
-const __VLS_66 = {}.ElInput;
-/** @type {[typeof __VLS_components.ElInput, typeof __VLS_components.elInput, typeof __VLS_components.ElInput, typeof __VLS_components.elInput, ]} */ ;
-// @ts-ignore
-const __VLS_67 = __VLS_asFunctionalComponent(__VLS_66, new __VLS_66({
-    modelValue: (__VLS_ctx.formData.latitude),
-    modelModifiers: { number: true, },
-    placeholder: "緯度",
-    type: "number",
-    min: (-90),
-    max: (90),
-    step: (0.000001),
-}));
-const __VLS_68 = __VLS_67({
-    modelValue: (__VLS_ctx.formData.latitude),
-    modelModifiers: { number: true, },
-    placeholder: "緯度",
-    type: "number",
-    min: (-90),
-    max: (90),
-    step: (0.000001),
-}, ...__VLS_functionalComponentArgsRest(__VLS_67));
-__VLS_69.slots.default;
-{
-    const { prepend: __VLS_thisSlot } = __VLS_69.slots;
-}
-var __VLS_69;
-var __VLS_65;
-const __VLS_70 = {}.ElCol;
-/** @type {[typeof __VLS_components.ElCol, typeof __VLS_components.elCol, typeof __VLS_components.ElCol, typeof __VLS_components.elCol, ]} */ ;
-// @ts-ignore
-const __VLS_71 = __VLS_asFunctionalComponent(__VLS_70, new __VLS_70({
-    span: (8),
-}));
-const __VLS_72 = __VLS_71({
-    span: (8),
-}, ...__VLS_functionalComponentArgsRest(__VLS_71));
-__VLS_73.slots.default;
-const __VLS_74 = {}.ElSelect;
-/** @type {[typeof __VLS_components.ElSelect, typeof __VLS_components.elSelect, typeof __VLS_components.ElSelect, typeof __VLS_components.elSelect, ]} */ ;
-// @ts-ignore
-const __VLS_75 = __VLS_asFunctionalComponent(__VLS_74, new __VLS_74({
-    modelValue: (__VLS_ctx.formData.timezone),
-    filterable: true,
-    placeholder: "時區",
-    ...{ style: {} },
-}));
-const __VLS_76 = __VLS_75({
-    modelValue: (__VLS_ctx.formData.timezone),
-    filterable: true,
-    placeholder: "時區",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_75));
-__VLS_77.slots.default;
-for (const [tz] of __VLS_getVForSourceType((__VLS_ctx.timezones))) {
-    const __VLS_78 = {}.ElOption;
-    /** @type {[typeof __VLS_components.ElOption, typeof __VLS_components.elOption, ]} */ ;
+    const { append: __VLS_thisSlot } = __VLS_53.slots;
+    const __VLS_58 = {}.ElButton;
+    /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
     // @ts-ignore
-    const __VLS_79 = __VLS_asFunctionalComponent(__VLS_78, new __VLS_78({
-        key: (tz.value),
-        label: (tz.label),
-        value: (tz.value),
+    const __VLS_59 = __VLS_asFunctionalComponent(__VLS_58, new __VLS_58({
+        ...{ 'onClick': {} },
+        loading: (__VLS_ctx.geocoding),
+        disabled: (!__VLS_ctx.addressInput),
+        type: "primary",
     }));
-    const __VLS_80 = __VLS_79({
-        key: (tz.value),
-        label: (tz.label),
-        value: (tz.value),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_79));
+    const __VLS_60 = __VLS_59({
+        ...{ 'onClick': {} },
+        loading: (__VLS_ctx.geocoding),
+        disabled: (!__VLS_ctx.addressInput),
+        type: "primary",
+    }, ...__VLS_functionalComponentArgsRest(__VLS_59));
+    let __VLS_62;
+    let __VLS_63;
+    let __VLS_64;
+    const __VLS_65 = {
+        onClick: (__VLS_ctx.geocodeCurrentAddress)
+    };
+    __VLS_61.slots.default;
+    var __VLS_61;
 }
-var __VLS_77;
-var __VLS_73;
 var __VLS_53;
-const __VLS_82 = {}.ElText;
-/** @type {[typeof __VLS_components.ElText, typeof __VLS_components.elText, typeof __VLS_components.ElText, typeof __VLS_components.elText, ]} */ ;
-// @ts-ignore
-const __VLS_83 = __VLS_asFunctionalComponent(__VLS_82, new __VLS_82({
-    type: "warning",
-    size: "small",
-    ...{ style: {} },
-}));
-const __VLS_84 = __VLS_83({
-    type: "warning",
-    size: "small",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_83));
-__VLS_85.slots.default;
-const __VLS_86 = {}.ElTooltip;
-/** @type {[typeof __VLS_components.ElTooltip, typeof __VLS_components.elTooltip, typeof __VLS_components.ElTooltip, typeof __VLS_components.elTooltip, ]} */ ;
-// @ts-ignore
-const __VLS_87 = __VLS_asFunctionalComponent(__VLS_86, new __VLS_86({
-    content: "可使用 Google Maps 或其他地圖服務獲取出生地的精確經緯度座標",
-}));
-const __VLS_88 = __VLS_87({
-    content: "可使用 Google Maps 或其他地圖服務獲取出生地的精確經緯度座標",
-}, ...__VLS_functionalComponentArgsRest(__VLS_87));
-__VLS_89.slots.default;
-const __VLS_90 = {}.ElIcon;
-/** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
-// @ts-ignore
-const __VLS_91 = __VLS_asFunctionalComponent(__VLS_90, new __VLS_90({}));
-const __VLS_92 = __VLS_91({}, ...__VLS_functionalComponentArgsRest(__VLS_91));
-__VLS_93.slots.default;
-const __VLS_94 = {}.QuestionFilled;
-/** @type {[typeof __VLS_components.QuestionFilled, ]} */ ;
-// @ts-ignore
-const __VLS_95 = __VLS_asFunctionalComponent(__VLS_94, new __VLS_94({}));
-const __VLS_96 = __VLS_95({}, ...__VLS_functionalComponentArgsRest(__VLS_95));
-var __VLS_93;
-var __VLS_89;
-var __VLS_85;
+if (__VLS_ctx.geocodeStatus.message) {
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "geocode-status" },
+        ...{ style: {} },
+    });
+    const __VLS_66 = {}.ElText;
+    /** @type {[typeof __VLS_components.ElText, typeof __VLS_components.elText, typeof __VLS_components.ElText, typeof __VLS_components.elText, ]} */ ;
+    // @ts-ignore
+    const __VLS_67 = __VLS_asFunctionalComponent(__VLS_66, new __VLS_66({
+        type: (__VLS_ctx.geocodeStatus.type),
+        size: "small",
+    }));
+    const __VLS_68 = __VLS_67({
+        type: (__VLS_ctx.geocodeStatus.type),
+        size: "small",
+    }, ...__VLS_functionalComponentArgsRest(__VLS_67));
+    __VLS_69.slots.default;
+    (__VLS_ctx.geocodeStatus.message);
+    var __VLS_69;
+}
+if (__VLS_ctx.candidateAddresses.length > 1) {
+    const __VLS_70 = {}.ElSelect;
+    /** @type {[typeof __VLS_components.ElSelect, typeof __VLS_components.elSelect, typeof __VLS_components.ElSelect, typeof __VLS_components.elSelect, ]} */ ;
+    // @ts-ignore
+    const __VLS_71 = __VLS_asFunctionalComponent(__VLS_70, new __VLS_70({
+        ...{ 'onChange': {} },
+        modelValue: (__VLS_ctx.selectedCandidateIndex),
+        placeholder: "發現多個匹配地址，請選擇最準確的",
+        ...{ style: {} },
+    }));
+    const __VLS_72 = __VLS_71({
+        ...{ 'onChange': {} },
+        modelValue: (__VLS_ctx.selectedCandidateIndex),
+        placeholder: "發現多個匹配地址，請選擇最準確的",
+        ...{ style: {} },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_71));
+    let __VLS_74;
+    let __VLS_75;
+    let __VLS_76;
+    const __VLS_77 = {
+        onChange: (__VLS_ctx.selectCandidate)
+    };
+    __VLS_73.slots.default;
+    for (const [candidate, index] of __VLS_getVForSourceType((__VLS_ctx.candidateAddresses))) {
+        const __VLS_78 = {}.ElOption;
+        /** @type {[typeof __VLS_components.ElOption, typeof __VLS_components.elOption, ]} */ ;
+        // @ts-ignore
+        const __VLS_79 = __VLS_asFunctionalComponent(__VLS_78, new __VLS_78({
+            key: (index),
+            label: (__VLS_ctx.formatCandidateDisplay(candidate)),
+            value: (index),
+        }));
+        const __VLS_80 = __VLS_79({
+            key: (index),
+            label: (__VLS_ctx.formatCandidateDisplay(candidate)),
+            value: (index),
+        }, ...__VLS_functionalComponentArgsRest(__VLS_79));
+    }
+    var __VLS_73;
+}
 var __VLS_49;
-const __VLS_98 = {}.ElFormItem;
+const __VLS_82 = {}.ElFormItem;
 /** @type {[typeof __VLS_components.ElFormItem, typeof __VLS_components.elFormItem, typeof __VLS_components.ElFormItem, typeof __VLS_components.elFormItem, ]} */ ;
 // @ts-ignore
+const __VLS_83 = __VLS_asFunctionalComponent(__VLS_82, new __VLS_82({
+    label: "出生地點座標（精確計算必需）",
+    prop: "location",
+}));
+const __VLS_84 = __VLS_83({
+    label: "出生地點座標（精確計算必需）",
+    prop: "location",
+}, ...__VLS_functionalComponentArgsRest(__VLS_83));
+__VLS_85.slots.default;
+const __VLS_86 = {}.ElRow;
+/** @type {[typeof __VLS_components.ElRow, typeof __VLS_components.elRow, typeof __VLS_components.ElRow, typeof __VLS_components.elRow, ]} */ ;
+// @ts-ignore
+const __VLS_87 = __VLS_asFunctionalComponent(__VLS_86, new __VLS_86({
+    gutter: (12),
+}));
+const __VLS_88 = __VLS_87({
+    gutter: (12),
+}, ...__VLS_functionalComponentArgsRest(__VLS_87));
+__VLS_89.slots.default;
+const __VLS_90 = {}.ElCol;
+/** @type {[typeof __VLS_components.ElCol, typeof __VLS_components.elCol, typeof __VLS_components.ElCol, typeof __VLS_components.elCol, ]} */ ;
+// @ts-ignore
+const __VLS_91 = __VLS_asFunctionalComponent(__VLS_90, new __VLS_90({
+    span: (10),
+}));
+const __VLS_92 = __VLS_91({
+    span: (10),
+}, ...__VLS_functionalComponentArgsRest(__VLS_91));
+__VLS_93.slots.default;
+const __VLS_94 = {}.ElInput;
+/** @type {[typeof __VLS_components.ElInput, typeof __VLS_components.elInput, typeof __VLS_components.ElInput, typeof __VLS_components.elInput, ]} */ ;
+// @ts-ignore
+const __VLS_95 = __VLS_asFunctionalComponent(__VLS_94, new __VLS_94({
+    modelValue: (__VLS_ctx.formData.longitude),
+    modelModifiers: { number: true, },
+    placeholder: "經度",
+    type: "number",
+    min: (-180),
+    max: (180),
+    step: (0.000001),
+}));
+const __VLS_96 = __VLS_95({
+    modelValue: (__VLS_ctx.formData.longitude),
+    modelModifiers: { number: true, },
+    placeholder: "經度",
+    type: "number",
+    min: (-180),
+    max: (180),
+    step: (0.000001),
+}, ...__VLS_functionalComponentArgsRest(__VLS_95));
+__VLS_97.slots.default;
+{
+    const { prepend: __VLS_thisSlot } = __VLS_97.slots;
+}
+var __VLS_97;
+var __VLS_93;
+const __VLS_98 = {}.ElCol;
+/** @type {[typeof __VLS_components.ElCol, typeof __VLS_components.elCol, typeof __VLS_components.ElCol, typeof __VLS_components.elCol, ]} */ ;
+// @ts-ignore
 const __VLS_99 = __VLS_asFunctionalComponent(__VLS_98, new __VLS_98({
-    label: "或選擇常用城市（自動填入座標）",
+    span: (10),
 }));
 const __VLS_100 = __VLS_99({
-    label: "或選擇常用城市（自動填入座標）",
+    span: (10),
 }, ...__VLS_functionalComponentArgsRest(__VLS_99));
 __VLS_101.slots.default;
-const __VLS_102 = {}.ElSelect;
-/** @type {[typeof __VLS_components.ElSelect, typeof __VLS_components.elSelect, typeof __VLS_components.ElSelect, typeof __VLS_components.elSelect, ]} */ ;
+const __VLS_102 = {}.ElInput;
+/** @type {[typeof __VLS_components.ElInput, typeof __VLS_components.elInput, typeof __VLS_components.ElInput, typeof __VLS_components.elInput, ]} */ ;
 // @ts-ignore
 const __VLS_103 = __VLS_asFunctionalComponent(__VLS_102, new __VLS_102({
-    ...{ 'onChange': {} },
-    modelValue: (__VLS_ctx.selectedCity),
-    filterable: true,
-    placeholder: "選擇城市快速填入座標",
-    ...{ style: {} },
-    clearable: true,
+    modelValue: (__VLS_ctx.formData.latitude),
+    modelModifiers: { number: true, },
+    placeholder: "緯度",
+    type: "number",
+    min: (-90),
+    max: (90),
+    step: (0.000001),
 }));
 const __VLS_104 = __VLS_103({
-    ...{ 'onChange': {} },
-    modelValue: (__VLS_ctx.selectedCity),
-    filterable: true,
-    placeholder: "選擇城市快速填入座標",
-    ...{ style: {} },
-    clearable: true,
+    modelValue: (__VLS_ctx.formData.latitude),
+    modelModifiers: { number: true, },
+    placeholder: "緯度",
+    type: "number",
+    min: (-90),
+    max: (90),
+    step: (0.000001),
 }, ...__VLS_functionalComponentArgsRest(__VLS_103));
-let __VLS_106;
-let __VLS_107;
-let __VLS_108;
-const __VLS_109 = {
-    onChange: (__VLS_ctx.fillCityCoordinates)
-};
 __VLS_105.slots.default;
-for (const [city] of __VLS_getVForSourceType((__VLS_ctx.majorCities))) {
-    const __VLS_110 = {}.ElOption;
-    /** @type {[typeof __VLS_components.ElOption, typeof __VLS_components.elOption, ]} */ ;
-    // @ts-ignore
-    const __VLS_111 = __VLS_asFunctionalComponent(__VLS_110, new __VLS_110({
-        key: (city.value),
-        label: (city.label),
-        value: (city.value),
-    }));
-    const __VLS_112 = __VLS_111({
-        key: (city.value),
-        label: (city.label),
-        value: (city.value),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_111));
+{
+    const { prepend: __VLS_thisSlot } = __VLS_105.slots;
 }
 var __VLS_105;
 var __VLS_101;
-const __VLS_114 = {}.ElFormItem;
-/** @type {[typeof __VLS_components.ElFormItem, typeof __VLS_components.elFormItem, typeof __VLS_components.ElFormItem, typeof __VLS_components.elFormItem, ]} */ ;
+const __VLS_106 = {}.ElCol;
+/** @type {[typeof __VLS_components.ElCol, typeof __VLS_components.elCol, typeof __VLS_components.ElCol, typeof __VLS_components.elCol, ]} */ ;
 // @ts-ignore
-const __VLS_115 = __VLS_asFunctionalComponent(__VLS_114, new __VLS_114({}));
-const __VLS_116 = __VLS_115({}, ...__VLS_functionalComponentArgsRest(__VLS_115));
-__VLS_117.slots.default;
-const __VLS_118 = {}.ElButton;
-/** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
+const __VLS_107 = __VLS_asFunctionalComponent(__VLS_106, new __VLS_106({
+    span: (4),
+}));
+const __VLS_108 = __VLS_107({
+    span: (4),
+}, ...__VLS_functionalComponentArgsRest(__VLS_107));
+__VLS_109.slots.default;
+const __VLS_110 = {}.ElSelect;
+/** @type {[typeof __VLS_components.ElSelect, typeof __VLS_components.elSelect, typeof __VLS_components.ElSelect, typeof __VLS_components.elSelect, ]} */ ;
+// @ts-ignore
+const __VLS_111 = __VLS_asFunctionalComponent(__VLS_110, new __VLS_110({
+    modelValue: (__VLS_ctx.formData.timezone),
+    filterable: true,
+    placeholder: "時區",
+    ...{ style: {} },
+}));
+const __VLS_112 = __VLS_111({
+    modelValue: (__VLS_ctx.formData.timezone),
+    filterable: true,
+    placeholder: "時區",
+    ...{ style: {} },
+}, ...__VLS_functionalComponentArgsRest(__VLS_111));
+__VLS_113.slots.default;
+for (const [tz] of __VLS_getVForSourceType((__VLS_ctx.timezones))) {
+    const __VLS_114 = {}.ElOption;
+    /** @type {[typeof __VLS_components.ElOption, typeof __VLS_components.elOption, ]} */ ;
+    // @ts-ignore
+    const __VLS_115 = __VLS_asFunctionalComponent(__VLS_114, new __VLS_114({
+        key: (tz.value),
+        label: (tz.label),
+        value: (tz.value),
+    }));
+    const __VLS_116 = __VLS_115({
+        key: (tz.value),
+        label: (tz.label),
+        value: (tz.value),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_115));
+}
+var __VLS_113;
+var __VLS_109;
+var __VLS_89;
+const __VLS_118 = {}.ElText;
+/** @type {[typeof __VLS_components.ElText, typeof __VLS_components.elText, typeof __VLS_components.ElText, typeof __VLS_components.elText, ]} */ ;
 // @ts-ignore
 const __VLS_119 = __VLS_asFunctionalComponent(__VLS_118, new __VLS_118({
+    type: "warning",
+    size: "small",
+    ...{ style: {} },
+}));
+const __VLS_120 = __VLS_119({
+    type: "warning",
+    size: "small",
+    ...{ style: {} },
+}, ...__VLS_functionalComponentArgsRest(__VLS_119));
+__VLS_121.slots.default;
+const __VLS_122 = {}.ElTooltip;
+/** @type {[typeof __VLS_components.ElTooltip, typeof __VLS_components.elTooltip, typeof __VLS_components.ElTooltip, typeof __VLS_components.elTooltip, ]} */ ;
+// @ts-ignore
+const __VLS_123 = __VLS_asFunctionalComponent(__VLS_122, new __VLS_122({
+    content: "可輸入中文地址自動轉換，或手動輸入經緯度座標",
+}));
+const __VLS_124 = __VLS_123({
+    content: "可輸入中文地址自動轉換，或手動輸入經緯度座標",
+}, ...__VLS_functionalComponentArgsRest(__VLS_123));
+__VLS_125.slots.default;
+const __VLS_126 = {}.ElIcon;
+/** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
+// @ts-ignore
+const __VLS_127 = __VLS_asFunctionalComponent(__VLS_126, new __VLS_126({}));
+const __VLS_128 = __VLS_127({}, ...__VLS_functionalComponentArgsRest(__VLS_127));
+__VLS_129.slots.default;
+const __VLS_130 = {}.QuestionFilled;
+/** @type {[typeof __VLS_components.QuestionFilled, ]} */ ;
+// @ts-ignore
+const __VLS_131 = __VLS_asFunctionalComponent(__VLS_130, new __VLS_130({}));
+const __VLS_132 = __VLS_131({}, ...__VLS_functionalComponentArgsRest(__VLS_131));
+var __VLS_129;
+var __VLS_125;
+var __VLS_121;
+var __VLS_85;
+const __VLS_134 = {}.ElFormItem;
+/** @type {[typeof __VLS_components.ElFormItem, typeof __VLS_components.elFormItem, typeof __VLS_components.ElFormItem, typeof __VLS_components.elFormItem, ]} */ ;
+// @ts-ignore
+const __VLS_135 = __VLS_asFunctionalComponent(__VLS_134, new __VLS_134({
+    label: "或選擇常用城市（自動填入座標）",
+}));
+const __VLS_136 = __VLS_135({
+    label: "或選擇常用城市（自動填入座標）",
+}, ...__VLS_functionalComponentArgsRest(__VLS_135));
+__VLS_137.slots.default;
+const __VLS_138 = {}.ElSelect;
+/** @type {[typeof __VLS_components.ElSelect, typeof __VLS_components.elSelect, typeof __VLS_components.ElSelect, typeof __VLS_components.elSelect, ]} */ ;
+// @ts-ignore
+const __VLS_139 = __VLS_asFunctionalComponent(__VLS_138, new __VLS_138({
+    ...{ 'onChange': {} },
+    modelValue: (__VLS_ctx.selectedCity),
+    filterable: true,
+    placeholder: "選擇城市快速填入座標",
+    ...{ style: {} },
+    clearable: true,
+}));
+const __VLS_140 = __VLS_139({
+    ...{ 'onChange': {} },
+    modelValue: (__VLS_ctx.selectedCity),
+    filterable: true,
+    placeholder: "選擇城市快速填入座標",
+    ...{ style: {} },
+    clearable: true,
+}, ...__VLS_functionalComponentArgsRest(__VLS_139));
+let __VLS_142;
+let __VLS_143;
+let __VLS_144;
+const __VLS_145 = {
+    onChange: (__VLS_ctx.fillCityCoordinates)
+};
+__VLS_141.slots.default;
+for (const [city] of __VLS_getVForSourceType((__VLS_ctx.majorCities))) {
+    const __VLS_146 = {}.ElOption;
+    /** @type {[typeof __VLS_components.ElOption, typeof __VLS_components.elOption, ]} */ ;
+    // @ts-ignore
+    const __VLS_147 = __VLS_asFunctionalComponent(__VLS_146, new __VLS_146({
+        key: (city.value),
+        label: (city.label),
+        value: (city.value),
+    }));
+    const __VLS_148 = __VLS_147({
+        key: (city.value),
+        label: (city.label),
+        value: (city.value),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_147));
+}
+var __VLS_141;
+var __VLS_137;
+const __VLS_150 = {}.ElFormItem;
+/** @type {[typeof __VLS_components.ElFormItem, typeof __VLS_components.elFormItem, typeof __VLS_components.ElFormItem, typeof __VLS_components.elFormItem, ]} */ ;
+// @ts-ignore
+const __VLS_151 = __VLS_asFunctionalComponent(__VLS_150, new __VLS_150({}));
+const __VLS_152 = __VLS_151({}, ...__VLS_functionalComponentArgsRest(__VLS_151));
+__VLS_153.slots.default;
+const __VLS_154 = {}.ElButton;
+/** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
+// @ts-ignore
+const __VLS_155 = __VLS_asFunctionalComponent(__VLS_154, new __VLS_154({
     ...{ 'onClick': {} },
     type: "primary",
 }));
-const __VLS_120 = __VLS_119({
+const __VLS_156 = __VLS_155({
     ...{ 'onClick': {} },
     type: "primary",
-}, ...__VLS_functionalComponentArgsRest(__VLS_119));
-let __VLS_122;
-let __VLS_123;
-let __VLS_124;
-const __VLS_125 = {
+}, ...__VLS_functionalComponentArgsRest(__VLS_155));
+let __VLS_158;
+let __VLS_159;
+let __VLS_160;
+const __VLS_161 = {
     onClick: (__VLS_ctx.submitForm)
 };
-__VLS_121.slots.default;
+__VLS_157.slots.default;
 (__VLS_ctx.$t('form.submit'));
-var __VLS_121;
-var __VLS_117;
+var __VLS_157;
+var __VLS_153;
 var __VLS_3;
+/** @type {__VLS_StyleScopedClasses['geocode-status']} */ ;
 // @ts-ignore
 var __VLS_9 = __VLS_8;
 var __VLS_dollars;
@@ -595,7 +822,16 @@ const __VLS_self = (await import('vue')).defineComponent({
             timezones: timezones,
             formData: formData,
             selectedCity: selectedCity,
+            addressInput: addressInput,
+            geocoding: geocoding,
+            candidateAddresses: candidateAddresses,
+            selectedCandidateIndex: selectedCandidateIndex,
+            geocodeStatus: geocodeStatus,
             majorCities: majorCities,
+            handleAddressInput: handleAddressInput,
+            geocodeCurrentAddress: geocodeCurrentAddress,
+            selectCandidate: selectCandidate,
+            formatCandidateDisplay: formatCandidateDisplay,
             fillCityCoordinates: fillCityCoordinates,
             formRules: formRules,
             purpleStarForm: purpleStarForm,

@@ -32,10 +32,58 @@
       </el-radio-group>
     </el-form-item>
 
+    <!-- 中文地址輸入 -->
+    <el-form-item label="出生地址（自動轉換座標）">
+      <el-input
+        v-model="addressInput"
+        placeholder="請輸入中文地址，例如：雲林縣虎尾鎮新生路74號"
+        @input="handleAddressInput"
+        :loading="geocoding"
+        clearable
+      >
+        <template #append>
+          <el-button 
+            @click="geocodeCurrentAddress" 
+            :loading="geocoding"
+            :disabled="!addressInput"
+            type="primary"
+          >
+            查詢座標
+          </el-button>
+        </template>
+      </el-input>
+      
+      <!-- 地址解析狀態顯示 -->
+      <div v-if="geocodeStatus.message" class="geocode-status" style="margin-top: 5px;">
+        <el-text 
+          :type="geocodeStatus.type" 
+          size="small"
+        >
+          {{ geocodeStatus.message }}
+        </el-text>
+      </div>
+
+      <!-- 多候選地址選擇 -->
+      <el-select
+        v-if="candidateAddresses.length > 1"
+        v-model="selectedCandidateIndex"
+        placeholder="發現多個匹配地址，請選擇最準確的"
+        @change="selectCandidate"
+        style="width: 100%; margin-top: 8px;"
+      >
+        <el-option
+          v-for="(candidate, index) in candidateAddresses"
+          :key="index"
+          :label="formatCandidateDisplay(candidate)"
+          :value="index"
+        />
+      </el-select>
+    </el-form-item>
+
     <!-- 精確地理位置輸入 -->
-    <el-form-item label="出生地點（精確計算必需）" prop="location">
+    <el-form-item label="出生地點座標（精確計算必需）" prop="location">
       <el-row :gutter="12">
-        <el-col :span="8">
+        <el-col :span="10">
           <el-input 
             v-model.number="formData.longitude" 
             placeholder="經度"
@@ -47,7 +95,7 @@
             <template #prepend>經度</template>
           </el-input>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="10">
           <el-input 
             v-model.number="formData.latitude" 
             placeholder="緯度"
@@ -59,7 +107,7 @@
             <template #prepend>緯度</template>
           </el-input>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="4">
           <el-select
             v-model="formData.timezone"
             filterable
@@ -77,7 +125,7 @@
       </el-row>
       <el-text type="warning" size="small" style="margin-top: 5px; display: block;">
         ⚠️ 精確的經緯度和時區資訊對紫微斗數計算準確性至關重要
-        <el-tooltip content="可使用 Google Maps 或其他地圖服務獲取出生地的精確經緯度座標">
+        <el-tooltip content="可輸入中文地址自動轉換，或手動輸入經緯度座標">
           <el-icon><QuestionFilled /></el-icon>
         </el-tooltip>
       </el-text>
@@ -118,6 +166,7 @@ import { ref, reactive, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { QuestionFilled } from '@element-plus/icons-vue';
 import { saveTimeZoneInfo, getTimeZoneInfo } from '../utils/storageService';
+import { GeocodeService, type GeocodeCandidate } from '../services/geocodeService';
 
 const emit = defineEmits(['submit']);
 
@@ -148,6 +197,21 @@ const formData = reactive({
 
 const selectedCity = ref('');
 
+// 地址輸入和地理編碼相關
+const addressInput = ref('');
+const geocoding = ref(false);
+const candidateAddresses = ref<GeocodeCandidate[]>([]);
+const selectedCandidateIndex = ref<number | null>(null);
+const geocodeStatus = reactive<{
+  message: string;
+  type: 'success' | 'warning' | 'danger' | 'info';
+}>({
+  message: '',
+  type: 'info'
+});
+
+let geocodeTimeout: ReturnType<typeof setTimeout> | null = null;
+
 // 主要城市座標資料
 const majorCities = ref([
   { label: '台北, 台灣', value: 'taipei', longitude: 121.5654, latitude: 25.0330, timezone: 'Asia/Taipei' },
@@ -164,13 +228,122 @@ const majorCities = ref([
   { label: '洛杉磯, 美國', value: 'losangeles', longitude: -118.2437, latitude: 34.0522, timezone: 'America/Los_Angeles' }
 ]);
 
+// 地址輸入處理（防抖）
+const handleAddressInput = () => {
+  if (geocodeTimeout) {
+    clearTimeout(geocodeTimeout);
+  }
+  
+  // 清除之前的狀態
+  clearGeocodeStatus();
+  candidateAddresses.value = [];
+  selectedCandidateIndex.value = null;
+  
+  if (!addressInput.value || addressInput.value.trim().length < 3) {
+    return;
+  }
+  
+  // 防抖處理，避免頻繁請求API
+  geocodeTimeout = setTimeout(() => {
+    geocodeCurrentAddress();
+  }, 800);
+};
+
+// 執行地址解析
+const geocodeCurrentAddress = async () => {
+  if (!addressInput.value || geocoding.value) {
+    return;
+  }
+  
+  geocoding.value = true;
+  clearGeocodeStatus();
+  
+  try {
+    const result = await GeocodeService.geocodeAddress(addressInput.value);
+    
+    if (result.success && result.candidates.length > 0) {
+      candidateAddresses.value = result.candidates;
+      
+      if (result.candidates.length === 1) {
+        // 單一結果直接填入
+        fillCoordinatesFromCandidate(result.candidates[0]);
+        setGeocodeStatus('地址解析成功！座標已自動填入', 'success');
+      } else {
+        // 多個結果讓用戶選擇
+        setGeocodeStatus(`找到 ${result.candidates.length} 個匹配地址，請選擇最準確的`, 'warning');
+      }
+    } else {
+      setGeocodeStatus(result.error || '找不到匹配的地址，請檢查地址格式', 'danger');
+      candidateAddresses.value = [];
+    }
+  } catch (error) {
+    console.error('Geocoding error:', error);
+    setGeocodeStatus('地址解析失敗，請稍後再試', 'danger');
+  } finally {
+    geocoding.value = false;
+  }
+};
+
+// 從候選地址填入座標
+const fillCoordinatesFromCandidate = (candidate: GeocodeCandidate) => {
+  const coords = GeocodeService.formatCoordinates(
+    candidate.location.x, 
+    candidate.location.y
+  );
+  
+  formData.longitude = coords.longitude;
+  formData.latitude = coords.latitude;
+  
+  // 根據地址嘗試設置時區（台灣地區）
+  if (candidate.attributes.Match_addr?.includes('台灣') || 
+      candidate.attributes.City?.includes('台') || 
+      candidate.location.x > 119 && candidate.location.x < 122 && 
+      candidate.location.y > 21 && candidate.location.y < 26) {
+    formData.timezone = 'Asia/Taipei';
+  }
+};
+
+// 選擇候選地址
+const selectCandidate = (index: number) => {
+  if (candidateAddresses.value[index]) {
+    fillCoordinatesFromCandidate(candidateAddresses.value[index]);
+    setGeocodeStatus('座標已填入，請確認是否正確', 'success');
+    
+    // 隱藏候選列表
+    setTimeout(() => {
+      candidateAddresses.value = [candidateAddresses.value[index]];
+    }, 1000);
+  }
+};
+
+// 格式化候選地址顯示
+const formatCandidateDisplay = (candidate: GeocodeCandidate): string => {
+  return GeocodeService.formatCandidateForDisplay(candidate);
+};
+
+// 設置地理編碼狀態
+const setGeocodeStatus = (message: string, type: 'success' | 'warning' | 'danger' | 'info') => {
+  geocodeStatus.message = message;
+  geocodeStatus.type = type;
+};
+
+// 清除地理編碼狀態
+const clearGeocodeStatus = () => {
+  geocodeStatus.message = '';
+  geocodeStatus.type = 'info';
+};
+
 // 填入城市座標
 const fillCityCoordinates = (cityValue: string) => {
   const city = majorCities.value.find(c => c.value === cityValue);
   if (city) {
-    formData.longitude = city.longitude;
-    formData.latitude = city.latitude;
-    formData.timezone = city.timezone;
+    // 只有在沒有通過地址解析填入座標時才覆蓋
+    if (!addressInput.value || candidateAddresses.value.length === 0) {
+      formData.longitude = city.longitude;
+      formData.latitude = city.latitude;
+      formData.timezone = city.timezone;
+      clearGeocodeStatus();
+    }
   }
 };
 

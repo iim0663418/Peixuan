@@ -9,17 +9,25 @@ const messages = {
     zh_TW,
 };
 function getUserPreferredLanguage() {
-    // 這裡可以根據用戶設定或瀏覽器語言自動偵測
-    const lang = navigator.language || 'en';
-    if (lang.startsWith('zh-TW'))
+    // 檢查是否有儲存的語言偏好
+    const savedLang = localStorage.getItem('preferred-language') || sessionStorage.getItem('preferred-language');
+    if (savedLang && ['zh_TW', 'zh', 'en'].includes(savedLang)) {
+        return savedLang;
+    }
+    // 瀏覽器語言偵測，預設為繁體中文
+    const lang = navigator.language || 'zh_TW';
+    if (lang.startsWith('zh-TW') || lang.startsWith('zh-Hant'))
         return 'zh_TW';
-    if (lang.startsWith('zh'))
+    if (lang.startsWith('zh-CN') || lang.startsWith('zh-Hans'))
         return 'zh';
-    return 'en';
+    if (lang.startsWith('en'))
+        return 'en';
+    // 預設使用繁體中文
+    return 'zh_TW';
 }
 const i18n = createI18n({
     locale: getUserPreferredLanguage(),
-    fallbackLocale: 'en',
+    fallbackLocale: 'zh_TW', // 改為繁體中文作為備用語言
     messages,
     legacy: false,
     globalInjection: true,

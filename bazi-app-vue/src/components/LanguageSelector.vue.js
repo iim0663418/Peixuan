@@ -6,7 +6,7 @@ const currentLocale = ref(locale.value);
 // 從 sessionStorage 讀取保存的語言設定
 function loadLanguagePreference() {
     try {
-        const savedLocale = sessionStorage.getItem('preferred-language');
+        const savedLocale = sessionStorage.getItem('preferred-language') || localStorage.getItem('preferred-language');
         // 移除對簡體中文的支持
         if (savedLocale && ['en', 'zh_TW'].includes(savedLocale)) {
             return savedLocale;
@@ -19,7 +19,8 @@ function loadLanguagePreference() {
     catch (error) {
         console.warn('Failed to load language preference from sessionStorage:', error);
     }
-    return locale.value;
+    // 如果沒有保存的設定，預設使用繁體中文
+    return 'zh_TW';
 }
 // 將語言設定保存到 sessionStorage
 function saveLanguagePreference(language) {
@@ -81,10 +82,10 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.select, __VLS_intrinsicElement
     'aria-label': (__VLS_ctx.$t('common.language')),
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
-    value: "en",
+    value: "zh_TW",
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
-    value: "zh_TW",
+    value: "en",
 });
 /** @type {__VLS_StyleScopedClasses['language-selector']} */ ;
 /** @type {__VLS_StyleScopedClasses['sr-only']} */ ;

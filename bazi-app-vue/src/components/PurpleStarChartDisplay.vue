@@ -84,6 +84,8 @@
           v-for="(position, index) in gridLayout" 
           :key="`position-${index}`"
           :class="['palace-cell', getPositionClass(position, index)]"
+          :data-palace-zhi="position !== 'center' ? position : undefined"
+          :data-palace-index="position !== 'center' ? getPalaceByZhi(position)?.index : undefined"
           @click="handlePalaceClick(position)"
         >
           <!-- 中央太極 -->
@@ -99,7 +101,8 @@
           <!-- 宮位內容 -->
           <div v-else-if="getPalaceByZhi(position)" 
                class="palace-content" 
-               :class="getPalaceFortuneClass(getPalaceByZhi(position))">
+               :class="getPalaceFortuneClass(getPalaceByZhi(position))"
+               :data-palace-zhi="position">
             <div class="palace-header">
               <span class="palace-name">{{ getPalaceByZhi(position)?.name }}</span>
               <span class="palace-zhi">{{ position }}</span>
@@ -180,245 +183,6 @@
       </div>
 
       <!-- 命盤解讀區域 -->
-      <div v-if="chartData.comprehensiveInterpretation || chartData.domainAnalyses" class="interpretation-section">
-        <div class="interpretation-header">
-          <h3>{{ $t('purpleStarChart.interpretation') || '命盤解讀' }}</h3>
-          <div class="interpretation-tabs">
-            <button 
-              @click="setInterpretationMode('comprehensive')" 
-              :class="{ active: interpretationMode === 'comprehensive' }"
-              class="tab-button"
-            >
-              綜合解讀
-            </button>
-            <button 
-              @click="setInterpretationMode('domain')" 
-              :class="{ active: interpretationMode === 'domain' }"
-              class="tab-button"
-            >
-              領域分析
-            </button>
-            <button 
-              @click="setInterpretationMode('palace')" 
-              :class="{ active: interpretationMode === 'palace' }"
-              class="tab-button"
-            >
-              宮位解讀
-            </button>
-          </div>
-        </div>
-
-        <!-- 格局分析面板 -->
-        <PatternAnalysisPanel 
-          v-if="interpretationMode === 'comprehensive'"
-          :patterns="chartData.keyPatterns"
-          class="interpretation-panel"
-        />
-
-        <!-- 雜曜分析面板 -->
-        <MinorStarsPanel 
-          v-if="interpretationMode === 'comprehensive'"
-          :palaces="chartData.palaces"
-          class="interpretation-panel"
-        />
-
-        <!-- 綜合解讀 -->
-        <div v-if="interpretationMode === 'comprehensive' && chartData.comprehensiveInterpretation" class="comprehensive-interpretation">
-          <div class="interpretation-card">
-            <h4>整體生命模式</h4>
-            <p>{{ chartData.comprehensiveInterpretation.overallLifePattern }}</p>
-          </div>
-
-          <div class="interpretation-card">
-            <h4>生命目的</h4>
-            <p>{{ chartData.comprehensiveInterpretation.lifePurpose }}</p>
-          </div>
-
-          <div class="interpretation-card">
-            <h4>靈性成長路徑</h4>
-            <p>{{ chartData.comprehensiveInterpretation.spiritualGrowthPath }}</p>
-          </div>
-
-          <div class="interpretation-card">
-            <h4>獨特優勢</h4>
-            <ul>
-              <li v-for="(strength, idx) in chartData.comprehensiveInterpretation.uniqueStrengths" 
-                  :key="`strength-${idx}`">{{ strength }}</li>
-            </ul>
-          </div>
-
-          <div class="interpretation-card">
-            <h4>潛在挑戰</h4>
-            <ul>
-              <li v-for="(challenge, idx) in chartData.comprehensiveInterpretation.potentialChallenges" 
-                  :key="`challenge-${idx}`">{{ challenge }}</li>
-            </ul>
-          </div>
-
-          <!-- 關鍵跨宮位模式 -->
-          <div v-if="chartData.comprehensiveInterpretation.keyCrossPalacePatterns && chartData.comprehensiveInterpretation.keyCrossPalacePatterns.length > 0" class="interpretation-card">
-            <h4>關鍵跨宮位模式</h4>
-            <ul>
-              <li v-for="(pattern, idx) in chartData.comprehensiveInterpretation.keyCrossPalacePatterns" 
-                  :key="`pattern-${idx}`">{{ pattern }}</li>
-            </ul>
-          </div>
-
-          <div class="interpretation-card">
-            <h4>主要生命週期</h4>
-            <div class="lifecycle-grid">
-              <div v-for="(cycle, idx) in chartData.comprehensiveInterpretation.majorLifeCycles" 
-                   :key="`cycle-${idx}`" class="lifecycle-item">
-                <div class="lifecycle-period">{{ cycle.period }}</div>
-                <div class="lifecycle-content">
-                  <div class="lifecycle-theme">{{ cycle.theme }}</div>
-                  <div class="lifecycle-focus">主題：{{ cycle.focus }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="interpretation-card">
-            <h4>關鍵命盤模式</h4>
-            <ul>
-              <li v-for="(pattern, idx) in chartData.comprehensiveInterpretation.keyCrossPalacePatterns" 
-                  :key="`pattern-${idx}`">{{ pattern }}</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- 領域分析 -->
-        <div v-if="interpretationMode === 'domain' && chartData.domainAnalyses" class="domain-analysis">
-          <div class="domain-tabs">
-            <button 
-              v-for="domain in chartData.domainAnalyses" 
-              :key="domain.domain"
-              @click="setActiveDomain(domain.domain)"
-              :class="{ active: activeDomain === domain.domain }"
-              class="domain-tab-button"
-            >
-              {{ getDomainDisplayName(domain.domain) }}
-            </button>
-          </div>
-
-          <div v-if="activeDomainAnalysis" class="domain-content">
-            <div class="domain-header">
-              <h4>{{ getDomainDisplayName(activeDomainAnalysis.domain) }}</h4>
-              <div :class="`fortune-badge fortune-${activeDomainAnalysis.overallFortune}`">
-                {{ getFortuneDisplayName(activeDomainAnalysis.overallFortune) }}
-              </div>
-            </div>
-
-            <div class="domain-insights">
-              <h5>關鍵洞見</h5>
-              <ul>
-                <li v-for="(insight, idx) in activeDomainAnalysis.keyInsights" 
-                    :key="`insight-${idx}`">{{ insight }}</li>
-              </ul>
-            </div>
-
-            <div class="domain-influences">
-              <h5>星曜影響</h5>
-              <ul>
-                <li v-for="(influence, idx) in activeDomainAnalysis.starInfluences" 
-                    :key="`influence-${idx}`">{{ influence }}</li>
-              </ul>
-            </div>
-
-            <div class="domain-actions">
-              <h5>建議行動</h5>
-              <ul>
-                <li v-for="(action, idx) in activeDomainAnalysis.recommendedActions" 
-                    :key="`action-${idx}`">{{ action }}</li>
-              </ul>
-            </div>
-
-            <div class="domain-periods">
-              <div class="periods-column">
-                <h5>有利時期</h5>
-                <ul>
-                  <li v-for="(period, idx) in activeDomainAnalysis.periods.favorable" 
-                      :key="`favorable-${idx}`">{{ period }}</li>
-                </ul>
-              </div>
-              <div class="periods-column">
-                <h5>挑戰時期</h5>
-                <ul>
-                  <li v-for="(period, idx) in activeDomainAnalysis.periods.challenging" 
-                      :key="`challenging-${idx}`">{{ period }}</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 宮位解讀 -->
-        <div v-if="interpretationMode === 'palace' && chartData.palaceInterpretations" class="palace-interpretation">
-          <div class="palace-tabs">
-            <button 
-              v-for="interp in chartData.palaceInterpretations" 
-              :key="interp.palaceName"
-              @click="setActivePalace(interp.palaceName)"
-              :class="{ active: activePalaceName === interp.palaceName }"
-              class="palace-tab-button"
-            >
-              {{ interp.palaceName }}
-            </button>
-          </div>
-
-          <div v-if="activePalaceInterpretation" class="palace-content">
-            <h4>{{ activePalaceInterpretation.palaceName }}解讀</h4>
-            
-            <div class="palace-section">
-              <h5>個性特質</h5>
-              <div class="trait-tags">
-                <span v-for="(trait, idx) in activePalaceInterpretation.personalityTraits" 
-                      :key="`trait-${idx}`" class="trait-tag">{{ trait }}</span>
-              </div>
-            </div>
-
-            <div class="palace-section">
-              <h5>優勢領域</h5>
-              <ul>
-                <li v-for="(strength, idx) in activePalaceInterpretation.strengthAreas" 
-                    :key="`strength-${idx}`">{{ strength }}</li>
-              </ul>
-            </div>
-
-            <div class="palace-section">
-              <h5>挑戰領域</h5>
-              <ul>
-                <li v-for="(challenge, idx) in activePalaceInterpretation.challengeAreas" 
-                    :key="`challenge-${idx}`">{{ challenge }}</li>
-              </ul>
-            </div>
-
-            <div class="palace-section">
-              <h5>人生主題</h5>
-              <ul>
-                <li v-for="(theme, idx) in activePalaceInterpretation.lifeThemes" 
-                    :key="`theme-${idx}`">{{ theme }}</li>
-              </ul>
-            </div>
-
-            <div class="palace-section">
-              <h5>星曜影響</h5>
-              <ul>
-                <li v-for="(influence, idx) in activePalaceInterpretation.keyStarInfluences" 
-                    :key="`influence-${idx}`">{{ influence }}</li>
-              </ul>
-            </div>
-
-            <div class="palace-section">
-              <h5>建議</h5>
-              <ul>
-                <li v-for="(advice, idx) in activePalaceInterpretation.advice" 
-                    :key="`advice-${idx}`">{{ advice }}</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- 大限小限詳細資訊 (可選顯示) -->
       <div v-if="showCyclesDetail && chartData.daXian" class="cycles-detail">
@@ -514,22 +278,15 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import StarBrightnessIndicator from './StarBrightnessIndicator.vue';
-import PatternAnalysisPanel from './PatternAnalysisPanel.vue';
-import MinorStarsPanel from './MinorStarsPanel.vue';
 import EmptyPalaceIndicator from './EmptyPalaceIndicator.vue';
 import PurpleStarGuideModal from './PurpleStarGuideModal.vue';
 import FeatureHintsDisplay from '@/components/FeatureHintsDisplay.vue';
-import TransformationStarsDisplay from './TransformationStarsDisplay.vue';
 import type { 
   PurpleStarChart, 
   Palace, 
   Star, 
   DaXianInfo, 
-  XiaoXianInfo,
-  LiuNianTaiSuiInfo,
-  PalaceInterpretation,
-  DomainSpecificAnalysis,
-  ComprehensiveChartInterpretation
+  XiaoXianInfo
 } from '@/types/astrologyTypes';
 
 // 計算資訊介面定義
@@ -575,9 +332,116 @@ const selectedPalace = ref<Palace | null>(null); // 選中的宮位
 const showInteractionTips = ref<boolean>(true); // 顯示互動提示
 const showSummary = ref<boolean>(true); // 顯示簡要解讀
 const showGuideModal = ref<boolean>(false); // 顯示功能指南彈窗
-const interpretationMode = ref<'comprehensive' | 'domain' | 'palace'>('comprehensive');
 const activeDomain = ref<'career' | 'wealth' | 'marriage' | 'health' | 'education' | 'social'>('career');
 const activePalaceName = ref<string>('');
+const interpretationMode = ref<'fortune' | 'basic' | 'advanced'>('fortune');
+
+// 四化流動和多層次能量數據
+const transformationFlows = computed(() => {
+  // 從 TransformationStarsDisplay 的邏輯中提取能量流動數據
+  const flows: Record<number, {
+    palaceIndex: number
+    palaceName: string
+    energyScore: number
+    majorInfluences: string[]
+  }> = {};
+
+  if (props.chartData?.palaces) {
+    props.chartData.palaces.forEach(palace => {
+      let energyScore = 0;
+      const influences: string[] = [];
+
+      // 計算宮位能量分數
+      palace.stars.forEach(star => {
+        if (star.transformations) {
+          star.transformations.forEach(trans => {
+            switch (trans) {
+              case '祿':
+                energyScore += 3;
+                influences.push(`${star.name}化祿`);
+                break;
+              case '權':
+                energyScore += 2;
+                influences.push(`${star.name}化權`);
+                break;
+              case '科':
+                energyScore += 1;
+                influences.push(`${star.name}化科`);
+                break;
+              case '忌':
+                energyScore -= 3;
+                influences.push(`${star.name}化忌`);
+                break;
+            }
+          });
+        }
+
+        // 根據星曜屬性調整分數
+        if (star.attribute === '吉') {
+          energyScore += 1;
+        } else if (star.attribute === '凶') {
+          energyScore -= 1;
+        }
+      });
+
+      flows[palace.index] = {
+        palaceIndex: palace.index,
+        palaceName: palace.name,
+        energyScore,
+        majorInfluences: influences
+      };
+    });
+  }
+
+  return flows;
+});
+
+const multiLayerEnergies = computed(() => {
+  // 模擬多層次能量數據
+  const energies: Record<number, {
+    palaceIndex: number
+    palaceName: string
+    baseEnergy: number
+    daXianEnergy: number
+    liuNianEnergy: number
+    totalEnergy: number
+    interpretation: string
+  }> = {};
+
+  if (props.chartData?.palaces) {
+    props.chartData.palaces.forEach(palace => {
+      const baseEnergy = transformationFlows.value[palace.index]?.energyScore || 0;
+      const daXianEnergy = Math.floor(Math.random() * 6) - 3; // 模擬大限能量 -3 to +3
+      const liuNianEnergy = Math.floor(Math.random() * 4) - 2; // 模擬流年能量 -2 to +2
+      const totalEnergy = baseEnergy + daXianEnergy + liuNianEnergy;
+
+      let interpretation = '';
+      if (totalEnergy > 5) {
+        interpretation = '能量極佳，是發展的黃金時期';
+      } else if (totalEnergy > 2) {
+        interpretation = '能量良好，適合積極行動';
+      } else if (totalEnergy > -2) {
+        interpretation = '能量平穩，宜穩健發展';
+      } else if (totalEnergy > -5) {
+        interpretation = '能量偏弱，需謹慎行事';
+      } else {
+        interpretation = '能量低迷，宜保守觀望';
+      }
+
+      energies[palace.index] = {
+        palaceIndex: palace.index,
+        palaceName: palace.name,
+        baseEnergy,
+        daXianEnergy,
+        liuNianEnergy,
+        totalEnergy,
+        interpretation
+      };
+    });
+  }
+
+  return energies;
+});
 
 
 // 計算屬性
@@ -686,7 +550,7 @@ const zhiToIndex: Record<string, number> = {
 
 // 方法
 const getPalaceByZhi = (zhiName: string): Palace | undefined => {
-  if (!props.chartData || zhiName === 'center') return undefined;
+  if (!props.chartData || !props.chartData.palaces || zhiName === 'center') return undefined;
   return props.chartData.palaces.find(palace => palace.zhi === zhiName);
 };
 
@@ -975,12 +839,76 @@ const closeStarDetail = () => {
   selectedStar.value = null;
 };
 
+// FortuneOverview 相關事件處理
+const handleFortuneOverviewPalaceClick = (palaceIndex: number) => {
+  console.log(`正在導航到宮位 ${palaceIndex}`);
+  
+  // 滾動到對應的宮位並高亮
+  const palace = props.chartData?.palaces.find(p => p.index === palaceIndex);
+  if (palace) {
+    console.log(`找到宮位: ${palace.name} (${palace.zhi})`);
+    
+    // 使用多種選擇器嘗試找到宮位元素
+    let palaceElement = document.querySelector(`[data-palace-zhi="${palace.zhi}"]`);
+    if (!palaceElement) {
+      palaceElement = document.querySelector(`[data-palace-index="${palaceIndex}"]`);
+    }
+    if (!palaceElement) {
+      palaceElement = document.querySelector(`.palace-${palace.zhi}`);
+    }
+    
+    if (palaceElement) {
+      console.log('找到宮位元素，開始滾動和高亮');
+      
+      // 先移除任何現有的高亮
+      document.querySelectorAll('.palace-highlight').forEach(el => {
+        el.classList.remove('palace-highlight');
+      });
+      
+      // 滾動到宮位
+      palaceElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center',
+        inline: 'center'
+      });
+      
+      // 添加高亮效果
+      palaceElement.classList.add('palace-highlight');
+      
+      // 設置選中的宮位
+      selectedPalace.value = palace;
+      
+      // 3秒後移除高亮
+      setTimeout(() => {
+        palaceElement.classList.remove('palace-highlight');
+      }, 3000);
+      
+      // 發送宮位點擊事件
+      emit('palaceClick', palace);
+    } else {
+      console.warn(`無法找到宮位 ${palace.name} (${palace.zhi}) 的 DOM 元素`);
+      // 仍然設置選中的宮位並發送事件
+      selectedPalace.value = palace;
+      emit('palaceClick', palace);
+    }
+  } else {
+    console.warn(`無法找到索引為 ${palaceIndex} 的宮位資料`);
+  }
+};
+
+const handleStrengthClick = (strength: any) => {
+  console.log('優勢點擊:', strength);
+  handleFortuneOverviewPalaceClick(strength.palaceIndex);
+};
+
+const handleChallengeClick = (challenge: any) => {
+  console.log('挑戰點擊:', challenge);
+  handleFortuneOverviewPalaceClick(challenge.palaceIndex);
+};
+
 // 移除匯出功能
 
 // 解讀相關方法
-const setInterpretationMode = (mode: 'comprehensive' | 'domain' | 'palace') => {
-  interpretationMode.value = mode;
-};
 
 const setActiveDomain = (domain: 'career' | 'wealth' | 'marriage' | 'health' | 'education' | 'social') => {
   activeDomain.value = domain;
@@ -1052,7 +980,7 @@ watch(() => props.chartData, (newData) => {
     selectedStar.value = null;
     
     // 設置默認解讀模式
-    interpretationMode.value = 'comprehensive';
+    interpretationMode.value = 'fortune';
     
     // 設置默認領域和宮位
     if (newData.domainAnalyses && newData.domainAnalyses.length > 0) {
@@ -1063,6 +991,13 @@ watch(() => props.chartData, (newData) => {
       activePalaceName.value = newData.palaceInterpretations[0].palaceName;
     }
   }
+});
+
+// 暴露方法給父組件使用
+defineExpose({
+  handleFortuneOverviewPalaceClick,
+  handleStrengthClick,
+  handleChallengeClick
 });
 </script>
 
@@ -2003,18 +1938,6 @@ watch(() => props.chartData, (newData) => {
   color: #333;
 }
 
-/* 命盤解讀區域樣式 */
-.interpretation-section {
-  margin-top: 30px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-/* 解讀面板通用樣式 */
-.interpretation-panel {
-  margin-bottom: 20px;
-}
 
 /* 空宮指示器樣式 */
 .empty-palace-indicator {
@@ -2433,15 +2356,6 @@ watch(() => props.chartData, (newData) => {
     padding: 16px;
   }
   
-  .interpretation-tabs {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  .tab-button {
-    font-size: 13px;
-    padding: 6px 12px;
-  }
   
   .cycles-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -2551,6 +2465,7 @@ watch(() => props.chartData, (newData) => {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
+  
 }
 
 /* 極小螢幕 */
@@ -2568,8 +2483,49 @@ watch(() => props.chartData, (newData) => {
     padding: 1px 2px;
   }
   
-  .interpretation-section {
-    padding: 8px;
+}
+
+/* 宮位高亮動畫 */
+.palace-highlight {
+  animation: highlightPulse 3s ease-in-out;
+  border: 3px solid #667eea !important;
+  box-shadow: 0 0 25px rgba(102, 126, 234, 0.7) !important;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1)) !important;
+  transform: scale(1.02) !important;
+  z-index: 10 !important;
+  position: relative !important;
+}
+
+.palace-highlight .palace-content {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 8px;
+}
+
+@keyframes highlightPulse {
+  0% {
+    border-color: #667eea;
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+    transform: scale(1.02);
+  }
+  25% {
+    border-color: #764ba2;
+    box-shadow: 0 0 35px rgba(118, 75, 162, 0.8);
+    transform: scale(1.05);
+  }
+  50% {
+    border-color: #f093fb;
+    box-shadow: 0 0 40px rgba(240, 147, 251, 0.9);
+    transform: scale(1.05);
+  }
+  75% {
+    border-color: #764ba2;
+    box-shadow: 0 0 35px rgba(118, 75, 162, 0.8);
+    transform: scale(1.05);
+  }
+  100% {
+    border-color: #667eea;
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+    transform: scale(1.02);
   }
 }
 </style>

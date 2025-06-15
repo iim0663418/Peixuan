@@ -1,5 +1,5 @@
+/// <reference types="../../node_modules/.vue-global-types/vue_3.5_0_0_0.d.ts" />
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-const emit = defineEmits();
 const props = withDefaults(defineProps(), {
     mingGan: '',
     transformationFlows: () => ({}),
@@ -8,7 +8,6 @@ const props = withDefaults(defineProps(), {
 });
 // 響應式狀態 - 固定為最詳細顯示
 const isAnimationActive = ref(false);
-const isDetailView = ref(true); // 固定為詳細視圖
 const selectedLayer = ref('total');
 const animationInterval = ref(null);
 // 新增移動端檢測和資料相關屬性
@@ -42,10 +41,6 @@ const handleLevelChanged = (level) => {
     console.log('四化飛星層級變化:', level);
     // TODO: 實現層級變化邏輯
 };
-// 固定為最高詳細顯示模式
-const displayMode = ref('comprehensive'); // 固定為 comprehensive 模式
-// 處理事件監聽
-// 移除重複的事件處理，useDisplayMode 已經處理了這些邏輯
 // 計算屬性
 const transformedStars = computed(() => {
     const result = [];
@@ -67,12 +62,6 @@ const combinations = computed(() => {
 const hasMultiLayerData = computed(() => {
     return Object.keys(props.multiLayerEnergies || {}).length > 0;
 });
-// 顯示深度相關方法（保留供將來使用）
-// const setDisplayDepth = (depth: string) => {
-//   const newMode = mapDepthToMode(depth);
-//   displayMode.value = newMode;
-//   console.log('四化飛星設置顯示深度:', newMode);
-// };
 // 動畫控制方法
 const toggleAnimation = () => {
     isAnimationActive.value = !isAnimationActive.value;
@@ -97,9 +86,6 @@ const toggleAnimation = () => {
         }
     }
 };
-// const toggleView = () => {
-//   isDetailView.value = !isDetailView.value;
-// };
 const getPalaceNameByIndex = (index) => {
     const palace = props.chartData.palaces.find(p => p.index === index);
     return palace ? `${palace.name}(${palace.zhi})` : '未知宮位';
@@ -254,7 +240,7 @@ onMounted(() => {
         transformationFlows: Object.keys(props.transformationFlows || {}).length,
         transformationCombinations: (props.transformationCombinations || []).length,
         multiLayerEnergies: Object.keys(props.multiLayerEnergies || {}).length,
-        displayMode: 'comprehensive' // 固定為最高詳細模式
+        // 組件固定為最高詳細顯示模式
     });
 });
 // 組件卸載時清理
@@ -338,51 +324,49 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.d
     ...{ class: "display-header" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
-if (__VLS_ctx.isDetailView) {
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "explanation-panel" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "explanation-header" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-        ...{ class: "info-icon" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "explanation-content" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-        ...{ class: "t-lu" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-        ...{ class: "t-quan" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-        ...{ class: "t-ke" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-        ...{ class: "t-ji" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-        ...{ class: "t-lu" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-        ...{ class: "t-quan" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-        ...{ class: "t-ke" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-        ...{ class: "t-ji" },
-    });
-}
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "explanation-panel" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "explanation-header" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "info-icon" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "explanation-content" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "t-lu" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "t-quan" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "t-ke" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "t-ji" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.ul, __VLS_intrinsicElements.ul)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "t-lu" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "t-quan" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "t-ke" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "t-ji" },
+});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "transformation-chart" },
 });
@@ -437,61 +421,59 @@ for (const [star] of __VLS_getVForSourceType((__VLS_ctx.transformedStars))) {
     });
     (__VLS_ctx.getTransformationEffect(star));
 }
-if (__VLS_ctx.isDetailView) {
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "transformation-flows" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "flows-container" },
+});
+for (const [palace, index] of __VLS_getVForSourceType((__VLS_ctx.chartData.palaces))) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "transformation-flows" },
+        key: (`flow-${index}`),
+        ...{ class: "flow-item" },
+        ...{ class: (__VLS_ctx.getEnergyClass(palace.index)) },
     });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({});
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "flows-container" },
+        ...{ class: "flow-palace" },
     });
-    for (const [palace, index] of __VLS_getVForSourceType((__VLS_ctx.chartData.palaces))) {
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+        ...{ class: "palace-name" },
+    });
+    (palace.name);
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+        ...{ class: "palace-zhi" },
+    });
+    (palace.zhi);
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "flow-energy" },
+    });
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "energy-bar" },
+        ...{ style: (__VLS_ctx.getEnergyBarStyle(palace.index)) },
+    });
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+        ...{ class: "energy-value" },
+    });
+    (__VLS_ctx.getEnergyValue(palace.index));
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "flow-stars" },
+    });
+    for (const [star] of __VLS_getVForSourceType((__VLS_ctx.getTransformedStarsInPalace(palace)))) {
         __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-            key: (`flow-${index}`),
-            ...{ class: "flow-item" },
-            ...{ class: (__VLS_ctx.getEnergyClass(palace.index)) },
-        });
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-            ...{ class: "flow-palace" },
+            key: (`flow-star-${star.name}`),
+            ...{ class: "flow-star" },
         });
         __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-            ...{ class: "palace-name" },
+            ...{ class: "star-name" },
         });
-        (palace.name);
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-            ...{ class: "palace-zhi" },
-        });
-        (palace.zhi);
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-            ...{ class: "flow-energy" },
-        });
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-            ...{ class: "energy-bar" },
-            ...{ style: (__VLS_ctx.getEnergyBarStyle(palace.index)) },
-        });
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-            ...{ class: "energy-value" },
-        });
-        (__VLS_ctx.getEnergyValue(palace.index));
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-            ...{ class: "flow-stars" },
-        });
-        for (const [star] of __VLS_getVForSourceType((__VLS_ctx.getTransformedStarsInPalace(palace)))) {
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                key: (`flow-star-${star.name}`),
-                ...{ class: "flow-star" },
-            });
+        (star.name);
+        for (const [trans] of __VLS_getVForSourceType((star.transformations))) {
             __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-                ...{ class: "star-name" },
+                key: (`flow-trans-${trans}`),
+                ...{ class: (`trans-indicator trans-${trans}`) },
             });
-            (star.name);
-            for (const [trans] of __VLS_getVForSourceType((star.transformations))) {
-                __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-                    key: (`flow-trans-${trans}`),
-                    ...{ class: (`trans-indicator trans-${trans}`) },
-                });
-                (trans);
-            }
+            (trans);
         }
     }
 }
@@ -544,7 +526,7 @@ else {
         ...{ class: "message-detail" },
     });
 }
-if (__VLS_ctx.isDetailView && __VLS_ctx.hasMultiLayerData) {
+if (__VLS_ctx.hasMultiLayerData) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "layered-effects" },
     });
@@ -583,7 +565,7 @@ if (__VLS_ctx.isDetailView && __VLS_ctx.hasMultiLayerData) {
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
         ...{ onClick: (...[$event]) => {
-                if (!(__VLS_ctx.isDetailView && __VLS_ctx.hasMultiLayerData))
+                if (!(__VLS_ctx.hasMultiLayerData))
                     return;
                 __VLS_ctx.selectedLayer = 'base';
             } },
@@ -591,7 +573,7 @@ if (__VLS_ctx.isDetailView && __VLS_ctx.hasMultiLayerData) {
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
         ...{ onClick: (...[$event]) => {
-                if (!(__VLS_ctx.isDetailView && __VLS_ctx.hasMultiLayerData))
+                if (!(__VLS_ctx.hasMultiLayerData))
                     return;
                 __VLS_ctx.selectedLayer = 'daXian';
             } },
@@ -599,7 +581,7 @@ if (__VLS_ctx.isDetailView && __VLS_ctx.hasMultiLayerData) {
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
         ...{ onClick: (...[$event]) => {
-                if (!(__VLS_ctx.isDetailView && __VLS_ctx.hasMultiLayerData))
+                if (!(__VLS_ctx.hasMultiLayerData))
                     return;
                 __VLS_ctx.selectedLayer = 'liuNian';
             } },
@@ -607,7 +589,7 @@ if (__VLS_ctx.isDetailView && __VLS_ctx.hasMultiLayerData) {
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
         ...{ onClick: (...[$event]) => {
-                if (!(__VLS_ctx.isDetailView && __VLS_ctx.hasMultiLayerData))
+                if (!(__VLS_ctx.hasMultiLayerData))
                     return;
                 __VLS_ctx.selectedLayer = 'total';
             } },
@@ -794,7 +776,6 @@ const __VLS_self = (await import('vue')).defineComponent({
     setup() {
         return {
             isAnimationActive: isAnimationActive,
-            isDetailView: isDetailView,
             selectedLayer: selectedLayer,
             transformedStars: transformedStars,
             combinations: combinations,
@@ -811,7 +792,6 @@ const __VLS_self = (await import('vue')).defineComponent({
             getEnergySummary: getEnergySummary,
         };
     },
-    __typeEmits: {},
     __typeProps: {},
     props: {},
 });
@@ -819,7 +799,6 @@ export default (await import('vue')).defineComponent({
     setup() {
         return {};
     },
-    __typeEmits: {},
     __typeProps: {},
     props: {},
 });

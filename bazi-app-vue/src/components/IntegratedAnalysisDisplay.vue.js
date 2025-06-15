@@ -1,6 +1,7 @@
 /// <reference types="../../node_modules/.vue-global-types/vue_3.5_0_0_0.d.ts" />
 import { ref, onMounted, watch, computed } from 'vue';
-import { Loading, Warning, Check, InfoFilled, DataAnalysis, Connection, TrendCharts, Bell, Document } from '@element-plus/icons-vue';
+import { Loading, Warning, Check, InfoFilled, DataAnalysis, Connection, TrendCharts, Bell, Document, Refresh } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
 const props = withDefaults(defineProps(), {
     integratedAnalysis: null,
     loading: false,
@@ -9,16 +10,48 @@ const props = withDefaults(defineProps(), {
 // 響應式資料
 const isMobile = ref(window.innerWidth <= 768);
 const confidenceScore = computed(() => getConfidenceValue());
-// 監視分析結果變化，用於調試
-watch(() => props.integratedAnalysis, (newVal) => {
+const elementsUpdateKey = ref(0);
+const dualityUpdateKey = ref(0);
+const isDev = ref(import.meta.env.DEV);
+// 監視分析結果變化，用於調試和自動更新
+watch(() => props.integratedAnalysis, (newVal, oldVal) => {
     if (newVal) {
         console.log('IntegratedAnalysisDisplay 收到的分析結果:', newVal);
         // 檢查資料結構是否符合預期
         if (!newVal.data?.integratedAnalysis) {
             console.warn('分析結果缺少 data.integratedAnalysis 屬性，這可能是正常的初始狀態:', newVal);
         }
+        // 檢查是否有實質性的資料變化
+        const hasDataChanged = !oldVal ||
+            JSON.stringify(newVal.data) !== JSON.stringify(oldVal.data) ||
+            newVal.timestamp !== oldVal.timestamp;
+        if (hasDataChanged) {
+            console.log('檢測到分析結果實質變化，自動更新顯示內容');
+            // 使用 nextTick 確保資料已經更新後再觸發重新渲染
+            setTimeout(() => {
+                elementsUpdateKey.value++;
+                dualityUpdateKey.value++;
+                console.log('已觸發五行和分歧分析的重新計算');
+            }, 100);
+            // 只在有舊資料時顯示更新訊息
+            if (oldVal) {
+                ElMessage.success('分析內容已自動更新');
+            }
+        }
     }
 }, { immediate: true, deep: true });
+// 額外監視特定的資料路徑變化
+watch(() => [
+    props.integratedAnalysis?.data?.integratedAnalysis?.consensusFindings,
+    props.integratedAnalysis?.data?.integratedAnalysis?.divergentFindings,
+    props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis
+], (newVals, oldVals) => {
+    if (oldVals && newVals && JSON.stringify(newVals) !== JSON.stringify(oldVals)) {
+        console.log('檢測到特定資料路徑變化，強制更新');
+        elementsUpdateKey.value++;
+        dualityUpdateKey.value++;
+    }
+}, { deep: true });
 // 當組件掛載時進行檢查
 onMounted(() => {
     console.log('IntegratedAnalysisDisplay 組件掛載，當前分析結果:', props.integratedAnalysis);
@@ -49,19 +82,62 @@ const getConsensusFindings = () => {
         return [];
     }
 };
-// 獲取分歧發現
-const getDivergentFindings = () => {
+// 獲取分歧發現 - 使用 computed 讓它具有響應性
+const getDivergentFindings = computed(() => {
     try {
-        if (!props.integratedAnalysis?.data?.integratedAnalysis?.divergentFindings) {
-            return [];
+        console.log('重新計算分歧分析資料, 完整資料結構:', props.integratedAnalysis);
+        // 強制更新響應性
+        const _ = dualityUpdateKey.value;
+        // 檢查多個可能的資料路徑
+        let divergentFindings = [];
+        // 路徑1: 直接的 divergentFindings
+        if (props.integratedAnalysis?.data?.integratedAnalysis?.divergentFindings) {
+            divergentFindings = props.integratedAnalysis.data.integratedAnalysis.divergentFindings;
         }
-        return props.integratedAnalysis.data.integratedAnalysis.divergentFindings;
+        // 路徑2: 檢查是否有其他分歧相關的屬性
+        if (divergentFindings.length === 0 && props.integratedAnalysis?.data?.integratedAnalysis) {
+            const analysis = props.integratedAnalysis.data.integratedAnalysis;
+            Object.keys(analysis).forEach(key => {
+                if (key.includes('divergent') || key.includes('difference') || key.includes('分歧') || key.includes('差異')) {
+                    console.log(`找到可能的分歧資料路徑: ${key}`, analysis[key]);
+                    if (Array.isArray(analysis[key])) {
+                        divergentFindings = analysis[key];
+                    }
+                    else if (analysis[key]?.findings || analysis[key]?.differences) {
+                        divergentFindings = (analysis[key].findings || analysis[key].differences || []);
+                    }
+                }
+            });
+        }
+        // 路徑3: 從詳細分析中尋找分歧資料
+        if (divergentFindings.length === 0 && props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis) {
+            const detailedAnalysis = props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis;
+            Object.keys(detailedAnalysis).forEach(key => {
+                if (detailedAnalysis[key]?.differences) {
+                    divergentFindings = [...divergentFindings, ...detailedAnalysis[key].differences];
+                }
+            });
+        }
+        // 路徑4: 如果還是沒有找到，嘗試從 consensusFindings 中區分出可能的分歧內容
+        if (divergentFindings.length === 0) {
+            const consensusFindings = props.integratedAnalysis?.data?.integratedAnalysis?.consensusFindings || [];
+            // 查找可能表示衝突或分歧的內容
+            divergentFindings = consensusFindings.filter(finding => {
+                const findingStr = String(finding).toLowerCase();
+                return findingStr.includes('但是') || findingStr.includes('然而') ||
+                    findingStr.includes('不過') || findingStr.includes('矛盾') ||
+                    findingStr.includes('差異') || findingStr.includes('分歧');
+            });
+        }
+        console.log('找到的分歧分析資料:', divergentFindings);
+        // 確保返回的是字符串數組
+        return divergentFindings.filter(finding => finding && typeof finding === 'string');
     }
     catch (error) {
         console.warn('獲取分歧發現時發生錯誤:', error);
         return [];
     }
-};
+});
 // 獲取建議
 const getRecommendations = () => {
     try {
@@ -88,12 +164,64 @@ const getMethodsUsed = () => {
         return ['紫微斗數', '四柱八字'];
     }
 };
-// 獲取五行分析
-const getElementsAnalysis = () => {
+// 獲取五行分析 - 使用 computed 讓它具有響應性
+const getElementsAnalysis = computed(() => {
     try {
-        if (!props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis?.elements?.matches) {
-            return []; // 返回空數組，不顯示預設資料
+        console.log('重新計算五行分析資料, 完整資料結構:', props.integratedAnalysis);
+        // 強制更新響應性
+        const _ = elementsUpdateKey.value;
+        // 檢查多個可能的資料路徑
+        let elementsData = null;
+        let matches = [];
+        let differences = [];
+        // 路徑1: 詳細分析結構
+        if (props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis?.elements) {
+            elementsData = props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.elements;
+            matches = elementsData.matches || [];
+            differences = elementsData.differences || [];
         }
+        // 路徑2: 直接在 integratedAnalysis 下檢查是否有 elements 屬性
+        if (!elementsData && props.integratedAnalysis?.data?.integratedAnalysis) {
+            const analysis = props.integratedAnalysis.data.integratedAnalysis;
+            if (analysis.elements) {
+                elementsData = analysis.elements;
+                matches = elementsData.matches || [];
+                differences = elementsData.differences || [];
+            }
+        }
+        // 路徑3: 檢查是否有其他資料結構
+        if (!elementsData && props.integratedAnalysis?.data?.integratedAnalysis) {
+            const analysis = props.integratedAnalysis.data.integratedAnalysis;
+            // 檢查是否有任何包含五行相關資訊的屬性
+            Object.keys(analysis).forEach(key => {
+                if (key.includes('elements') || key.includes('五行')) {
+                    console.log(`找到可能的五行資料路徑: ${key}`, analysis[key]);
+                    if (analysis[key]?.matches) {
+                        matches = analysis[key].matches || [];
+                        differences = analysis[key].differences || [];
+                        elementsData = analysis[key];
+                    }
+                }
+            });
+        }
+        // 如果沒有找到五行資料，嘗試從其他分析內容中提取
+        if (matches.length === 0) {
+            // 檢查 consensusFindings 或 divergentFindings 中是否有五行資訊
+            const allFindings = [
+                ...(props.integratedAnalysis?.data?.integratedAnalysis?.consensusFindings || []),
+                ...(props.integratedAnalysis?.data?.integratedAnalysis?.divergentFindings || [])
+            ];
+            allFindings.forEach(finding => {
+                if (typeof finding === 'string') {
+                    matches.push(finding);
+                }
+            });
+        }
+        if (matches.length === 0) {
+            console.log('沒有找到五行分析資料');
+            return [];
+        }
+        console.log('找到的五行相關資料:', { matches, differences });
         // 從匹配和差異中提取五行狀態
         const elements = [
             { name: '木', status: 'normal' },
@@ -102,64 +230,68 @@ const getElementsAnalysis = () => {
             { name: '金', status: 'normal' },
             { name: '水', status: 'normal' }
         ];
-        const matches = props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.elements.matches;
-        const differences = props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.elements.differences || [];
-        // 處理強勢五行
-        matches.forEach(match => {
-            if (match.includes('木行強勢')) {
+        // 處理強勢五行 - 更靈活的匹配模式
+        matches.forEach((match) => {
+            const matchStr = String(match).toLowerCase();
+            if (matchStr.includes('木') && (matchStr.includes('強') || matchStr.includes('旺') || matchStr.includes('盛'))) {
                 elements[0].status = 'strong';
             }
-            else if (match.includes('火行強勢')) {
+            else if (matchStr.includes('火') && (matchStr.includes('強') || matchStr.includes('旺') || matchStr.includes('盛'))) {
                 elements[1].status = 'strong';
             }
-            else if (match.includes('土行強勢')) {
+            else if (matchStr.includes('土') && (matchStr.includes('強') || matchStr.includes('旺') || matchStr.includes('盛'))) {
                 elements[2].status = 'strong';
             }
-            else if (match.includes('金行強勢')) {
+            else if (matchStr.includes('金') && (matchStr.includes('強') || matchStr.includes('旺') || matchStr.includes('盛'))) {
                 elements[3].status = 'strong';
             }
-            else if (match.includes('水行強勢')) {
+            else if (matchStr.includes('水') && (matchStr.includes('強') || matchStr.includes('旺') || matchStr.includes('盛'))) {
                 elements[4].status = 'strong';
             }
         });
-        // 處理偏弱五行
-        differences.forEach(diff => {
-            if (diff.includes('木行偏弱')) {
+        // 處理偏弱五行 - 更靈活的匹配模式
+        [...matches, ...differences].forEach((item) => {
+            const itemStr = String(item).toLowerCase();
+            if (itemStr.includes('木') && (itemStr.includes('弱') || itemStr.includes('缺') || itemStr.includes('少'))) {
                 elements[0].status = 'weak';
             }
-            else if (diff.includes('火行偏弱')) {
+            else if (itemStr.includes('火') && (itemStr.includes('弱') || itemStr.includes('缺') || itemStr.includes('少'))) {
                 elements[1].status = 'weak';
             }
-            else if (diff.includes('土行偏弱')) {
+            else if (itemStr.includes('土') && (itemStr.includes('弱') || itemStr.includes('缺') || itemStr.includes('少'))) {
                 elements[2].status = 'weak';
             }
-            else if (diff.includes('金行偏弱')) {
+            else if (itemStr.includes('金') && (itemStr.includes('弱') || itemStr.includes('缺') || itemStr.includes('少'))) {
                 elements[3].status = 'weak';
             }
-            else if (diff.includes('水行偏弱')) {
+            else if (itemStr.includes('水') && (itemStr.includes('弱') || itemStr.includes('缺') || itemStr.includes('少'))) {
                 elements[4].status = 'weak';
             }
         });
+        console.log('計算出的五行分析結果:', elements);
         return elements;
     }
     catch (error) {
         console.warn('獲取五行分析時發生錯誤:', error);
         return [];
     }
-};
-// 獲取週期分析
-const getCyclesAnalysis = () => {
+});
+// 獲取週期分析 - 使用 computed 讓它具有響應性
+const getCyclesAnalysis = computed(() => {
     try {
+        console.log('重新計算週期分析資料, cycles:', props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis?.cycles);
         if (!props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis?.cycles?.matches) {
+            console.log('週期分析資料不存在，返回空數組');
             return [];
         }
+        console.log('計算出的週期分析結果:', props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.cycles.matches);
         return props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.cycles.matches;
     }
     catch (error) {
         console.warn('獲取週期分析時發生錯誤:', error);
         return [];
     }
-};
+});
 // 獲取信心度狀態
 const getConfidenceStatus = (confidence) => {
     if (confidence > 0.7)
@@ -221,6 +353,46 @@ const getCurrentDateTime = () => {
         minute: '2-digit'
     });
 };
+// 手動刷新五行分析
+const refreshElementsAnalysis = () => {
+    console.log('手動刷新五行分析，當前資料:', props.integratedAnalysis);
+    elementsUpdateKey.value++;
+    ElMessage.success('五行分析已重新計算');
+};
+// 手動刷新分歧分析
+const refreshDualityAnalysis = () => {
+    console.log('手動刷新分歧分析，當前資料:', props.integratedAnalysis);
+    dualityUpdateKey.value++;
+    ElMessage.success('深層特質解析已重新計算');
+};
+// 調試函數：輸出當前資料結構
+const logCurrentDataStructure = () => {
+    console.log('=== IntegratedAnalysisDisplay 當前資料結構 ===');
+    console.log('完整資料:', props.integratedAnalysis);
+    if (props.integratedAnalysis?.data?.integratedAnalysis) {
+        const analysis = props.integratedAnalysis.data.integratedAnalysis;
+        console.log('可用的分析屬性:', Object.keys(analysis));
+        console.log('consensusFindings:', analysis.consensusFindings);
+        console.log('divergentFindings:', analysis.divergentFindings);
+        console.log('detailedAnalysis:', analysis.detailedAnalysis);
+    }
+    console.log('五行分析結果:', getElementsAnalysis.value);
+    console.log('分歧分析結果:', getDivergentFindings.value);
+    console.log('=====================================');
+};
+// 刷新所有分析內容
+const refreshAllAnalysis = () => {
+    console.log('手動刷新所有分析內容');
+    logCurrentDataStructure();
+    elementsUpdateKey.value++;
+    dualityUpdateKey.value++;
+    ElMessage.success('所有分析內容已重新計算');
+};
+// 在全局暴露調試函數（開發環境）
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
+    window.debugIntegratedAnalysis = logCurrentDataStructure;
+    window.refreshAllAnalysis = refreshAllAnalysis;
+}
 debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
 const __VLS_withDefaultsArg = (function (t) { return t; })({
     integratedAnalysis: null,
@@ -241,6 +413,9 @@ let __VLS_directives;
 /** @type {__VLS_StyleScopedClasses['strong']} */ ;
 /** @type {__VLS_StyleScopedClasses['element-item']} */ ;
 /** @type {__VLS_StyleScopedClasses['weak']} */ ;
+/** @type {__VLS_StyleScopedClasses['refresh-btn']} */ ;
+/** @type {__VLS_StyleScopedClasses['refresh-btn']} */ ;
+/** @type {__VLS_StyleScopedClasses['el-icon']} */ ;
 /** @type {__VLS_StyleScopedClasses['analysis-header']} */ ;
 /** @type {__VLS_StyleScopedClasses['title-section']} */ ;
 /** @type {__VLS_StyleScopedClasses['finding-cards']} */ ;
@@ -386,7 +561,7 @@ else if (__VLS_ctx.integratedAnalysis) {
         }
         var __VLS_31;
     }
-    if (__VLS_ctx.getElementsAnalysis().length > 0) {
+    if (__VLS_ctx.getElementsAnalysis.length > 0) {
         __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
             ...{ class: "elements-section" },
         });
@@ -403,12 +578,39 @@ else if (__VLS_ctx.integratedAnalysis) {
         const __VLS_45 = __VLS_asFunctionalComponent(__VLS_44, new __VLS_44({}));
         const __VLS_46 = __VLS_45({}, ...__VLS_functionalComponentArgsRest(__VLS_45));
         var __VLS_43;
+        const __VLS_48 = {}.ElButton;
+        /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
+        // @ts-ignore
+        const __VLS_49 = __VLS_asFunctionalComponent(__VLS_48, new __VLS_48({
+            ...{ 'onClick': {} },
+            type: "text",
+            icon: (__VLS_ctx.Refresh),
+            size: "small",
+            title: "重新計算五行分析",
+            ...{ class: "refresh-btn" },
+        }));
+        const __VLS_50 = __VLS_49({
+            ...{ 'onClick': {} },
+            type: "text",
+            icon: (__VLS_ctx.Refresh),
+            size: "small",
+            title: "重新計算五行分析",
+            ...{ class: "refresh-btn" },
+        }, ...__VLS_functionalComponentArgsRest(__VLS_49));
+        let __VLS_52;
+        let __VLS_53;
+        let __VLS_54;
+        const __VLS_55 = {
+            onClick: (__VLS_ctx.refreshElementsAnalysis)
+        };
+        var __VLS_51;
         __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
             ...{ class: "elements-distribution" },
+            key: (__VLS_ctx.elementsUpdateKey),
         });
-        for (const [element] of __VLS_getVForSourceType((__VLS_ctx.getElementsAnalysis()))) {
+        for (const [element] of __VLS_getVForSourceType((__VLS_ctx.getElementsAnalysis))) {
             __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                key: (element.name),
+                key: (`${element.name}-${__VLS_ctx.elementsUpdateKey}`),
                 ...{ class: "element-item" },
                 ...{ class: (element.status) },
             });
@@ -427,135 +629,162 @@ else if (__VLS_ctx.integratedAnalysis) {
             (__VLS_ctx.getElementStatusText(element.status));
         }
     }
-    if (__VLS_ctx.getCyclesAnalysis().length > 0) {
+    if (__VLS_ctx.getCyclesAnalysis.length > 0) {
         __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
             ...{ class: "cycles-section" },
         });
         __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
-        const __VLS_48 = {}.ElIcon;
+        const __VLS_56 = {}.ElIcon;
         /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
-        // @ts-ignore
-        const __VLS_49 = __VLS_asFunctionalComponent(__VLS_48, new __VLS_48({}));
-        const __VLS_50 = __VLS_49({}, ...__VLS_functionalComponentArgsRest(__VLS_49));
-        __VLS_51.slots.default;
-        const __VLS_52 = {}.TrendCharts;
-        /** @type {[typeof __VLS_components.TrendCharts, ]} */ ;
-        // @ts-ignore
-        const __VLS_53 = __VLS_asFunctionalComponent(__VLS_52, new __VLS_52({}));
-        const __VLS_54 = __VLS_53({}, ...__VLS_functionalComponentArgsRest(__VLS_53));
-        var __VLS_51;
-        const __VLS_56 = {}.ElTimeline;
-        /** @type {[typeof __VLS_components.ElTimeline, typeof __VLS_components.elTimeline, typeof __VLS_components.ElTimeline, typeof __VLS_components.elTimeline, ]} */ ;
         // @ts-ignore
         const __VLS_57 = __VLS_asFunctionalComponent(__VLS_56, new __VLS_56({}));
         const __VLS_58 = __VLS_57({}, ...__VLS_functionalComponentArgsRest(__VLS_57));
         __VLS_59.slots.default;
-        for (const [cycle, index] of __VLS_getVForSourceType((__VLS_ctx.getCyclesAnalysis()))) {
-            const __VLS_60 = {}.ElTimelineItem;
-            /** @type {[typeof __VLS_components.ElTimelineItem, typeof __VLS_components.elTimelineItem, typeof __VLS_components.ElTimelineItem, typeof __VLS_components.elTimelineItem, ]} */ ;
-            // @ts-ignore
-            const __VLS_61 = __VLS_asFunctionalComponent(__VLS_60, new __VLS_60({
-                key: (`cycle-${index}`),
-                type: (__VLS_ctx.getTimelineItemType(index)),
-                color: (__VLS_ctx.getTimelineItemColor(index)),
-                size: (index === 0 ? 'large' : 'normal'),
-            }));
-            const __VLS_62 = __VLS_61({
-                key: (`cycle-${index}`),
-                type: (__VLS_ctx.getTimelineItemType(index)),
-                color: (__VLS_ctx.getTimelineItemColor(index)),
-                size: (index === 0 ? 'large' : 'normal'),
-            }, ...__VLS_functionalComponentArgsRest(__VLS_61));
-            __VLS_63.slots.default;
-            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-                ...{ class: "timeline-content" },
-            });
-            (cycle);
-            var __VLS_63;
-        }
+        const __VLS_60 = {}.TrendCharts;
+        /** @type {[typeof __VLS_components.TrendCharts, ]} */ ;
+        // @ts-ignore
+        const __VLS_61 = __VLS_asFunctionalComponent(__VLS_60, new __VLS_60({}));
+        const __VLS_62 = __VLS_61({}, ...__VLS_functionalComponentArgsRest(__VLS_61));
         var __VLS_59;
-    }
-    if (__VLS_ctx.getDivergentFindings().length > 0) {
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-            ...{ class: "divergent-section" },
-        });
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
-        const __VLS_64 = {}.ElIcon;
-        /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
+        const __VLS_64 = {}.ElTimeline;
+        /** @type {[typeof __VLS_components.ElTimeline, typeof __VLS_components.elTimeline, typeof __VLS_components.ElTimeline, typeof __VLS_components.elTimeline, ]} */ ;
         // @ts-ignore
         const __VLS_65 = __VLS_asFunctionalComponent(__VLS_64, new __VLS_64({}));
         const __VLS_66 = __VLS_65({}, ...__VLS_functionalComponentArgsRest(__VLS_65));
         __VLS_67.slots.default;
-        const __VLS_68 = {}.Warning;
-        /** @type {[typeof __VLS_components.Warning, ]} */ ;
-        // @ts-ignore
-        const __VLS_69 = __VLS_asFunctionalComponent(__VLS_68, new __VLS_68({}));
-        const __VLS_70 = __VLS_69({}, ...__VLS_functionalComponentArgsRest(__VLS_69));
+        for (const [cycle, index] of __VLS_getVForSourceType((__VLS_ctx.getCyclesAnalysis))) {
+            const __VLS_68 = {}.ElTimelineItem;
+            /** @type {[typeof __VLS_components.ElTimelineItem, typeof __VLS_components.elTimelineItem, typeof __VLS_components.ElTimelineItem, typeof __VLS_components.elTimelineItem, ]} */ ;
+            // @ts-ignore
+            const __VLS_69 = __VLS_asFunctionalComponent(__VLS_68, new __VLS_68({
+                key: (`cycle-${index}`),
+                type: (__VLS_ctx.getTimelineItemType(index)),
+                color: (__VLS_ctx.getTimelineItemColor(index)),
+                size: (index === 0 ? 'large' : 'normal'),
+            }));
+            const __VLS_70 = __VLS_69({
+                key: (`cycle-${index}`),
+                type: (__VLS_ctx.getTimelineItemType(index)),
+                color: (__VLS_ctx.getTimelineItemColor(index)),
+                size: (index === 0 ? 'large' : 'normal'),
+            }, ...__VLS_functionalComponentArgsRest(__VLS_69));
+            __VLS_71.slots.default;
+            __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                ...{ class: "timeline-content" },
+            });
+            (cycle);
+            var __VLS_71;
+        }
         var __VLS_67;
-        const __VLS_72 = {}.ElTooltip;
-        /** @type {[typeof __VLS_components.ElTooltip, typeof __VLS_components.elTooltip, typeof __VLS_components.ElTooltip, typeof __VLS_components.elTooltip, ]} */ ;
-        // @ts-ignore
-        const __VLS_73 = __VLS_asFunctionalComponent(__VLS_72, new __VLS_72({
-            content: "以下為不同角度的深層解讀，幫助您全面了解自己",
-            placement: "top",
-        }));
-        const __VLS_74 = __VLS_73({
-            content: "以下為不同角度的深層解讀，幫助您全面了解自己",
-            placement: "top",
-        }, ...__VLS_functionalComponentArgsRest(__VLS_73));
-        __VLS_75.slots.default;
-        const __VLS_76 = {}.ElIcon;
+    }
+    if (__VLS_ctx.getDivergentFindings.length > 0) {
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "divergent-section" },
+        });
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
+        const __VLS_72 = {}.ElIcon;
         /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
+        // @ts-ignore
+        const __VLS_73 = __VLS_asFunctionalComponent(__VLS_72, new __VLS_72({}));
+        const __VLS_74 = __VLS_73({}, ...__VLS_functionalComponentArgsRest(__VLS_73));
+        __VLS_75.slots.default;
+        const __VLS_76 = {}.Warning;
+        /** @type {[typeof __VLS_components.Warning, ]} */ ;
         // @ts-ignore
         const __VLS_77 = __VLS_asFunctionalComponent(__VLS_76, new __VLS_76({}));
         const __VLS_78 = __VLS_77({}, ...__VLS_functionalComponentArgsRest(__VLS_77));
-        __VLS_79.slots.default;
-        const __VLS_80 = {}.InfoFilled;
+        var __VLS_75;
+        const __VLS_80 = {}.ElTooltip;
+        /** @type {[typeof __VLS_components.ElTooltip, typeof __VLS_components.elTooltip, typeof __VLS_components.ElTooltip, typeof __VLS_components.elTooltip, ]} */ ;
+        // @ts-ignore
+        const __VLS_81 = __VLS_asFunctionalComponent(__VLS_80, new __VLS_80({
+            content: "以下為不同角度的深層解讀，幫助您全面了解自己",
+            placement: "top",
+        }));
+        const __VLS_82 = __VLS_81({
+            content: "以下為不同角度的深層解讀，幫助您全面了解自己",
+            placement: "top",
+        }, ...__VLS_functionalComponentArgsRest(__VLS_81));
+        __VLS_83.slots.default;
+        const __VLS_84 = {}.ElIcon;
+        /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
+        // @ts-ignore
+        const __VLS_85 = __VLS_asFunctionalComponent(__VLS_84, new __VLS_84({}));
+        const __VLS_86 = __VLS_85({}, ...__VLS_functionalComponentArgsRest(__VLS_85));
+        __VLS_87.slots.default;
+        const __VLS_88 = {}.InfoFilled;
         /** @type {[typeof __VLS_components.InfoFilled, ]} */ ;
         // @ts-ignore
-        const __VLS_81 = __VLS_asFunctionalComponent(__VLS_80, new __VLS_80({}));
-        const __VLS_82 = __VLS_81({}, ...__VLS_functionalComponentArgsRest(__VLS_81));
-        var __VLS_79;
-        var __VLS_75;
+        const __VLS_89 = __VLS_asFunctionalComponent(__VLS_88, new __VLS_88({}));
+        const __VLS_90 = __VLS_89({}, ...__VLS_functionalComponentArgsRest(__VLS_89));
+        var __VLS_87;
+        var __VLS_83;
+        const __VLS_92 = {}.ElButton;
+        /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
+        // @ts-ignore
+        const __VLS_93 = __VLS_asFunctionalComponent(__VLS_92, new __VLS_92({
+            ...{ 'onClick': {} },
+            type: "text",
+            icon: (__VLS_ctx.Refresh),
+            size: "small",
+            title: "重新計算分歧分析",
+            ...{ class: "refresh-btn" },
+        }));
+        const __VLS_94 = __VLS_93({
+            ...{ 'onClick': {} },
+            type: "text",
+            icon: (__VLS_ctx.Refresh),
+            size: "small",
+            title: "重新計算分歧分析",
+            ...{ class: "refresh-btn" },
+        }, ...__VLS_functionalComponentArgsRest(__VLS_93));
+        let __VLS_96;
+        let __VLS_97;
+        let __VLS_98;
+        const __VLS_99 = {
+            onClick: (__VLS_ctx.refreshDualityAnalysis)
+        };
+        var __VLS_95;
         __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
             ...{ class: "finding-cards" },
+            key: (__VLS_ctx.dualityUpdateKey),
         });
-        for (const [finding, index] of __VLS_getVForSourceType((__VLS_ctx.getDivergentFindings()))) {
-            const __VLS_84 = {}.ElCard;
+        for (const [finding, index] of __VLS_getVForSourceType((__VLS_ctx.getDivergentFindings))) {
+            const __VLS_100 = {}.ElCard;
             /** @type {[typeof __VLS_components.ElCard, typeof __VLS_components.elCard, typeof __VLS_components.ElCard, typeof __VLS_components.elCard, ]} */ ;
             // @ts-ignore
-            const __VLS_85 = __VLS_asFunctionalComponent(__VLS_84, new __VLS_84({
-                key: (`divergent-${index}`),
+            const __VLS_101 = __VLS_asFunctionalComponent(__VLS_100, new __VLS_100({
+                key: (`divergent-${index}-${__VLS_ctx.dualityUpdateKey}`),
                 ...{ class: "finding-card divergent" },
             }));
-            const __VLS_86 = __VLS_85({
-                key: (`divergent-${index}`),
+            const __VLS_102 = __VLS_101({
+                key: (`divergent-${index}-${__VLS_ctx.dualityUpdateKey}`),
                 ...{ class: "finding-card divergent" },
-            }, ...__VLS_functionalComponentArgsRest(__VLS_85));
-            __VLS_87.slots.default;
+            }, ...__VLS_functionalComponentArgsRest(__VLS_101));
+            __VLS_103.slots.default;
             {
-                const { header: __VLS_thisSlot } = __VLS_87.slots;
+                const { header: __VLS_thisSlot } = __VLS_103.slots;
                 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
                     ...{ class: "card-header" },
                 });
-                const __VLS_88 = {}.ElIcon;
+                const __VLS_104 = {}.ElIcon;
                 /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
                 // @ts-ignore
-                const __VLS_89 = __VLS_asFunctionalComponent(__VLS_88, new __VLS_88({
+                const __VLS_105 = __VLS_asFunctionalComponent(__VLS_104, new __VLS_104({
                     ...{ class: "finding-icon" },
                     color: "#E6A23C",
                 }));
-                const __VLS_90 = __VLS_89({
+                const __VLS_106 = __VLS_105({
                     ...{ class: "finding-icon" },
                     color: "#E6A23C",
-                }, ...__VLS_functionalComponentArgsRest(__VLS_89));
-                __VLS_91.slots.default;
-                const __VLS_92 = {}.Warning;
+                }, ...__VLS_functionalComponentArgsRest(__VLS_105));
+                __VLS_107.slots.default;
+                const __VLS_108 = {}.Warning;
                 /** @type {[typeof __VLS_components.Warning, ]} */ ;
                 // @ts-ignore
-                const __VLS_93 = __VLS_asFunctionalComponent(__VLS_92, new __VLS_92({}));
-                const __VLS_94 = __VLS_93({}, ...__VLS_functionalComponentArgsRest(__VLS_93));
-                var __VLS_91;
+                const __VLS_109 = __VLS_asFunctionalComponent(__VLS_108, new __VLS_108({}));
+                const __VLS_110 = __VLS_109({}, ...__VLS_functionalComponentArgsRest(__VLS_109));
+                var __VLS_107;
                 __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
                 (finding);
             }
@@ -563,7 +792,7 @@ else if (__VLS_ctx.integratedAnalysis) {
                 ...{ class: "finding-explanation" },
             });
             __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
-            var __VLS_87;
+            var __VLS_103;
         }
     }
     if (__VLS_ctx.getRecommendations().length > 0) {
@@ -571,68 +800,96 @@ else if (__VLS_ctx.integratedAnalysis) {
             ...{ class: "recommendations-section" },
         });
         __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
-        const __VLS_96 = {}.ElIcon;
+        const __VLS_112 = {}.ElIcon;
         /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
         // @ts-ignore
-        const __VLS_97 = __VLS_asFunctionalComponent(__VLS_96, new __VLS_96({}));
-        const __VLS_98 = __VLS_97({}, ...__VLS_functionalComponentArgsRest(__VLS_97));
-        __VLS_99.slots.default;
-        const __VLS_100 = {}.Bell;
+        const __VLS_113 = __VLS_asFunctionalComponent(__VLS_112, new __VLS_112({}));
+        const __VLS_114 = __VLS_113({}, ...__VLS_functionalComponentArgsRest(__VLS_113));
+        __VLS_115.slots.default;
+        const __VLS_116 = {}.Bell;
         /** @type {[typeof __VLS_components.Bell, ]} */ ;
         // @ts-ignore
-        const __VLS_101 = __VLS_asFunctionalComponent(__VLS_100, new __VLS_100({}));
-        const __VLS_102 = __VLS_101({}, ...__VLS_functionalComponentArgsRest(__VLS_101));
-        var __VLS_99;
-        const __VLS_104 = {}.ElCollapse;
+        const __VLS_117 = __VLS_asFunctionalComponent(__VLS_116, new __VLS_116({}));
+        const __VLS_118 = __VLS_117({}, ...__VLS_functionalComponentArgsRest(__VLS_117));
+        var __VLS_115;
+        const __VLS_120 = {}.ElCollapse;
         /** @type {[typeof __VLS_components.ElCollapse, typeof __VLS_components.elCollapse, typeof __VLS_components.ElCollapse, typeof __VLS_components.elCollapse, ]} */ ;
         // @ts-ignore
-        const __VLS_105 = __VLS_asFunctionalComponent(__VLS_104, new __VLS_104({
+        const __VLS_121 = __VLS_asFunctionalComponent(__VLS_120, new __VLS_120({
             accordion: true,
         }));
-        const __VLS_106 = __VLS_105({
+        const __VLS_122 = __VLS_121({
             accordion: true,
-        }, ...__VLS_functionalComponentArgsRest(__VLS_105));
-        __VLS_107.slots.default;
+        }, ...__VLS_functionalComponentArgsRest(__VLS_121));
+        __VLS_123.slots.default;
         for (const [recommendation, index] of __VLS_getVForSourceType((__VLS_ctx.getRecommendations()))) {
-            const __VLS_108 = {}.ElCollapseItem;
+            const __VLS_124 = {}.ElCollapseItem;
             /** @type {[typeof __VLS_components.ElCollapseItem, typeof __VLS_components.elCollapseItem, typeof __VLS_components.ElCollapseItem, typeof __VLS_components.elCollapseItem, ]} */ ;
             // @ts-ignore
-            const __VLS_109 = __VLS_asFunctionalComponent(__VLS_108, new __VLS_108({
+            const __VLS_125 = __VLS_asFunctionalComponent(__VLS_124, new __VLS_124({
                 key: (`rec-${index}`),
                 title: (`建議 ${index + 1}: ${recommendation.substring(0, 20)}...`),
                 name: (index.toString()),
             }));
-            const __VLS_110 = __VLS_109({
+            const __VLS_126 = __VLS_125({
                 key: (`rec-${index}`),
                 title: (`建議 ${index + 1}: ${recommendation.substring(0, 20)}...`),
                 name: (index.toString()),
-            }, ...__VLS_functionalComponentArgsRest(__VLS_109));
-            __VLS_111.slots.default;
+            }, ...__VLS_functionalComponentArgsRest(__VLS_125));
+            __VLS_127.slots.default;
             __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
                 ...{ class: "recommendation-detail" },
             });
             __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
             (recommendation);
-            var __VLS_111;
+            var __VLS_127;
         }
-        var __VLS_107;
+        var __VLS_123;
     }
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "methods-section" },
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
-    const __VLS_112 = {}.ElIcon;
+    const __VLS_128 = {}.ElIcon;
     /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
     // @ts-ignore
-    const __VLS_113 = __VLS_asFunctionalComponent(__VLS_112, new __VLS_112({}));
-    const __VLS_114 = __VLS_113({}, ...__VLS_functionalComponentArgsRest(__VLS_113));
-    __VLS_115.slots.default;
-    const __VLS_116 = {}.Document;
+    const __VLS_129 = __VLS_asFunctionalComponent(__VLS_128, new __VLS_128({}));
+    const __VLS_130 = __VLS_129({}, ...__VLS_functionalComponentArgsRest(__VLS_129));
+    __VLS_131.slots.default;
+    const __VLS_132 = {}.Document;
     /** @type {[typeof __VLS_components.Document, ]} */ ;
     // @ts-ignore
-    const __VLS_117 = __VLS_asFunctionalComponent(__VLS_116, new __VLS_116({}));
-    const __VLS_118 = __VLS_117({}, ...__VLS_functionalComponentArgsRest(__VLS_117));
-    var __VLS_115;
+    const __VLS_133 = __VLS_asFunctionalComponent(__VLS_132, new __VLS_132({}));
+    const __VLS_134 = __VLS_133({}, ...__VLS_functionalComponentArgsRest(__VLS_133));
+    var __VLS_131;
+    if (__VLS_ctx.isDev) {
+        const __VLS_136 = {}.ElButton;
+        /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
+        // @ts-ignore
+        const __VLS_137 = __VLS_asFunctionalComponent(__VLS_136, new __VLS_136({
+            ...{ 'onClick': {} },
+            type: "text",
+            icon: (__VLS_ctx.Refresh),
+            size: "small",
+            title: "重新計算所有分析內容",
+            ...{ class: "refresh-btn" },
+        }));
+        const __VLS_138 = __VLS_137({
+            ...{ 'onClick': {} },
+            type: "text",
+            icon: (__VLS_ctx.Refresh),
+            size: "small",
+            title: "重新計算所有分析內容",
+            ...{ class: "refresh-btn" },
+        }, ...__VLS_functionalComponentArgsRest(__VLS_137));
+        let __VLS_140;
+        let __VLS_141;
+        let __VLS_142;
+        const __VLS_143 = {
+            onClick: (__VLS_ctx.refreshAllAnalysis)
+        };
+        var __VLS_139;
+    }
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "methods-info" },
     });
@@ -640,24 +897,24 @@ else if (__VLS_ctx.integratedAnalysis) {
         ...{ class: "methods-tags" },
     });
     for (const [method, index] of __VLS_getVForSourceType((__VLS_ctx.getMethodsUsed()))) {
-        const __VLS_120 = {}.ElTag;
+        const __VLS_144 = {}.ElTag;
         /** @type {[typeof __VLS_components.ElTag, typeof __VLS_components.elTag, typeof __VLS_components.ElTag, typeof __VLS_components.elTag, ]} */ ;
         // @ts-ignore
-        const __VLS_121 = __VLS_asFunctionalComponent(__VLS_120, new __VLS_120({
+        const __VLS_145 = __VLS_asFunctionalComponent(__VLS_144, new __VLS_144({
             key: (`method-${index}`),
             ...{ class: "method-tag" },
             type: (__VLS_ctx.getMethodTagType(index)),
             effect: "dark",
         }));
-        const __VLS_122 = __VLS_121({
+        const __VLS_146 = __VLS_145({
             key: (`method-${index}`),
             ...{ class: "method-tag" },
             type: (__VLS_ctx.getMethodTagType(index)),
             effect: "dark",
-        }, ...__VLS_functionalComponentArgsRest(__VLS_121));
-        __VLS_123.slots.default;
+        }, ...__VLS_functionalComponentArgsRest(__VLS_145));
+        __VLS_147.slots.default;
         (method);
-        var __VLS_123;
+        var __VLS_147;
     }
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "methods-details" },
@@ -682,6 +939,7 @@ else if (__VLS_ctx.integratedAnalysis) {
 /** @type {__VLS_StyleScopedClasses['card-header']} */ ;
 /** @type {__VLS_StyleScopedClasses['finding-icon']} */ ;
 /** @type {__VLS_StyleScopedClasses['elements-section']} */ ;
+/** @type {__VLS_StyleScopedClasses['refresh-btn']} */ ;
 /** @type {__VLS_StyleScopedClasses['elements-distribution']} */ ;
 /** @type {__VLS_StyleScopedClasses['element-item']} */ ;
 /** @type {__VLS_StyleScopedClasses['element-icon']} */ ;
@@ -690,6 +948,7 @@ else if (__VLS_ctx.integratedAnalysis) {
 /** @type {__VLS_StyleScopedClasses['cycles-section']} */ ;
 /** @type {__VLS_StyleScopedClasses['timeline-content']} */ ;
 /** @type {__VLS_StyleScopedClasses['divergent-section']} */ ;
+/** @type {__VLS_StyleScopedClasses['refresh-btn']} */ ;
 /** @type {__VLS_StyleScopedClasses['finding-cards']} */ ;
 /** @type {__VLS_StyleScopedClasses['finding-card']} */ ;
 /** @type {__VLS_StyleScopedClasses['divergent']} */ ;
@@ -699,6 +958,7 @@ else if (__VLS_ctx.integratedAnalysis) {
 /** @type {__VLS_StyleScopedClasses['recommendations-section']} */ ;
 /** @type {__VLS_StyleScopedClasses['recommendation-detail']} */ ;
 /** @type {__VLS_StyleScopedClasses['methods-section']} */ ;
+/** @type {__VLS_StyleScopedClasses['refresh-btn']} */ ;
 /** @type {__VLS_StyleScopedClasses['methods-info']} */ ;
 /** @type {__VLS_StyleScopedClasses['methods-tags']} */ ;
 /** @type {__VLS_StyleScopedClasses['method-tag']} */ ;
@@ -717,6 +977,10 @@ const __VLS_self = (await import('vue')).defineComponent({
             TrendCharts: TrendCharts,
             Bell: Bell,
             Document: Document,
+            Refresh: Refresh,
+            elementsUpdateKey: elementsUpdateKey,
+            dualityUpdateKey: dualityUpdateKey,
+            isDev: isDev,
             getConsensusFindings: getConsensusFindings,
             getDivergentFindings: getDivergentFindings,
             getRecommendations: getRecommendations,
@@ -729,6 +993,9 @@ const __VLS_self = (await import('vue')).defineComponent({
             getTimelineItemColor: getTimelineItemColor,
             getMethodTagType: getMethodTagType,
             getCurrentDateTime: getCurrentDateTime,
+            refreshElementsAnalysis: refreshElementsAnalysis,
+            refreshDualityAnalysis: refreshDualityAnalysis,
+            refreshAllAnalysis: refreshAllAnalysis,
         };
     },
     __typeProps: {},

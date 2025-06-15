@@ -57,11 +57,13 @@ const __VLS_withDefaultsArg = (function (t) { return t; })({
 const __VLS_ctx = {};
 let __VLS_components;
 let __VLS_directives;
+/** @type {__VLS_StyleScopedClasses['mode-toggle-group']} */ ;
 /** @type {__VLS_StyleScopedClasses['depth-tab-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['depth-tab-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['toggle-button']} */ ;
-/** @type {__VLS_StyleScopedClasses['mode-toggle-group']} */ ;
+/** @type {__VLS_StyleScopedClasses['display-depth-container']} */ ;
 /** @type {__VLS_StyleScopedClasses['depth-tab-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['mode-help-text']} */ ;
 // CSS variable injection 
 // CSS variable injection end 
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({

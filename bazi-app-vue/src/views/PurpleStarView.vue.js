@@ -1,13 +1,13 @@
 /// <reference types="../../node_modules/.vue-global-types/vue_3.5_0_0_0.d.ts" />
-import { ref, computed, onMounted, watch, inject } from 'vue';
+import { ref, computed, onMounted, watch, inject, nextTick } from 'vue';
 import { useBreakpoints } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { StarFilled, Connection, TrendCharts, Check, Warning, DataAnalysis, Bell, Loading, Delete } from '@element-plus/icons-vue';
+import { StarFilled, Connection, Loading, Delete, Refresh } from '@element-plus/icons-vue';
 import PurpleStarInputForm from '@/components/PurpleStarInputForm.vue';
 import PurpleStarChartDisplay from '@/components/PurpleStarChartDisplay.vue';
 import TransformationStarsDisplay from '@/components/TransformationStarsDisplay.vue';
-import IntegratedAnalysisDisplay from '@/components/IntegratedAnalysisDisplay.vue';
 import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
+import FortuneOverview from '@/components/FortuneOverview.vue';
 import apiService from '@/services/apiService';
 import astrologyIntegrationService from '@/services/astrologyIntegrationService';
 import storageService from '@/utils/storageService';
@@ -19,10 +19,14 @@ const sessionId = storageService.getOrCreateSessionId();
 const globalDisplayState = inject('globalDisplayState');
 // 主要狀態
 const purpleStarChart = ref(null);
+const purpleStarChartRef = ref(null);
 const birthInfoForIntegration = ref(null);
 const transformationFlows = ref({});
 const transformationCombinations = ref([]);
 const multiLayerEnergies = ref({});
+// 儀表板手動更新相關
+const lastDashboardUpdate = ref('');
+const dashboardUpdateKey = ref(0);
 // 使用顯示模式 composable（作為後備）
 const { displayMode: localDisplayMode, mapDepthToMode } = useDisplayMode('purpleStar');
 // 監聽本地顯示模式的變化
@@ -84,6 +88,8 @@ const integratedAnalysisResult = ref(null);
 const integratedAnalysisError = ref(null);
 const loadingProgress = ref(0);
 const currentLoadingStep = ref('正在準備分析...');
+// 綜合人生解讀儀表板狀態
+const interpretationMode = ref('fortune');
 // 響應式斷點檢測  
 const responsiveBreakpoints = useBreakpoints({
     mobile: 768,
@@ -107,6 +113,93 @@ const analysisCompleteness = computed(() => {
         return 0;
     }
 });
+// 綜合人生解讀儀表板相關函數
+const setInterpretationMode = (mode) => {
+    interpretationMode.value = mode;
+};
+// 強制更新儀表板
+const forceRefreshDashboard = () => {
+    console.log('=== 手動強制更新儀表板 ===');
+    console.log('當前 purpleStarChart:', purpleStarChart.value);
+    console.log('宮位數量:', purpleStarChart.value?.palaces?.length || 0);
+    console.log('當前解讀模式:', interpretationMode.value);
+    // 更新時間戳記
+    lastDashboardUpdate.value = new Date().toLocaleTimeString('zh-TW');
+    // 增加更新鍵值強制組件重新渲染
+    dashboardUpdateKey.value++;
+    console.log('新的更新鍵值:', dashboardUpdateKey.value);
+    // 觸發全域事件通知所有組件更新
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('purpleStarChartUpdated', {
+            detail: {
+                chart: purpleStarChart.value,
+                updateKey: dashboardUpdateKey.value,
+                timestamp: new Date().toISOString(),
+                source: 'manualRefresh'
+            }
+        }));
+        console.log('已發送 purpleStarChartUpdated 全域事件');
+    }
+    // 強制更新當前命盤資料
+    if (purpleStarChart.value) {
+        const currentChart = { ...purpleStarChart.value };
+        purpleStarChart.value = null;
+        nextTick(() => {
+            purpleStarChart.value = currentChart;
+            console.log('儀表板已強制更新，當前模式:', interpretationMode.value);
+            console.log('更新後命盤資料:', purpleStarChart.value);
+            ElMessage.success(`儀表板已更新 (${lastDashboardUpdate.value})`);
+        });
+    }
+    else {
+        console.log('沒有命盤資料可供更新');
+        ElMessage.warning('沒有可用的命盤資料');
+    }
+};
+// Fortune Overview 事件處理
+const handleFortuneOverviewPalaceClick = (palaceIndex) => {
+    console.log('Fortune Overview 宮位點擊:', palaceIndex);
+    // 自動收合側邊欄以提供更好的命盤查看體驗
+    const shouldCloseSidebar = showIntegratedAnalysis.value;
+    if (shouldCloseSidebar) {
+        showIntegratedAnalysis.value = false;
+        console.log('自動收合側邊欄以便查看命盤');
+        ElMessage.info('正在導航到命盤宮位...');
+    }
+    // 如果當前在智慧解讀模式，自動收合側邊欄並導航到命盤
+    if (!shouldCloseSidebar) {
+        ElMessage.info('正在導航到命盤宮位...');
+    }
+    // 直接跳轉，但要等待側邊欄動畫完成
+    const delay = shouldCloseSidebar ? 400 : 0;
+    setTimeout(() => {
+        if (purpleStarChartRef.value) {
+            purpleStarChartRef.value.handleFortuneOverviewPalaceClick(palaceIndex);
+        }
+    }, delay);
+};
+const handleTalentClick = (talent) => {
+    console.log('天賦點擊:', talent);
+    // 添加更詳細的用戶反饋
+    if (talent.palaceIndex !== undefined) {
+        handleFortuneOverviewPalaceClick(talent.palaceIndex);
+    }
+    else {
+        console.warn('天賦項目缺少宮位索引:', talent);
+        ElMessage.warning('無法定位到對應的命盤宮位');
+    }
+};
+const handlePotentialClick = (potential) => {
+    console.log('潛能點擊:', potential);
+    // 添加更詳細的用戶反饋
+    if (potential.palaceIndex !== undefined) {
+        handleFortuneOverviewPalaceClick(potential.palaceIndex);
+    }
+    else {
+        console.warn('潛能項目缺少宮位索引:', potential);
+        ElMessage.warning('無法定位到對應的命盤宮位');
+    }
+};
 // 資料清除函數
 const clearData = async () => {
     try {
@@ -186,6 +279,21 @@ const handleSubmit = async (birthInfo) => {
         console.log('流年太歲資訊:', response.data.chart.liuNianTaiSui || '無流年太歲資訊');
         // 正確提取命盤資料
         purpleStarChart.value = response.data.chart;
+        // 自動觸發儀表板更新
+        dashboardUpdateKey.value++;
+        lastDashboardUpdate.value = new Date().toLocaleTimeString('zh-TW');
+        // 發送全域事件通知所有組件更新
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('purpleStarChartUpdated', {
+                detail: {
+                    chart: purpleStarChart.value,
+                    updateKey: dashboardUpdateKey.value,
+                    timestamp: new Date().toISOString(),
+                    source: 'apiResponse'
+                }
+            }));
+        }
+        console.log('紫微斗數資料已更新，儀表板同步更新');
         // 檢查四化飛星資料
         console.log('四化飛星資料存在:', !!response.data.transformations);
         // 提取四化飛星資料
@@ -420,6 +528,14 @@ const loadFromSessionStorage = () => {
                     throw new Error('命盤資料不完整');
                 }
                 purpleStarChart.value = savedPurpleStarChart;
+                // 發送全域事件通知組件資料已從 sessionStorage 載入
+                window.dispatchEvent(new CustomEvent('purple-star-chart-updated', {
+                    detail: {
+                        chartData: savedPurpleStarChart,
+                        timestamp: Date.now(),
+                        source: 'session-storage'
+                    }
+                }));
             }
             catch (parseError) {
                 console.error('解析保存的紫微斗數命盤資料時出錯:', parseError);
@@ -578,7 +694,35 @@ let __VLS_directives;
 /** @type {__VLS_StyleScopedClasses['analysis-loading']} */ ;
 /** @type {__VLS_StyleScopedClasses['analysis-loading']} */ ;
 /** @type {__VLS_StyleScopedClasses['analysis-loading']} */ ;
+/** @type {__VLS_StyleScopedClasses['no-chart-notice']} */ ;
+/** @type {__VLS_StyleScopedClasses['no-chart-notice']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-controls']} */ ;
+/** @type {__VLS_StyleScopedClasses['refresh-dashboard-btn']} */ ;
+/** @type {__VLS_StyleScopedClasses['refresh-dashboard-btn']} */ ;
+/** @type {__VLS_StyleScopedClasses['refresh-dashboard-btn']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-tab-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-tab-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-tab-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-tab-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['active']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-tab-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['active']} */ ;
+/** @type {__VLS_StyleScopedClasses['tab-icon']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-tab-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['active']} */ ;
+/** @type {__VLS_StyleScopedClasses['tab-icon']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-content']} */ ;
+/** @type {__VLS_StyleScopedClasses['analysis-loading']} */ ;
+/** @type {__VLS_StyleScopedClasses['analysis-error']} */ ;
+/** @type {__VLS_StyleScopedClasses['no-chart-data']} */ ;
+/** @type {__VLS_StyleScopedClasses['no-chart-data']} */ ;
+/** @type {__VLS_StyleScopedClasses['no-chart-data']} */ ;
 /** @type {__VLS_StyleScopedClasses['features-grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['intelligent-dashboard-content']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-tabs']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-tab-button']} */ ;
 // CSS variable injection 
 // CSS variable injection end 
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
@@ -810,6 +954,7 @@ if (__VLS_ctx.purpleStarChart) {
     // @ts-ignore
     const __VLS_58 = __VLS_asFunctionalComponent(PurpleStarChartDisplay, new PurpleStarChartDisplay({
         ...{ 'onUpdate:displayDepth': {} },
+        ref: "purpleStarChartRef",
         chartData: (__VLS_ctx.purpleStarChart),
         isLoading: (false),
         showCyclesDetail: (true),
@@ -817,6 +962,7 @@ if (__VLS_ctx.purpleStarChart) {
     }));
     const __VLS_59 = __VLS_58({
         ...{ 'onUpdate:displayDepth': {} },
+        ref: "purpleStarChartRef",
         chartData: (__VLS_ctx.purpleStarChart),
         isLoading: (false),
         showCyclesDetail: (true),
@@ -828,11 +974,13 @@ if (__VLS_ctx.purpleStarChart) {
     const __VLS_64 = {
         'onUpdate:displayDepth': (__VLS_ctx.changeDisplayMode)
     };
+    /** @type {typeof __VLS_ctx.purpleStarChartRef} */ ;
+    var __VLS_65 = {};
     var __VLS_60;
     if (Object.keys(__VLS_ctx.transformationFlows).length > 0) {
         /** @type {[typeof TransformationStarsDisplay, ]} */ ;
         // @ts-ignore
-        const __VLS_65 = __VLS_asFunctionalComponent(TransformationStarsDisplay, new TransformationStarsDisplay({
+        const __VLS_67 = __VLS_asFunctionalComponent(TransformationStarsDisplay, new TransformationStarsDisplay({
             ...{ 'onUpdate:displayMode': {} },
             chartData: (__VLS_ctx.purpleStarChart),
             mingGan: (__VLS_ctx.purpleStarChart.mingGan || ''),
@@ -842,7 +990,7 @@ if (__VLS_ctx.purpleStarChart) {
             multiLayerEnergies: (__VLS_ctx.multiLayerEnergies),
             ...{ class: "mt-4" },
         }));
-        const __VLS_66 = __VLS_65({
+        const __VLS_68 = __VLS_67({
             ...{ 'onUpdate:displayMode': {} },
             chartData: (__VLS_ctx.purpleStarChart),
             mingGan: (__VLS_ctx.purpleStarChart.mingGan || ''),
@@ -851,373 +999,318 @@ if (__VLS_ctx.purpleStarChart) {
             transformationCombinations: (__VLS_ctx.transformationCombinations || []),
             multiLayerEnergies: (__VLS_ctx.multiLayerEnergies),
             ...{ class: "mt-4" },
-        }, ...__VLS_functionalComponentArgsRest(__VLS_65));
-        let __VLS_68;
-        let __VLS_69;
+        }, ...__VLS_functionalComponentArgsRest(__VLS_67));
         let __VLS_70;
-        const __VLS_71 = {
+        let __VLS_71;
+        let __VLS_72;
+        const __VLS_73 = {
             'onUpdate:displayMode': (__VLS_ctx.changeDisplayMode)
         };
-        var __VLS_67;
+        var __VLS_69;
     }
     else if (__VLS_ctx.displayMode !== 'minimal' && Object.keys(__VLS_ctx.transformationFlows).length === 0 && __VLS_ctx.purpleStarChart) {
-        const __VLS_72 = {}.ElAlert;
+        const __VLS_74 = {}.ElAlert;
         /** @type {[typeof __VLS_components.ElAlert, typeof __VLS_components.elAlert, ]} */ ;
         // @ts-ignore
-        const __VLS_73 = __VLS_asFunctionalComponent(__VLS_72, new __VLS_72({
+        const __VLS_75 = __VLS_asFunctionalComponent(__VLS_74, new __VLS_74({
             title: "四化飛星資料缺失",
             description: (`當前命盤缺少四化飛星資料。命宮天干：${__VLS_ctx.purpleStarChart.mingGan || '未知'}，請檢查API響應是否包含四化資料。`),
             type: "warning",
             closable: (false),
             ...{ class: "mt-4" },
         }));
-        const __VLS_74 = __VLS_73({
+        const __VLS_76 = __VLS_75({
             title: "四化飛星資料缺失",
             description: (`當前命盤缺少四化飛星資料。命宮天干：${__VLS_ctx.purpleStarChart.mingGan || '未知'}，請檢查API響應是否包含四化資料。`),
             type: "warning",
             closable: (false),
             ...{ class: "mt-4" },
-        }, ...__VLS_functionalComponentArgsRest(__VLS_73));
+        }, ...__VLS_functionalComponentArgsRest(__VLS_75));
     }
     var __VLS_57;
 }
 else {
-    const __VLS_76 = {}.ElCard;
+    const __VLS_78 = {}.ElCard;
     /** @type {[typeof __VLS_components.ElCard, typeof __VLS_components.elCard, typeof __VLS_components.ElCard, typeof __VLS_components.elCard, ]} */ ;
     // @ts-ignore
-    const __VLS_77 = __VLS_asFunctionalComponent(__VLS_76, new __VLS_76({
+    const __VLS_79 = __VLS_asFunctionalComponent(__VLS_78, new __VLS_78({
         shadow: "hover",
     }));
-    const __VLS_78 = __VLS_77({
+    const __VLS_80 = __VLS_79({
         shadow: "hover",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_77));
-    __VLS_79.slots.default;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_79));
+    __VLS_81.slots.default;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "placeholder" },
     });
-    const __VLS_80 = {}.ElIcon;
+    const __VLS_82 = {}.ElIcon;
     /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
     // @ts-ignore
-    const __VLS_81 = __VLS_asFunctionalComponent(__VLS_80, new __VLS_80({
+    const __VLS_83 = __VLS_asFunctionalComponent(__VLS_82, new __VLS_82({
         size: (64),
         color: "#c0c4cc",
     }));
-    const __VLS_82 = __VLS_81({
+    const __VLS_84 = __VLS_83({
         size: (64),
         color: "#c0c4cc",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_81));
-    __VLS_83.slots.default;
-    const __VLS_84 = {}.StarFilled;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_83));
+    __VLS_85.slots.default;
+    const __VLS_86 = {}.StarFilled;
     /** @type {[typeof __VLS_components.StarFilled, ]} */ ;
     // @ts-ignore
-    const __VLS_85 = __VLS_asFunctionalComponent(__VLS_84, new __VLS_84({}));
-    const __VLS_86 = __VLS_85({}, ...__VLS_functionalComponentArgsRest(__VLS_85));
-    var __VLS_83;
+    const __VLS_87 = __VLS_asFunctionalComponent(__VLS_86, new __VLS_86({}));
+    const __VLS_88 = __VLS_87({}, ...__VLS_functionalComponentArgsRest(__VLS_87));
+    var __VLS_85;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
-    var __VLS_79;
+    var __VLS_81;
 }
 var __VLS_53;
 var __VLS_3;
-const __VLS_88 = {}.ElDrawer;
+const __VLS_90 = {}.ElDrawer;
 /** @type {[typeof __VLS_components.ElDrawer, typeof __VLS_components.elDrawer, typeof __VLS_components.ElDrawer, typeof __VLS_components.elDrawer, ]} */ ;
 // @ts-ignore
-const __VLS_89 = __VLS_asFunctionalComponent(__VLS_88, new __VLS_88({
+const __VLS_91 = __VLS_asFunctionalComponent(__VLS_90, new __VLS_90({
     modelValue: (__VLS_ctx.showIntegratedAnalysis),
-    title: (__VLS_ctx.integratedAnalysisTitle),
+    title: "綜合人生解讀儀表板",
     direction: "rtl",
-    size: "45%",
+    size: "50%",
     beforeClose: (__VLS_ctx.handleSidebarClose),
+    ...{ class: "intelligent-dashboard-drawer" },
 }));
-const __VLS_90 = __VLS_89({
+const __VLS_92 = __VLS_91({
     modelValue: (__VLS_ctx.showIntegratedAnalysis),
-    title: (__VLS_ctx.integratedAnalysisTitle),
+    title: "綜合人生解讀儀表板",
     direction: "rtl",
-    size: "45%",
+    size: "50%",
     beforeClose: (__VLS_ctx.handleSidebarClose),
-}, ...__VLS_functionalComponentArgsRest(__VLS_89));
-__VLS_91.slots.default;
+    ...{ class: "intelligent-dashboard-drawer" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_91));
+__VLS_93.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "integrated-analysis-sidebar" },
+    ...{ class: "dashboard-sidebar-container" },
 });
-if (!__VLS_ctx.integratedAnalysisResult && !__VLS_ctx.integratedAnalysisLoading) {
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "analysis-intro" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "intro-header" },
-    });
-    const __VLS_92 = {}.ElIcon;
-    /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
-    // @ts-ignore
-    const __VLS_93 = __VLS_asFunctionalComponent(__VLS_92, new __VLS_92({
-        size: (48),
-        color: "#409EFF",
-    }));
-    const __VLS_94 = __VLS_93({
-        size: (48),
-        color: "#409EFF",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_93));
-    __VLS_95.slots.default;
-    const __VLS_96 = {}.TrendCharts;
-    /** @type {[typeof __VLS_components.TrendCharts, ]} */ ;
-    // @ts-ignore
-    const __VLS_97 = __VLS_asFunctionalComponent(__VLS_96, new __VLS_96({}));
-    const __VLS_98 = __VLS_97({}, ...__VLS_functionalComponentArgsRest(__VLS_97));
-    var __VLS_95;
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "intro-content" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "features-grid" },
-    });
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "feature-item" },
-    });
-    const __VLS_100 = {}.ElIcon;
-    /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
-    // @ts-ignore
-    const __VLS_101 = __VLS_asFunctionalComponent(__VLS_100, new __VLS_100({
-        color: "#67C23A",
-    }));
-    const __VLS_102 = __VLS_101({
-        color: "#67C23A",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_101));
-    __VLS_103.slots.default;
-    const __VLS_104 = {}.Check;
-    /** @type {[typeof __VLS_components.Check, ]} */ ;
-    // @ts-ignore
-    const __VLS_105 = __VLS_asFunctionalComponent(__VLS_104, new __VLS_104({}));
-    const __VLS_106 = __VLS_105({}, ...__VLS_functionalComponentArgsRest(__VLS_105));
-    var __VLS_103;
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "feature-item" },
-    });
-    const __VLS_108 = {}.ElIcon;
-    /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
-    // @ts-ignore
-    const __VLS_109 = __VLS_asFunctionalComponent(__VLS_108, new __VLS_108({
-        color: "#E6A23C",
-    }));
-    const __VLS_110 = __VLS_109({
-        color: "#E6A23C",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_109));
-    __VLS_111.slots.default;
-    const __VLS_112 = {}.Warning;
-    /** @type {[typeof __VLS_components.Warning, ]} */ ;
-    // @ts-ignore
-    const __VLS_113 = __VLS_asFunctionalComponent(__VLS_112, new __VLS_112({}));
-    const __VLS_114 = __VLS_113({}, ...__VLS_functionalComponentArgsRest(__VLS_113));
-    var __VLS_111;
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "feature-item" },
-    });
-    const __VLS_116 = {}.ElIcon;
-    /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
-    // @ts-ignore
-    const __VLS_117 = __VLS_asFunctionalComponent(__VLS_116, new __VLS_116({
-        color: "#409EFF",
-    }));
-    const __VLS_118 = __VLS_117({
-        color: "#409EFF",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_117));
-    __VLS_119.slots.default;
-    const __VLS_120 = {}.DataAnalysis;
-    /** @type {[typeof __VLS_components.DataAnalysis, ]} */ ;
-    // @ts-ignore
-    const __VLS_121 = __VLS_asFunctionalComponent(__VLS_120, new __VLS_120({}));
-    const __VLS_122 = __VLS_121({}, ...__VLS_functionalComponentArgsRest(__VLS_121));
-    var __VLS_119;
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "feature-item" },
-    });
-    const __VLS_124 = {}.ElIcon;
-    /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
-    // @ts-ignore
-    const __VLS_125 = __VLS_asFunctionalComponent(__VLS_124, new __VLS_124({
-        color: "#F56C6C",
-    }));
-    const __VLS_126 = __VLS_125({
-        color: "#F56C6C",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_125));
-    __VLS_127.slots.default;
-    const __VLS_128 = {}.Bell;
-    /** @type {[typeof __VLS_components.Bell, ]} */ ;
-    // @ts-ignore
-    const __VLS_129 = __VLS_asFunctionalComponent(__VLS_128, new __VLS_128({}));
-    const __VLS_130 = __VLS_129({}, ...__VLS_functionalComponentArgsRest(__VLS_129));
-    var __VLS_127;
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-    const __VLS_132 = {}.ElButton;
-    /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
-    // @ts-ignore
-    const __VLS_133 = __VLS_asFunctionalComponent(__VLS_132, new __VLS_132({
-        ...{ 'onClick': {} },
-        type: "primary",
-        size: "large",
-        loading: (__VLS_ctx.integratedAnalysisLoading),
-        ...{ class: "start-analysis-btn" },
-    }));
-    const __VLS_134 = __VLS_133({
-        ...{ 'onClick': {} },
-        type: "primary",
-        size: "large",
-        loading: (__VLS_ctx.integratedAnalysisLoading),
-        ...{ class: "start-analysis-btn" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_133));
-    let __VLS_136;
-    let __VLS_137;
-    let __VLS_138;
-    const __VLS_139 = {
-        onClick: (__VLS_ctx.performIntegratedAnalysis)
-    };
-    __VLS_135.slots.default;
-    var __VLS_135;
-}
-else if (__VLS_ctx.integratedAnalysisLoading) {
+if (__VLS_ctx.integratedAnalysisLoading) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "analysis-loading" },
     });
-    const __VLS_140 = {}.ElIcon;
+    const __VLS_94 = {}.ElIcon;
     /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
     // @ts-ignore
-    const __VLS_141 = __VLS_asFunctionalComponent(__VLS_140, new __VLS_140({
+    const __VLS_95 = __VLS_asFunctionalComponent(__VLS_94, new __VLS_94({
         size: (60),
         ...{ class: "is-loading" },
     }));
-    const __VLS_142 = __VLS_141({
+    const __VLS_96 = __VLS_95({
         size: (60),
         ...{ class: "is-loading" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_141));
-    __VLS_143.slots.default;
-    const __VLS_144 = {}.Loading;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_95));
+    __VLS_97.slots.default;
+    const __VLS_98 = {}.Loading;
     /** @type {[typeof __VLS_components.Loading, ]} */ ;
     // @ts-ignore
-    const __VLS_145 = __VLS_asFunctionalComponent(__VLS_144, new __VLS_144({}));
-    const __VLS_146 = __VLS_145({}, ...__VLS_functionalComponentArgsRest(__VLS_145));
-    var __VLS_143;
+    const __VLS_99 = __VLS_asFunctionalComponent(__VLS_98, new __VLS_98({}));
+    const __VLS_100 = __VLS_99({}, ...__VLS_functionalComponentArgsRest(__VLS_99));
+    var __VLS_97;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
     __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
-    const __VLS_148 = {}.ElProgress;
+    const __VLS_102 = {}.ElProgress;
     /** @type {[typeof __VLS_components.ElProgress, typeof __VLS_components.elProgress, ]} */ ;
     // @ts-ignore
-    const __VLS_149 = __VLS_asFunctionalComponent(__VLS_148, new __VLS_148({
+    const __VLS_103 = __VLS_asFunctionalComponent(__VLS_102, new __VLS_102({
         percentage: (__VLS_ctx.loadingProgress),
         showText: (false),
     }));
-    const __VLS_150 = __VLS_149({
+    const __VLS_104 = __VLS_103({
         percentage: (__VLS_ctx.loadingProgress),
         showText: (false),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_149));
+    }, ...__VLS_functionalComponentArgsRest(__VLS_103));
     __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
         ...{ class: "loading-step" },
     });
     (__VLS_ctx.currentLoadingStep);
 }
-else if (__VLS_ctx.integratedAnalysisResult) {
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "analysis-results" },
-    });
-    /** @type {[typeof IntegratedAnalysisDisplay, ]} */ ;
-    // @ts-ignore
-    const __VLS_152 = __VLS_asFunctionalComponent(IntegratedAnalysisDisplay, new IntegratedAnalysisDisplay({
-        integratedAnalysis: (__VLS_ctx.integratedAnalysisResult),
-        loading: (false),
-        error: (__VLS_ctx.integratedAnalysisError),
-    }));
-    const __VLS_153 = __VLS_152({
-        integratedAnalysis: (__VLS_ctx.integratedAnalysisResult),
-        loading: (false),
-        error: (__VLS_ctx.integratedAnalysisError),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_152));
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "result-actions" },
-    });
-    const __VLS_155 = {}.ElButton;
-    /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
-    // @ts-ignore
-    const __VLS_156 = __VLS_asFunctionalComponent(__VLS_155, new __VLS_155({
-        ...{ 'onClick': {} },
-        loading: (__VLS_ctx.integratedAnalysisLoading),
-    }));
-    const __VLS_157 = __VLS_156({
-        ...{ 'onClick': {} },
-        loading: (__VLS_ctx.integratedAnalysisLoading),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_156));
-    let __VLS_159;
-    let __VLS_160;
-    let __VLS_161;
-    const __VLS_162 = {
-        onClick: (__VLS_ctx.performIntegratedAnalysis)
-    };
-    __VLS_158.slots.default;
-    var __VLS_158;
-    const __VLS_163 = {}.ElButton;
-    /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
-    // @ts-ignore
-    const __VLS_164 = __VLS_asFunctionalComponent(__VLS_163, new __VLS_163({
-        ...{ 'onClick': {} },
-        type: "success",
-    }));
-    const __VLS_165 = __VLS_164({
-        ...{ 'onClick': {} },
-        type: "success",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_164));
-    let __VLS_167;
-    let __VLS_168;
-    let __VLS_169;
-    const __VLS_170 = {
-        onClick: (__VLS_ctx.exportAnalysisResult)
-    };
-    __VLS_166.slots.default;
-    var __VLS_166;
-}
-if (__VLS_ctx.integratedAnalysisError) {
+else if (__VLS_ctx.integratedAnalysisError) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "analysis-error" },
     });
-    const __VLS_171 = {}.ElAlert;
+    const __VLS_106 = {}.ElAlert;
     /** @type {[typeof __VLS_components.ElAlert, typeof __VLS_components.elAlert, ]} */ ;
     // @ts-ignore
-    const __VLS_172 = __VLS_asFunctionalComponent(__VLS_171, new __VLS_171({
+    const __VLS_107 = __VLS_asFunctionalComponent(__VLS_106, new __VLS_106({
         title: (__VLS_ctx.integratedAnalysisError),
         type: "error",
         closable: (false),
         showIcon: true,
     }));
-    const __VLS_173 = __VLS_172({
+    const __VLS_108 = __VLS_107({
         title: (__VLS_ctx.integratedAnalysisError),
         type: "error",
         closable: (false),
         showIcon: true,
-    }, ...__VLS_functionalComponentArgsRest(__VLS_172));
-    const __VLS_175 = {}.ElButton;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_107));
+    const __VLS_110 = {}.ElButton;
     /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
     // @ts-ignore
-    const __VLS_176 = __VLS_asFunctionalComponent(__VLS_175, new __VLS_175({
+    const __VLS_111 = __VLS_asFunctionalComponent(__VLS_110, new __VLS_110({
         ...{ 'onClick': {} },
         type: "primary",
         ...{ class: "retry-btn" },
     }));
-    const __VLS_177 = __VLS_176({
+    const __VLS_112 = __VLS_111({
         ...{ 'onClick': {} },
         type: "primary",
         ...{ class: "retry-btn" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_176));
-    let __VLS_179;
-    let __VLS_180;
-    let __VLS_181;
-    const __VLS_182 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_111));
+    let __VLS_114;
+    let __VLS_115;
+    let __VLS_116;
+    const __VLS_117 = {
         onClick: (__VLS_ctx.performIntegratedAnalysis)
     };
-    __VLS_178.slots.default;
-    var __VLS_178;
+    __VLS_113.slots.default;
+    var __VLS_113;
 }
-var __VLS_91;
+else {
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "dashboard-main-content" },
+    });
+    if (!__VLS_ctx.purpleStarChart) {
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "no-chart-notice" },
+        });
+        const __VLS_118 = {}.ElIcon;
+        /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
+        // @ts-ignore
+        const __VLS_119 = __VLS_asFunctionalComponent(__VLS_118, new __VLS_118({
+            size: (48),
+            color: "#c0c4cc",
+        }));
+        const __VLS_120 = __VLS_119({
+            size: (48),
+            color: "#c0c4cc",
+        }, ...__VLS_functionalComponentArgsRest(__VLS_119));
+        __VLS_121.slots.default;
+        const __VLS_122 = {}.StarFilled;
+        /** @type {[typeof __VLS_components.StarFilled, ]} */ ;
+        // @ts-ignore
+        const __VLS_123 = __VLS_asFunctionalComponent(__VLS_122, new __VLS_122({}));
+        const __VLS_124 = __VLS_123({}, ...__VLS_functionalComponentArgsRest(__VLS_123));
+        var __VLS_121;
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
+    }
+    else {
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "intelligent-dashboard-content" },
+        });
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "dashboard-header" },
+        });
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "dashboard-controls" },
+        });
+        const __VLS_126 = {}.ElButton;
+        /** @type {[typeof __VLS_components.ElButton, typeof __VLS_components.elButton, typeof __VLS_components.ElButton, typeof __VLS_components.elButton, ]} */ ;
+        // @ts-ignore
+        const __VLS_127 = __VLS_asFunctionalComponent(__VLS_126, new __VLS_126({
+            ...{ 'onClick': {} },
+            type: "primary",
+            size: "small",
+            icon: (__VLS_ctx.Refresh),
+            title: "強制更新所有儀表板組件",
+            ...{ class: "refresh-dashboard-btn" },
+        }));
+        const __VLS_128 = __VLS_127({
+            ...{ 'onClick': {} },
+            type: "primary",
+            size: "small",
+            icon: (__VLS_ctx.Refresh),
+            title: "強制更新所有儀表板組件",
+            ...{ class: "refresh-dashboard-btn" },
+        }, ...__VLS_functionalComponentArgsRest(__VLS_127));
+        let __VLS_130;
+        let __VLS_131;
+        let __VLS_132;
+        const __VLS_133 = {
+            onClick: (__VLS_ctx.forceRefreshDashboard)
+        };
+        __VLS_129.slots.default;
+        var __VLS_129;
+        if (__VLS_ctx.lastDashboardUpdate) {
+            const __VLS_134 = {}.ElTag;
+            /** @type {[typeof __VLS_components.ElTag, typeof __VLS_components.elTag, typeof __VLS_components.ElTag, typeof __VLS_components.elTag, ]} */ ;
+            // @ts-ignore
+            const __VLS_135 = __VLS_asFunctionalComponent(__VLS_134, new __VLS_134({
+                size: "small",
+                type: "info",
+            }));
+            const __VLS_136 = __VLS_135({
+                size: "small",
+                type: "info",
+            }, ...__VLS_functionalComponentArgsRest(__VLS_135));
+            __VLS_137.slots.default;
+            (__VLS_ctx.lastDashboardUpdate);
+            var __VLS_137;
+        }
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "dashboard-tabs" },
+        });
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
+            ...{ onClick: (...[$event]) => {
+                    if (!!(__VLS_ctx.integratedAnalysisLoading))
+                        return;
+                    if (!!(__VLS_ctx.integratedAnalysisError))
+                        return;
+                    if (!!(!__VLS_ctx.purpleStarChart))
+                        return;
+                    __VLS_ctx.setInterpretationMode('fortune');
+                } },
+            ...{ class: ({ active: __VLS_ctx.interpretationMode === 'fortune' }) },
+            ...{ class: "dashboard-tab-button" },
+        });
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+            ...{ class: "tab-icon" },
+        });
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "dashboard-content" },
+        });
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "dashboard-panel" },
+        });
+        /** @type {[typeof FortuneOverview, ]} */ ;
+        // @ts-ignore
+        const __VLS_138 = __VLS_asFunctionalComponent(FortuneOverview, new FortuneOverview({
+            ...{ 'onPalaceClick': {} },
+            ...{ 'onTalentClick': {} },
+            ...{ 'onPotentialClick': {} },
+            chartData: (__VLS_ctx.purpleStarChart),
+            transformationFlows: (__VLS_ctx.transformationFlows),
+            multiLayerEnergies: (__VLS_ctx.multiLayerEnergies),
+        }));
+        const __VLS_139 = __VLS_138({
+            ...{ 'onPalaceClick': {} },
+            ...{ 'onTalentClick': {} },
+            ...{ 'onPotentialClick': {} },
+            chartData: (__VLS_ctx.purpleStarChart),
+            transformationFlows: (__VLS_ctx.transformationFlows),
+            multiLayerEnergies: (__VLS_ctx.multiLayerEnergies),
+        }, ...__VLS_functionalComponentArgsRest(__VLS_138));
+        let __VLS_141;
+        let __VLS_142;
+        let __VLS_143;
+        const __VLS_144 = {
+            onPalaceClick: (__VLS_ctx.handleFortuneOverviewPalaceClick)
+        };
+        const __VLS_145 = {
+            onTalentClick: (__VLS_ctx.handleTalentClick)
+        };
+        const __VLS_146 = {
+            onPotentialClick: (__VLS_ctx.handlePotentialClick)
+        };
+        var __VLS_140;
+    }
+}
+var __VLS_93;
 /** @type {__VLS_StyleScopedClasses['purple-star-container']} */ ;
 /** @type {__VLS_StyleScopedClasses['main-content']} */ ;
 /** @type {__VLS_StyleScopedClasses['with-sidebar']} */ ;
@@ -1232,61 +1325,66 @@ var __VLS_91;
 /** @type {__VLS_StyleScopedClasses['mt-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['mt-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['placeholder']} */ ;
-/** @type {__VLS_StyleScopedClasses['integrated-analysis-sidebar']} */ ;
-/** @type {__VLS_StyleScopedClasses['analysis-intro']} */ ;
-/** @type {__VLS_StyleScopedClasses['intro-header']} */ ;
-/** @type {__VLS_StyleScopedClasses['intro-content']} */ ;
-/** @type {__VLS_StyleScopedClasses['features-grid']} */ ;
-/** @type {__VLS_StyleScopedClasses['feature-item']} */ ;
-/** @type {__VLS_StyleScopedClasses['feature-item']} */ ;
-/** @type {__VLS_StyleScopedClasses['feature-item']} */ ;
-/** @type {__VLS_StyleScopedClasses['feature-item']} */ ;
-/** @type {__VLS_StyleScopedClasses['start-analysis-btn']} */ ;
+/** @type {__VLS_StyleScopedClasses['intelligent-dashboard-drawer']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-sidebar-container']} */ ;
 /** @type {__VLS_StyleScopedClasses['analysis-loading']} */ ;
 /** @type {__VLS_StyleScopedClasses['is-loading']} */ ;
 /** @type {__VLS_StyleScopedClasses['loading-step']} */ ;
-/** @type {__VLS_StyleScopedClasses['analysis-results']} */ ;
-/** @type {__VLS_StyleScopedClasses['result-actions']} */ ;
 /** @type {__VLS_StyleScopedClasses['analysis-error']} */ ;
 /** @type {__VLS_StyleScopedClasses['retry-btn']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-main-content']} */ ;
+/** @type {__VLS_StyleScopedClasses['no-chart-notice']} */ ;
+/** @type {__VLS_StyleScopedClasses['intelligent-dashboard-content']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-controls']} */ ;
+/** @type {__VLS_StyleScopedClasses['refresh-dashboard-btn']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-tabs']} */ ;
+/** @type {__VLS_StyleScopedClasses['active']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-tab-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['tab-icon']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-content']} */ ;
+/** @type {__VLS_StyleScopedClasses['dashboard-panel']} */ ;
+// @ts-ignore
+var __VLS_66 = __VLS_65;
 var __VLS_dollars;
 const __VLS_self = (await import('vue')).defineComponent({
     setup() {
         return {
             StarFilled: StarFilled,
             Connection: Connection,
-            TrendCharts: TrendCharts,
-            Check: Check,
-            Warning: Warning,
-            DataAnalysis: DataAnalysis,
-            Bell: Bell,
             Loading: Loading,
             Delete: Delete,
+            Refresh: Refresh,
             PurpleStarInputForm: PurpleStarInputForm,
             PurpleStarChartDisplay: PurpleStarChartDisplay,
             TransformationStarsDisplay: TransformationStarsDisplay,
-            IntegratedAnalysisDisplay: IntegratedAnalysisDisplay,
             StorageStatusIndicator: StorageStatusIndicator,
+            FortuneOverview: FortuneOverview,
             purpleStarChart: purpleStarChart,
+            purpleStarChartRef: purpleStarChartRef,
             birthInfoForIntegration: birthInfoForIntegration,
             transformationFlows: transformationFlows,
             transformationCombinations: transformationCombinations,
             multiLayerEnergies: multiLayerEnergies,
+            lastDashboardUpdate: lastDashboardUpdate,
             displayMode: displayMode,
             changeDisplayMode: changeDisplayMode,
             showIntegratedAnalysis: showIntegratedAnalysis,
             integratedAnalysisLoading: integratedAnalysisLoading,
-            integratedAnalysisResult: integratedAnalysisResult,
             integratedAnalysisError: integratedAnalysisError,
             loadingProgress: loadingProgress,
             currentLoadingStep: currentLoadingStep,
-            integratedAnalysisTitle: integratedAnalysisTitle,
+            interpretationMode: interpretationMode,
+            setInterpretationMode: setInterpretationMode,
+            forceRefreshDashboard: forceRefreshDashboard,
+            handleFortuneOverviewPalaceClick: handleFortuneOverviewPalaceClick,
+            handleTalentClick: handleTalentClick,
+            handlePotentialClick: handlePotentialClick,
             clearData: clearData,
             handleSubmit: handleSubmit,
             toggleIntegratedAnalysis: toggleIntegratedAnalysis,
             handleSidebarClose: handleSidebarClose,
             performIntegratedAnalysis: performIntegratedAnalysis,
-            exportAnalysisResult: exportAnalysisResult,
         };
     },
 });

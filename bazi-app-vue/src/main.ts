@@ -7,6 +7,8 @@ import i18n from './i18n' // 導入 i18n
 // 導入 Element Plus
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+// 導入 Element Plus 繁體中文語言包
+import zhTw from 'element-plus/es/locale/lang/zh-tw'
 
 // 導入增強版存儲服務
 import enhancedStorageService from './utils/enhancedStorageService'
@@ -18,7 +20,9 @@ const app = createApp(App)
 
 app.use(router) // 使用 router
 app.use(i18n) // 使用 i18n
-app.use(ElementPlus) // 使用 Element Plus
+app.use(ElementPlus, {
+  locale: zhTw, // 設定 Element Plus 為繁體中文
+})
 app.use(errorHandlerPlugin) // 使用全局錯誤處理器
 
 // 註冊增強版存儲服務為全域屬性

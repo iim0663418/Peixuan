@@ -313,7 +313,7 @@ if (__VLS_ctx.baziChart) {
     // @ts-ignore
     const __VLS_21 = __VLS_asFunctionalComponent(__VLS_20, new __VLS_20({
         title: "💡 提示",
-        description: "您可以使用「命運洞悉」功能來獲得八字與紫微斗數的多維度洞察分析",
+        description: "您可以點擊右上角「綜合解讀」來獲得八字與紫微斗數的全面人生解讀",
         type: "info",
         closable: (false),
         showIcon: true,
@@ -321,7 +321,7 @@ if (__VLS_ctx.baziChart) {
     }));
     const __VLS_22 = __VLS_21({
         title: "💡 提示",
-        description: "您可以使用「命運洞悉」功能來獲得八字與紫微斗數的多維度洞察分析",
+        description: "您可以點擊右上角「綜合解讀」來獲得八字與紫微斗數的全面人生解讀",
         type: "info",
         closable: (false),
         showIcon: true,

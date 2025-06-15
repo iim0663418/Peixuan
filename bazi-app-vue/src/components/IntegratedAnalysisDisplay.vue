@@ -38,14 +38,22 @@
       </div>
 
       <!-- 五行分析 -->
-      <div class="elements-section" v-if="getElementsAnalysis().length > 0">
+      <div class="elements-section" v-if="getElementsAnalysis.length > 0">
         <h3>
           <el-icon><Connection /></el-icon>
           本命五行配置
+          <el-button 
+            type="text" 
+            :icon="Refresh" 
+            @click="refreshElementsAnalysis"
+            size="small"
+            title="重新計算五行分析"
+            class="refresh-btn"
+          />
         </h3>
-        <div class="elements-distribution">
-          <div v-for="element in getElementsAnalysis()" 
-               :key="element.name" 
+        <div class="elements-distribution" :key="elementsUpdateKey">
+          <div v-for="element in getElementsAnalysis" 
+               :key="`${element.name}-${elementsUpdateKey}`" 
                class="element-item"
                :class="element.status">
             <div class="element-icon">{{ getElementIcon(element.name) }}</div>
@@ -56,14 +64,14 @@
       </div>
 
       <!-- 運勢期程 -->
-      <div class="cycles-section" v-if="getCyclesAnalysis().length > 0">
+      <div class="cycles-section" v-if="getCyclesAnalysis.length > 0">
         <h3>
           <el-icon><TrendCharts /></el-icon>
           運勢週期與人生階段
         </h3>
         <el-timeline>
           <el-timeline-item
-            v-for="(cycle, index) in getCyclesAnalysis()"
+            v-for="(cycle, index) in getCyclesAnalysis"
             :key="`cycle-${index}`"
             :type="getTimelineItemType(index)"
             :color="getTimelineItemColor(index)"
@@ -77,18 +85,26 @@
       </div>
 
       <!-- 分歧分析 -->
-      <div class="divergent-section" v-if="getDivergentFindings().length > 0">
+      <div class="divergent-section" v-if="getDivergentFindings.length > 0">
         <h3>
           <el-icon><Warning /></el-icon>
           深層特質解析
           <el-tooltip content="以下為不同角度的深層解讀，幫助您全面了解自己" placement="top">
             <el-icon><InfoFilled /></el-icon>
           </el-tooltip>
+          <el-button 
+            type="text" 
+            :icon="Refresh" 
+            @click="refreshDualityAnalysis"
+            size="small"
+            title="重新計算分歧分析"
+            class="refresh-btn"
+          />
         </h3>
         
-        <div class="finding-cards">
-          <el-card v-for="(finding, index) in getDivergentFindings()" 
-                  :key="`divergent-${index}`" 
+        <div class="finding-cards" :key="dualityUpdateKey">
+          <el-card v-for="(finding, index) in getDivergentFindings" 
+                  :key="`divergent-${index}-${dualityUpdateKey}`" 
                   class="finding-card divergent">
             <template #header>
               <div class="card-header">
@@ -128,6 +144,15 @@
         <h3>
           <el-icon><Document /></el-icon>
           解讀方法與依據
+          <el-button 
+            type="text" 
+            :icon="Refresh" 
+            @click="refreshAllAnalysis"
+            size="small"
+            title="重新計算所有分析內容"
+            class="refresh-btn"
+            v-if="isDev"
+          />
         </h3>
         <div class="methods-info">
           <div class="methods-tags">
@@ -155,7 +180,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { 
   Loading, Warning, Check, InfoFilled, DataAnalysis, Connection, 
-  TrendCharts, Bell, Document
+  TrendCharts, Bell, Document, Refresh
 } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { IntegratedAnalysisResponse } from '@/types/astrologyTypes';
@@ -175,17 +200,53 @@ const props = withDefaults(defineProps<Props>(), {
 // 響應式資料
 const isMobile = ref(window.innerWidth <= 768);
 const confidenceScore = computed(() => getConfidenceValue());
+const elementsUpdateKey = ref(0);
+const dualityUpdateKey = ref(0);
+const isDev = ref(import.meta.env.DEV);
 
-// 監視分析結果變化，用於調試
-watch(() => props.integratedAnalysis, (newVal) => {
+// 監視分析結果變化，用於調試和自動更新
+watch(() => props.integratedAnalysis, (newVal, oldVal) => {
   if (newVal) {
     console.log('IntegratedAnalysisDisplay 收到的分析結果:', newVal);
     // 檢查資料結構是否符合預期
     if (!newVal.data?.integratedAnalysis) {
       console.warn('分析結果缺少 data.integratedAnalysis 屬性，這可能是正常的初始狀態:', newVal);
     }
+    
+    // 檢查是否有實質性的資料變化
+    const hasDataChanged = !oldVal || 
+      JSON.stringify(newVal.data) !== JSON.stringify(oldVal.data) ||
+      newVal.timestamp !== oldVal.timestamp;
+    
+    if (hasDataChanged) {
+      console.log('檢測到分析結果實質變化，自動更新顯示內容');
+      // 使用 nextTick 確保資料已經更新後再觸發重新渲染
+      setTimeout(() => {
+        elementsUpdateKey.value++;
+        dualityUpdateKey.value++;
+        console.log('已觸發五行和分歧分析的重新計算');
+      }, 100);
+      
+      // 只在有舊資料時顯示更新訊息
+      if (oldVal) {
+        ElMessage.success('分析內容已自動更新');
+      }
+    }
   }
 }, { immediate: true, deep: true });
+
+// 額外監視特定的資料路徑變化
+watch(() => [
+  props.integratedAnalysis?.data?.integratedAnalysis?.consensusFindings,
+  props.integratedAnalysis?.data?.integratedAnalysis?.divergentFindings,
+  props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis
+], (newVals, oldVals) => {
+  if (oldVals && newVals && JSON.stringify(newVals) !== JSON.stringify(oldVals)) {
+    console.log('檢測到特定資料路徑變化，強制更新');
+    elementsUpdateKey.value++;
+    dualityUpdateKey.value++;
+  }
+}, { deep: true });
 
 // 當組件掛載時進行檢查
 onMounted(() => {
@@ -218,18 +279,68 @@ const getConsensusFindings = () => {
   }
 };
 
-// 獲取分歧發現
-const getDivergentFindings = () => {
+// 獲取分歧發現 - 使用 computed 讓它具有響應性
+const getDivergentFindings = computed((): string[] => {
   try {
-    if (!props.integratedAnalysis?.data?.integratedAnalysis?.divergentFindings) {
-      return [];
+    console.log('重新計算分歧分析資料, 完整資料結構:', props.integratedAnalysis);
+    
+    // 強制更新響應性
+    const _ = dualityUpdateKey.value;
+    
+    // 檢查多個可能的資料路徑
+    let divergentFindings: string[] = [];
+    
+    // 路徑1: 直接的 divergentFindings
+    if (props.integratedAnalysis?.data?.integratedAnalysis?.divergentFindings) {
+      divergentFindings = props.integratedAnalysis.data.integratedAnalysis.divergentFindings;
     }
-    return props.integratedAnalysis.data.integratedAnalysis.divergentFindings;
+    
+    // 路徑2: 檢查是否有其他分歧相關的屬性
+    if (divergentFindings.length === 0 && props.integratedAnalysis?.data?.integratedAnalysis) {
+      const analysis = props.integratedAnalysis.data.integratedAnalysis as any;
+      Object.keys(analysis).forEach(key => {
+        if (key.includes('divergent') || key.includes('difference') || key.includes('分歧') || key.includes('差異')) {
+          console.log(`找到可能的分歧資料路徑: ${key}`, analysis[key]);
+          if (Array.isArray(analysis[key])) {
+            divergentFindings = analysis[key] as string[];
+          } else if (analysis[key]?.findings || analysis[key]?.differences) {
+            divergentFindings = (analysis[key].findings || analysis[key].differences || []) as string[];
+          }
+        }
+      });
+    }
+    
+    // 路徑3: 從詳細分析中尋找分歧資料
+    if (divergentFindings.length === 0 && props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis) {
+      const detailedAnalysis = props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis as any;
+      Object.keys(detailedAnalysis).forEach(key => {
+        if (detailedAnalysis[key]?.differences) {
+          divergentFindings = [...divergentFindings, ...detailedAnalysis[key].differences];
+        }
+      });
+    }
+    
+    // 路徑4: 如果還是沒有找到，嘗試從 consensusFindings 中區分出可能的分歧內容
+    if (divergentFindings.length === 0) {
+      const consensusFindings = props.integratedAnalysis?.data?.integratedAnalysis?.consensusFindings || [];
+      // 查找可能表示衝突或分歧的內容
+      divergentFindings = consensusFindings.filter(finding => {
+        const findingStr = String(finding).toLowerCase();
+        return findingStr.includes('但是') || findingStr.includes('然而') || 
+               findingStr.includes('不過') || findingStr.includes('矛盾') || 
+               findingStr.includes('差異') || findingStr.includes('分歧');
+      });
+    }
+    
+    console.log('找到的分歧分析資料:', divergentFindings);
+    
+    // 確保返回的是字符串數組
+    return divergentFindings.filter(finding => finding && typeof finding === 'string');
   } catch (error) {
     console.warn('獲取分歧發現時發生錯誤:', error);
     return [];
   }
-};
+});
 
 // 獲取建議
 const getRecommendations = () => {
@@ -257,15 +368,82 @@ const getMethodsUsed = () => {
   }
 };
 
-// 獲取五行分析
-const getElementsAnalysis = () => {
+// 定義五行分析結果的類型
+interface ElementAnalysis {
+  name: string;
+  status: 'normal' | 'strong' | 'weak';
+}
+
+// 獲取五行分析 - 使用 computed 讓它具有響應性
+const getElementsAnalysis = computed((): ElementAnalysis[] => {
   try {
-    if (!props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis?.elements?.matches) {
-      return []; // 返回空數組，不顯示預設資料
+    console.log('重新計算五行分析資料, 完整資料結構:', props.integratedAnalysis);
+    
+    // 強制更新響應性
+    const _ = elementsUpdateKey.value;
+    
+    // 檢查多個可能的資料路徑
+    let elementsData: any = null;
+    let matches: string[] = [];
+    let differences: string[] = [];
+    
+    // 路徑1: 詳細分析結構
+    if (props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis?.elements) {
+      elementsData = props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.elements;
+      matches = elementsData.matches || [];
+      differences = elementsData.differences || [];
     }
     
+    // 路徑2: 直接在 integratedAnalysis 下檢查是否有 elements 屬性
+    if (!elementsData && props.integratedAnalysis?.data?.integratedAnalysis) {
+      const analysis = props.integratedAnalysis.data.integratedAnalysis as any;
+      if (analysis.elements) {
+        elementsData = analysis.elements;
+        matches = elementsData.matches || [];
+        differences = elementsData.differences || [];
+      }
+    }
+    
+    // 路徑3: 檢查是否有其他資料結構
+    if (!elementsData && props.integratedAnalysis?.data?.integratedAnalysis) {
+      const analysis = props.integratedAnalysis.data.integratedAnalysis as any;
+      // 檢查是否有任何包含五行相關資訊的屬性
+      Object.keys(analysis).forEach(key => {
+        if (key.includes('elements') || key.includes('五行')) {
+          console.log(`找到可能的五行資料路徑: ${key}`, analysis[key]);
+          if (analysis[key]?.matches) {
+            matches = analysis[key].matches || [];
+            differences = analysis[key].differences || [];
+            elementsData = analysis[key];
+          }
+        }
+      });
+    }
+    
+    // 如果沒有找到五行資料，嘗試從其他分析內容中提取
+    if (matches.length === 0) {
+      // 檢查 consensusFindings 或 divergentFindings 中是否有五行資訊
+      const allFindings = [
+        ...(props.integratedAnalysis?.data?.integratedAnalysis?.consensusFindings || []),
+        ...(props.integratedAnalysis?.data?.integratedAnalysis?.divergentFindings || [])
+      ];
+      
+      allFindings.forEach(finding => {
+        if (typeof finding === 'string') {
+          matches.push(finding);
+        }
+      });
+    }
+    
+    if (matches.length === 0) {
+      console.log('沒有找到五行分析資料');
+      return [];
+    }
+    
+    console.log('找到的五行相關資料:', { matches, differences });
+    
     // 從匹配和差異中提取五行狀態
-    const elements = [
+    const elements: ElementAnalysis[] = [
       { name: '木', status: 'normal' },
       { name: '火', status: 'normal' },
       { name: '土', status: 'normal' },
@@ -273,58 +451,61 @@ const getElementsAnalysis = () => {
       { name: '水', status: 'normal' }
     ];
     
-    const matches = props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.elements.matches;
-    const differences = props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.elements.differences || [];
-    
-    // 處理強勢五行
-    matches.forEach(match => {
-      if (match.includes('木行強勢')) {
+    // 處理強勢五行 - 更靈活的匹配模式
+    matches.forEach((match: any) => {
+      const matchStr = String(match).toLowerCase();
+      if (matchStr.includes('木') && (matchStr.includes('強') || matchStr.includes('旺') || matchStr.includes('盛'))) {
         elements[0].status = 'strong';
-      } else if (match.includes('火行強勢')) {
+      } else if (matchStr.includes('火') && (matchStr.includes('強') || matchStr.includes('旺') || matchStr.includes('盛'))) {
         elements[1].status = 'strong';
-      } else if (match.includes('土行強勢')) {
+      } else if (matchStr.includes('土') && (matchStr.includes('強') || matchStr.includes('旺') || matchStr.includes('盛'))) {
         elements[2].status = 'strong';
-      } else if (match.includes('金行強勢')) {
+      } else if (matchStr.includes('金') && (matchStr.includes('強') || matchStr.includes('旺') || matchStr.includes('盛'))) {
         elements[3].status = 'strong';
-      } else if (match.includes('水行強勢')) {
+      } else if (matchStr.includes('水') && (matchStr.includes('強') || matchStr.includes('旺') || matchStr.includes('盛'))) {
         elements[4].status = 'strong';
       }
     });
     
-    // 處理偏弱五行
-    differences.forEach(diff => {
-      if (diff.includes('木行偏弱')) {
+    // 處理偏弱五行 - 更靈活的匹配模式
+    [...matches, ...differences].forEach((item: any) => {
+      const itemStr = String(item).toLowerCase();
+      if (itemStr.includes('木') && (itemStr.includes('弱') || itemStr.includes('缺') || itemStr.includes('少'))) {
         elements[0].status = 'weak';
-      } else if (diff.includes('火行偏弱')) {
+      } else if (itemStr.includes('火') && (itemStr.includes('弱') || itemStr.includes('缺') || itemStr.includes('少'))) {
         elements[1].status = 'weak';
-      } else if (diff.includes('土行偏弱')) {
+      } else if (itemStr.includes('土') && (itemStr.includes('弱') || itemStr.includes('缺') || itemStr.includes('少'))) {
         elements[2].status = 'weak';
-      } else if (diff.includes('金行偏弱')) {
+      } else if (itemStr.includes('金') && (itemStr.includes('弱') || itemStr.includes('缺') || itemStr.includes('少'))) {
         elements[3].status = 'weak';
-      } else if (diff.includes('水行偏弱')) {
+      } else if (itemStr.includes('水') && (itemStr.includes('弱') || itemStr.includes('缺') || itemStr.includes('少'))) {
         elements[4].status = 'weak';
       }
     });
     
+    console.log('計算出的五行分析結果:', elements);
     return elements;
   } catch (error) {
     console.warn('獲取五行分析時發生錯誤:', error);
     return [];
   }
-};
+});
 
-// 獲取週期分析
-const getCyclesAnalysis = () => {
+// 獲取週期分析 - 使用 computed 讓它具有響應性
+const getCyclesAnalysis = computed(() => {
   try {
+    console.log('重新計算週期分析資料, cycles:', props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis?.cycles);
     if (!props.integratedAnalysis?.data?.integratedAnalysis?.detailedAnalysis?.cycles?.matches) {
+      console.log('週期分析資料不存在，返回空數組');
       return [];
     }
+    console.log('計算出的週期分析結果:', props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.cycles.matches);
     return props.integratedAnalysis.data.integratedAnalysis.detailedAnalysis.cycles.matches;
   } catch (error) {
     console.warn('獲取週期分析時發生錯誤:', error);
     return [];
   }
-};
+});
 
 // 獲取信心度狀態
 const getConfidenceStatus = (confidence: number) => {
@@ -388,6 +569,51 @@ const getCurrentDateTime = () => {
     minute: '2-digit'
   });
 };
+
+// 手動刷新五行分析
+const refreshElementsAnalysis = () => {
+  console.log('手動刷新五行分析，當前資料:', props.integratedAnalysis);
+  elementsUpdateKey.value++;
+  ElMessage.success('五行分析已重新計算');
+};
+
+// 手動刷新分歧分析
+const refreshDualityAnalysis = () => {
+  console.log('手動刷新分歧分析，當前資料:', props.integratedAnalysis);
+  dualityUpdateKey.value++;
+  ElMessage.success('深層特質解析已重新計算');
+};
+
+// 調試函數：輸出當前資料結構
+const logCurrentDataStructure = () => {
+  console.log('=== IntegratedAnalysisDisplay 當前資料結構 ===');
+  console.log('完整資料:', props.integratedAnalysis);
+  if (props.integratedAnalysis?.data?.integratedAnalysis) {
+    const analysis = props.integratedAnalysis.data.integratedAnalysis;
+    console.log('可用的分析屬性:', Object.keys(analysis));
+    console.log('consensusFindings:', analysis.consensusFindings);
+    console.log('divergentFindings:', analysis.divergentFindings);
+    console.log('detailedAnalysis:', analysis.detailedAnalysis);
+  }
+  console.log('五行分析結果:', getElementsAnalysis.value);
+  console.log('分歧分析結果:', getDivergentFindings.value);
+  console.log('=====================================');
+};
+
+// 刷新所有分析內容
+const refreshAllAnalysis = () => {
+  console.log('手動刷新所有分析內容');
+  logCurrentDataStructure();
+  elementsUpdateKey.value++;
+  dualityUpdateKey.value++;
+  ElMessage.success('所有分析內容已重新計算');
+};
+
+// 在全局暴露調試函數（開發環境）
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
+  (window as any).debugIntegratedAnalysis = logCurrentDataStructure;
+  (window as any).refreshAllAnalysis = refreshAllAnalysis;
+}
 </script>
 
 <style scoped>
@@ -607,6 +833,24 @@ const getCurrentDateTime = () => {
   margin-top: 10px;
   font-size: 12px;
   color: #909399;
+}
+
+/* 刷新按鈕樣式 */
+.refresh-btn {
+  margin-left: 8px;
+  font-size: 12px;
+  padding: 4px 8px;
+  color: #909399;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  color: #409EFF;
+  background-color: rgba(64, 158, 255, 0.1);
+}
+
+.refresh-btn .el-icon {
+  font-size: 14px;
 }
 
 /* 響應式設計 */

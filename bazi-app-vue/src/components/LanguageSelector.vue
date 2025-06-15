@@ -8,10 +8,10 @@
       class="language-select"
       :aria-label="$t('common.language')"
     >
+      <option value="zh_TW">繁體中文</option>
       <option value="en">English</option>
       <!-- 暫時隱藏簡體中文選項 -->
       <!-- <option value="zh">简体中文</option> -->
-      <option value="zh_TW">繁體中文</option>
     </select>
   </div>
 </template>
@@ -26,7 +26,7 @@ const currentLocale = ref(locale.value);
 // 從 sessionStorage 讀取保存的語言設定
 function loadLanguagePreference(): string {
   try {
-    const savedLocale = sessionStorage.getItem('preferred-language');
+    const savedLocale = sessionStorage.getItem('preferred-language') || localStorage.getItem('preferred-language');
     // 移除對簡體中文的支持
     if (savedLocale && ['en', 'zh_TW'].includes(savedLocale)) {
       return savedLocale;
@@ -38,7 +38,9 @@ function loadLanguagePreference(): string {
   } catch (error) {
     console.warn('Failed to load language preference from sessionStorage:', error);
   }
-  return locale.value;
+  
+  // 如果沒有保存的設定，預設使用繁體中文
+  return 'zh_TW';
 }
 
 // 將語言設定保存到 sessionStorage

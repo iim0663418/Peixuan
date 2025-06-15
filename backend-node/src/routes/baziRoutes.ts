@@ -1,11 +1,12 @@
-import express, { Request, Response, Router } from 'express';
-import { RequestValidator } from '../utils/validation';
+import express, { Request, Response, Router, RequestHandler } from 'express';
+// 假設您的 validation 檔案中有一個 RequestValidator 類別
+import { RequestValidator } from '../utils/validation'; 
 import logger from '../utils/logger';
 
 const router: Router = express.Router();
 
-// 八字計算端點
-const calculateBaziHandler = async (req: Request, res: Response): Promise<void> => {
+// 八字計算的處理函式
+const calculateBaziHandler: RequestHandler = async (req, res) => {
   try {
     logger.info('Bazi calculation request received', { 
       body: req.body,
@@ -14,17 +15,17 @@ const calculateBaziHandler = async (req: Request, res: Response): Promise<void> 
 
     // 驗證輸入資料
     const validator = new RequestValidator();
-    const validationResult = validator.validateBaziRequest(req.body);
+    // **修正：此處應使用專門的八字請求驗證函式，而不是紫微斗數的**
+    const validationResult = validator.validateBaziRequest(req.body); 
     if (!validationResult.isValid) {
-      logger.warn('Invalid birth info for bazi calculation', { 
+      logger.warn('Invalid birth info for Bazi calculation', { 
         errors: validationResult.errors,
         body: req.body 
       });
-      res.status(400).json({
+      return res.status(400).json({
         error: 'Invalid birth information',
         details: validationResult.errors
       });
-      return;
     }
 
     const { birthDate, birthTime, gender, location } = req.body;
@@ -96,10 +97,9 @@ const calculateBaziHandler = async (req: Request, res: Response): Promise<void> 
       data: baziChart,
       message: '八字計算完成'
     });
-    return;
 
   } catch (error) {
-    logger.error('Error in bazi calculation', { 
+    logger.error('Error in Bazi calculation', { 
       error: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
       body: req.body,
@@ -107,17 +107,14 @@ const calculateBaziHandler = async (req: Request, res: Response): Promise<void> 
     });
 
     res.status(500).json({
-      error: 'Internal server error during bazi calculation',
+      error: 'Internal server error during Bazi calculation',
       message: '八字計算過程中發生錯誤'
     });
-    return;
   }
 };
 
-router.post('/calculate', calculateBaziHandler);
-
-// 取得八字分析歷史
-const getBaziHistoryHandler = async (req: Request, res: Response): Promise<void> => {
+// 取得八字分析歷史的處理函式
+const getBaziHistoryHandler: RequestHandler = async (req: Request, res: Response) => {
   try {
     logger.info('Bazi history request received', { ip: req.ip });
 
@@ -134,21 +131,25 @@ const getBaziHistoryHandler = async (req: Request, res: Response): Promise<void>
       success: true,
       data: history
     });
-    return;
 
   } catch (error) {
-    logger.error('Error fetching bazi history', { 
+    logger.error('Error fetching Bazi history', { 
       error: error instanceof Error ? error.message : 'Unknown error',
       ip: req.ip 
     });
 
     res.status(500).json({
-      error: 'Failed to fetch bazi history'
+      error: 'Failed to fetch Bazi history'
     });
-    return;
   }
 };
 
+
+// --- 路由定義 ---
+// 八字計算端點
+router.post('/calculate', calculateBaziHandler);
+
+// 取得八字分析歷史
 router.get('/history', getBaziHistoryHandler);
 
 export default router;

@@ -38,7 +38,7 @@
 - Vue Router
 - i18n 國際化
 
-### 數據處理
+### 資料處理
 - 紫微斗數計算引擎 (後端實現)
 - 八字排盤演算法 (前端實現，使用 lunar.min.js)
 - 多維度交叉驗證模型
@@ -125,7 +125,7 @@ npm run test
 - ✅ 開發全程異動記錄和還原功能
 - ✅ 優化命盤演算法效能
 - ✅ 實現國際化（i18n）支持
-- ✅ 開發命盤數據可視化功能
+- ✅ 開發命盤資料可視化功能
 - ✅ 緊急修復：八字 API 404 錯誤和前端翻譯問題
 - ✅ 紫微斗數計算核心模組開發
 - ✅ 實現紫微斗數精細化計算服務
@@ -135,7 +135,7 @@ npm run test
 - ✅ Validate and Optimize Session Storage Implementation for BaZi and Purple Star Astrology
 
 ### 進行中功能
-- 🔄 修復紫微斗數表單數據傳遞問題
+- 🔄 修復紫微斗數表單資料傳遞問題
 
 ### 待開發功能
 - ⏳ 實現用戶認證系統
@@ -143,12 +143,12 @@ npm run test
 - ⏳ 設計和實現 RESTful API
 - ⏳ 開發命運洞悉功能
 - ⏳ 實現第三方 API 接入
-- ⏳ 開發用戶數據和歷史查詢功能
+- ⏳ 開發用戶資料和歷史查詢功能
 - ⏳ 實現多設備同步功能
 - ⏳ 開發分層 API 結果功能
 - ⏳ 實現高級用戶權限管理
 - ⏳ 開發分階段 Token 驗證系統
-- ⏳ 實現高級數據合併與衝突處理
+- ⏳ 實現高級資料合併與衝突處理
 - ⏳ 命運洞悉與命運分析容錯機制
 - ⏳ 紫微斗數計算精化與時間精準度優化
 - ⏳ Redis 分佈式緩存系統配置與部署
@@ -167,6 +167,41 @@ npm run test
 - [ ] 更多命理系統整合
 - [ ] 個性化推薦引擎
 - [ ] 跨平台移動應用
+
+## 🏗 專案架構
+
+本專案主要分為前端與後端兩大部分：
+
+- **前端 (bazi-app-vue)**
+  - 使用 Vue 3 框架與 TypeScript
+  - 組件化設計，包含命盤輸入、顯示、分析等多個 Vue 組件
+  - 狀態管理使用 Pinia，路由管理使用 Vue Router
+  - 支援多語系 (i18n)
+  - 主要目錄：
+    - `src/components/`：UI 組件
+    - `src/views/`：頁面視圖
+    - `src/services/`：前端服務與 API 呼叫
+    - `src/stores/`：狀態管理
+    - `src/i18n/`：國際化資源
+    - `src/router/`：路由設定
+
+- **後端 (backend-node)**
+  - 使用 Node.js 與 Express 框架，採用 TypeScript 開發
+  - 提供 RESTful API 端點，處理命理計算與用戶認證
+  - 中介軟體負責身份驗證、權限控制、日誌與監控
+  - 主要目錄：
+    - `src/routes/`：API 路由定義
+    - `src/services/`：業務邏輯與命理計算服務
+    - `src/middleware/`：Express 中介軟體
+    - `src/utils/`：工具函式
+    - `src/types/`：型別定義
+    - `src/__tests__/`：單元測試
+
+- **其他**
+  - `docker-compose.yml` 與 Dockerfile 用於容器化部署
+  - `TESTING_GUIDE.md` 提供測試相關說明
+  - `.env` 用於環境變數設定
+  - `PROJECT_VALIDATION.md` 定義專案驗證標準
 
 ## 🤝 貢獻指南
 

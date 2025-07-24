@@ -1,12 +1,108 @@
 import express, { Request, Response, Router, RequestHandler } from 'express';
-// 假設您的 validation 檔案中有一個 RequestValidator 類別
 import { RequestValidator } from '../utils/validation'; 
 import logger from '../utils/logger';
 
 const router: Router = express.Router();
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     BaziRequest:
+ *       type: object
+ *       required:
+ *         - birthDate
+ *         - birthTime
+ *         - gender
+ *         - location
+ *       properties:
+ *         birthDate:
+ *           type: string
+ *           format: date
+ *           example: '1990-01-01'
+ *         birthTime:
+ *           type: string
+ *           pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]$'
+ *           example: '12:30'
+ *         gender:
+ *           type: string
+ *           enum: [male, female]
+ *         location:
+ *           type: string
+ *           example: '台北市'
+ *     BaziChart:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         fourPillars:
+ *           type: object
+ *           properties:
+ *             year:
+ *               $ref: '#/components/schemas/Pillar'
+ *             month:
+ *               $ref: '#/components/schemas/Pillar'
+ *             day:
+ *               $ref: '#/components/schemas/Pillar'
+ *             hour:
+ *               $ref: '#/components/schemas/Pillar'
+ *         elements:
+ *           $ref: '#/components/schemas/ElementCount'
+ *         dayMaster:
+ *           $ref: '#/components/schemas/DayMaster'
+ *         analysis:
+ *           $ref: '#/components/schemas/BaziAnalysis'
+ *     Pillar:
+ *       type: object
+ *       properties:
+ *         heavenlyStem:
+ *           type: string
+ *         earthlyBranch:
+ *           type: string
+ *         element:
+ *           type: string
+ *         yinYang:
+ *           type: string
+ *     ElementCount:
+ *       type: object
+ *       properties:
+ *         wood:
+ *           type: integer
+ *         fire:
+ *           type: integer
+ *         earth:
+ *           type: integer
+ *         metal:
+ *           type: integer
+ *         water:
+ *           type: integer
+ *     DayMaster:
+ *       type: object
+ *       properties:
+ *         element:
+ *           type: string
+ *         strength:
+ *           type: string
+ *           enum: [strong, weak, balanced]
+ *         characteristics:
+ *           type: array
+ *           items:
+ *             type: string
+ *     BaziAnalysis:
+ *       type: object
+ *       properties:
+ *         personality:
+ *           type: string
+ *         career:
+ *           type: string
+ *         health:
+ *           type: string
+ *         relationships:
+ *           type: string
+ */
+
 // 八字計算的處理函式
-const calculateBaziHandler: RequestHandler = async (req, res) => {
+const calculateBaziHandler: RequestHandler = async (req, res): Promise<void> => {
   try {
     logger.info('Bazi calculation request received', { 
       body: req.body,
@@ -22,10 +118,11 @@ const calculateBaziHandler: RequestHandler = async (req, res) => {
         errors: validationResult.errors,
         body: req.body 
       });
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Invalid birth information',
         details: validationResult.errors
       });
+      return;
     }
 
     const { birthDate, birthTime, gender, location } = req.body;
@@ -114,7 +211,7 @@ const calculateBaziHandler: RequestHandler = async (req, res) => {
 };
 
 // 取得八字分析歷史的處理函式
-const getBaziHistoryHandler: RequestHandler = async (req: Request, res: Response) => {
+const getBaziHistoryHandler: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   try {
     logger.info('Bazi history request received', { ip: req.ip });
 
@@ -145,11 +242,78 @@ const getBaziHistoryHandler: RequestHandler = async (req: Request, res: Response
 };
 
 
-// --- 路由定義 ---
-// 八字計算端點
+/**
+ * @swagger
+ * /api/v1/bazi/calculate:
+ *   post:
+ *     summary: 八字命盤計算
+ *     tags: [BaZi]
+ *     security:
+ *       - BearerAuth: []
+ *       - {}
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/BaziRequest'
+ *     responses:
+ *       200:
+ *         description: 計算成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/BaziChart'
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       429:
+ *         $ref: '#/components/responses/RateLimitError'
+ */
 router.post('/calculate', calculateBaziHandler);
 
-// 取得八字分析歷史
+/**
+ * @swagger
+ * /api/v1/bazi/history:
+ *   get:
+ *     summary: 獲取八字計算歷史
+ *     tags: [BaZi]
+ *     security:
+ *       - BearerAuth: []
+ *       - {}
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *     responses:
+ *       200:
+ *         description: 成功獲取歷史記錄
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ */
 router.get('/history', getBaziHistoryHandler);
 
 export default router;

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, provide, readonly } from 'vue';
+import { ref, onMounted, provide, readonly, defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import LanguageSelector from '@/components/LanguageSelector.vue';
+
+// 動態導入組件以提升效能
+const LanguageSelector = defineAsyncComponent(() => import('@/components/LanguageSelector.vue'));
 // import GlobalDisplayModePanel from '@/components/GlobalDisplayModePanel.vue'; // 已簡化，使用各模組獨立分層控制
 import type { DisplayMode } from '@/types/displayModes';
 

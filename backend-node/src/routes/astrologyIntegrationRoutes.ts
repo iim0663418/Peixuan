@@ -5,17 +5,127 @@
 
 import { Router, Request, Response, RequestHandler } from 'express';
 import { AstrologyIntegrationService } from '../services/astrologyIntegrationService';
-import { TokenPayload } from '../middleware/auth';
 import logger from '../utils/logger';
 import { BaziCalculationResult, BirthInfo } from '../types/purpleStarTypes';
 
-// 擴展 Request 接口以包含 user 屬性
-interface AuthenticatedRequest extends Request {
-  user?: TokenPayload;
-}
-
 const router = Router();
 const integrationService = new AstrologyIntegrationService();
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     IntegratedAnalysisRequest:
+ *       type: object
+ *       required:
+ *         - birthDate
+ *         - birthTime
+ *         - gender
+ *       properties:
+ *         birthDate:
+ *           type: string
+ *           format: date
+ *           example: '1990-01-01'
+ *         birthTime:
+ *           type: string
+ *           example: '12:30'
+ *         gender:
+ *           type: string
+ *           enum: [male, female]
+ *         location:
+ *           type: string
+ *           example: '台北市'
+ *         useSessionCharts:
+ *           type: boolean
+ *           default: false
+ *           description: 是否使用前端 Session 中的命盤資料
+ *         baziChart:
+ *           type: object
+ *           description: 八字命盤資料 (當 useSessionCharts 為 true 時)
+ *         purpleStarChart:
+ *           type: object
+ *           description: 紫微斗數命盤資料 (當 useSessionCharts 為 true 時)
+ *         options:
+ *           type: object
+ *           properties:
+ *             useAdvancedAlgorithm:
+ *               type: boolean
+ *               default: true
+ *             includeCrossVerification:
+ *               type: boolean
+ *               default: true
+ *             includeRealTimeData:
+ *               type: boolean
+ *               default: true
+ *             confidenceScoring:
+ *               type: boolean
+ *               default: true
+ *     IntegratedAnalysisResponse:
+ *       type: object
+ *       properties:
+ *         integratedAnalysis:
+ *           type: object
+ *           properties:
+ *             overallConfidence:
+ *               type: number
+ *               minimum: 0
+ *               maximum: 1
+ *             consensusFindings:
+ *               type: array
+ *               items:
+ *                 type: string
+ *             divergentFindings:
+ *               type: array
+ *               items:
+ *                 type: string
+ *             crossValidation:
+ *               type: object
+ *               properties:
+ *                 agreementPercentage:
+ *                   type: number
+ *                 reliabilityScore:
+ *                   type: number
+ *         purpleStarChart:
+ *           type: object
+ *         baziChart:
+ *           type: object
+ *         analysisInfo:
+ *           type: object
+ *           properties:
+ *             calculationTime:
+ *               type: string
+ *               format: date-time
+ *             methodsUsed:
+ *               type: array
+ *               items:
+ *                 type: string
+ *             confidence:
+ *               type: number
+ *     ConfidenceAssessment:
+ *       type: object
+ *       properties:
+ *         overallConfidence:
+ *           type: number
+ *           minimum: 0
+ *           maximum: 1
+ *         detailedConfidence:
+ *           type: object
+ *           properties:
+ *             personality:
+ *               type: number
+ *             fortune:
+ *               type: number
+ *             elements:
+ *               type: number
+ *             cycles:
+ *               type: number
+ *         agreementPercentage:
+ *           type: number
+ *         reliabilityScore:
+ *           type: number
+ *         interpretation:
+ *           type: string
+ */
 
 /**
  * 多術數綜合分析端點
@@ -23,16 +133,6 @@ const integrationService = new AstrologyIntegrationService();
  */
 const integratedAnalysisHandler = async (req: Request, res: Response): Promise<void> => {
   try {
-    // 1. 暫時跳過認證檢查 (開發階段)
-    // 設置預設用戶資訊用於開發測試
-    (req as AuthenticatedRequest).user = {
-      userId: 'dev-user-001',
-      role: 'member', // 給予會員權限以便測試整合分析功能
-      features: ['integrated-analysis', 'cross-validation', 'confidence-scoring'],
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 3600 // 1小時後過期
-    };
-
     // 檢查是否有請求中包含使用 sessionStorage 中的命盤資料的標識
     const useSessionCharts = req.body.useSessionCharts === true;
     
@@ -46,31 +146,7 @@ const integratedAnalysisHandler = async (req: Request, res: Response): Promise<v
       hasPurpleStarChart: !!purpleStarChartFromSession 
     });
 
-    // 舊的認證邏輯（暫時註釋）
-    /*
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      res.status(401).json({ error: 'Authentication required' });
-      return;
-    }
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-      res.status(401).json({ error: 'Authentication required' });
-      return;
-    }
-
-    try {
-      const jwt = require('jsonwebtoken');
-      const JWT_SECRET = process.env.JWT_SECRET ?? 'development_secret';
-      const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
-      (req as AuthenticatedRequest).user = decoded;
-    } catch (error: any) {
-      res.status(401).json({ error: 'Invalid or expired token', details: error.message });
-      return;
-    }
-    */
-
-      // 2. 簡化的請求驗證
+    // 簡化的請求驗證
     const { birthDate, birthTime, gender, location, options } = req.body;
     
     if (!birthDate || !birthTime || !gender) {
@@ -217,33 +293,14 @@ const integratedAnalysisHandler = async (req: Request, res: Response): Promise<v
       };
     }
 
-    // 5. 執行交互驗證分析
+    // 執行交互驗證分析
     logger.info('開始多術數交互驗證分析');
     const integratedAnalysis = integrationService.generateIntegratedAnalysis(
       purpleStarResult,
       baziResult
     );
 
-    // 6. 檢查功能權限
-    const userRole = (req as AuthenticatedRequest).user?.role || 'anonymous';
-    
-    // 根據用戶角色檢查功能權限
-    const hasIntegratedAccess = await checkIntegratedAnalysisAccess(userRole);
-    if (!hasIntegratedAccess) {
-      res.status(403).json({
-        success: false,
-        error: '綜合分析功能需要會員權限',
-        availableFeatures: ['基礎紫微斗數分析', '基礎八字分析'],
-        upgradeInfo: {
-          message: '升級至會員即可享受多術數交互驗證功能',
-          benefits: ['八字與紫微斗數交叉驗證', '信心度評分', '綜合建議']
-        },
-        timestamp: new Date().toISOString()
-      });
-      return;
-    }
-
-    // 7. 構建最終響應
+    // 構建最終響應
     const response = {
       success: true,
       data: {
@@ -257,7 +314,6 @@ const integratedAnalysisHandler = async (req: Request, res: Response): Promise<v
         }
       },
       meta: {
-        userRole,
         features: ['integrated-analysis', 'cross-validation', 'confidence-scoring'],
         sources: integratedAnalysis.crossValidation.validationSources
       },
@@ -285,6 +341,41 @@ const integratedAnalysisHandler = async (req: Request, res: Response): Promise<v
   }
 };
 
+/**
+ * @swagger
+ * /api/v1/astrology/integrated-analysis:
+ *   post:
+ *     summary: 多術數綜合分析
+ *     description: 整合八字與紫微斗數進行交叉驗證分析
+ *     tags: [Astrology Integration]
+ *     security:
+ *       - BearerAuth: []
+ *       - {}
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/IntegratedAnalysisRequest'
+ *     responses:
+ *       200:
+ *         description: 綜合分析成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/IntegratedAnalysisResponse'
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       429:
+ *         $ref: '#/components/responses/RateLimitError'
+ *       500:
+ *         description: 綜合分析服務不可用
+ */
 router.post('/integrated-analysis', integratedAnalysisHandler);
 
 /**
@@ -293,50 +384,6 @@ router.post('/integrated-analysis', integratedAnalysisHandler);
  */
 const confidenceAssessmentHandler = async (req: Request, res: Response): Promise<void> => {
   try {
-    // 1. 暫時跳過認證檢查 (開發階段)
-    // 設置預設用戶資訊用於開發測試
-    (req as AuthenticatedRequest).user = {
-      userId: 'dev-user-001',
-      role: 'member', // 給予會員權限以便測試信心度評估功能
-      features: ['integrated-analysis', 'cross-validation', 'confidence-scoring'],
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 3600 // 1小時後過期
-    };
-
-    // 舊的認證邏輯（暫時註釋）
-    /*
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      res.status(401).json({ error: 'Authentication required' });
-      return;
-    }
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-      res.status(401).json({ error: 'Authentication required' });
-      return;
-    }
-
-    try {
-      const jwt = require('jsonwebtoken');
-      const JWT_SECRET = process.env.JWT_SECRET ?? 'development_secret';
-      const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
-      (req as AuthenticatedRequest).user = decoded;
-    } catch (error: any) {
-      res.status(401).json({ error: 'Invalid or expired token', details: error.message });
-      return;
-    }
-    */
-
-    // 需要會員權限
-    if ((req as AuthenticatedRequest).user?.role === 'anonymous') {
-      res.status(403).json({
-        success: false,
-        error: '信心度評估需要會員權限',
-        timestamp: new Date().toISOString()
-      });
-      return;
-    }
-
     const { birthDate, birthTime, gender, location } = req.body;
     
     if (!birthDate || !birthTime || !gender) {
@@ -428,10 +475,67 @@ const confidenceAssessmentHandler = async (req: Request, res: Response): Promise
   }
 };
 
+/**
+ * @swagger
+ * /api/v1/astrology/confidence-assessment:
+ *   post:
+ *     summary: 分析結果信心度評估
+ *     description: 評估多術數分析結果的一致性和可信度
+ *     tags: [Astrology Integration]
+ *     security:
+ *       - BearerAuth: []
+ *       - {}
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/BirthInfo'
+ *     responses:
+ *       200:
+ *         description: 信心度評估成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/ConfidenceAssessment'
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       500:
+ *         description: 信心度評估服務不可用
+ */
 router.post('/confidence-assessment', confidenceAssessmentHandler);
 
 /**
- * 健康檢查端點
+ * @swagger
+ * /api/v1/astrology/health:
+ *   get:
+ *     summary: 命理整合服務健康檢查
+ *     tags: [System]
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: 服務正常
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                 service:
+ *                   type: string
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 features:
+ *                   type: array
+ *                   items:
+ *                     type: string
  */
 router.get('/health', (_req: Request, res: Response): void => {
   res.json({
@@ -478,19 +582,6 @@ function generateMockBaziData(birthInfo: BirthInfo): BaziCalculationResult {
       direction: birthInfo.gender === 'male' ? 'forward' : 'backward'
     }
   };
-}
-
-/**
- * 檢查綜合分析功能權限
- */
-async function checkIntegratedAnalysisAccess(userRole: string): Promise<boolean> {
-  // 匿名用戶無法使用綜合分析功能
-  if (userRole === 'anonymous') {
-    return false;
-  }
-  
-  // 會員及以上可以使用
-  return ['member', 'vip', 'admin'].includes(userRole);
 }
 
 /**

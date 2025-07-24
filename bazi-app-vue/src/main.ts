@@ -10,6 +10,9 @@ import 'element-plus/dist/index.css'
 // 導入 Element Plus 繁體中文語言包
 import zhTw from 'element-plus/es/locale/lang/zh-tw'
 
+// 導入 Vue Lazyload
+import VueLazyload from 'vue-lazyload'
+
 // 導入增強版存儲服務
 import enhancedStorageService from './utils/enhancedStorageService'
 
@@ -24,6 +27,15 @@ app.use(ElementPlus, {
   locale: zhTw, // 設定 Element Plus 為繁體中文
 })
 app.use(errorHandlerPlugin) // 使用全局錯誤處理器
+
+// 配置並使用 Vue Lazyload
+app.use(VueLazyload, {
+  preLoad: 1.3,
+  error: '/src/assets/error-placeholder.png',
+  loading: '/src/assets/loading-placeholder.gif',
+  attempt: 1,
+  lazyComponent: true
+})
 
 // 註冊增強版存儲服務為全域屬性
 app.config.globalProperties.$enhancedStorageService = enhancedStorageService

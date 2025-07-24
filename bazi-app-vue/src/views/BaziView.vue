@@ -170,12 +170,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, defineAsyncComponent } from 'vue';
 import { ElMessage, ElMessageBox, ElTabs, ElTabPane } from 'element-plus';
 import { Coordinate, Delete } from '@element-plus/icons-vue';
-import BaziInputForm from '@/components/BaziInputForm.vue';
-import BaziChartDisplay from '@/components/BaziChartDisplay.vue';
-import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
+
+// 動態導入組件以提升效能
+const BaziInputForm = defineAsyncComponent(() => import('@/components/BaziInputForm.vue'));
+const BaziChartDisplay = defineAsyncComponent(() => import('@/components/BaziChartDisplay.vue'));
+const StorageStatusIndicator = defineAsyncComponent(() => import('@/components/StorageStatusIndicator.vue'));
 import { BirthInfo } from '@/services/astrologyIntegrationService';
 import { 
   BaziCalculator, 

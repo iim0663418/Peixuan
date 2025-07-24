@@ -258,10 +258,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted, watch, computed } from 'vue';
+import { reactive, ref, onMounted, watch, computed, defineAsyncComponent } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Connection, Delete, Loading, Star, Document, TrendCharts } from '@element-plus/icons-vue';
-import IntegratedAnalysisDisplay from '@/components/IntegratedAnalysisDisplay.vue';
+
+// 動態導入組件以提升效能
+const IntegratedAnalysisDisplay = defineAsyncComponent(() => import('@/components/IntegratedAnalysisDisplay.vue'));
 import AstrologyIntegrationService from '@/services/astrologyIntegrationService';
 import { BirthInfo } from '@/services/astrologyIntegrationService';
 import type { IntegratedAnalysisResponse } from '@/types/astrologyTypes';

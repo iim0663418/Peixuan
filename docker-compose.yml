@@ -1,81 +1,72 @@
 version: '3.8'
 
 services:
-  frontend:
-    build:
-      context: ./bazi-app-vue
-      dockerfile: Dockerfile.dev
-    container_name: bazi_frontend_dev
-    ports:
-      - "5173:5173" # Vite 預設端口
-    volumes:
-      - ./bazi-app-vue:/app
-      - /app/node_modules # 避免覆蓋容器內的 node_modules
+  # PostgreSQL 資料庫
+  postgres:
+    image: postgres:15-alpine
+    container_name: peixuan-postgres
     environment:
-      - CHOKIDAR_USEPOLLING=true # 解決某些環境下熱重載問題
-    tty: true # 保持容器運行以進行交互式 shell
-
-  # 後端服務 (Node.js 範例 - 根據實際選擇調整)
-  backend-node:
-    build:
-      context: ./backend-node # 假設後端 Node.js 專案在 backend-node 目錄
-      dockerfile: Dockerfile.dev
-    container_name: bazi_backend_node_dev
-    ports:
-      - "3000:3000" # 假設 Node.js 後端運行在 3000 端口
-    volumes:
-      - ./backend-node:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://user:password@db:5432/bazi_db # 連接到 PostgreSQL
-      - REDIS_URL=redis://redis:6379 # 連接到 Redis
-    depends_on:
-      - db
-      - redis
-    tty: true
-
-  # 後端服務 (Python 範例 - 根據實際選擇調整)
-  # backend-python:
-  #   build:
-  #     context: ./backend-python # 假設後端 Python 專案在 backend-python 目錄
-  #     dockerfile: Dockerfile.dev
-  #   container_name: bazi_backend_python_dev
-  #   ports:
-  #     - "8000:8000" # 假設 Python 後端運行在 8000 端口
-  #   volumes:
-  #     - ./backend-python:/app
-  #   environment:
-  #     - PYTHON_ENV=development
-  #     - DATABASE_URL=postgresql://user:password@db:5432/bazi_db
-  #     - REDIS_URL=redis://redis:6379
-  #   depends_on:
-  #     - db
-  #     - redis
-  #   tty: true
-
-  db:
-    image: postgres:15
-    container_name: bazi_postgres_db
-    restart: always
-    environment:
-      POSTGRES_USER: user
+      POSTGRES_DB: peixuan
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: bazi_db
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - peixuan-network
 
+  # Redis 快取 (可選)
   redis:
-    image: redis:7
-    container_name: bazi_redis_cache
-    restart: always
+    image: redis:7-alpine
+    container_name: peixuan-redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - peixuan-network
+
+  # 後端應用
+  backend:
+    build:
+      context: ./backend-node
+      dockerfile: Dockerfile
+    container_name: peixuan-backend
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_NAME: peixuan
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - peixuan-network
+
+  # 前端應用
+  frontend:
+    build:
+      context: ./bazi-app-vue
+      dockerfile: Dockerfile
+    container_name: peixuan-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - peixuan-network
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  peixuan-network:
+    driver: bridge

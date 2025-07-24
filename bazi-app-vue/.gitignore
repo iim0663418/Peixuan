@@ -33,4 +33,18 @@ node_modules/
 # OS specific
 # Task files
 tasks.json
-tasks/ 
+tasks/
+
+# 防止編譯產物污染版本控制
+*.js
+*.js.map
+!vite.config.ts
+!jest.config.js
+!.eslintrc.js
+!.prettierrc.js
+
+# 備份和除錯文件
+*.bak
+debug*.js
+test-*.js
+*.log 

@@ -1,59 +1,67 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt, { Secret, SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+import { UserService } from '../services/userService';
 
-const JWT_SECRET: Secret = process.env.JWT_SECRET ?? 'development_secret';
-
-export interface TokenPayload {
-  userId: string;
-  role: string;
-  features: string[];
-  iat: number;
-  exp: number;
+interface AuthRequest extends Request {
+  user?: any;
 }
 
-/**
- * Generate a JSON Web Token for a user.
- * @param payload - The token payload excluding iat and exp.
- * @param expiresIn - Token expiration (e.g., '1h', '7d').
- */
-export function generateToken(
-  payload: Omit<TokenPayload, 'iat' | 'exp'>,
-  expiresIn: string = '1h'
-): string {
-  // @ts-ignore
-  const options: SignOptions = { expiresIn: expiresIn };
-  return jwt.sign(payload, JWT_SECRET, options);
-}
-
-/**
- * Express middleware to validate JWT and optionally check feature access.
- * @param requiredFeatures - List of features required for this route.
- */
-export function validateToken(requiredFeatures: string[] = []) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-    const token = authHeader.split(' ')[1];
+export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
     if (!token) {
-      return res.status(401).json({ error: 'Authentication required' });
+      return res.status(401).json({ error: '未提供認證Token' });
     }
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
-      // Feature-based access control
-      if (requiredFeatures.length > 0) {
-        const hasAccess = requiredFeatures.every(feature =>
-          decoded.features.includes(feature)
-        );
-        if (!hasAccess) {
-          return res.status(403).json({ error: 'Feature access denied' });
-        }
-      }
-      (req as any).user = decoded;
-      next();
-    } catch (error: any) {
-      return res.status(401).json({ error: 'Invalid or expired token', details: error.message });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret') as any;
+    const userService = new UserService();
+    const user = await userService.findById(decoded.userId);
+    
+    if (!user) {
+      return res.status(401).json({ error: '用戶不存在' });
     }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Token無效' });
+  }
+};
+
+export const optionalAuth = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret') as any;
+      const userService = new UserService();
+      const user = await userService.findById(decoded.userId);
+      req.user = user;
+    }
+    
+    next();
+  } catch (error) {
+    // 可選認證，錯誤時繼續執行
+    next();
+  }
+};
+
+export const requireMembership = (level: 'member' | 'vip') => {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({ error: '需要登入' });
+    }
+
+    const userLevel = req.user.membershipLevel;
+    const levels = ['anonymous', 'member', 'vip'];
+    const requiredIndex = levels.indexOf(level);
+    const userIndex = levels.indexOf(userLevel);
+
+    if (userIndex < requiredIndex) {
+      return res.status(403).json({ error: '權限不足' });
+    }
+
+    next();
   };
-}
+};

@@ -10,8 +10,68 @@ import { RequestValidator, createErrorResponse, createSuccessResponse } from '..
 import { PurpleStarCalculationService } from '../services/purpleStarCalculationService';
 import { EnhancedPurpleStarCalculationService } from '../services/enhancedPurpleStarCalculationService';
 import { TransformationStarService } from '../services/transformationStarService';
+import { cacheService } from '../services/cacheService';
+import { calculationCacheMiddleware } from '../middleware/cache';
 
 const router = Router();
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     PurpleStarRequest:
+ *       type: object
+ *       required:
+ *         - birthDate
+ *         - birthTime
+ *         - gender
+ *         - lunarInfo
+ *       properties:
+ *         birthDate:
+ *           type: string
+ *           format: date
+ *           example: '1990-01-01'
+ *         birthTime:
+ *           type: string
+ *           pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]$'
+ *           example: '12:30'
+ *         gender:
+ *           type: string
+ *           enum: [male, female]
+ *         location:
+ *           $ref: '#/components/schemas/Location'
+ *         lunarInfo:
+ *           type: object
+ *           description: 農曆資訊
+ *         options:
+ *           type: object
+ *           properties:
+ *             includeMajorCycles:
+ *               type: boolean
+ *               default: true
+ *             includeMinorCycles:
+ *               type: boolean
+ *               default: true
+ *             includeFourTransformations:
+ *               type: boolean
+ *               default: false
+ *             detailLevel:
+ *               type: string
+ *               enum: [basic, detailed, expert]
+ *               default: basic
+ *     PurpleStarChart:
+ *       type: object
+ *       properties:
+ *         palaces:
+ *           type: array
+ *           description: 十二宮位資料
+ *         mingPalaceIndex:
+ *           type: integer
+ *           description: 命宮位置
+ *         calculationInfo:
+ *           type: object
+ *           description: 計算資訊
+ */
 
 const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Response) => {
   try {
@@ -42,6 +102,25 @@ const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Res
       res.status(400).json(errorResponse);
       return;
     }
+    
+    // 生成快取鍵
+    const cacheKey = `purple-star-${JSON.stringify({
+      birthDate: request.birthDate,
+      birthTime: request.birthTime,
+      gender: request.gender,
+      location: request.location,
+      lunarInfo: request.lunarInfo,
+      options: request.options
+    })}`;
+    
+    // 檢查快取
+    const cachedResult = cacheService.get(cacheKey);
+    if (cachedResult) {
+      console.log('命盤計算結果從快取中獲取');
+      return res.json(cachedResult);
+    }
+    
+    console.log('未找到快取，開始計算命盤...');
 
     // 解析輸入資料
     const birthDateTime = parseDateTime(request.birthDate, request.birthTime);
@@ -178,6 +257,10 @@ const calculatePurpleStarHandler: RequestHandler = async (req: Request, res: Res
     };
 
     const response = createSuccessResponse(responseData);
+    
+    // 將結果存入快取，有效期1小時
+    cacheService.set(cacheKey, response, 3600);
+    
     res.json(response);
 
   } catch (error) {
@@ -278,10 +361,75 @@ function generateMockPurpleStarChart(birthInfo: BirthInfo, options: any): Purple
   };
 }
 
-// API 端點路由
-router.post('/calculate', calculatePurpleStarHandler);
+/**
+ * @swagger
+ * /api/v1/purple-star/calculate:
+ *   post:
+ *     summary: 計算紫微斗數命盤
+ *     tags: [Purple Star]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PurpleStarRequest'
+ *     responses:
+ *       200:
+ *         description: 計算成功
+ *         headers:
+ *           X-Cache:
+ *             description: 快取狀態 (HIT/MISS)
+ *             schema:
+ *               type: string
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         chart:
+ *                           $ref: '#/components/schemas/PurpleStarChart'
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       429:
+ *         $ref: '#/components/responses/RateLimitError'
+ *       500:
+ *         description: 計算錯誤
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post('/calculate', calculationCacheMiddleware, calculatePurpleStarHandler);
 
-// 健康檢查端點
+/**
+ * @swagger
+ * /api/v1/purple-star/health:
+ *   get:
+ *     summary: 紫微斗數服務健康檢查
+ *     tags: [System]
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: 服務正常
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ */
 router.get('/health', (req: Request, res: Response) => {
   res.json({
     success: true,

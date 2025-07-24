@@ -230,7 +230,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, inject, nextTick } from 'vue';
+import { ref, computed, onMounted, watch, inject, nextTick, defineAsyncComponent } from 'vue';
 import { useBreakpoints } from '@vueuse/core';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { 
@@ -240,12 +240,14 @@ import {
   Delete,
   Refresh
 } from '@element-plus/icons-vue';
-import PurpleStarInputForm from '@/components/PurpleStarInputForm.vue';
-import PurpleStarChartDisplay from '@/components/PurpleStarChartDisplay.vue';
-import TransformationStarsDisplay from '@/components/TransformationStarsDisplay.vue';
-import StorageStatusIndicator from '@/components/StorageStatusIndicator.vue';
-import FortuneOverview from '@/components/FortuneOverview.vue';
-import CurrentYearFortune from '@/components/CurrentYearFortune.vue';
+
+// 動態導入組件以提升效能
+const PurpleStarInputForm = defineAsyncComponent(() => import('@/components/PurpleStarInputForm.vue'));
+const PurpleStarChartDisplay = defineAsyncComponent(() => import('@/components/PurpleStarChartDisplay.vue'));
+const TransformationStarsDisplay = defineAsyncComponent(() => import('@/components/TransformationStarsDisplay.vue'));
+const StorageStatusIndicator = defineAsyncComponent(() => import('@/components/StorageStatusIndicator.vue'));
+const FortuneOverview = defineAsyncComponent(() => import('@/components/FortuneOverview.vue'));
+const CurrentYearFortune = defineAsyncComponent(() => import('@/components/CurrentYearFortune.vue'));
 import apiService from '@/services/apiService';
 import astrologyIntegrationService from '@/services/astrologyIntegrationService';
 import storageService from '@/utils/storageService';

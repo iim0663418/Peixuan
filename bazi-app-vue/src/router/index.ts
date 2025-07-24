@@ -10,28 +10,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'home',
     component: HomeView
   },
-  {
-    path: '/login',
-    name: 'login',
-    component: () => import('../views/LoginView.vue')
-  },
-  {
-    path: '/register',
-    name: 'register',
-    component: () => import('../views/RegisterView.vue')
-  },
-  {
-    path: '/profile',
-    name: 'profile',
-    component: () => import('../views/ProfileView.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/monitoring',
-    name: 'monitoring',
-    component: () => import('../views/MonitoringDashboard.vue'),
-    meta: { requiresAuth: true, requiresAdmin: true }
-  },
+
   {
     path: '/purple-star',
     name: 'purple-star',
@@ -49,8 +28,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'integrated-analysis',
     component: () => import('../views/IntegratedAnalysisView.vue'),
     meta: { 
-      title: 'astrology.integrated_analysis',
-      requiresAuth: true
+      title: 'astrology.integrated_analysis'
     }
   }
 ]

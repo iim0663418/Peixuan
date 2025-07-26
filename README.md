@@ -25,10 +25,12 @@
 ## 🛠 技術棧
 
 ### 後端
-- Node.js
+- Node.js 18+
 - TypeScript
 - Express.js
 - JWT 驗證
+- PostgreSQL 15
+- Redis 7
 - 日誌與監控系統
 
 ### 前端
@@ -36,6 +38,8 @@
 - TypeScript
 - Vite
 - Vue Router
+- Pinia 狀態管理
+- Element Plus UI
 - i18n 國際化
 
 ### 資料處理
@@ -46,11 +50,105 @@
 ## 🚀 快速開始
 
 ### 環境要求
-- Node.js 16+
+- Node.js 18+
 - npm 8+
-- Docker (可選)
+- Docker 20.10+ 與 Docker Compose 2.0+ (推薦)
+- Git 2.30+
+
+### 環境變數設定
+
+專案使用環境變數來配置不同環境的設定。請按照以下步驟設定：
+
+#### 1. 後端環境變數
+複製環境變數範本並根據需要修改：
+
+```bash
+# 複製環境變數模板
+cp backend-node/.env.example backend-node/.env.dev
+
+# 編輯開發環境變數
+nano backend-node/.env.dev
+```
+
+**主要環境變數說明**：
+
+```
+# 基本配置
+NODE_ENV=development    # 環境類型 (development/test/production)
+PORT=3000               # API 服務埠
+
+# 資料庫配置
+DB_HOST=postgres        # PostgreSQL 主機名
+DB_PORT=5432            # PostgreSQL 埠
+DB_USERNAME=postgres    # 資料庫用戶名
+DB_PASSWORD=devpassword # 資料庫密碼
+DB_NAME=peixuan_dev     # 資料庫名稱
+
+# Redis 配置
+REDIS_HOST=redis        # Redis 主機名
+REDIS_PORT=6379         # Redis 埠
+
+# JWT 配置
+JWT_SECRET=your-secret-key    # JWT 密鑰 (生產環境請使用強密碼)
+JWT_EXPIRES_IN=24h            # Token 有效期
+
+# API 配置
+API_RATE_LIMIT=1000           # API 請求限制
+CALCULATION_RATE_LIMIT=100    # 計算服務請求限制
+
+# 其他配置
+ENABLE_API_DOCS=true          # 是否啟用 API 文檔
+```
+
+#### 2. 前端環境變數
+在 `bazi-app-vue` 目錄中創建 `.env.local` 文件：
+
+```bash
+# 複製環境變數模板
+cp bazi-app-vue/.env.example bazi-app-vue/.env.local
+
+# 編輯環境變數
+nano bazi-app-vue/.env.local
+```
+
+**主要環境變數說明**：
+
+```
+# API 基礎 URL
+VITE_API_BASE_URL=http://localhost:3000/api/v1
+
+# 功能開關
+VITE_ENABLE_ANALYTICS=false
+VITE_ENABLE_PREMIUM_FEATURES=false
+
+# 其他配置
+VITE_DEFAULT_LOCALE=zh-TW
+```
 
 ### 安裝步驟
+
+#### 方法一：使用 Docker (推薦)
+
+```bash
+# 克隆倉庫
+git clone https://github.com/your-username/peixuan.git
+
+# 進入專案目錄
+cd peixuan
+
+# 複製環境變數模板
+cp .env.example .env
+cp backend-node/.env.example backend-node/.env.dev
+
+# 啟動開發環境
+docker-compose -f docker-compose.dev.yml up -d
+
+# 查看日誌
+docker-compose -f docker-compose.dev.yml logs -f
+```
+
+#### 方法二：本地開發
+
 ```bash
 # 克隆倉庫
 git clone https://github.com/your-username/peixuan.git
@@ -62,21 +160,23 @@ cd peixuan
 cd backend-node
 npm install
 
+# 複製並設定環境變數
+cp .env.example .env.dev
+nano .env.dev
+
+# 啟動後端開發伺服器
+npm run dev
+
 # 安裝前端依賴
 cd ../bazi-app-vue
 npm install
 
-# 啟動開發伺服器
+# 複製並設定環境變數
+cp .env.example .env.local
+nano .env.local
+
+# 啟動前端開發伺服器
 npm run dev
-```
-
-### 使用 Docker 啟動
-```bash
-# 使用 Docker Compose 啟動所有服務
-docker-compose up -d
-
-# 查看日誌
-docker-compose logs -f
 ```
 
 ## 🔒 安全性
@@ -85,6 +185,9 @@ docker-compose logs -f
 - 基於角色的存取控制
 - 敏感資料加密
 - 多層安全驗證機制
+- API 頻率限制
+- 輸入驗證與消毒
+- CORS 安全配置
 
 ## 📊 API 端點
 
@@ -95,10 +198,20 @@ docker-compose logs -f
 ### 紫微斗數
 - `POST /api/v1/purple-star/calculate`
 - `GET /api/v1/purple-star/chart`
+- `GET /api/v1/purple-star/health`
+
+### 八字
+- `POST /api/v1/bazi/calculate`
+- `GET /api/v1/bazi/chart`
 
 ### 用戶認證
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login`
+- `POST /api/v1/auth/refresh`
+
+### 系統監控
+- `GET /health`
+- `GET /metrics`
 
 ## 🧪 測試
 
@@ -113,6 +226,7 @@ npm run test
 ```
 
 詳細的測試指南請參考 [TESTING_GUIDE.md](TESTING_GUIDE.md)。
+詳細的部署指南請參考 [DEPLOYMENT_MANUAL.md](DEPLOYMENT_MANUAL.md)。
 
 ## 📝 專案狀態
 
@@ -131,16 +245,16 @@ npm run test
 - ✅ 實現紫微斗數精細化計算服務
 - ✅ 整合時區選擇功能於紫微斗數排盤表單
 - ✅ 增強紫微斗數命盤解說功能
-- ✅ Implement Multi-Level Horoscope Interpretation for Purple Star Astrology
-- ✅ Validate and Optimize Session Storage Implementation for BaZi and Purple Star Astrology
+- ✅ 實現多層次命盤解讀功能
+- ✅ 優化會話存儲實現
 
 ### 進行中功能
 - 🔄 修復紫微斗數表單資料傳遞問題
+- 🔄 實現用戶認證系統
+- 🔄 開發匿名轉會員合併機制
 
 ### 待開發功能
-- ⏳ 實現用戶認證系統
-- ⏳ 開發匿名轉會員合併機制
-- ⏳ 設計和實現 RESTful API
+- ⏳ 設計和實現完整 RESTful API
 - ⏳ 開發命運洞悉功能
 - ⏳ 實現第三方 API 接入
 - ⏳ 開發用戶資料和歷史查詢功能
@@ -152,9 +266,9 @@ npm run test
 - ⏳ 命運洞悉與命運分析容錯機制
 - ⏳ 紫微斗數計算精化與時間精準度優化
 - ⏳ Redis 分佈式緩存系統配置與部署
-- ⏳ Enhance English Localization for Multi-language Interface
-- ⏳ Enhance Responsive Web Design for Purple Star Astrology Chart
-- ⏳ Enhance Security for Enhanced Storage Service
+- ⏳ 增強英文本地化界面
+- ⏳ 增強紫微斗數命盤響應式設計
+- ⏳ 增強存儲服務安全性
 - ⏳ 開發命盤比較功能
 - ⏳ 實現命盤解讀自動生成
 - ⏳ 開發命盤互動教學功能
@@ -184,6 +298,8 @@ npm run test
     - `src/stores/`：狀態管理
     - `src/i18n/`：國際化資源
     - `src/router/`：路由設定
+    - `src/utils/`：工具函數
+    - `src/types/`：TypeScript 類型定義
 
 - **後端 (backend-node)**
   - 使用 Node.js 與 Express 框架，採用 TypeScript 開發
@@ -191,21 +307,27 @@ npm run test
   - 中介軟體負責身份驗證、權限控制、日誌與監控
   - 主要目錄：
     - `src/routes/`：API 路由定義
+    - `src/controllers/`：請求處理控制器
     - `src/services/`：業務邏輯與命理計算服務
     - `src/middleware/`：Express 中介軟體
+    - `src/models/`：資料模型
     - `src/utils/`：工具函式
     - `src/types/`：型別定義
+    - `src/config/`：配置文件
     - `src/__tests__/`：單元測試
 
 - **其他**
   - `docker-compose.yml` 與 Dockerfile 用於容器化部署
+  - `docker-compose.dev.yml` 用於開發環境部署
+  - `docker-compose.test.yml` 用於測試環境部署
   - `TESTING_GUIDE.md` 提供測試相關說明
+  - `DEPLOYMENT_MANUAL.md` 提供部署相關說明
   - `.env` 用於環境變數設定
-  - `PROJECT_VALIDATION.md` 定義專案驗證標準
+  - `scripts/` 目錄包含各種自動化腳本
 
 ## 🤝 貢獻指南
 
-請閱讀 [PROJECT_VALIDATION.md](PROJECT_VALIDATION.md) 了解詳細的專案驗證標準。
+請閱讀 [CONTRIBUTING.md](CONTRIBUTING.md) 了解如何貢獻代碼。
 
 ## 📄 授權
 

@@ -29,7 +29,9 @@ jobs:
 
       # 複製前端資源到 worker
       - name: Copy Frontend to Worker
-        run: cp -r bazi-app-vue/dist/* peixuan-worker/public/
+        run: |
+          cp -r bazi-app-vue/dist/* peixuan-worker/public/
+          find peixuan-worker/public -name "*.d.ts" -type f -delete
 
       # 安裝 worker 依賴
       - name: Install Worker Dependencies

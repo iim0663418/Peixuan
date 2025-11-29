@@ -4,7 +4,9 @@
 	"private": true,
 	"scripts": {
 		"dev": "wrangler dev",
-		"deploy": "wrangler deploy",
+		"build": "esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js --platform=neutral --conditions=workerd,worker --external:cloudflare:* --external:@cloudflare/kv-asset-handler",
+		"deploy": "npm run build && wrangler deploy dist/index.js",
+		"deploy:direct": "wrangler deploy",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "wrangler d1 migrations apply peixuan-db --local",
 		"db:push": "wrangler d1 migrations apply peixuan-db --remote"
@@ -12,11 +14,13 @@
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.8.19",
 		"@cloudflare/workers-types": "^4.20251128.0",
+		"esbuild": "^0.27.0",
 		"typescript": "^5.5.2",
 		"vitest": "~3.2.0",
 		"wrangler": "^4.51.0"
 	},
 	"dependencies": {
+		"@cloudflare/kv-asset-handler": "^0.4.1",
 		"drizzle-kit": "^0.31.7",
 		"drizzle-orm": "^0.44.7",
 		"drizzle-zod": "^0.8.3",

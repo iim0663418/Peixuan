@@ -39,6 +39,10 @@ jobs:
           cd peixuan-worker
           npm ci
 
+      # 編譯 Worker 代碼
+      - name: Build Worker
+        run: cd peixuan-worker && npm run build
+
       # 套用 D1 遷移
       - name: Apply D1 Migrations
         run: cd peixuan-worker && npm run db:push

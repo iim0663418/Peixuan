@@ -249,8 +249,11 @@ import {
   Loading,
 } from '@element-plus/icons-vue';
 import { useLayeredReading } from '@/composables/useLayeredReading';
-import { READING_LEVEL_CONFIGS, ReadingLevel } from '@/types/layeredReading';
-import type { ReadingLevel as ReadingLevelType } from '@/types/layeredReading';
+import {
+  READING_LEVEL_CONFIGS,
+  ReadingLevel,
+  type ReadingLevel as ReadingLevelType,
+} from '@/types/layeredReading';
 
 // Props
 interface Props {

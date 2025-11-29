@@ -1,7 +1,13 @@
 // yearlyInteractionUtils.ts
 
-import type { HeavenlyStem, EarthlyBranch, BaziResult } from './baziCalc';
-import { HEAVENLY_STEMS, EARTHLY_BRANCHES, STEM_TO_ELEMENT } from './baziCalc';
+import {
+  HEAVENLY_STEMS,
+  EARTHLY_BRANCHES,
+  STEM_TO_ELEMENT,
+  type HeavenlyStem,
+  type EarthlyBranch,
+  type BaziResult,
+} from './baziCalc';
 
 // 地支關係介面
 export interface BranchRelation {

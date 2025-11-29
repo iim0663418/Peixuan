@@ -7,6 +7,7 @@
 		"build": "esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js --platform=neutral --conditions=workerd,worker --external:cloudflare:* --external:@cloudflare/kv-asset-handler",
 		"deploy": "npm run build && wrangler deploy dist/index.js",
 		"deploy:direct": "wrangler deploy",
+		"test": "vitest run",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "wrangler d1 migrations apply peixuan-db --local",
 		"db:push": "wrangler d1 migrations apply peixuan-db --remote"

@@ -11797,6 +11797,7 @@ var init_purpleStarCalculation = __esm({
           palaces,
           mingPalaceIndex: this.mingPalaceStdIndex,
           shenPalaceIndex: this.shenPalaceStdIndex,
+          mingGan: this.mingPalaceGan,
           fiveElementsBureau: this.fiveElementsBureau,
           daXian,
           xiaoXian

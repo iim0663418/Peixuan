@@ -232,7 +232,7 @@ export function useLayeredReading() {
   /**
    * 動畫處理
    */
-  // eslint-disable-next-line no-unused-vars
+
   const animateTransition = async (
     _fromLevel: ReadingLevel,
     _toLevel: ReadingLevel,

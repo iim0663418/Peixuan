@@ -37,7 +37,8 @@
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+      <el-col :xs="24" :sm="24" :md="12"
+:lg="12" :xl="12">
         <el-card shadow="hover">
           <template #header>
             <span>{{ $t('astrology.bazi_detail.inputSection') }}</span>
@@ -47,23 +48,24 @@
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+      <el-col :xs="24" :sm="24" :md="12"
+:lg="12" :xl="12">
         <el-card v-if="baziChart" shadow="hover">
           <template #header>
             <span>分析結果</span>
           </template>
 
           <ElTabs>
-            <el-tab-pane label="八字命盤">
+            <ElTabPane label="八字命盤">
               <BaziChartDisplay
-                :baziResult="baziChart"
-                :tenGods="baziChart.mainTenGods"
-                :elementsDistribution="baziChart.elementsDistribution"
-                :startLuckInfo="baziChart.startLuckInfo"
+                :bazi-result="baziChart"
+                :ten-gods="baziChart.mainTenGods"
+                :elements-distribution="baziChart.elementsDistribution"
+                :start-luck-info="baziChart.startLuckInfo"
               />
-            </el-tab-pane>
+            </ElTabPane>
 
-            <el-tab-pane label="命盤解讀" v-if="baziChart.interpretation">
+            <ElTabPane v-if="baziChart.interpretation" label="命盤解讀">
               <div class="interpretation-section">
                 <h3>命盤總論</h3>
                 <p>{{ baziChart.interpretation.general }}</p>
@@ -101,14 +103,14 @@
                   </el-tag>
                 </div>
               </div>
-            </el-tab-pane>
+            </ElTabPane>
 
-            <el-tab-pane
-              label="大運"
+            <ElTabPane
               v-if="
                 baziChart.decennialCycles &&
                 baziChart.decennialCycles.length > 0
               "
+              label="大運"
             >
               <div
                 v-for="cycle in baziChart.decennialCycles"
@@ -123,7 +125,7 @@
                 </h4>
                 <p v-if="cycle.analysis">{{ cycle.analysis.overview }}</p>
 
-                <div class="cycle-details" v-if="cycle.analysis">
+                <div v-if="cycle.analysis" class="cycle-details">
                   <div class="detail-item">
                     <h5>事業</h5>
                     <p>{{ cycle.analysis.career }}</p>
@@ -142,11 +144,11 @@
                   </div>
                 </div>
               </div>
-            </el-tab-pane>
+            </ElTabPane>
 
-            <el-tab-pane
-              label="流年"
+            <ElTabPane
               v-if="baziChart.annualLuck && baziChart.annualLuck.length > 0"
+              label="流年"
             >
               <div class="annual-filter">
                 <el-input
@@ -165,7 +167,7 @@
                 <h4>{{ year.stem }}{{ year.branch }} ({{ year.age }}歲)</h4>
                 <p v-if="year.analysis">{{ year.analysis.overview }}</p>
 
-                <div class="annual-details" v-if="year.analysis">
+                <div v-if="year.analysis" class="annual-details">
                   <div class="detail-item">
                     <h5>年度重點</h5>
                     <p>{{ year.analysis.focus }}</p>
@@ -180,7 +182,7 @@
                   </div>
                 </div>
               </div>
-            </el-tab-pane>
+            </ElTabPane>
           </ElTabs>
         </el-card>
 
@@ -236,7 +238,9 @@ const yearFilter = ref(''); // 用於流年過濾
 
 // 過濾流年的計算屬性
 const filteredAnnualLuck = computed(() => {
-  if (!baziChart.value?.annualLuck) {return [];}
+  if (!baziChart.value?.annualLuck) {
+    return [];
+  }
 
   if (!yearFilter.value.trim()) {
     return baziChart.value.annualLuck;
@@ -300,7 +304,9 @@ const handleSubmit = async (birthInfo: BirthInfo) => {
 
     // 檢查日期是否有效
     if (isNaN(solarDate.getTime())) {
-      throw new Error(`無效的日期：${birthInfo.birthDate}，請確保格式為YYYY-MM-DD`);
+      throw new Error(
+        `無效的日期：${birthInfo.birthDate}，請確保格式為YYYY-MM-DD`,
+      );
     }
 
     // 添加時間部分
@@ -310,7 +316,8 @@ const handleSubmit = async (birthInfo: BirthInfo) => {
 
       // 檢查時間是否有效
       if (isNaN(solarDate.getTime())) {
-        throw new Error(`無效的時間：${  birthInfo.birthTime  }，請確保格式為HH:MM`);
+        throw new Error(
+          `無效的時間：${birthInfo.birthTime}，請確保格式為HH:MM`,
         );
       }
     }

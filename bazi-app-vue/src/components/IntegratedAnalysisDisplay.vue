@@ -16,8 +16,9 @@
         <h3>
           <el-icon><DataAnalysis /></el-icon>
           《時運分析》綜合人生解讀
-          <el-tag size="small"
-effect="dark" type="success" class="version-tag">2025版</el-tag
+          <el-tag
+size="small" effect="dark" type="success" class="version-tag"
+            >2025版</el-tag
           >
         </h3>
       </div>

@@ -296,7 +296,10 @@ const fiveElements = computed(() => {
     );
     props.chartData.palaces.forEach((palace) => {
       palace.stars?.forEach((star) => {
-        if (star.element && Object.prototype.hasOwnProperty.call(elements, star.element)) {
+        if (
+          star.element &&
+          Object.prototype.hasOwnProperty.call(elements, star.element)
+        ) {
           elements[star.element as keyof typeof elements]++;
         }
       });

@@ -2,8 +2,11 @@
   <div class="integrated-analysis-container">
     <!-- 主描述卡片 -->
     <el-row :gutter="20">
-      <el-col :xs="24" :sm="24" :md="24"
-:lg="24" :xl="24" class="mb-4">
+      <el-col
+:xs="24"
+:sm="24" :md="24" :lg="24"
+:xl="24" class="mb-4"
+>
         <el-card shadow="hover" class="description-card">
           <template #header>
             <div class="card-header">
@@ -149,8 +152,11 @@
     <!-- 表單與結果區域 -->
     <el-row :gutter="20" class="main-content">
       <!-- 輸入表單 -->
-      <el-col :xs="24" :sm="24" :md="12"
-:lg="10" :xl="8">
+      <el-col
+:xs="24"
+:sm="24" :md="12" :lg="10"
+:xl="8"
+>
         <el-card shadow="hover" class="input-card">
           <template #header>
             <div class="form-header">
@@ -237,8 +243,11 @@
       </el-col>
 
       <!-- 分析結果 -->
-      <el-col :xs="24" :sm="24" :md="12"
-:lg="14" :xl="16">
+      <el-col
+:xs="24"
+:sm="24" :md="12" :lg="14"
+:xl="16"
+>
         <el-card
           v-if="
             analysisState.integratedAnalysis.value ||

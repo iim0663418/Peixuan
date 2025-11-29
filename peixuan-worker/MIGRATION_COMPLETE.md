@@ -8,7 +8,7 @@
 
 ## 📊 遷移摘要
 
-### 已完成的核心任務 (4/7)
+### 已完成的核心任務 (5/7)
 
 ✅ **Task 1: D1 Schema 部署**
 - 成功套用 Drizzle 遷移檔到遠端 D1
@@ -20,6 +20,12 @@
 - 使用 Drizzle ORM 進行類型安全的資料庫操作
 - 整合 itty-router 輕量級路由
 
+✅ **Task 5: KV 快取層**
+- 實作雙模式快取（KV + 記憶體）
+- 定義快取策略（TTL、key 模式）
+- 自動快取失效機制
+- 預設使用記憶體快取，可選啟用 KV
+
 ✅ **Task 6: 前端整合**
 - 複製 Vue 前端建置產物到 worker
 - 包含完整的 PWA 支援
@@ -30,15 +36,11 @@
 - 包含前端建置、資源複製、D1 遷移、Worker 部署
 - 完整的部署文件
 
-### 跳過的任務 (3/7)
+### 跳過的任務 (2/7)
 
 ⏭️ **Task 2-3: 資料遷移**
 - 原因：無生產資料需要遷移
 - 建議：有實際資料時再實作
-
-⏭️ **Task 5: KV 快取層**
-- 原因：非核心功能，可後續優化
-- 建議：效能需求時再加入
 
 ---
 
@@ -50,10 +52,12 @@
 - Cloudflare Workers (Edge Runtime)
 - TypeScript
 - itty-router (路由)
+- Cache Service (KV/Memory)
 
 **資料層**
 - D1 Database (SQLite)
 - Drizzle ORM (類型安全)
+- KV Cache (可選)
 
 **前端**
 - Vue 3 + TypeScript
@@ -153,12 +157,18 @@ cd peixuan-worker && npm run deploy
 ## 📈 效能指標
 
 ### 建置大小
-- Total Upload: 713.27 KiB
-- Gzip: 120.48 KiB
+- Total Upload: 716.02 KiB
+- Gzip: 121.04 KiB
 
 ### 資料庫
 - D1 遷移：3 commands in 0.46ms
 - 表數量：3 (users, chart_records, analysis_records)
+
+### 快取策略
+- 命盤列表：5 分鐘 TTL
+- 單一命盤：10 分鐘 TTL
+- 分析列表：5 分鐘 TTL
+- 模式：記憶體快取（預設）/ KV 快取（可選）
 
 ---
 
@@ -178,24 +188,25 @@ cd peixuan-worker && npm run deploy
    - API 速率限制
 
 ### 中優先級
-4. **KV 快取層**
-   - 熱門查詢快取
-   - TTL 策略定義
-
-5. **監控與日誌**
+4. **監控與日誌**
    - 效能監控
    - 錯誤追蹤
 
-6. **測試覆蓋**
+5. **測試覆蓋**
    - 單元測試
    - 整合測試
    - E2E 測試
 
 ### 低優先級
-7. **功能擴展**
+6. **功能擴展**
    - 批次操作 API
    - 資料匯出功能
    - 進階查詢過濾
+
+7. **快取優化**
+   - 啟用 KV 快取（生產環境）
+   - 調整 TTL 策略
+   - 快取預熱機制
 
 ---
 

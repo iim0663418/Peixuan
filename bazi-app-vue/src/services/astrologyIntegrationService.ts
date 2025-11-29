@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { ref } from 'vue';
 import type {
-  PurpleStarChart,
-  BaziChart,
   IntegratedAnalysisResponse,
   ConfidenceAssessmentResponse,
 } from '@/types/astrologyTypes';

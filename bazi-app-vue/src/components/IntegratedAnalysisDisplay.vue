@@ -16,8 +16,9 @@
         <h3>
           <el-icon><DataAnalysis /></el-icon>
           《時運分析》綜合人生解讀
-          <el-tag size="small"
-effect="dark" type="success" class="version-tag">2025版</el-tag>
+          <el-tag size="small" effect="dark" type="success" class="version-tag"
+            >2025版</el-tag
+          >
         </h3>
       </div>
 
@@ -32,9 +33,9 @@ effect="dark" type="success" class="version-tag">2025版</el-tag>
           >
             <template #header>
               <div class="card-header">
-                <el-icon class="finding-icon"
-color="#67C23A"
-                  ><Check/></el-icon>
+                <el-icon class="finding-icon" color="#67C23A"
+                  ><Check
+                /></el-icon>
                 <span>{{ finding }}</span>
               </div>
             </template>
@@ -124,9 +125,9 @@ color="#67C23A"
           >
             <template #header>
               <div class="card-header">
-                <el-icon class="finding-icon"
-color="#E6A23C"
-                  ><Warning/></el-icon>
+                <el-icon class="finding-icon" color="#E6A23C"
+                  ><Warning
+                /></el-icon>
                 <span>{{ finding }}</span>
               </div>
             </template>

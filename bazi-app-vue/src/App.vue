@@ -1,19 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted, provide, readonly, defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
-import { useI18n } from 'vue-i18n';
 
 // 動態導入組件以提升效能
 const LanguageSelector = defineAsyncComponent(
   () => import('@/components/LanguageSelector.vue'),
 );
 // import GlobalDisplayModePanel from '@/components/GlobalDisplayModePanel.vue'; // 已簡化，使用各模組獨立分層控制
-import type { DisplayMode } from '@/types/displayModes';
 
 // 模組類型定義
 type ModuleType = 'purpleStar' | 'bazi' | 'transformationStars' | 'integrated';
 
-const { t } = useI18n();
 const route = useRoute();
 const showMobileMenu = ref(false);
 

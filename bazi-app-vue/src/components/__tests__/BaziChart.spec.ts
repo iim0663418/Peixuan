@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { VueWrapper } from '@vue/test-utils';
-import { mount } from '@vue/test-utils';
+import { mount, type VueWrapper } from '@vue/test-utils';
 import BaziChart from '../BaziChart.vue';
 // Import TenGod for type safety (it's exported as TenGod in baziCalc.ts)
 import type { BaziResult, TenGodsPillars, TenGod } from '../../utils/baziCalc';

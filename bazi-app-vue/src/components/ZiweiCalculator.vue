@@ -66,7 +66,9 @@
 
         <!-- 出生分鐘 -->
         <div class="form-group">
-          <label for="birth-minute">{{ $t('chart.birth_minute') }} (0-59):</label>
+          <label for="birth-minute"
+            >{{ $t('chart.birth_minute') }} (0-59):</label
+          >
           <input
             id="birth-minute"
             v-model.number="formData.minute"

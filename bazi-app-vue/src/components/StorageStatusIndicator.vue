@@ -52,11 +52,11 @@
 import { defineComponent, ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ElMessage } from 'element-plus';
-import type {
-  StorageStats,
-  UnifiedSessionData,
+import {
+  enhancedStorageService,
+  type StorageStats,
+  type UnifiedSessionData,
 } from '../utils/enhancedStorageService';
-import { enhancedStorageService } from '../utils/enhancedStorageService';
 import { getFromStorage } from '../utils/storageService';
 
 export default defineComponent({

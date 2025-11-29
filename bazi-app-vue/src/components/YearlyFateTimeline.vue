@@ -37,9 +37,7 @@
 import { ref, computed, watch, type PropType } from 'vue';
 import { type HeavenlyStem, type EarthlyBranch } from '../utils/baziCalc';
 
-// Solar 和 Lunar 來自全局 window 物件（lunar.min.js）
-const { Solar } = window;
-const { Lunar } = window;
+// Solar 來自全局 window 物件（lunar.min.js）
 
 export interface YearlyFateInfo {
   year: number;

@@ -235,8 +235,8 @@ export function useLayeredReading() {
    * 動畫處理
    */
   const animateTransition = async (
-    fromLevel: ReadingLevel,
-    toLevel: ReadingLevel,
+    _fromLevel: ReadingLevel,
+    _toLevel: ReadingLevel,
   ) => {
     if (!userPreferences.value.animationsEnabled) {
       return;

@@ -122,7 +122,7 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted, nextTick, watch } from 'vue';
-import type { PurpleStarChart, Palace, Star } from '@/types/astrologyTypes';
+import type { PurpleStarChart } from '@/types/astrologyTypes';
 
 // Props
 interface Props {
@@ -155,7 +155,7 @@ const starAttributes = {
 // 分析外在特質（基於八字概念的推導）
 const externalTraits = computed(() => {
   // 強制更新響應性
-  const _ = updateKey.value;
+  const _unused = updateKey.value;
 
   const traits: string[] = [];
 
@@ -212,7 +212,7 @@ const externalTraits = computed(() => {
 // 分析內在特質（基於紫微斗數）
 const internalTraits = computed(() => {
   // 強制更新響應性
-  const _ = updateKey.value;
+  const _unused = updateKey.value;
 
   const traits: string[] = [];
 
@@ -288,7 +288,7 @@ const traitSynthesis = computed(() => {
 // 核心能力分析
 const coreAbilities = computed(() => {
   // 強制更新響應性
-  const _ = updateKey.value;
+  const _unused = updateKey.value;
 
   const abilities = [
     { name: '領導力', value: 0, color: '#ff6b6b', key: 'leadership' },
@@ -439,7 +439,7 @@ const potentialSuggestions = computed(() => {
 // 人生課題分析
 const lifeLessons = computed(() => {
   // 強制更新響應性
-  const _ = updateKey.value;
+  const _unused = updateKey.value;
 
   const lessons: Array<{
     title: string;
@@ -538,7 +538,7 @@ const lifeLessons = computed(() => {
 });
 
 // 獲取能力圖標
-const getAbilityIcon = (abilityName: string) => {
+const getAbilityIcon = (_abilityName: string) => {
   const iconMap: Record<string, string> = {
     領導力: '👑',
     創造力: '🎨',
@@ -547,25 +547,25 @@ const getAbilityIcon = (abilityName: string) => {
     理財能力: '💰',
     人際關係: '🤝',
   };
-  return iconMap[abilityName] || '⭐';
+  return iconMap[_abilityName] || '⭐';
 };
 
 // 獲取能力等級描述
-const getAbilityLevel = (value: number) => {
-  if (value >= 8) {
+const getAbilityLevel = (_value: number) => {
+  if (_value >= 8) {
     return '優秀';
   }
-  if (value >= 6) {
+  if (_value >= 6) {
     return '良好';
   }
-  if (value >= 4) {
+  if (_value >= 4) {
     return '普通';
   }
   return '待提升';
 };
 
 // 顏色亮化函數
-const lightenColor = (color: string, amount: number) => {
+const lightenColor = (color: string, _amount: number) => {
   // 簡化的顏色亮化處理
   const colorMap: Record<string, string> = {
     '#ff6b6b': '#ff9999',

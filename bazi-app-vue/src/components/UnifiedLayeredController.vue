@@ -128,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, type PropType } from 'vue';
 import {
   ElProgress,
   ElButton,
@@ -138,8 +138,6 @@ import {
   ElTooltip,
 } from 'element-plus';
 import { ArrowLeft, ArrowRight, MagicStick } from '@element-plus/icons-vue';
-import type { PropType } from 'vue';
-import type { LayeredIntegratedAnalysis } from '@/types/layeredReading';
 import { ReadingLevel } from '@/types/layeredReading';
 import type { DisplayMode } from '@/types/displayModes';
 
@@ -181,10 +179,6 @@ const props = defineProps({
       'purpleStar' | 'integrated' | 'transformationStars'
     >,
     required: true,
-  },
-  layeredData: {
-    type: Object as PropType<LayeredIntegratedAnalysis | null>,
-    default: null,
   },
   dataCompleteness: {
     type: Number,

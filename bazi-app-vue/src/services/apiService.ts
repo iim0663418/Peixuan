@@ -1,10 +1,5 @@
 import axios from 'axios';
-import { BirthInfo } from './astrologyIntegrationService';
 import type {
-  PurpleStarChart,
-  TransformationFlow,
-  TransformationCombination,
-  LayeredEnergy,
   PurpleStarAPIResponse,
 } from '@/types/astrologyTypes';
 

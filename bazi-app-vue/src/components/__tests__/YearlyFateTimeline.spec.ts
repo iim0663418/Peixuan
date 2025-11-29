@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { VueWrapper } from '@vue/test-utils';
-import { mount } from '@vue/test-utils';
+import { mount, type VueWrapper } from '@vue/test-utils';
 import YearlyFateTimeline, {
   type YearlyFateInfo,
 } from '../YearlyFateTimeline.vue';

@@ -144,11 +144,15 @@
         <div class="luck-details">
           <div class="luck-item">
             <span class="luck-label">{{ $t('baziChart.startAge') }}</span>
-            <span class="luck-value">{{ startLuckInfo.age }}{{ $t('baziChart.years') }}</span>
+            <span class="luck-value"
+              >{{ startLuckInfo.age }}{{ $t('baziChart.years') }}</span
+            >
           </div>
           <div class="luck-item">
             <span class="luck-label">{{ $t('baziChart.startYear') }}</span>
-            <span class="luck-value">{{ startLuckInfo.year }}{{ $t('baziChart.yearUnit') }}</span>
+            <span class="luck-value"
+              >{{ startLuckInfo.year }}{{ $t('baziChart.yearUnit') }}</span
+            >
           </div>
         </div>
       </div>

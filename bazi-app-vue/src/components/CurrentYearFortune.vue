@@ -125,9 +125,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { getUnifiedSessionData } from '@/utils/enhancedStorageService';
-import type { PurpleStarChart, Palace, Star } from '@/types/astrologyTypes';
+import { computed } from 'vue';
+import type { PurpleStarChart } from '@/types/astrologyTypes';
 
 // Props
 interface Props {

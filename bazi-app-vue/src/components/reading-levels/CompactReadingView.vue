@@ -48,8 +48,7 @@
       <div v-show="activeTab === 'personality'" class="personality-section">
         <div class="section-header">
           <h4>個性特質分析</h4>
-          <el-tag
-type="info" size="small"
+          <el-tag type="info" size="small"
             >{{ personalityHighlights.length }} 項特質</el-tag
           >
         </div>
@@ -174,8 +173,7 @@ type="info" size="small"
       <div v-show="activeTab === 'advice'" class="advice-section">
         <div class="section-header">
           <h4>個性化建議</h4>
-          <el-tag
-type="warning" size="small"
+          <el-tag type="warning" size="small"
             >{{ quickAdvice.length }} 條建議</el-tag
           >
         </div>

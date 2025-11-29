@@ -37,7 +37,6 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue';
 import type { DisplayMode } from '@/types/displayModes';
 
 // Props

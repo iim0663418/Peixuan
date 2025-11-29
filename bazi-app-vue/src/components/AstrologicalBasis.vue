@@ -256,8 +256,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, ref, onMounted, onUnmounted, nextTick } from 'vue';
-import type { PurpleStarChart, Palace, Star } from '@/types/astrologyTypes';
+import { computed, watch, ref, onMounted, onUnmounted } from 'vue';
+import type { PurpleStarChart } from '@/types/astrologyTypes';
 
 // Props
 interface Props {
@@ -616,13 +616,13 @@ if (typeof window !== 'undefined') {
 // 在五行分析中使用更新標記以確保響應性
 const fiveElementsWithReactivity = computed(() => {
   // 強制響應更新標記變化
-  const _ = updateKey.value;
+  const _unused = updateKey.value;
   return fiveElements.value;
 });
 
 const keyPatternsWithReactivity = computed(() => {
   // 強制響應更新標記變化
-  const _ = updateKey.value;
+  const _unused = updateKey.value;
   return keyPatterns.value;
 });
 

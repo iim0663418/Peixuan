@@ -37,8 +37,7 @@
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="12"
-:lg="12" :xl="12">
+      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
         <el-card shadow="hover">
           <template #header>
             <span>{{ $t('astrology.bazi_detail.inputSection') }}</span>
@@ -48,8 +47,7 @@
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="12"
-:lg="12" :xl="12">
+      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
         <el-card v-if="baziChart" shadow="hover">
           <template #header>
             <span>分析結果</span>
@@ -57,39 +55,43 @@
 
           <ElTabs>
             <el-tab-pane label="八字命盤">
-              <BaziChartDisplay 
+              <BaziChartDisplay
                 :baziResult="baziChart"
                 :tenGods="baziChart.mainTenGods"
                 :elementsDistribution="baziChart.elementsDistribution"
                 :startLuckInfo="baziChart.startLuckInfo"
               />
             </el-tab-pane>
-            
+
             <el-tab-pane label="命盤解讀" v-if="baziChart.interpretation">
               <div class="interpretation-section">
                 <h3>命盤總論</h3>
                 <p>{{ baziChart.interpretation.general }}</p>
-                
+
                 <h3>性格特質</h3>
                 <ul>
-                  <li v-for="(trait, index) in baziChart.interpretation.personalityTraits" :key="index">
+                  <li
+                    v-for="(trait, index) in baziChart.interpretation
+                      .personalityTraits"
+                    :key="index"
+                  >
                     {{ trait }}
                   </li>
                 </ul>
-                
+
                 <h3>事業方向</h3>
                 <p>{{ baziChart.interpretation.career }}</p>
-                
+
                 <h3>人際關係</h3>
                 <p>{{ baziChart.interpretation.relationships }}</p>
-                
+
                 <h3>健康建議</h3>
                 <p>{{ baziChart.interpretation.health }}</p>
-                
+
                 <h3>重要年齡</h3>
                 <div class="key-ages">
-                  <el-tag 
-                    v-for="age in baziChart.interpretation.keyAges" 
+                  <el-tag
+                    v-for="age in baziChart.interpretation.keyAges"
                     :key="age"
                     type="success"
                     effect="plain"
@@ -100,13 +102,27 @@
                 </div>
               </div>
             </el-tab-pane>
-            
-            <el-tab-pane label="大運" v-if="baziChart.decennialCycles && baziChart.decennialCycles.length > 0">
-              <div v-for="cycle in baziChart.decennialCycles" :key="cycle.index" class="decennial-cycle">
+
+            <el-tab-pane
+              label="大運"
+              v-if="
+                baziChart.decennialCycles &&
+                baziChart.decennialCycles.length > 0
+              "
+            >
+              <div
+                v-for="cycle in baziChart.decennialCycles"
+                :key="cycle.index"
+                class="decennial-cycle"
+              >
                 <el-divider>第 {{ cycle.index }} 大運</el-divider>
-                <h4>{{ cycle.stem }}{{ cycle.branch }} ({{ cycle.startYear }}年-{{ cycle.endYear }}年，{{ cycle.startAge }}-{{ cycle.endAge }}歲)</h4>
+                <h4>
+                  {{ cycle.stem }}{{ cycle.branch }} ({{ cycle.startYear }}年-{{
+                    cycle.endYear
+                  }}年，{{ cycle.startAge }}-{{ cycle.endAge }}歲)
+                </h4>
                 <p v-if="cycle.analysis">{{ cycle.analysis.overview }}</p>
-                
+
                 <div class="cycle-details" v-if="cycle.analysis">
                   <div class="detail-item">
                     <h5>事業</h5>
@@ -127,17 +143,28 @@
                 </div>
               </div>
             </el-tab-pane>
-            
-            <el-tab-pane label="流年" v-if="baziChart.annualLuck && baziChart.annualLuck.length > 0">
+
+            <el-tab-pane
+              label="流年"
+              v-if="baziChart.annualLuck && baziChart.annualLuck.length > 0"
+            >
               <div class="annual-filter">
-                <el-input v-model="yearFilter" placeholder="搜尋年份..." clearable />
+                <el-input
+                  v-model="yearFilter"
+                  placeholder="搜尋年份..."
+                  clearable
+                />
               </div>
-              
-              <div v-for="year in filteredAnnualLuck" :key="year.year" class="annual-luck">
+
+              <div
+                v-for="year in filteredAnnualLuck"
+                :key="year.year"
+                class="annual-luck"
+              >
                 <el-divider>{{ year.year }}年</el-divider>
                 <h4>{{ year.stem }}{{ year.branch }} ({{ year.age }}歲)</h4>
                 <p v-if="year.analysis">{{ year.analysis.overview }}</p>
-                
+
                 <div class="annual-details" v-if="year.analysis">
                   <div class="detail-item">
                     <h5>年度重點</h5>

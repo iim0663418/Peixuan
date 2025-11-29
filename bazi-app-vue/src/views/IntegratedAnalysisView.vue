@@ -2,11 +2,7 @@
   <div class="integrated-analysis-container">
     <!-- 主描述卡片 -->
     <el-row :gutter="20">
-      <el-col
-:xs="24"
-:sm="24" :md="24" :lg="24"
-:xl="24" class="mb-4"
->
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb-4">
         <el-card shadow="hover" class="description-card">
           <template #header>
             <div class="card-header">
@@ -81,28 +77,24 @@
               <div class="chart-status mb-3">
                 <el-row :gutter="8">
                   <el-col v-if="chartDataStatus.bazi" :span="6">
-                    <el-tag
-type="success" effect="light"
-size="small"
-                      >八字命盤</el-tag>
+                    <el-tag type="success" effect="light" size="small"
+                      >八字命盤</el-tag
+                    >
                   </el-col>
                   <el-col v-if="chartDataStatus.purpleStar" :span="6">
-                    <el-tag
-type="primary" effect="light"
-size="small"
-                      >紫微斗數</el-tag>
+                    <el-tag type="primary" effect="light" size="small"
+                      >紫微斗數</el-tag
+                    >
                   </el-col>
                   <el-col v-if="chartDataStatus.transformationStars" :span="6">
-                    <el-tag
-type="warning" effect="light"
-size="small"
-                      >四化飛星</el-tag>
+                    <el-tag type="warning" effect="light" size="small"
+                      >四化飛星</el-tag
+                    >
                   </el-col>
                   <el-col v-if="chartDataStatus.integrated" :span="6">
-                    <el-tag
-type="danger" effect="light"
-size="small"
-                      >整合分析</el-tag>
+                    <el-tag type="danger" effect="light" size="small"
+                      >整合分析</el-tag
+                    >
                   </el-col>
                 </el-row>
               </div>
@@ -156,11 +148,7 @@ size="small"
     <!-- 表單與結果區域 -->
     <el-row :gutter="20" class="main-content">
       <!-- 輸入表單 -->
-      <el-col
-:xs="24"
-:sm="24" :md="12" :lg="10"
-:xl="8"
->
+      <el-col :xs="24" :sm="24" :md="12" :lg="10" :xl="8">
         <el-card shadow="hover" class="input-card">
           <template #header>
             <div class="form-header">
@@ -247,11 +235,7 @@ size="small"
       </el-col>
 
       <!-- 分析結果 -->
-      <el-col
-:xs="24"
-:sm="24" :md="12" :lg="14"
-:xl="16"
->
+      <el-col :xs="24" :sm="24" :md="12" :lg="14" :xl="16">
         <el-card
           v-if="
             analysisState.integratedAnalysis.value ||

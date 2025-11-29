@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import type { VueWrapper } from '@vue/test-utils';
-import { mount } from '@vue/test-utils';
+import { mount, type VueWrapper } from '@vue/test-utils';
 import ElementsChart from '../ElementsChart.vue';
 import type { ElementsDistribution } from '../../utils/baziCalc';
 /// <reference types="vitest/globals" />

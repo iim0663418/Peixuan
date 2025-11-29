@@ -1,7 +1,6 @@
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useLayeredReading } from '@/composables/useLayeredReading';
 import { ReadingLevel } from '@/types/layeredReading';
-import type { ReadingLevel as ReadingLevelType } from '@/types/layeredReading';
 
 // 全域共享狀態
 const purpleStarReadingLevel = ref<ReadingLevel>(ReadingLevel.STANDARD);

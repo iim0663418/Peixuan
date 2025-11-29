@@ -4,6 +4,7 @@ import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
 
 export interface Env {
 	DB: D1Database;
+	CACHE?: KVNamespace; // 可選的 KV 快取
 	__STATIC_CONTENT: KVNamespace;
 	__STATIC_CONTENT_MANIFEST: string;
 }

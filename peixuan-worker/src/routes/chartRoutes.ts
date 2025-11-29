@@ -2,10 +2,9 @@ import { Router } from 'itty-router';
 import { ChartController } from '../controllers/chartController';
 
 export function createChartRoutes(router: Router) {
-  const controller = new ChartController();
-
   // GET /api/charts - 獲取命盤歷史
   router.get('/api/charts', async (req: any, env: any) => {
+    const controller = new ChartController(env.CACHE);
     const userId = req.userId || 'anonymous';
     const url = new URL(req.url);
     const page = parseInt(url.searchParams.get('page') || '1');
@@ -18,6 +17,7 @@ export function createChartRoutes(router: Router) {
 
   // POST /api/charts - 保存命盤
   router.post('/api/charts', async (req: any, env: any) => {
+    const controller = new ChartController(env.CACHE);
     const userId = req.userId || 'anonymous';
     const data = await req.json();
     
@@ -27,6 +27,7 @@ export function createChartRoutes(router: Router) {
 
   // GET /api/charts/:id - 獲取單一命盤
   router.get('/api/charts/:id', async (req: any, env: any) => {
+    const controller = new ChartController(env.CACHE);
     const userId = req.userId || 'anonymous';
     const chart = await controller.getChart(env.DB, req.params.id, userId);
     
@@ -38,6 +39,7 @@ export function createChartRoutes(router: Router) {
 
   // DELETE /api/charts/:id - 刪除命盤
   router.delete('/api/charts/:id', async (req: any, env: any) => {
+    const controller = new ChartController(env.CACHE);
     const userId = req.userId;
     if (!userId) {
       return Response.json({ error: '需要登入' }, { status: 401 });
@@ -52,6 +54,7 @@ export function createChartRoutes(router: Router) {
 
   // GET /api/analyses - 獲取分析歷史
   router.get('/api/analyses', async (req: any, env: any) => {
+    const controller = new ChartController(env.CACHE);
     const userId = req.userId || 'anonymous';
     const url = new URL(req.url);
     const page = parseInt(url.searchParams.get('page') || '1');
@@ -63,6 +66,7 @@ export function createChartRoutes(router: Router) {
 
   // POST /api/analyses - 保存分析
   router.post('/api/analyses', async (req: any, env: any) => {
+    const controller = new ChartController(env.CACHE);
     const userId = req.userId || 'anonymous';
     const data = await req.json();
     

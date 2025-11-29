@@ -80,8 +80,8 @@
 
       <!-- 主命盤網格 -->
       <div class="chart-grid" :class="viewMode">
-        <div 
-          v-for="(position, index) in gridLayout" 
+        <div
+          v-for="(position, index) in gridLayout"
           :key="`position-${index}`"
           :class="['palace-cell', getPositionClass(position, index)]"
           :data-palace-zhi="position !== 'center' ? position : undefined"

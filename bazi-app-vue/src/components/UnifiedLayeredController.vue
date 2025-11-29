@@ -215,11 +215,11 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  (e: 'level-changed', level: ReadingLevel): void;
-  (e: 'update:modelValue', mode: DisplayMode): void;
-  (e: 'upgrade-requested'): void;
-  (e: 'downgrade-requested'): void;
-  (e: 'reset-requested'): void;
+  (_e: 'level-changed', _level: ReadingLevel): void;
+  (_e: 'update:modelValue', _mode: DisplayMode): void;
+  (_e: 'upgrade-requested'): void;
+  (_e: 'downgrade-requested'): void;
+  (_e: 'reset-requested'): void;
 }>();
 
 // 狀態管理

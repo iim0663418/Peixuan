@@ -161,7 +161,6 @@ import {
   Top,
   Bottom,
 } from '@element-plus/icons-vue';
-import type { LayeredContent } from '@/types/layeredReading';
 
 // Props
 interface Props {
@@ -184,7 +183,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 // Emits
-const emit = defineEmits<{
+const _emit = defineEmits<{
   upgradeRequested: [];
   traitSelected: [trait: string, index: number];
   actionSelected: [action: string, index: number];

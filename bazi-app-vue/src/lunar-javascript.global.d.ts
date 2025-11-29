@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // lunar-javascript.global.d.ts
 // Based on observed API and expected structure for versions like 1.2.30
 

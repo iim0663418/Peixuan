@@ -5,12 +5,13 @@
 
 // 閱覽層級枚舉
 export enum ReadingLevel {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line no-unused-vars
   SUMMARY = 'summary', // 簡要預覽
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line no-unused-vars
   COMPACT = 'compact', // 精簡檢視
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line no-unused-vars
   STANDARD = 'standard', // 標準解讀
+  // eslint-disable-next-line no-unused-vars
   DEEP_ANALYSIS = 'deep', // 深度分析
 }
 
@@ -143,8 +144,11 @@ export const DEFAULT_TRANSITION_CONFIG: TransitionConfig = {
 
 // 響應式斷點配置
 export enum ResponsiveBreakpoint {
+  // eslint-disable-next-line no-unused-vars
   MOBILE = 'mobile', // < 768px
+  // eslint-disable-next-line no-unused-vars
   TABLET = 'tablet', // 768px - 1024px
+  // eslint-disable-next-line no-unused-vars
   DESKTOP = 'desktop', // > 1024px
 }
 

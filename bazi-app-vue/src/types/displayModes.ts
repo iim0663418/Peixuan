@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /**
  * 定義顯示深度/模式的可用選項
  */

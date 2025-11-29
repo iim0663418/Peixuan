@@ -5,8 +5,11 @@
 
 // 閱覽層級枚舉
 export enum ReadingLevel {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   SUMMARY = 'summary', // 簡要預覽
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   COMPACT = 'compact', // 精簡檢視
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   STANDARD = 'standard', // 標準解讀
   DEEP_ANALYSIS = 'deep', // 深度分析
 }

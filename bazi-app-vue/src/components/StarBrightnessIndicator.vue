@@ -14,6 +14,7 @@ interface Props {
   brightness?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<Props>();
 
 const getBrightnessDescription = (brightness?: string): string => {

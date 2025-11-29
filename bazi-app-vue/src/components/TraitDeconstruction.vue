@@ -155,6 +155,7 @@ const starAttributes = {
 // 分析外在特質（基於八字概念的推導）
 const externalTraits = computed(() => {
   // 強制更新響應性
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _unused = updateKey.value;
 
   const traits: string[] = [];
@@ -212,6 +213,7 @@ const externalTraits = computed(() => {
 // 分析內在特質（基於紫微斗數）
 const internalTraits = computed(() => {
   // 強制更新響應性
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _unused = updateKey.value;
 
   const traits: string[] = [];
@@ -288,6 +290,7 @@ const traitSynthesis = computed(() => {
 // 核心能力分析
 const coreAbilities = computed(() => {
   // 強制更新響應性
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _unused = updateKey.value;
 
   const abilities = [

@@ -142,10 +142,12 @@
                 getPalaceByZhi(position)?.name
               }}</span>
               <span class="palace-zhi">{{ position }}</span>
-              <span v-if="isMingPalace(position)" class="ming-indicator"
+              <span
+v-if="isMingPalace(position)" class="ming-indicator"
                 >命</span
               >
-              <span v-if="isShenPalace(position)" class="shen-indicator"
+              <span
+v-if="isShenPalace(position)" class="shen-indicator"
                 >身</span
               >
               <span

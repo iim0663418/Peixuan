@@ -14,5 +14,5 @@ export interface DisplayModeProps {
  * 元件 Emits 介面定義，用於更新顯示模式
  */
 export interface DisplayModeEmits {
-  (event: 'update:displayMode', mode: DisplayMode): void;
+  (_event: 'update:displayMode', _mode: DisplayMode): void;
 }

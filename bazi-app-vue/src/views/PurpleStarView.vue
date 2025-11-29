@@ -57,7 +57,8 @@
           </el-card>
         </el-col>
 
-        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+        <el-col :xs="24" :sm="24" :md="12"
+:lg="12" :xl="12">
           <el-card shadow="hover">
             <template #header>
               <span>{{ $t('astrology.purple_star_detail.inputSection') }}</span>
@@ -67,7 +68,8 @@
           </el-card>
         </el-col>
 
-        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+        <el-col :xs="24" :sm="24" :md="12"
+:lg="12" :xl="12">
           <el-card v-if="purpleStarChart" shadow="hover">
             <template #header>
               <div class="card-header">

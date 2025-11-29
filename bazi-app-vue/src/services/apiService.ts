@@ -1,7 +1,5 @@
 import axios from 'axios';
-import type {
-  PurpleStarAPIResponse,
-} from '@/types/astrologyTypes';
+import type { PurpleStarAPIResponse } from '@/types/astrologyTypes';
 
 const BASE_URL = '/api/v1';
 

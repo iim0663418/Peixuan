@@ -238,7 +238,7 @@
         <el-button 
           v-if="canDowngrade"
           :icon="ArrowLeft" 
-          @click="$emit('downgrade-requested')"
+          @click="$emit('downgradeRequested')"
           size="small"
         >
           簡要預覽
@@ -248,7 +248,7 @@
           v-if="canUpgrade"
           type="primary"
           :icon="ArrowRight" 
-          @click="$emit('upgrade-requested')"
+          @click="$emit('upgradeRequested')"
           size="small"
         >
           標準解讀

@@ -3,6 +3,7 @@ declare global {
   interface Window {
     Solar: any;
     Lunar: any;
+    LunarMonth: any;
   }
 }
 

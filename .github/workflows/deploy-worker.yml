@@ -62,6 +62,13 @@ jobs:
           npm ci
           echo "=== Dependencies installed ==="
 
+      - name: Build Worker
+        run: |
+          cd peixuan-worker
+          echo "=== Building worker ==="
+          npm run build
+          echo "=== Build complete ==="
+
       - name: Verify Worker Files
         run: |
           echo "=== Checking worker files ==="

@@ -11522,21 +11522,30 @@ var init_purpleStarCalculation = __esm({
         );
       }
       extractBureauNumber(bureau) {
-        console.log("\u63D0\u53D6\u4E94\u884C\u5C40\u6578\u5B57:", { bureau });
         if (!bureau) {
           throw new Error("\u4E94\u884C\u5C40\u8CC7\u6599\u70BA\u7A7A\uFF0C\u7121\u6CD5\u9032\u884C\u5F8C\u7E8C\u8A08\u7B97");
         }
-        const match = bureau.match(/\d+/);
-        if (match) {
-          const number4 = parseInt(match[0], 10);
-          console.log("\u6210\u529F\u63D0\u53D6\u4E94\u884C\u5C40\u6578\u5B57:", number4);
+        const chineseNumbers = {
+          "\u4E8C": 2,
+          "\u4E09": 3,
+          "\u56DB": 4,
+          "\u4E94": 5,
+          "\u516D": 6
+        };
+        const arabicMatch = bureau.match(/\d+/);
+        if (arabicMatch) {
+          const number4 = parseInt(arabicMatch[0], 10);
           if ([2, 3, 4, 5, 6].includes(number4)) {
             return number4;
           }
           throw new Error(`\u63D0\u53D6\u5230\u7684\u4E94\u884C\u5C40\u6578\u5B57 ${number4} \u7121\u6548\uFF0C\u61C9\u8A72\u662F2,3,4,5,6\u4E4B\u4E00`);
-        } else {
-          throw new Error(`\u7121\u6CD5\u5F9E\u4E94\u884C\u5C40 "${bureau}" \u4E2D\u63D0\u53D6\u6709\u6548\u6578\u5B57`);
         }
+        for (const [chinese, arabic] of Object.entries(chineseNumbers)) {
+          if (bureau.includes(chinese)) {
+            return arabic;
+          }
+        }
+        throw new Error(`\u7121\u6CD5\u5F9E\u4E94\u884C\u5C40 "${bureau}" \u4E2D\u63D0\u53D6\u6709\u6548\u6578\u5B57`);
       }
       locateZiWeiStar() {
         const lunarDay = this.lunarDate.getDay();

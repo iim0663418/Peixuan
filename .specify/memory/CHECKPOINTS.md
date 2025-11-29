@@ -1,5 +1,74 @@
 # 檢查點記錄
 
+## Checkpoint: phase2-complete-with-audit
+**時間**: 2025-11-29 23:18
+**狀態**: ✅ 完成
+
+### 完成的任務
+- Phase 2: 紫微斗數計算邏輯實現
+  - 安裝 lunar-typescript
+  - 複製前端 ziweiCalc.ts (683 lines)
+  - 建立 PurpleStarController
+  - 實現真實計算邏輯
+- Hotfix: 中文數字支援 (火六局)
+- Hotfix: CI 編譯步驟添加
+- 優化: 添加 mingGan 欄位
+- 審計: 完整專案狀態梳理
+
+### 關鍵成果
+- API 200 OK: ✅ 紫微斗數計算成功
+- 命盤資料: 12 宮位 + 大限 + 小限 + 五行局
+- 部署: 7 commits (b2c7059 → c1787b5)
+- 文檔: PROJECT_AUDIT_2025-11-29.md, ARCHITECTURE_CURRENT.md
+
+### 關鍵配置
+- `peixuan-worker/src/services/purpleStarCalculation.ts`: 681 lines
+- `peixuan-worker/src/controllers/purpleStarController.ts`: 35 lines
+- `.github/workflows/deploy-worker.yml`: 添加 build 步驟
+
+### 已知問題
+- ⚠️ 代碼重複: 前端 ziweiCalc.ts (683 lines) 未使用
+- ⚠️ 四化飛星頂層彙總缺失（從未實現）
+- ⚠️ 流年太歲標記為 TODO（從未實現）
+
+### 下一步
+- Week 2: 移除前端 ziweiCalc.ts (選項 A)
+- Week 2: 更新 README.md
+- Week 2: 建立完整 ARCHITECTURE.md
+
+---
+
+## Checkpoint: post-merge-404-fix-complete
+**時間**: 2025-11-29 22:53
+**狀態**: ✅ 完成
+
+### 完成的任務
+- Phase 1: 修復 purple-star 404 錯誤
+  - 實現 Facade Pattern 路由轉換
+  - POST /api/v1/purple-star/calculate → 200 OK
+- Phase 1.5: 修復靜態資源 500 錯誤
+  - 分離 API/靜態資源錯誤處理
+  - 實現 SPA fallback (404 → index.html)
+
+### 關鍵成果
+- 404 錯誤: ✅ 已解決
+- 靜態資源 500: ✅ 已修復
+- 部署: 2 commits (b2c7059, cdf3663)
+
+### 關鍵配置
+- `peixuan-worker/src/index.ts`: 新增 purple-star 路由 + 改進錯誤處理
+- `peixuan-worker/src/routes/purpleStarRoutes.ts`: Facade Pattern 實現
+
+### 已知限制
+- 無實際計算邏輯（返回空命盤）
+- 需要 Phase 2: 實現 PurpleStarController + 計算服務
+
+### 下一步
+- Phase 2: 紫微斗數計算邏輯實現
+- 或其他緊急修復
+
+---
+
 ## Checkpoint: day4-quick-fixes-complete
 **時間**: 2025-11-29 22:29
 **狀態**: ✅ 完成

@@ -148,24 +148,40 @@ async function handleAPI(request: Request, env: Env): Promise<Response> {
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		try {
-			const url = new URL(request.url);
+		const url = new URL(request.url);
 
-			// API 路由
-			if (url.pathname.startsWith('/api/') || url.pathname === '/health') {
+		// API 路由
+		if (url.pathname.startsWith('/api/') || url.pathname === '/health') {
+			try {
 				return await handleAPI(request, env);
+			} catch (e: any) {
+				return new Response(JSON.stringify({ error: e.message || 'Internal Server Error' }), {
+					status: 500,
+					headers: { 'Content-Type': 'application/json' }
+				});
 			}
+		}
 
-			// 靜態資源
+		// 靜態資源
+		try {
 			return await getAssetFromKV(
 				{ request, waitUntil: (promise) => ctx.waitUntil(promise) },
 				{ ASSET_NAMESPACE: env.__STATIC_CONTENT, ASSET_MANIFEST: JSON.parse(env.__STATIC_CONTENT_MANIFEST) }
 			);
 		} catch (e: any) {
-			return new Response(JSON.stringify({ error: e.message || 'Internal Server Error', stack: e.stack }), {
-				status: 500,
-				headers: { 'Content-Type': 'application/json' }
-			});
+			// 靜態資源不存在時返回 index.html (SPA fallback)
+			if (e.status === 404 || e.message.includes('could not find')) {
+				try {
+					return await getAssetFromKV(
+						{ request: new Request(new URL('/', request.url).toString()), waitUntil: (promise) => ctx.waitUntil(promise) },
+						{ ASSET_NAMESPACE: env.__STATIC_CONTENT, ASSET_MANIFEST: JSON.parse(env.__STATIC_CONTENT_MANIFEST) }
+					);
+				} catch {
+					return new Response('Not Found', { status: 404 });
+				}
+			}
+			// 真正的錯誤
+			return new Response('Internal Server Error', { status: 500 });
 		}
 	},
 } satisfies ExportedHandler<Env>;

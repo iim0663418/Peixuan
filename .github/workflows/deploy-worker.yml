@@ -43,6 +43,12 @@ jobs:
       - name: Build Worker
         run: cd peixuan-worker && npm run build
 
+      # 清理前端目錄避免類型污染
+      - name: Clean Frontend Artifacts
+        run: |
+          rm -rf bazi-app-vue/node_modules
+          rm -rf bazi-app-vue/dist
+
       # 套用 D1 遷移
       - name: Apply D1 Migrations
         run: cd peixuan-worker && npm run db:push

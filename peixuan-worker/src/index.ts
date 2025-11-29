@@ -109,6 +109,37 @@ async function handleAPI(request: Request, env: Env): Promise<Response> {
 		});
 	}
 
+	// POST /api/v1/purple-star/calculate (Facade Pattern)
+	if (path === '/api/v1/purple-star/calculate' && method === 'POST') {
+		try {
+			const input = await request.json();
+			
+			const chartData = {
+				type: 'purple-star',
+				data: input,
+				birthDate: input.birthDate,
+				birthTime: input.birthTime,
+				location: typeof input.location === 'string' ? input.location : input.location?.name || '未知',
+				name: input.name || 'Anonymous'
+			};
+			
+			const savedChart = await controller.saveChart(env.DB, 'anonymous', chartData);
+			
+			return new Response(JSON.stringify({
+				data: {
+					chart: savedChart.chartData
+				}
+			}), {
+				headers: { 'Content-Type': 'application/json' }
+			});
+		} catch (error: any) {
+			return new Response(JSON.stringify({ error: error.message }), {
+				status: 500,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
+	}
+
 	return new Response(JSON.stringify({ error: 'Not Found' }), {
 		status: 404,
 		headers: { 'Content-Type': 'application/json' }

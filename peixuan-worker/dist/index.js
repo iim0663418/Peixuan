@@ -18643,6 +18643,32 @@ async function handleAPI(request, env) {
       headers: { "Content-Type": "application/json" }
     });
   }
+  if (path === "/api/v1/purple-star/calculate" && method === "POST") {
+    try {
+      const input = await request.json();
+      const chartData = {
+        type: "purple-star",
+        data: input,
+        birthDate: input.birthDate,
+        birthTime: input.birthTime,
+        location: typeof input.location === "string" ? input.location : input.location?.name || "\u672A\u77E5",
+        name: input.name || "Anonymous"
+      };
+      const savedChart = await controller.saveChart(env.DB, "anonymous", chartData);
+      return new Response(JSON.stringify({
+        data: {
+          chart: savedChart.chartData
+        }
+      }), {
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (error46) {
+      return new Response(JSON.stringify({ error: error46.message }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+  }
   return new Response(JSON.stringify({ error: "Not Found" }), {
     status: 404,
     headers: { "Content-Type": "application/json" }

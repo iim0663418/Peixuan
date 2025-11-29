@@ -111,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import type { DisplayMode } from '@/types/displayModes';
 
 // 模組類型定義
@@ -141,6 +141,7 @@ const moduleColors = {
 };
 
 // 模組對比顏色 (用於邊框和高亮)
+// eslint-disable-next-line no-unused-vars
 const moduleContrastColors = {
   purpleStar: '#D8BFD8', // 淺紫色
   bazi: '#DEB887', // 淺駝色
@@ -149,6 +150,7 @@ const moduleContrastColors = {
 };
 
 // 模組文字顏色
+// eslint-disable-next-line no-unused-vars
 const moduleTextColors = {
   purpleStar: '#FFFFFF', // 白色
   bazi: '#FFFFFF', // 白色

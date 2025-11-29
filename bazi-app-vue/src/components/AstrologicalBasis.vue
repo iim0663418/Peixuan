@@ -296,7 +296,7 @@ const fiveElements = computed(() => {
     );
     props.chartData.palaces.forEach((palace) => {
       palace.stars?.forEach((star) => {
-        if (star.element && elements.hasOwnProperty(star.element)) {
+        if (star.element && Object.prototype.hasOwnProperty.call(elements, star.element)) {
           elements[star.element as keyof typeof elements]++;
         }
       });
@@ -616,12 +616,14 @@ if (typeof window !== 'undefined') {
 // 在五行分析中使用更新標記以確保響應性
 const fiveElementsWithReactivity = computed(() => {
   // 強制響應更新標記變化
+  // eslint-disable-next-line no-unused-vars
   const _unused = updateKey.value;
   return fiveElements.value;
 });
 
 const keyPatternsWithReactivity = computed(() => {
   // 強制響應更新標記變化
+  // eslint-disable-next-line no-unused-vars
   const _unused = updateKey.value;
   return keyPatterns.value;
 });

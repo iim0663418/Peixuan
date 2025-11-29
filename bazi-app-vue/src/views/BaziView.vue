@@ -300,8 +300,7 @@ const handleSubmit = async (birthInfo: BirthInfo) => {
 
     // 檢查日期是否有效
     if (isNaN(solarDate.getTime())) {
-      throw new Error(`無效的日期：${  birthInfo.birthDate  }，請確保格式為YYYY-MM-DD`);
-      );
+      throw new Error(`無效的日期：${birthInfo.birthDate}，請確保格式為YYYY-MM-DD`);
     }
 
     // 添加時間部分

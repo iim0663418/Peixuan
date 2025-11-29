@@ -32,7 +32,11 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, type PropType } from 'vue';
-import { Solar, Lunar, type HeavenlyStem, type EarthlyBranch } from '../utils/baziCalc'; // 假設 HeavenlyStem, EarthlyBranch 已從 baziCalc 導出
+import { type HeavenlyStem, type EarthlyBranch } from '../utils/baziCalc';
+
+// Solar 和 Lunar 來自全局 window 物件（lunar.min.js）
+const Solar = window.Solar;
+const Lunar = window.Lunar;
 
 export interface YearlyFateInfo {
   year: number;

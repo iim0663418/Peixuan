@@ -289,7 +289,7 @@ const isCompact = computed(() => props.compactMode || userPreferences.value.comp
 // 方法
 const handleLevelChange = (newLevel: ReadingLevelType) => {
   if (newLevel !== currentLevel.value) {
-    switchToLevel(newLevel).then(success => {
+    switchToLevel(newLevel).then((success: boolean) => {
       if (success) {
         emit('levelChanged', newLevel);
         ElMessage.success(`已切換到${READING_LEVEL_CONFIGS[newLevel].label}`);
@@ -299,7 +299,7 @@ const handleLevelChange = (newLevel: ReadingLevelType) => {
 };
 
 const handleUpgrade = () => {
-  upgradeLevel().then(success => {
+  upgradeLevel().then((success: boolean) => {
     if (success) {
       emit('upgradeRequested');
       ElMessage.success('已升級到更詳細的解讀層級');
@@ -308,7 +308,7 @@ const handleUpgrade = () => {
 };
 
 const handleDowngrade = () => {
-  downgradeLevel().then(success => {
+  downgradeLevel().then((success: boolean) => {
     if (success) {
       emit('downgradeRequested');
       ElMessage.success('已降級到更簡潔的解讀層級');

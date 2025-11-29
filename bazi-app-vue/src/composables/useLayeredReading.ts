@@ -86,7 +86,7 @@ export function useLayeredReading() {
   /**
    * 切換閱覽層級
    */
-  const switchToLevel = async (targetLevel: ReadingLevel, animated = true) => {
+  const switchToLevel = async (targetLevel: ReadingLevel, animated = true): Promise<boolean> => {
     if (globalReadingState.isTransitioning) return false;
     if (!availableLevels.value.includes(targetLevel)) return false;
 
@@ -139,7 +139,7 @@ export function useLayeredReading() {
   /**
    * 升級到下一個層級
    */
-  const upgradeLevel = () => {
+  const upgradeLevel = (): Promise<boolean> | false => {
     if (!canUpgrade.value) return false;
     const currentIndex = availableLevels.value.indexOf(globalReadingState.currentLevel);
     const nextLevel = availableLevels.value[currentIndex + 1];
@@ -149,7 +149,7 @@ export function useLayeredReading() {
   /**
    * 降級到上一個層級
    */
-  const downgradeLevel = () => {
+  const downgradeLevel = (): Promise<boolean> | false => {
     if (!canDowngrade.value) return false;
     const currentIndex = availableLevels.value.indexOf(globalReadingState.currentLevel);
     const prevLevel = availableLevels.value[currentIndex - 1];

@@ -19,19 +19,29 @@ export interface ErrorReport {
 
 // 錯誤等級
 export enum ErrorLevel {
+  // eslint-disable-next-line no-unused-vars
   LOW = 'low',
+  // eslint-disable-next-line no-unused-vars
   MEDIUM = 'medium',
+  // eslint-disable-next-line no-unused-vars
   HIGH = 'high',
+  // eslint-disable-next-line no-unused-vars
   CRITICAL = 'critical',
 }
 
 // 錯誤分類
 export enum ErrorCategory {
+  // eslint-disable-next-line no-unused-vars
   NETWORK = 'network',
+  // eslint-disable-next-line no-unused-vars
   COMPONENT = 'component',
+  // eslint-disable-next-line no-unused-vars
   ROUTER = 'router',
+  // eslint-disable-next-line no-unused-vars
   STORE = 'store',
+  // eslint-disable-next-line no-unused-vars
   API = 'api',
+  // eslint-disable-next-line no-unused-vars
   UNKNOWN = 'unknown',
 }
 

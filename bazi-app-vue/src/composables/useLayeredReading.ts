@@ -3,7 +3,7 @@
  * 使用 Vue 3 Composition API 實現綜合解讀的多層級展示
  */
 
-import { ref, computed, reactive, watch, nextTick } from 'vue';
+import { ref, computed, reactive, watch } from 'vue';
 import { useMediaQuery } from '@vueuse/core';
 import {
   ReadingLevel,
@@ -17,14 +17,13 @@ import type {
   LayeredReadingState,
   LayeredIntegratedAnalysis,
   UserReadingPreferences,
-  TransitionConfig,
   LayeredContent,
 } from '@/types/layeredReading';
 
 // 響應式斷點檢測
 const isMobile = useMediaQuery('(max-width: 767px)');
 const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
-const isDesktop = useMediaQuery('(min-width: 1024px)');
+const _isDesktop = useMediaQuery('(min-width: 1024px)');
 
 // 全局狀態
 const globalReadingState = reactive<LayeredReadingState>({
@@ -361,7 +360,7 @@ export function useDataAdapter() {
   ): LayeredIntegratedAnalysis => {
     const now = new Date();
     const analysisData = originalData.data?.integratedAnalysis || {};
-    const analysisInfo = originalData.data?.analysisInfo || {};
+    const _analysisInfo = originalData.data?.analysisInfo || {};
 
     // 計算資料完整度
     const completeness = calculateDataCompleteness(originalData);

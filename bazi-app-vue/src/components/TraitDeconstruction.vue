@@ -155,7 +155,7 @@ const starAttributes = {
 // 分析外在特質（基於八字概念的推導）
 const externalTraits = computed(() => {
   // 強制更新響應性
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
   const _unused = updateKey.value;
 
   const traits: string[] = [];
@@ -213,7 +213,7 @@ const externalTraits = computed(() => {
 // 分析內在特質（基於紫微斗數）
 const internalTraits = computed(() => {
   // 強制更新響應性
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
   const _unused = updateKey.value;
 
   const traits: string[] = [];
@@ -290,7 +290,7 @@ const traitSynthesis = computed(() => {
 // 核心能力分析
 const coreAbilities = computed(() => {
   // 強制更新響應性
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
   const _unused = updateKey.value;
 
   const abilities = [
@@ -399,7 +399,7 @@ const topTalents = computed(() => {
 });
 
 // 潛能開發建議
-const potentialSuggestions = computed(() => {
+const _potentialSuggestions = computed(() => {
   const suggestions: string[] = [];
   const topAbility = topTalents.value[0];
 
@@ -442,6 +442,7 @@ const potentialSuggestions = computed(() => {
 // 人生課題分析
 const lifeLessons = computed(() => {
   // 強制更新響應性
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
   const _unused = updateKey.value;
 
   const lessons: Array<{
@@ -541,7 +542,7 @@ const lifeLessons = computed(() => {
 });
 
 // 獲取能力圖標
-const getAbilityIcon = (_abilityName: string) => {
+const _getAbilityIcon = (_abilityName: string) => {
   const iconMap: Record<string, string> = {
     領導力: '👑',
     創造力: '🎨',
@@ -554,7 +555,7 @@ const getAbilityIcon = (_abilityName: string) => {
 };
 
 // 獲取能力等級描述
-const getAbilityLevel = (_value: number) => {
+const _getAbilityLevel = (_value: number) => {
   if (_value >= 8) {
     return '優秀';
   }
@@ -568,7 +569,7 @@ const getAbilityLevel = (_value: number) => {
 };
 
 // 顏色亮化函數
-const lightenColor = (color: string, _amount: number) => {
+const _lightenColor = (color: string, _amount: number) => {
   // 簡化的顏色亮化處理
   const colorMap: Record<string, string> = {
     '#ff6b6b': '#ff9999',
@@ -675,7 +676,7 @@ const refreshTraitAnalysis = () => {
 };
 
 // 手動刷新天賦分析
-const refreshTalentAnalysis = () => {
+const _refreshTalentAnalysis = () => {
   console.log('TraitDeconstruction: 手動刷新天賦分析');
   updateKey.value++;
   nextTick(() => {

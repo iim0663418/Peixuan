@@ -16,7 +16,6 @@
       <div class="container">
         <h2 class="section-title">命理服務</h2>
         <div class="services-grid">
-          
           <!-- 紫微斗數服務 -->
           <div class="service-card purple-star">
             <div class="service-icon">
@@ -39,7 +38,10 @@
                 <router-link to="/purple-star" class="btn btn-primary">
                   開始計算紫微命盤
                 </router-link>
-                <button class="btn btn-secondary" @click="showPurpleStarInfo = true">
+                <button
+                  class="btn btn-secondary"
+                  @click="showPurpleStarInfo = true"
+                >
                   了解更多
                 </button>
               </div>
@@ -74,7 +76,6 @@
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -146,16 +147,24 @@
     </div>
 
     <!-- 服務詳情彈窗 - 紫微斗數 -->
-    <div v-if="showPurpleStarInfo" class="modal-overlay" @click="showPurpleStarInfo = false">
+    <div
+      v-if="showPurpleStarInfo"
+      class="modal-overlay"
+      @click="showPurpleStarInfo = false"
+    >
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h3>紫微斗數詳細介紹</h3>
-          <button @click="showPurpleStarInfo = false" class="close-btn">×</button>
+          <button class="close-btn" @click="showPurpleStarInfo = false">
+            ×
+          </button>
         </div>
         <div class="modal-body">
           <h4>什麼是紫微斗數？</h4>
-          <p>紫微斗數是中國傳統命理學中最重要的預測方法之一，號稱「帝王之學」。它以出生年月日時為基礎，建立十二宮位命盤，分析個人的性格特質、事業發展、財運狀況、感情婚姻等人生各個層面。</p>
-          
+          <p>
+            紫微斗數是中國傳統命理學中最重要的預測方法之一，號稱「帝王之學」。它以出生年月日時為基礎，建立十二宮位命盤，分析個人的性格特質、事業發展、財運狀況、感情婚姻等人生各個層面。
+          </p>
+
           <h4>我們提供的服務包含：</h4>
           <ul>
             <li><strong>基礎命盤：</strong>十二宮位星曜分布</li>
@@ -164,12 +173,18 @@
             <li><strong>流年分析：</strong>特定年份詳細運勢</li>
             <li><strong>四化飛星：</strong>動態運勢分析</li>
           </ul>
-          
+
           <h4>適合什麼時候使用？</h4>
-          <p>人生重大決策時、事業轉換期、感情困惑時、想了解自己性格特質時，紫微斗數都能提供深入的洞察和指引。</p>
+          <p>
+            人生重大決策時、事業轉換期、感情困惑時、想了解自己性格特質時，紫微斗數都能提供深入的洞察和指引。
+          </p>
         </div>
         <div class="modal-footer">
-          <router-link to="/purple-star" class="btn btn-primary" @click="showPurpleStarInfo = false">
+          <router-link
+            to="/purple-star"
+            class="btn btn-primary"
+            @click="showPurpleStarInfo = false"
+          >
             立即開始計算
           </router-link>
         </div>
@@ -177,16 +192,22 @@
     </div>
 
     <!-- 服務詳情彈窗 - 八字命理 -->
-    <div v-if="showBaziInfo" class="modal-overlay" @click="showBaziInfo = false">
+    <div
+      v-if="showBaziInfo"
+      class="modal-overlay"
+      @click="showBaziInfo = false"
+    >
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h3>八字命理詳細介紹</h3>
-          <button @click="showBaziInfo = false" class="close-btn">×</button>
+          <button class="close-btn" @click="showBaziInfo = false">×</button>
         </div>
         <div class="modal-body">
           <h4>什麼是八字命理？</h4>
-          <p>八字命理以個人出生的年、月、日、時四柱八字為基礎，分析天干地支的五行生剋關係，揭示個人的性格特質、運勢走向和人生軌跡。是中國傳統命理學的核心內容。</p>
-          
+          <p>
+            八字命理以個人出生的年、月、日、時四柱八字為基礎，分析天干地支的五行生剋關係，揭示個人的性格特質、運勢走向和人生軌跡。是中國傳統命理學的核心內容。
+          </p>
+
           <h4>我們提供的分析包含：</h4>
           <ul>
             <li><strong>四柱排盤：</strong>年柱、月柱、日柱、時柱完整排列</li>
@@ -195,12 +216,18 @@
             <li><strong>起運計算：</strong>大運起始時間和週期</li>
             <li><strong>流年互動：</strong>特定年份的運勢變化</li>
           </ul>
-          
+
           <h4>八字分析的優勢：</h4>
-          <p>八字分析注重五行平衡和天干地支的生剋關係，能夠精確反映個人的先天稟賦、性格特徵，以及後天運勢的起伏變化，對於人生規劃具有重要的參考價值。</p>
+          <p>
+            八字分析注重五行平衡和天干地支的生剋關係，能夠精確反映個人的先天稟賦、性格特徵，以及後天運勢的起伏變化，對於人生規劃具有重要的參考價值。
+          </p>
         </div>
         <div class="modal-footer">
-          <router-link to="/bazi" class="btn btn-primary" @click="showBaziInfo = false">
+          <router-link
+            to="/bazi"
+            class="btn btn-primary"
+            @click="showBaziInfo = false"
+          >
             立即開始計算
           </router-link>
         </div>
@@ -210,7 +237,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, defineAsyncComponent } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -585,21 +612,21 @@ onMounted(() => {
   .hero-section {
     padding: 70px 20px;
   }
-  
+
   .services-grid {
     grid-template-columns: 1fr;
     max-width: 600px;
   }
-  
+
   .container {
     padding: 0 15px;
   }
-  
+
   .guide-steps {
     grid-template-columns: repeat(2, 1fr);
     gap: 25px;
   }
-  
+
   .features-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 35px;
@@ -610,97 +637,101 @@ onMounted(() => {
   .hero-section {
     padding: 60px 15px;
   }
-  
+
   .site-title {
     font-size: 2.5rem;
     line-height: 1.2;
   }
-  
+
   .site-subtitle {
     font-size: 1.1rem;
   }
-  
+
   .site-description {
     font-size: 1rem;
   }
-  
+
   .section-title {
     font-size: 2.2rem;
     margin-bottom: 35px;
   }
-  
-  .services-section, .guide-section, .features-section {
+
+  .services-section,
+  .guide-section,
+  .features-section {
     padding: 60px 0;
   }
-  
+
   .services-grid {
     grid-template-columns: 1fr;
     gap: 30px;
     max-width: 100%;
   }
-  
+
   .service-card {
     padding: 25px 20px;
     margin: 0 10px;
   }
-  
+
   .service-content h3 {
     font-size: 1.6rem;
   }
-  
+
   .service-description {
     font-size: 0.95rem;
   }
-  
+
   .service-actions {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
-  
+
   .btn {
     padding: 14px 20px;
     font-size: 1rem;
     min-height: 48px;
   }
-  
+
   .guide-steps {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .step-item {
     padding: 25px 15px;
   }
-  
+
   .step-number {
     width: 50px;
     height: 50px;
     font-size: 1.3rem;
   }
-  
+
   .features-grid {
     grid-template-columns: 1fr;
     gap: 30px;
   }
-  
+
   .feature-item {
     padding: 25px 15px;
   }
-  
+
   .feature-icon {
     font-size: 2.5rem;
   }
-  
+
   .modal-content {
     margin: 15px;
     max-width: calc(100vw - 30px);
   }
-  
-  .modal-header, .modal-body, .modal-footer {
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
     padding: 20px;
   }
-  
+
   .modal-header h3 {
     font-size: 1.3rem;
   }
@@ -710,148 +741,150 @@ onMounted(() => {
   .hero-section {
     padding: 50px 10px;
   }
-  
+
   .site-title {
     font-size: 2rem;
     margin-bottom: 12px;
   }
-  
+
   .site-subtitle {
     font-size: 1rem;
     margin-bottom: 15px;
   }
-  
+
   .site-description {
     font-size: 0.9rem;
     line-height: 1.6;
   }
-  
+
   .section-title {
     font-size: 1.8rem;
     margin-bottom: 30px;
   }
-  
-  .services-section, .guide-section, .features-section {
+
+  .services-section,
+  .guide-section,
+  .features-section {
     padding: 40px 0;
   }
-  
+
   .container {
     padding: 0 10px;
   }
-  
+
   .service-card {
     padding: 20px 15px;
     margin: 0 5px;
     border-radius: 15px;
   }
-  
+
   .icon-circle {
     width: 60px;
     height: 60px;
   }
-  
+
   .icon-text {
     font-size: 1.5rem;
   }
-  
+
   .service-content h3 {
     font-size: 1.4rem;
     margin-bottom: 12px;
   }
-  
+
   .service-description {
     font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 20px;
   }
-  
+
   .feature-tag {
     font-size: 0.8rem;
     padding: 4px 10px;
   }
-  
+
   .service-actions {
     gap: 10px;
   }
-  
+
   .btn {
     padding: 16px 20px;
     font-size: 1.1rem;
     min-height: 52px;
     border-radius: 12px;
   }
-  
+
   .step-item {
     padding: 20px 10px;
   }
-  
+
   .step-number {
     width: 45px;
     height: 45px;
     font-size: 1.2rem;
     margin-bottom: 15px;
   }
-  
+
   .step-content h4 {
     font-size: 1.1rem;
     margin-bottom: 8px;
   }
-  
+
   .step-content p {
     font-size: 0.9rem;
   }
-  
+
   .feature-item {
     padding: 20px 10px;
   }
-  
+
   .feature-icon {
     font-size: 2rem;
     margin-bottom: 15px;
   }
-  
+
   .feature-item h4 {
     font-size: 1.1rem;
     margin-bottom: 12px;
   }
-  
+
   .feature-item p {
     font-size: 0.9rem;
     line-height: 1.5;
   }
-  
+
   .modal-content {
     margin: 10px;
     max-width: calc(100vw - 20px);
     border-radius: 12px;
   }
-  
+
   .modal-header {
     padding: 15px;
   }
-  
+
   .modal-header h3 {
     font-size: 1.2rem;
   }
-  
+
   .modal-body {
     padding: 15px;
   }
-  
+
   .modal-body h4 {
     font-size: 1.1rem;
     margin: 15px 0 8px 0;
   }
-  
+
   .modal-body p {
     font-size: 0.9rem;
     margin-bottom: 12px;
   }
-  
+
   .modal-footer {
     padding: 15px;
   }
-  
+
   .close-btn {
     width: 25px;
     height: 25px;
@@ -864,31 +897,31 @@ onMounted(() => {
   .hero-section {
     padding: 40px 8px;
   }
-  
+
   .site-title {
     font-size: 1.8rem;
   }
-  
+
   .site-subtitle {
     font-size: 0.95rem;
   }
-  
+
   .site-description {
     font-size: 0.85rem;
   }
-  
+
   .section-title {
     font-size: 1.6rem;
   }
-  
+
   .service-card {
     padding: 15px 12px;
   }
-  
+
   .service-content h3 {
     font-size: 1.3rem;
   }
-  
+
   .btn {
     font-size: 1rem;
     padding: 14px 16px;
@@ -900,11 +933,13 @@ onMounted(() => {
   .hero-section {
     padding: 30px 20px;
   }
-  
-  .services-section, .guide-section, .features-section {
+
+  .services-section,
+  .guide-section,
+  .features-section {
     padding: 40px 0;
   }
-  
+
   .modal-content {
     max-height: 90vh;
   }

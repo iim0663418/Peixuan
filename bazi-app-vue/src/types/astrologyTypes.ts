@@ -14,12 +14,15 @@ export interface PurpleStarChart {
   // 新增的格局分析
   keyPatterns?: string[];
   // 四化飛星相關
-  transformationFlows?: Record<number, {
-    palaceIndex: number;
-    palaceName: string;
-    energyScore: number;
-    majorInfluences: string[];
-  }>;
+  transformationFlows?: Record<
+    number,
+    {
+      palaceIndex: number;
+      palaceName: string;
+      energyScore: number;
+      majorInfluences: string[];
+    }
+  >;
   transformationCombinations?: Array<{
     palaceIndex: number;
     palaceName: string;
@@ -27,16 +30,19 @@ export interface PurpleStarChart {
     effect: string;
     significance: 'high' | 'medium' | 'low';
   }>;
-  multiLayerEnergies?: Record<number, {
-    palaceIndex: number;
-    palaceName: string;
-    baseEnergy: number;
-    daXianEnergy: number;
-    liuNianEnergy: number;
-    liuYueEnergy: number;
-    totalEnergy: number;
-    interpretation: string;
-  }>;
+  multiLayerEnergies?: Record<
+    number,
+    {
+      palaceIndex: number;
+      palaceName: string;
+      baseEnergy: number;
+      daXianEnergy: number;
+      liuNianEnergy: number;
+      liuYueEnergy: number;
+      totalEnergy: number;
+      interpretation: string;
+    }
+  >;
 }
 
 // 宮位詳細解讀
@@ -53,7 +59,12 @@ export interface PalaceInterpretation {
 // 特定領域分析
 export interface DomainSpecificAnalysis {
   domain: 'career' | 'wealth' | 'marriage' | 'health' | 'education' | 'social';
-  overallFortune: 'excellent' | 'good' | 'neutral' | 'challenging' | 'difficult';
+  overallFortune:
+    | 'excellent'
+    | 'good'
+    | 'neutral'
+    | 'challenging'
+    | 'difficult';
   keyInsights: string[];
   starInfluences: string[];
   recommendedActions: string[];

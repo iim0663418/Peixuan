@@ -1,4 +1,3 @@
-
 <template>
   <div class="bazi-container">
     <el-row :gutter="20">
@@ -7,22 +6,22 @@
           <template #header>
             <div class="card-header">
               <span>{{ $t('astrology.bazi_detail.title') }}</span>
-              <div class="header-actions" v-if="baziChart">
+              <div v-if="baziChart" class="header-actions">
                 <el-button
                   type="danger"
                   :icon="Delete"
-                  @click="clearData"
                   size="small"
+                  @click="clearData"
                 >
                   清除資料
                 </el-button>
               </div>
             </div>
           </template>
-          
+
           <div class="view-description">
             <p>{{ $t('astrology.bazi_detail.description') }}</p>
-            <el-alert 
+            <el-alert
               v-if="baziChart"
               title="💡 提示"
               description="您可以點擊右上角「綜合解讀」來獲得八字與紫微斗數的全面人生解讀"
@@ -32,63 +31,69 @@
               class="mt-3 text-center-alert"
             />
           </div>
-          
+
           <!-- 添加儲存狀態指示器 -->
           <StorageStatusIndicator class="mt-3" />
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+      <el-col :xs="24" :sm="24" :md="12"
+:lg="12" :xl="12">
         <el-card shadow="hover">
           <template #header>
             <span>{{ $t('astrology.bazi_detail.inputSection') }}</span>
           </template>
-          
+
           <BaziInputForm @submit="handleSubmit" />
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-        <el-card shadow="hover" v-if="baziChart">
+      <el-col :xs="24" :sm="24" :md="12"
+:lg="12" :xl="12">
+        <el-card v-if="baziChart" shadow="hover">
           <template #header>
             <span>分析結果</span>
           </template>
-          
-          <el-tabs>
-            <el-tab-pane label="八字命盤">
-              <BaziChartDisplay 
-                :baziResult="baziChart"
-                :tenGods="baziChart.mainTenGods"
-                :elementsDistribution="baziChart.elementsDistribution"
-                :startLuckInfo="baziChart.startLuckInfo"
+
+          <ElTabs>
+            <ElTabPane label="八字命盤">
+              <BaziChartDisplay
+                :bazi-result="baziChart"
+                :ten-gods="baziChart.mainTenGods"
+                :elements-distribution="baziChart.elementsDistribution"
+                :start-luck-info="baziChart.startLuckInfo"
               />
-            </el-tab-pane>
-            
-            <el-tab-pane label="命盤解讀" v-if="baziChart.interpretation">
+            </ElTabPane>
+
+            <ElTabPane v-if="baziChart.interpretation" label="命盤解讀">
               <div class="interpretation-section">
                 <h3>命盤總論</h3>
                 <p>{{ baziChart.interpretation.general }}</p>
-                
+
                 <h3>性格特質</h3>
                 <ul>
-                  <li v-for="(trait, index) in baziChart.interpretation.personalityTraits" :key="index">
+                  <li
+                    v-for="(trait, index) in baziChart.interpretation
+                      .personalityTraits"
+                    :key="index"
+                  >
                     {{ trait }}
                   </li>
                 </ul>
-                
+
                 <h3>事業方向</h3>
                 <p>{{ baziChart.interpretation.career }}</p>
-                
+
                 <h3>人際關係</h3>
                 <p>{{ baziChart.interpretation.relationships }}</p>
-                
+
                 <h3>健康建議</h3>
                 <p>{{ baziChart.interpretation.health }}</p>
-                
+
                 <h3>重要年齡</h3>
                 <div class="key-ages">
-                  <el-tag 
-                    v-for="age in baziChart.interpretation.keyAges" 
+                  <el-tag
+                    v-for="age in baziChart.interpretation.keyAges"
                     :key="age"
                     type="success"
                     effect="plain"
@@ -98,15 +103,29 @@
                   </el-tag>
                 </div>
               </div>
-            </el-tab-pane>
-            
-            <el-tab-pane label="大運" v-if="baziChart.decennialCycles && baziChart.decennialCycles.length > 0">
-              <div v-for="cycle in baziChart.decennialCycles" :key="cycle.index" class="decennial-cycle">
+            </ElTabPane>
+
+            <ElTabPane
+              v-if="
+                baziChart.decennialCycles &&
+                baziChart.decennialCycles.length > 0
+              "
+              label="大運"
+            >
+              <div
+                v-for="cycle in baziChart.decennialCycles"
+                :key="cycle.index"
+                class="decennial-cycle"
+              >
                 <el-divider>第 {{ cycle.index }} 大運</el-divider>
-                <h4>{{ cycle.stem }}{{ cycle.branch }} ({{ cycle.startYear }}年-{{ cycle.endYear }}年，{{ cycle.startAge }}-{{ cycle.endAge }}歲)</h4>
+                <h4>
+                  {{ cycle.stem }}{{ cycle.branch }} ({{ cycle.startYear }}年-{{
+                    cycle.endYear
+                  }}年，{{ cycle.startAge }}-{{ cycle.endAge }}歲)
+                </h4>
                 <p v-if="cycle.analysis">{{ cycle.analysis.overview }}</p>
-                
-                <div class="cycle-details" v-if="cycle.analysis">
+
+                <div v-if="cycle.analysis" class="cycle-details">
                   <div class="detail-item">
                     <h5>事業</h5>
                     <p>{{ cycle.analysis.career }}</p>
@@ -125,19 +144,30 @@
                   </div>
                 </div>
               </div>
-            </el-tab-pane>
-            
-            <el-tab-pane label="流年" v-if="baziChart.annualLuck && baziChart.annualLuck.length > 0">
+            </ElTabPane>
+
+            <ElTabPane
+              v-if="baziChart.annualLuck && baziChart.annualLuck.length > 0"
+              label="流年"
+            >
               <div class="annual-filter">
-                <el-input v-model="yearFilter" placeholder="搜尋年份..." clearable />
+                <el-input
+                  v-model="yearFilter"
+                  placeholder="搜尋年份..."
+                  clearable
+                />
               </div>
-              
-              <div v-for="year in filteredAnnualLuck" :key="year.year" class="annual-luck">
+
+              <div
+                v-for="year in filteredAnnualLuck"
+                :key="year.year"
+                class="annual-luck"
+              >
                 <el-divider>{{ year.year }}年</el-divider>
                 <h4>{{ year.stem }}{{ year.branch }} ({{ year.age }}歲)</h4>
                 <p v-if="year.analysis">{{ year.analysis.overview }}</p>
-                
-                <div class="annual-details" v-if="year.analysis">
+
+                <div v-if="year.analysis" class="annual-details">
                   <div class="detail-item">
                     <h5>年度重點</h5>
                     <p>{{ year.analysis.focus }}</p>
@@ -152,11 +182,11 @@
                   </div>
                 </div>
               </div>
-            </el-tab-pane>
-          </el-tabs>
+            </ElTabPane>
+          </ElTabs>
         </el-card>
-        
-        <el-card shadow="hover" v-else>
+
+        <el-card v-else shadow="hover">
           <div class="placeholder">
             <el-icon :size="64" color="#c0c4cc">
               <Coordinate />
@@ -175,20 +205,26 @@ import { ElMessage, ElMessageBox, ElTabs, ElTabPane } from 'element-plus';
 import { Coordinate, Delete } from '@element-plus/icons-vue';
 
 // 動態導入組件以提升效能
-const BaziInputForm = defineAsyncComponent(() => import('@/components/BaziInputForm.vue'));
-const BaziChartDisplay = defineAsyncComponent(() => import('@/components/BaziChartDisplay.vue'));
-const StorageStatusIndicator = defineAsyncComponent(() => import('@/components/StorageStatusIndicator.vue'));
-import { BirthInfo } from '@/services/astrologyIntegrationService';
-import { 
-  BaziCalculator, 
-  TenGodsCalculator, 
+const BaziInputForm = defineAsyncComponent(
+  () => import('@/components/BaziInputForm.vue'),
+);
+const BaziChartDisplay = defineAsyncComponent(
+  () => import('@/components/BaziChartDisplay.vue'),
+);
+const StorageStatusIndicator = defineAsyncComponent(
+  () => import('@/components/StorageStatusIndicator.vue'),
+);
+import type { BirthInfo } from '@/services/astrologyIntegrationService';
+import {
+  BaziCalculator,
+  TenGodsCalculator,
   FiveElementsAnalyzer,
   FortuneCycleCalculator,
   BaziInterpreter,
   InterpretationLevel,
   type FullBaziAnalysis,
   type DecennialCycle,
-  type AnnualLuck
+  type AnnualLuck,
 } from '@/utils/baziCalc';
 import storageService from '@/utils/storageService';
 import enhancedStorageService from '@/utils/enhancedStorageService';
@@ -202,15 +238,17 @@ const yearFilter = ref(''); // 用於流年過濾
 
 // 過濾流年的計算屬性
 const filteredAnnualLuck = computed(() => {
-  if (!baziChart.value?.annualLuck) return [];
-  
+  if (!baziChart.value?.annualLuck) {
+    return [];
+  }
+
   if (!yearFilter.value.trim()) {
     return baziChart.value.annualLuck;
   }
-  
+
   const searchTerm = yearFilter.value.trim();
-  return baziChart.value.annualLuck.filter(year => 
-    year.year.toString().includes(searchTerm)
+  return baziChart.value.annualLuck.filter((year) =>
+    year.year.toString().includes(searchTerm),
   );
 });
 
@@ -219,115 +257,132 @@ const clearData = () => {
   ElMessageBox.confirm('確定要清除當前的八字計算結果嗎？', '清除資料', {
     confirmButtonText: '確定',
     cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    storageService.clearAnalysisData('bazi');
-    baziChart.value = null;
-    birthInfoRef.value = null;
-    ElMessage.success('八字資料已清除');
-  }).catch(() => {
-    // 用戶取消操作
-  });
+    type: 'warning',
+  })
+    .then(() => {
+      storageService.clearAnalysisData('bazi');
+      baziChart.value = null;
+      birthInfoRef.value = null;
+      ElMessage.success('八字資料已清除');
+    })
+    .catch(() => {
+      // 用戶取消操作
+    });
 };
 
 const handleSubmit = async (birthInfo: BirthInfo) => {
   try {
     ElMessage.info('正在計算八字...');
-    
+
     // 保存出生資訊
     birthInfoRef.value = birthInfo;
-    
+
     // 保存出生資訊到 sessionStorage
-    storageService.saveToStorage(storageService.STORAGE_KEYS.BAZI_BIRTH_INFO, birthInfo);
-    
+    storageService.saveToStorage(
+      storageService.STORAGE_KEYS.BAZI_BIRTH_INFO,
+      birthInfo,
+    );
+
     // 驗證日期格式
-    if (!birthInfo.birthDate || !birthInfo.birthDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    if (
+      !birthInfo.birthDate ||
+      !birthInfo.birthDate.match(/^\d{4}-\d{2}-\d{2}$/)
+    ) {
       throw new Error('出生日期格式無效，請使用YYYY-MM-DD格式');
     }
-    
+
     // 驗證時間格式
     if (birthInfo.birthTime && !birthInfo.birthTime.match(/^\d{2}:\d{2}$/)) {
       throw new Error('出生時間格式無效，請使用HH:MM格式');
     }
-    
+
     // 轉換性別為數字 (0: 男, 1: 女)
     const genderValue = birthInfo.gender === 'male' ? 0 : 1;
-    
+
     // 轉換 BirthInfo 為 Date 對象
     const solarDate = new Date(birthInfo.birthDate);
-    
+
     // 檢查日期是否有效
     if (isNaN(solarDate.getTime())) {
-      throw new Error('無效的日期：' + birthInfo.birthDate + '，請確保格式為YYYY-MM-DD');
+      throw new Error(
+        `無效的日期：${birthInfo.birthDate}，請確保格式為YYYY-MM-DD`,
+      );
     }
-    
+
     // 添加時間部分
     if (birthInfo.birthTime) {
       const [hours, minutes] = birthInfo.birthTime.split(':');
       solarDate.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
-      
+
       // 檢查時間是否有效
       if (isNaN(solarDate.getTime())) {
-        throw new Error('無效的時間：' + birthInfo.birthTime + '，請確保格式為HH:MM');
+        throw new Error(
+          `無效的時間：${birthInfo.birthTime}，請確保格式為HH:MM`,
+        );
       }
     }
-    
+
     console.log('用於八字計算的日期物件:', solarDate.toString());
-    
+
     try {
       // 使用前端八字計算引擎
       const baziResult = BaziCalculator.calculateBazi({ solarDate });
-      
+
       if (!baziResult) {
         throw new Error('八字計算失敗，請檢查 lunar-javascript 庫是否正確載入');
       }
-      
+
       // 計算十神和五行分佈
       const mainTenGods = TenGodsCalculator.getMainStemTenGods(baziResult);
-      const elementsDistribution = FiveElementsAnalyzer.calculateElementsDistribution(baziResult);
-      
+      const elementsDistribution =
+        FiveElementsAnalyzer.calculateElementsDistribution(baziResult);
+
       // 計算起運時間
       const solarObj = Solar.fromDate(solarDate);
       const lunarDate = solarObj.getLunar();
-      const startLuckInfo = FortuneCycleCalculator.calculateStartLuck(lunarDate, genderValue);
-      
+      const startLuckInfo = FortuneCycleCalculator.calculateStartLuck(
+        lunarDate,
+        genderValue,
+      );
+
       // 計算大運
       const decennialCycles = FortuneCycleCalculator.calculateDecennialCycles(
-        baziResult, 
-        solarDate, 
-        genderValue, 
-        8 // 計算8個大運
+        baziResult,
+        solarDate,
+        genderValue,
+        8, // 計算8個大運
       );
-      
+
       // 為每個大運生成解讀
-      decennialCycles.forEach(cycle => {
+      decennialCycles.forEach((cycle) => {
         cycle.analysis = BaziInterpreter.generateDecennialAnalysis(
-          baziResult, 
-          cycle, 
-          InterpretationLevel.BASIC
+          baziResult,
+          cycle,
+          InterpretationLevel.BASIC,
         );
       });
-      
+
       // 計算流年（從當前年份開始，30年）
       const currentYear = new Date().getFullYear();
       const annualLuck = FortuneCycleCalculator.calculateAnnualLuck(
-        solarDate, 
-        currentYear, 
-        30 // 計算30年的流年
+        solarDate,
+        currentYear,
+        30, // 計算30年的流年
       );
-      
+
       // 為每個流年生成解讀
-      annualLuck.forEach(annual => {
+      annualLuck.forEach((annual) => {
         annual.analysis = BaziInterpreter.generateAnnualAnalysis(
-          baziResult, 
-          annual, 
-          InterpretationLevel.BASIC
+          baziResult,
+          annual,
+          InterpretationLevel.BASIC,
         );
       });
-      
+
       // 生成命盤解讀
-      const interpretation = BaziInterpreter.generateBasicInterpretation(baziResult);
-      
+      const interpretation =
+        BaziInterpreter.generateBasicInterpretation(baziResult);
+
       // 組裝完整的分析結果
       const fullAnalysis: FullBaziAnalysis = {
         ...baziResult,
@@ -336,33 +391,37 @@ const handleSubmit = async (birthInfo: BirthInfo) => {
         startLuckInfo,
         decennialCycles,
         annualLuck,
-        interpretation
+        interpretation,
       };
-      
+
       baziChart.value = fullAnalysis;
-      
+
       // 保存命盤資料到 sessionStorage
-      storageService.saveToStorage(storageService.STORAGE_KEYS.BAZI_CHART, fullAnalysis);
-      
+      storageService.saveToStorage(
+        storageService.STORAGE_KEYS.BAZI_CHART,
+        fullAnalysis,
+      );
+
       ElMessage.success('八字計算完成');
     } catch (calcError) {
       console.error('八字計算過程中錯誤:', calcError);
       // 捕獲計算過程中的特定錯誤
       throw new Error(
-        calcError instanceof Error 
-          ? `八字計算失敗: ${calcError.message}` 
-          : '八字計算過程中發生未知錯誤，請稍後再試'
+        calcError instanceof Error
+          ? `八字計算失敗: ${calcError.message}`
+          : '八字計算過程中發生未知錯誤，請稍後再試',
       );
     }
   } catch (error) {
     console.error('八字表單處理錯誤:', error);
-    
+
     // 顯示更詳細的錯誤資訊
     ElMessage({
-      message: error instanceof Error ? error.message : '八字計算失敗，請稍後再試',
+      message:
+        error instanceof Error ? error.message : '八字計算失敗，請稍後再試',
       type: 'error',
       duration: 5000,
-      showClose: true
+      showClose: true,
     });
   }
 };
@@ -371,17 +430,19 @@ const handleSubmit = async (birthInfo: BirthInfo) => {
 const loadFromSessionStorage = () => {
   try {
     console.log('開始從 sessionStorage 載入八字資料');
-    
+
     // 記錄當前 sessionStorage 狀態
-    const keysInStorage = Object.keys(sessionStorage).filter(key => 
-      key.startsWith('peixuan_')
+    const keysInStorage = Object.keys(sessionStorage).filter((key) =>
+      key.startsWith('peixuan_'),
     );
-    
+
     console.log('sessionStorage 中的相關鍵:', keysInStorage);
-    
+
     // 檢查出生資訊
-    const savedBirthInfo = storageService.getFromStorage<BirthInfo>(storageService.STORAGE_KEYS.BAZI_BIRTH_INFO);
-    
+    const savedBirthInfo = storageService.getFromStorage<BirthInfo>(
+      storageService.STORAGE_KEYS.BAZI_BIRTH_INFO,
+    );
+
     if (savedBirthInfo) {
       console.log('找到保存的八字出生資訊');
       birthInfoRef.value = savedBirthInfo as BirthInfo;
@@ -390,18 +451,24 @@ const loadFromSessionStorage = () => {
     }
 
     // 檢查八字命盤
-    const savedBaziChart = storageService.getFromStorage<FullBaziAnalysis>(storageService.STORAGE_KEYS.BAZI_CHART);
-    
+    const savedBaziChart = storageService.getFromStorage<FullBaziAnalysis>(
+      storageService.STORAGE_KEYS.BAZI_CHART,
+    );
+
     if (savedBaziChart) {
       console.log('找到保存的八字命盤資料');
       try {
         // 進行安全檢查，確保必要屬性存在
-        if (!savedBaziChart.yearPillar || !savedBaziChart.monthPillar || 
-            !savedBaziChart.dayPillar || !savedBaziChart.hourPillar) {
+        if (
+          !savedBaziChart.yearPillar ||
+          !savedBaziChart.monthPillar ||
+          !savedBaziChart.dayPillar ||
+          !savedBaziChart.hourPillar
+        ) {
           console.warn('保存的八字命盤資料缺少必要的柱位資訊');
           throw new Error('命盤資料不完整');
         }
-        
+
         baziChart.value = savedBaziChart;
       } catch (parseError) {
         console.error('解析保存的八字命盤資料時出錯:', parseError);
@@ -410,7 +477,7 @@ const loadFromSessionStorage = () => {
     } else {
       console.log('未找到保存的八字命盤資料');
     }
-    
+
     // 驗證資料一致性
     try {
       console.log('使用增強版存儲服務驗證八字資料');
@@ -418,10 +485,10 @@ const loadFromSessionStorage = () => {
     } catch (validateError) {
       console.error('驗證八字資料時出錯:', validateError);
     }
-    
+
     console.log('從 sessionStorage 載入的八字資料總結:', {
       birthInfo: !!birthInfoRef.value,
-      baziChart: !!baziChart.value
+      baziChart: !!baziChart.value,
     });
   } catch (error) {
     console.error('從 sessionStorage 載入八字資料時出錯:', error);
@@ -466,25 +533,25 @@ onMounted(() => {
   .bazi-container {
     padding: 10px;
   }
-  
+
   /* 卡片內邊距調整 */
   :deep(.el-card__body) {
     padding: 15px;
   }
-  
+
   /* 標題字體調整 */
   :deep(.el-card__header) {
     padding: 15px;
     font-size: 16px;
   }
-  
+
   /* 按鈕組優化 */
   .header-actions {
     flex-direction: column;
     gap: 8px;
     align-items: flex-end;
   }
-  
+
   .header-actions .el-button {
     min-height: 44px;
     padding: 12px 16px;
@@ -495,18 +562,18 @@ onMounted(() => {
   .bazi-container {
     padding: 5px;
   }
-  
+
   /* 更小螢幕的調整 */
   :deep(.el-card__body) {
     padding: 10px;
   }
-  
+
   .card-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .header-actions {
     width: 100%;
     justify-content: flex-end;

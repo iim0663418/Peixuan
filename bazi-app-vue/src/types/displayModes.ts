@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /**
  * 定義顯示深度/模式的可用選項
  */
@@ -13,6 +14,7 @@ export interface DisplayModeProps {
 /**
  * 元件 Emits 介面定義，用於更新顯示模式
  */
+
 export interface DisplayModeEmits {
-  (event: 'update:displayMode', mode: DisplayMode): void;
+  (_event: 'update:displayMode', _mode: DisplayMode): void;
 }

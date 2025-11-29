@@ -1,94 +1,117 @@
+/* eslint-disable no-unused-vars */
 /**
  * 分層閱覽響應式狀態管理
  * 使用 Vue 3 Composition API 實現綜合解讀的多層級展示
  */
 
-import { ref, computed, reactive, watch, nextTick } from 'vue';
+import { ref, computed, reactive, watch } from 'vue';
 import { useMediaQuery } from '@vueuse/core';
-import { 
+import {
   ReadingLevel,
-  READING_LEVEL_CONFIGS, 
-  RESPONSIVE_CONFIGS, 
+  READING_LEVEL_CONFIGS,
+  RESPONSIVE_CONFIGS,
   DEFAULT_USER_PREFERENCES,
   DEFAULT_TRANSITION_CONFIG,
-  ResponsiveBreakpoint
-} from '@/types/layeredReading';
-import type { 
-  LayeredReadingState, 
-  LayeredIntegratedAnalysis,
-  UserReadingPreferences,
-  TransitionConfig,
-  LayeredContent
+  ResponsiveBreakpoint,
+  type LayeredReadingState,
+  type LayeredIntegratedAnalysis,
+  type UserReadingPreferences,
+  type LayeredContent,
 } from '@/types/layeredReading';
 
 // 響應式斷點檢測
 const isMobile = useMediaQuery('(max-width: 767px)');
 const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
-const isDesktop = useMediaQuery('(min-width: 1024px)');
+// eslint-disable-next-line no-unused-vars
+const _isDesktop = useMediaQuery('(min-width: 1024px)');
 
 // 全局狀態
 const globalReadingState = reactive<LayeredReadingState>({
   currentLevel: ReadingLevel.STANDARD,
-  availableLevels: [ReadingLevel.SUMMARY, ReadingLevel.COMPACT, ReadingLevel.STANDARD],
+  availableLevels: [
+    ReadingLevel.SUMMARY,
+    ReadingLevel.COMPACT,
+    ReadingLevel.STANDARD,
+  ],
   dataCompleteness: 0,
   isTransitioning: false,
-  lastUpdated: new Date()
+  lastUpdated: new Date(),
 });
 
-const userPreferences = ref<UserReadingPreferences>({ ...DEFAULT_USER_PREFERENCES });
+const userPreferences = ref<UserReadingPreferences>({
+  ...DEFAULT_USER_PREFERENCES,
+});
 const layeredData = ref<LayeredIntegratedAnalysis | null>(null);
 
 /**
  * 主要的分層閱覽 Composable
  */
 export function useLayeredReading() {
-  
   // 計算當前響應式斷點
   const currentBreakpoint = computed<ResponsiveBreakpoint>(() => {
-    if (isMobile.value) return ResponsiveBreakpoint.MOBILE;
-    if (isTablet.value) return ResponsiveBreakpoint.TABLET;
+    if (isMobile.value) {
+      return ResponsiveBreakpoint.MOBILE;
+    }
+    if (isTablet.value) {
+      return ResponsiveBreakpoint.TABLET;
+    }
     return ResponsiveBreakpoint.DESKTOP;
   });
 
   // 計算當前響應式配置
-  const responsiveConfig = computed(() => RESPONSIVE_CONFIGS[currentBreakpoint.value]);
+  const responsiveConfig = computed(
+    () => RESPONSIVE_CONFIGS[currentBreakpoint.value],
+  );
 
   // 計算可用的閱覽層級
   const availableLevels = computed<ReadingLevel[]>(() => {
-    if (!layeredData.value) return [ReadingLevel.SUMMARY];
-    
+    if (!layeredData.value) {
+      return [ReadingLevel.SUMMARY];
+    }
+
     const completeness = globalReadingState.dataCompleteness;
-    const levels = Object.values(ReadingLevel).filter(level => {
+    const levels = Object.values(ReadingLevel).filter((level) => {
       const config = READING_LEVEL_CONFIGS[level];
       return completeness >= config.minDataRequirement;
     });
-    
+
     return levels.length > 0 ? levels : [ReadingLevel.SUMMARY];
   });
 
   // 計算當前層級配置
-  const currentLevelConfig = computed(() => 
-    READING_LEVEL_CONFIGS[globalReadingState.currentLevel]
+  const currentLevelConfig = computed(
+    () => READING_LEVEL_CONFIGS[globalReadingState.currentLevel],
   );
 
   // 計算是否可以升級到更高層級
   const canUpgrade = computed(() => {
-    const currentIndex = availableLevels.value.indexOf(globalReadingState.currentLevel);
+    const currentIndex = availableLevels.value.indexOf(
+      globalReadingState.currentLevel,
+    );
     return currentIndex < availableLevels.value.length - 1;
   });
 
   // 計算是否可以降級到更低層級
   const canDowngrade = computed(() => {
-    const currentIndex = availableLevels.value.indexOf(globalReadingState.currentLevel);
+    const currentIndex = availableLevels.value.indexOf(
+      globalReadingState.currentLevel,
+    );
     return currentIndex > 0;
   });
 
   /**
    * 切換閱覽層級
    */
-  const switchToLevel = async (targetLevel: ReadingLevel, animated = true): Promise<boolean> => {
-    if (globalReadingState.isTransitioning) return false;
-    if (!availableLevels.value.includes(targetLevel)) return false;
+  const switchToLevel = async (
+    targetLevel: ReadingLevel,
+    animated = true,
+  ): Promise<boolean> => {
+    if (globalReadingState.isTransitioning) {
+      return false;
+    }
+    if (!availableLevels.value.includes(targetLevel)) {
+      return false;
+    }
 
     try {
       globalReadingState.isTransitioning = true;
@@ -121,18 +144,21 @@ export function useLayeredReading() {
   const autoSelectOptimalLevel = () => {
     const breakpointConfig = responsiveConfig.value;
     const userPreferred = userPreferences.value.preferredLevel;
-    
+
     // 優先使用用戶偏好，如果可用的話
     if (availableLevels.value.includes(userPreferred)) {
       return switchToLevel(userPreferred);
     }
-    
+
     // 否則使用響應式配置的默認層級
-    const defaultLevel = breakpointConfig.defaultLevel;
-    const fallbackLevel = availableLevels.value.find(level => 
-      availableLevels.value.indexOf(level) >= availableLevels.value.indexOf(defaultLevel)
-    ) || availableLevels.value[0];
-    
+    const { defaultLevel } = breakpointConfig;
+    const fallbackLevel =
+      availableLevels.value.find(
+        (level) =>
+          availableLevels.value.indexOf(level) >=
+          availableLevels.value.indexOf(defaultLevel),
+      ) || availableLevels.value[0];
+
     return switchToLevel(fallbackLevel);
   };
 
@@ -140,8 +166,12 @@ export function useLayeredReading() {
    * 升級到下一個層級
    */
   const upgradeLevel = (): Promise<boolean> | false => {
-    if (!canUpgrade.value) return false;
-    const currentIndex = availableLevels.value.indexOf(globalReadingState.currentLevel);
+    if (!canUpgrade.value) {
+      return false;
+    }
+    const currentIndex = availableLevels.value.indexOf(
+      globalReadingState.currentLevel,
+    );
     const nextLevel = availableLevels.value[currentIndex + 1];
     return switchToLevel(nextLevel);
   };
@@ -150,8 +180,12 @@ export function useLayeredReading() {
    * 降級到上一個層級
    */
   const downgradeLevel = (): Promise<boolean> | false => {
-    if (!canDowngrade.value) return false;
-    const currentIndex = availableLevels.value.indexOf(globalReadingState.currentLevel);
+    if (!canDowngrade.value) {
+      return false;
+    }
+    const currentIndex = availableLevels.value.indexOf(
+      globalReadingState.currentLevel,
+    );
     const prevLevel = availableLevels.value[currentIndex - 1];
     return switchToLevel(prevLevel);
   };
@@ -175,11 +209,13 @@ export function useLayeredReading() {
    * 獲取當前層級的內容
    */
   const getCurrentLevelContent = computed(() => {
-    if (!layeredData.value) return null;
+    if (!layeredData.value) {
+      return null;
+    }
 
     const level = globalReadingState.currentLevel;
-    const layers = layeredData.value.layers;
-    
+    const { layers } = layeredData.value;
+
     switch (level) {
       case ReadingLevel.SUMMARY:
         return layers.summary;
@@ -197,11 +233,17 @@ export function useLayeredReading() {
   /**
    * 動畫處理
    */
-  const animateTransition = async (fromLevel: ReadingLevel, toLevel: ReadingLevel) => {
-    if (!userPreferences.value.animationsEnabled) return;
-    
+
+  const animateTransition = async (
+    _fromLevel: ReadingLevel,
+    _toLevel: ReadingLevel,
+  ) => {
+    if (!userPreferences.value.animationsEnabled) {
+      return;
+    }
+
     const config = DEFAULT_TRANSITION_CONFIG;
-    
+
     // 實現漸進式動畫
     return new Promise<void>((resolve) => {
       setTimeout(() => {
@@ -216,11 +258,11 @@ export function useLayeredReading() {
   const getLayoutConfig = computed(() => {
     const config = responsiveConfig.value;
     const level = globalReadingState.currentLevel;
-    
+
     return {
       maxVisibleItems: config.maxVisibleItems[level],
       layoutType: config.layoutType,
-      isCompact: userPreferences.value.compactMode || isMobile.value
+      isCompact: userPreferences.value.compactMode || isMobile.value,
     };
   });
 
@@ -229,7 +271,10 @@ export function useLayeredReading() {
    */
   const saveUserPreferences = () => {
     try {
-      sessionStorage.setItem('layered-reading-preferences', JSON.stringify(userPreferences.value));
+      sessionStorage.setItem(
+        'layered-reading-preferences',
+        JSON.stringify(userPreferences.value),
+      );
     } catch (error) {
       console.warn('無法保存用戶偏好設置:', error);
     }
@@ -265,7 +310,10 @@ export function useLayeredReading() {
   watch(currentBreakpoint, (newBreakpoint) => {
     const config = RESPONSIVE_CONFIGS[newBreakpoint];
     if (availableLevels.value.includes(config.defaultLevel)) {
-      switchToLevel(config.defaultLevel, userPreferences.value.animationsEnabled);
+      switchToLevel(
+        config.defaultLevel,
+        userPreferences.value.animationsEnabled,
+      );
     }
   });
 
@@ -277,7 +325,7 @@ export function useLayeredReading() {
     readingState: globalReadingState,
     userPreferences,
     layeredData,
-    
+
     // 計算屬性
     currentBreakpoint,
     responsiveConfig,
@@ -287,7 +335,7 @@ export function useLayeredReading() {
     canDowngrade,
     getCurrentLevelContent,
     getLayoutConfig,
-    
+
     // 方法
     switchToLevel,
     upgradeLevel,
@@ -296,7 +344,7 @@ export function useLayeredReading() {
     updateLayeredData,
     saveUserPreferences,
     loadUserPreferences,
-    resetToDefaults
+    resetToDefaults,
   };
 }
 
@@ -305,133 +353,139 @@ export function useLayeredReading() {
  * 將現有的綜合分析資料轉換為分層結構
  */
 export function useDataAdapter() {
-  
   /**
    * 將現有的 IntegratedAnalysisResponse 轉換為 LayeredIntegratedAnalysis
    */
-  const adaptIntegratedAnalysis = (originalData: any): LayeredIntegratedAnalysis => {
+  const adaptIntegratedAnalysis = (
+    originalData: any,
+  ): LayeredIntegratedAnalysis => {
     const now = new Date();
     const analysisData = originalData.data?.integratedAnalysis || {};
-    const analysisInfo = originalData.data?.analysisInfo || {};
-    
+    // eslint-disable-next-line no-unused-vars
+    const _analysisInfo = originalData.data?.analysisInfo || {};
+
     // 計算資料完整度
     const completeness = calculateDataCompleteness(originalData);
-    
+
     return {
       metadata: {
         analysisId: `analysis_${now.getTime()}`,
         timestamp: now,
         dataCompleteness: completeness,
-        availableLevels: getAvailableLevelsForCompleteness(completeness)
+        availableLevels: getAvailableLevelsForCompleteness(completeness),
       },
       layers: {
         summary: {
           coreTraits: createLayeredContent(
             extractCoreTraits(analysisData),
             ReadingLevel.SUMMARY,
-            '核心特質'
+            '核心特質',
           ),
           currentFortune: createLayeredContent(
             extractCurrentFortune(analysisData),
             ReadingLevel.SUMMARY,
-            '近期運勢'
-          )
+            '近期運勢',
+          ),
         },
         compact: {
           personalityHighlights: createLayeredContent(
             extractPersonalityHighlights(analysisData),
             ReadingLevel.COMPACT,
-            '性格亮點'
+            '性格亮點',
           ),
           fortuneTrends: createLayeredContent(
             extractFortuneTrends(analysisData),
             ReadingLevel.COMPACT,
-            '運勢趨勢'
+            '運勢趨勢',
           ),
           quickAdvice: createLayeredContent(
             extractQuickAdvice(analysisData),
             ReadingLevel.COMPACT,
-            '快速建議'
-          )
+            '快速建議',
+          ),
         },
         standard: {
           personalityAnalysis: createLayeredContent(
             analysisData.consensusFindings || [],
             ReadingLevel.STANDARD,
-            '性格分析'
+            '性格分析',
           ),
           lifeStages: createLayeredContent(
             extractLifeStages(analysisData),
             ReadingLevel.STANDARD,
-            '人生階段'
+            '人生階段',
           ),
           relationships: createLayeredContent(
             extractRelationships(analysisData),
             ReadingLevel.STANDARD,
-            '人際關係'
+            '人際關係',
           ),
           careerGuidance: createLayeredContent(
             extractCareerGuidance(analysisData),
             ReadingLevel.STANDARD,
-            '事業指導'
+            '事業指導',
           ),
           healthWellness: createLayeredContent(
             extractHealthWellness(analysisData),
             ReadingLevel.STANDARD,
-            '健康養生'
+            '健康養生',
           ),
           recommendations: createLayeredContent(
             analysisData.recommendations || [],
             ReadingLevel.STANDARD,
-            '綜合建議'
-          )
+            '綜合建議',
+          ),
         },
         deep: {
           elementalAnalysis: createLayeredContent(
             extractElementalAnalysis(analysisData),
             ReadingLevel.DEEP_ANALYSIS,
-            '五行深度分析'
+            '五行深度分析',
           ),
           cosmicInfluences: createLayeredContent(
             extractCosmicInfluences(analysisData),
             ReadingLevel.DEEP_ANALYSIS,
-            '星曜影響'
+            '星曜影響',
           ),
           transformationCycles: createLayeredContent(
             extractTransformationCycles(analysisData),
             ReadingLevel.DEEP_ANALYSIS,
-            '四化週期'
+            '四化週期',
           ),
           detailedForecasts: createLayeredContent(
             extractDetailedForecasts(analysisData),
             ReadingLevel.DEEP_ANALYSIS,
-            '詳細預測'
+            '詳細預測',
           ),
           spiritualGuidance: createLayeredContent(
             extractSpiritualGuidance(analysisData),
             ReadingLevel.DEEP_ANALYSIS,
-            '心靈指導'
+            '心靈指導',
           ),
           actionPlans: createLayeredContent(
             extractActionPlans(analysisData),
             ReadingLevel.DEEP_ANALYSIS,
-            '行動計劃'
-          )
-        }
-      }
+            '行動計劃',
+          ),
+        },
+      },
     };
   };
 
   // 輔助函數
-  const createLayeredContent = (items: string[], level: ReadingLevel, title: string): LayeredContent => ({
+  const createLayeredContent = (
+    items: string[],
+    level: ReadingLevel,
+    title: string,
+  ): LayeredContent => ({
     level,
     visible: true,
     priority: Object.values(ReadingLevel).indexOf(level),
     content: {
       title,
       items: Array.isArray(items) ? items : [items].filter(Boolean),
-      details: {}
-    }
+      details: {},
+    },
   });
 
   const calculateDataCompleteness = (data: any): number => {
@@ -441,16 +495,19 @@ export function useDataAdapter() {
       data?.data?.integratedAnalysis?.recommendations?.length > 0,
       data?.data?.integratedAnalysis?.divergentFindings?.length > 0,
       data?.data?.analysisInfo?.confidence > 0.5,
-      data?.data?.analysisInfo?.methodsUsed?.length > 0
+      data?.data?.analysisInfo?.methodsUsed?.length > 0,
     ];
-    
+
     score = (checks.filter(Boolean).length / checks.length) * 100;
     return Math.round(score);
   };
 
-  const getAvailableLevelsForCompleteness = (completeness: number): ReadingLevel[] => {
-    return Object.values(ReadingLevel).filter(level => 
-      completeness >= READING_LEVEL_CONFIGS[level].minDataRequirement
+  const getAvailableLevelsForCompleteness = (
+    completeness: number,
+  ): ReadingLevel[] => {
+    return Object.values(ReadingLevel).filter(
+      (level) =>
+        completeness >= READING_LEVEL_CONFIGS[level].minDataRequirement,
     );
   };
 
@@ -465,36 +522,40 @@ export function useDataAdapter() {
   };
 
   const extractPersonalityHighlights = (data: any): string[] => {
-    return data?.consensusFindings?.slice(0, 5) || [
-      '個性溫和，易與人相處',
-      '做事謹慎，注重細節',
-      '思考周密，決策理性',
-      '責任心強，值得信賴',
-      '學習能力佳，適應性強'
-    ];
+    return (
+      data?.consensusFindings?.slice(0, 5) || [
+        '個性溫和，易與人相處',
+        '做事謹慎，注重細節',
+        '思考周密，決策理性',
+        '責任心強，值得信賴',
+        '學習能力佳，適應性強',
+      ]
+    );
   };
 
   const extractFortuneTrends = (data: any): string[] => {
     return [
       '近期運勢：穩中有升，宜把握機會',
       '中期展望：事業發展順遂，財運漸佳',
-      '長遠趨勢：人生漸入佳境，前景光明'
+      '長遠趨勢：人生漸入佳境，前景光明',
     ];
   };
 
   const extractQuickAdvice = (data: any): string[] => {
-    return data?.recommendations?.slice(0, 3) || [
-      '保持積極心態，多與正能量的人接觸',
-      '注重健康養生，規律作息很重要',
-      '學習新技能，提升自我競爭力'
-    ];
+    return (
+      data?.recommendations?.slice(0, 3) || [
+        '保持積極心態，多與正能量的人接觸',
+        '注重健康養生，規律作息很重要',
+        '學習新技能，提升自我競爭力',
+      ]
+    );
   };
 
   const extractLifeStages = (data: any): string[] => {
     return [
       '青年期：奠定基礎，累積實力',
       '中年期：事業高峰，責任重大',
-      '熟年期：收穫豐盛，智慧圓融'
+      '熟年期：收穫豐盛，智慧圓融',
     ];
   };
 
@@ -502,7 +563,7 @@ export function useDataAdapter() {
     return [
       '家庭關係和睦，親情深厚',
       '朋友圈廣泛，貴人運佳',
-      '感情生活穩定，伴侶支持'
+      '感情生活穩定，伴侶支持',
     ];
   };
 
@@ -510,7 +571,7 @@ export function useDataAdapter() {
     return [
       '適合穩定發展的行業',
       '重視團隊合作與人際關係',
-      '可考慮管理或顧問類職位'
+      '可考慮管理或顧問類職位',
     ];
   };
 
@@ -518,7 +579,7 @@ export function useDataAdapter() {
     return [
       '注意腸胃保養，飲食清淡',
       '多運動強身，增強體質',
-      '保持心情愉快，避免過度焦慮'
+      '保持心情愉快，避免過度焦慮',
     ];
   };
 
@@ -526,7 +587,7 @@ export function useDataAdapter() {
     return [
       '五行中土元素較旺，性格穩重',
       '金元素適中，理性務實',
-      '水元素偏弱，需增強靈活性'
+      '水元素偏弱，需增強靈活性',
     ];
   };
 
@@ -534,7 +595,7 @@ export function useDataAdapter() {
     return [
       '命宮主星影響性格基調',
       '財帛宮配置影響財運走向',
-      '遷移宮顯示外出發展機會'
+      '遷移宮顯示外出發展機會',
     ];
   };
 
@@ -542,7 +603,7 @@ export function useDataAdapter() {
     return [
       '當前大運利於事業發展',
       '流年四化帶來新機遇',
-      '十年一輪，把握轉運時機'
+      '十年一輪，把握轉運時機',
     ];
   };
 
@@ -550,7 +611,7 @@ export function useDataAdapter() {
     return [
       '未來三個月事業運勢上升',
       '半年內財運有所改善',
-      '一年後可能有重要轉變'
+      '一年後可能有重要轉變',
     ];
   };
 
@@ -558,7 +619,7 @@ export function useDataAdapter() {
     return [
       '保持內心平靜，多行善事',
       '培養感恩的心，珍惜當下',
-      '持續學習成長，完善自我'
+      '持續學習成長，完善自我',
     ];
   };
 
@@ -566,19 +627,21 @@ export function useDataAdapter() {
     return [
       '制定明確的短期和長期目標',
       '建立良好的人際關係網絡',
-      '持續投資自我教育和技能提升'
+      '持續投資自我教育和技能提升',
     ];
   };
 
   return {
     adaptIntegratedAnalysis,
     calculateDataCompleteness,
-    getAvailableLevelsForCompleteness
+    getAvailableLevelsForCompleteness,
   };
 }
 
 // 直接導出適配器函數供外部使用
-export const adaptIntegratedAnalysisToLayered = (originalData: any): LayeredIntegratedAnalysis => {
+export const adaptIntegratedAnalysisToLayered = (
+  originalData: any,
+): LayeredIntegratedAnalysis => {
   const { adaptIntegratedAnalysis } = useDataAdapter();
   return adaptIntegratedAnalysis(originalData);
 };

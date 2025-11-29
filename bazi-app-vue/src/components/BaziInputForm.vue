@@ -1,13 +1,16 @@
 <template>
-  <el-form 
+  <el-form
     ref="baziForm"
-    :model="birthInfo" 
+    :model="birthInfo"
     :rules="formRules"
     @submit.prevent="submitForm"
   >
     <el-form-item :label="$t('astrology.bazi_detail.form.title')" />
-    
-    <el-form-item :label="$t('astrology.bazi_detail.form.birth_date')" prop="birthDate">
+
+    <el-form-item
+      :label="$t('astrology.bazi_detail.form.birth_date')"
+      prop="birthDate"
+    >
       <el-date-picker
         v-model="birthInfo.birthDate"
         type="date"
@@ -16,7 +19,10 @@
       />
     </el-form-item>
 
-    <el-form-item :label="$t('astrology.bazi_detail.form.birth_time')" prop="birthTime">
+    <el-form-item
+      :label="$t('astrology.bazi_detail.form.birth_time')"
+      prop="birthTime"
+    >
       <el-time-picker
         v-model="birthInfo.birthTime"
         :placeholder="$t('astrology.bazi_detail.form.birth_time')"
@@ -25,28 +31,33 @@
       />
     </el-form-item>
 
-    <el-form-item :label="$t('astrology.bazi_detail.form.gender')" prop="gender">
+    <el-form-item
+      :label="$t('astrology.bazi_detail.form.gender')"
+      prop="gender"
+    >
       <el-radio-group v-model="birthInfo.gender">
         <el-radio :value="'male'">{{ $t('form.genderOptions.male') }}</el-radio>
-        <el-radio :value="'female'">{{ $t('form.genderOptions.female') }}</el-radio>
+        <el-radio :value="'female'">{{
+          $t('form.genderOptions.female')
+        }}</el-radio>
       </el-radio-group>
     </el-form-item>
 
-    <el-form-item :label="$t('astrology.bazi_detail.form.location')" prop="location">
-      <el-input 
-        v-model="birthInfo.location" 
+    <el-form-item
+      :label="$t('astrology.bazi_detail.form.location')"
+      prop="location"
+    >
+      <el-input
+        v-model="birthInfo.location"
         placeholder="出生地點（選填，影響真太陽時計算）"
       />
-      <el-text type="info" size="small" style="margin-top: 5px; display: block;">
+      <el-text type="info" size="small" style="margin-top: 5px; display: block">
         註：八字計算主要依賴時間，地點為選填項目
       </el-text>
     </el-form-item>
 
     <el-form-item>
-      <el-button 
-        type="primary" 
-        @click="submitForm"
-      >
+      <el-button type="primary" @click="submitForm">
         {{ $t('form.submit') }}
       </el-button>
     </el-form-item>
@@ -54,10 +65,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { BirthInfo } from '@/services/astrologyIntegrationService';
-import { FrontendValidator, type ValidationResult } from '@/utils/frontendValidation';
+import {
+  FrontendValidator,
+  type ValidationResult,
+} from '@/utils/frontendValidation';
 
 const emit = defineEmits(['submit']);
 
@@ -65,29 +79,25 @@ const birthInfo = reactive<BirthInfo>({
   birthDate: '',
   birthTime: '',
   gender: 'male', // 設置預設值為 'male'，避免類型錯誤
-  location: ''
+  location: '',
 });
 
 const formRules = {
-  birthDate: [
-    { required: true, message: '請選擇出生日期', trigger: 'change' }
-  ],
-  birthTime: [
-    { required: true, message: '請選擇出生時間', trigger: 'change' }
-  ],
-  gender: [
-    { required: true, message: '請選擇性別', trigger: 'change' }
-  ]
+  birthDate: [{ required: true, message: '請選擇出生日期', trigger: 'change' }],
+  birthTime: [{ required: true, message: '請選擇出生時間', trigger: 'change' }],
+  gender: [{ required: true, message: '請選擇性別', trigger: 'change' }],
 };
 
 const submitForm = () => {
   // 使用前端驗證工具進行表單驗證
-  const validationResult: ValidationResult = FrontendValidator.validateBaziForm({
-    birthDate: birthInfo.birthDate,
-    birthTime: birthInfo.birthTime,
-    gender: birthInfo.gender,
-    location: { timezone: 'Asia/Taipei' } // 八字計算時區影響較小，使用預設值
-  });
+  const validationResult: ValidationResult = FrontendValidator.validateBaziForm(
+    {
+      birthDate: birthInfo.birthDate,
+      birthTime: birthInfo.birthTime,
+      gender: birthInfo.gender,
+      location: { timezone: 'Asia/Taipei' }, // 八字計算時區影響較小，使用預設值
+    },
+  );
 
   if (!validationResult.isValid) {
     ElMessage.error(validationResult.errors.join('、'));
@@ -151,28 +161,28 @@ const submitForm = () => {
   :deep(.el-form-item) {
     margin-bottom: 20px;
   }
-  
+
   :deep(.el-form-item__label) {
     font-size: 15px;
     margin-bottom: 8px;
     line-height: 1.3;
   }
-  
+
   /* 單選按鈕在小螢幕上垂直排列 */
   :deep(.el-radio-group) {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   :deep(.el-radio) {
     align-items: center;
   }
-  
+
   :deep(.el-radio__label) {
     font-size: 16px;
     padding-left: 8px;
   }
-  
+
   /* 按鈕在小螢幕上全寬 */
   :deep(.el-button) {
     width: 100%;
@@ -185,16 +195,16 @@ const submitForm = () => {
   :deep(.el-form-item) {
     margin-bottom: 18px;
   }
-  
+
   :deep(.el-form-item__label) {
     font-size: 14px;
   }
-  
+
   :deep(.el-input__inner) {
     font-size: 16px;
     padding: 12px 15px;
   }
-  
+
   /* 防止iOS縮放 */
   :deep(.el-input__inner),
   :deep(.el-textarea__inner) {

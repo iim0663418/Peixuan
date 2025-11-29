@@ -12,7 +12,7 @@ export const useDisplayModeStore = defineStore('displayMode', () => {
     transformationStars: 'standard',
     purpleStar: 'standard',
     baziChart: 'standard',
-    integratedAnalysis: 'standard'
+    integratedAnalysis: 'standard',
   });
 
   /**
@@ -38,7 +38,7 @@ export const useDisplayModeStore = defineStore('displayMode', () => {
    * 重置所有元件到預設模式
    */
   const resetAllModes = () => {
-    Object.keys(modes.value).forEach(key => {
+    Object.keys(modes.value).forEach((key) => {
       modes.value[key] = 'standard';
     });
   };
@@ -47,6 +47,6 @@ export const useDisplayModeStore = defineStore('displayMode', () => {
     modes,
     setDisplayMode,
     getDisplayMode,
-    resetAllModes
+    resetAllModes,
   };
 });

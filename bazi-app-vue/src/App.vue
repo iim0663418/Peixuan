@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted, provide, readonly, defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
-import { useI18n } from 'vue-i18n';
 
 // 動態導入組件以提升效能
-const LanguageSelector = defineAsyncComponent(() => import('@/components/LanguageSelector.vue'));
+const LanguageSelector = defineAsyncComponent(
+  () => import('@/components/LanguageSelector.vue'),
+);
 // import GlobalDisplayModePanel from '@/components/GlobalDisplayModePanel.vue'; // 已簡化，使用各模組獨立分層控制
-import type { DisplayMode } from '@/types/displayModes';
 
 // 模組類型定義
 type ModuleType = 'purpleStar' | 'bazi' | 'transformationStars' | 'integrated';
 
-const { t } = useI18n();
 const route = useRoute();
 const showMobileMenu = ref(false);
 
@@ -28,7 +27,7 @@ const setActiveModule = (module: ModuleType) => {
 // 簡化提供狀態 - 只提供模組追蹤
 provide('globalDisplayState', {
   activeModule: readonly(activeModule),
-  setActiveModule
+  setActiveModule,
 });
 
 const toggleMobileMenu = () => {
@@ -51,25 +50,25 @@ onMounted(() => {
             <span class="brand-subtitle">佩璇命理智能分析平台</span>
           </router-link>
         </div>
-        
+
         <!-- 桌面版導航菜單 -->
         <div class="nav-menu desktop-menu">
-          <router-link 
-            to="/" 
+          <router-link
+            to="/"
             class="nav-link"
             :class="{ active: route.name === 'home' }"
           >
             {{ $t('common.home') }}
           </router-link>
-          <router-link 
-            to="/purple-star" 
+          <router-link
+            to="/purple-star"
             class="nav-link"
             :class="{ active: route.name === 'purple-star' }"
           >
             {{ $t('astrology.purple_star') }}
           </router-link>
-          <router-link 
-            to="/bazi" 
+          <router-link
+            to="/bazi"
             class="nav-link"
             :class="{ active: route.name === 'bazi' }"
           >
@@ -79,40 +78,40 @@ onMounted(() => {
 
         <div class="nav-controls">
           <LanguageSelector />
-          
+
           <!-- 移動版菜單按鈕 -->
-          <button 
+          <button
             class="mobile-menu-button"
-            @click="toggleMobileMenu"
             :class="{ active: showMobileMenu }"
+            @click="toggleMobileMenu"
           >
-            <span></span>
-            <span></span>
-            <span></span>
+            <span />
+            <span />
+            <span />
           </button>
         </div>
       </nav>
 
       <!-- 移動版導航菜單 -->
       <div class="mobile-menu" :class="{ show: showMobileMenu }">
-        <router-link 
-          to="/" 
+        <router-link
+          to="/"
           class="mobile-nav-link"
           :class="{ active: route.name === 'home' }"
           @click="showMobileMenu = false"
         >
           {{ $t('common.home') }}
         </router-link>
-        <router-link 
-          to="/purple-star" 
+        <router-link
+          to="/purple-star"
           class="mobile-nav-link"
           :class="{ active: route.name === 'purple-star' }"
           @click="showMobileMenu = false"
         >
           {{ $t('astrology.purple_star') }}
         </router-link>
-        <router-link 
-          to="/bazi" 
+        <router-link
+          to="/bazi"
           class="mobile-nav-link"
           :class="{ active: route.name === 'bazi' }"
           @click="showMobileMenu = false"
@@ -121,12 +120,12 @@ onMounted(() => {
         </router-link>
       </div>
     </header>
-    
+
     <main>
       <router-view />
       <!-- 已簡化：使用各模組獨立的分層控制器 -->
     </main>
-    
+
     <footer class="app-footer">
       <div class="footer-content">
         <div class="footer-section">
@@ -136,7 +135,9 @@ onMounted(() => {
         <div class="footer-section">
           <h4>服務項目</h4>
           <div class="footer-links">
-            <router-link to="/purple-star">{{ $t('astrology.purple_star') }}</router-link>
+            <router-link to="/purple-star">{{
+              $t('astrology.purple_star')
+            }}</router-link>
             <router-link to="/bazi">{{ $t('astrology.bazi') }}</router-link>
           </div>
         </div>
@@ -152,7 +153,9 @@ onMounted(() => {
 
 <style scoped>
 #app-container {
-  font-family: 'Microsoft JhengHei', 'PingFang TC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+  font-family:
+    'Microsoft JhengHei', 'PingFang TC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
@@ -367,27 +370,27 @@ main {
   .navbar {
     padding: 1rem;
   }
-  
+
   .nav-brand h1 {
     font-size: 1.5rem;
   }
-  
+
   .brand-subtitle {
     font-size: 0.75rem;
   }
-  
+
   .desktop-menu {
     display: none;
   }
-  
+
   .mobile-menu-button {
     display: flex;
   }
-  
+
   .app-footer {
     padding: 2rem 1rem 1.5rem;
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -399,11 +402,11 @@ main {
   .navbar {
     padding: 0.75rem;
   }
-  
+
   .nav-brand h1 {
     font-size: 1.3rem;
   }
-  
+
   .mobile-menu {
     padding: 1rem;
   }
@@ -415,44 +418,44 @@ main {
     color: #f9fafb;
     background-color: #111827;
   }
-  
+
   .app-header {
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
     border-bottom-color: #374151;
   }
-  
+
   .nav-brand h1 {
     color: #f0e68c;
   }
-  
+
   .brand-subtitle {
     color: #d97706;
   }
-  
+
   .nav-link {
     color: #e5e7eb;
   }
-  
+
   .nav-link:hover {
     color: #f0e68c;
     background: rgba(240, 230, 140, 0.1);
   }
-  
+
   .mobile-menu {
     background: #1f2937;
     border-top-color: #374151;
   }
-  
+
   .mobile-nav-link {
     color: #e5e7eb;
     border-bottom-color: #374151;
   }
-  
+
   .mobile-nav-link:hover,
   .mobile-nav-link.active {
     color: #f0e68c;
   }
-  
+
   .mobile-menu-button span {
     background: #e5e7eb;
   }

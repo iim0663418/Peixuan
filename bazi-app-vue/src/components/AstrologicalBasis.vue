@@ -9,26 +9,26 @@
       <div class="elements-container">
         <div class="elements-chart">
           <div class="element-bars">
-            <div 
-              v-for="element in fiveElementsWithReactivity" 
+            <div
+              v-for="element in fiveElementsWithReactivity"
               :key="element.name"
               class="element-bar"
             >
               <div class="element-label">{{ element.name }}</div>
               <div class="element-progress">
-                <div 
-                  class="element-fill" 
-                  :style="{ 
+                <div
+                  class="element-fill"
+                  :style="{
                     width: `${element.percentage}%`,
-                    backgroundColor: element.color 
+                    backgroundColor: element.color,
                   }"
-                ></div>
+                />
               </div>
               <div class="element-value">{{ element.count }}</div>
             </div>
           </div>
         </div>
-        
+
         <div class="elements-analysis">
           <div class="elements-summary">
             <h5>五行分析</h5>
@@ -43,15 +43,20 @@
               </div>
               <div class="five-elements-bureau">
                 <span class="label">五行局：</span>
-                <span class="value">{{ chartData.fiveElementsBureau || '未知' }}</span>
+                <span class="value">{{
+                  chartData.fiveElementsBureau || '未知'
+                }}</span>
               </div>
             </div>
           </div>
-          
+
           <div class="elements-interpretation">
             <h5>五行特質解析</h5>
             <ul class="interpretation-list">
-              <li v-for="(interpretation, index) in fiveElementsInterpretation" :key="index">
+              <li
+                v-for="(interpretation, index) in fiveElementsInterpretation"
+                :key="index"
+              >
                 {{ interpretation }}
               </li>
             </ul>
@@ -68,8 +73,8 @@
       </h4>
       <div class="patterns-container">
         <div v-if="keyPatternsWithReactivity.length > 0" class="patterns-grid">
-          <div 
-            v-for="(pattern, index) in keyPatternsWithReactivity" 
+          <div
+            v-for="(pattern, index) in keyPatternsWithReactivity"
             :key="`pattern-${index}`"
             class="pattern-card"
             :class="getPatternClass(pattern)"
@@ -79,20 +84,22 @@
               <div class="pattern-name">{{ pattern.name }}</div>
               <div class="pattern-type">{{ getPatternType(pattern) }}</div>
             </div>
-            
+
             <div class="pattern-content">
               <div class="pattern-description">{{ pattern.description }}</div>
               <div class="pattern-effects">
                 <h6>主要影響</h6>
                 <ul>
-                  <li v-for="(effect, idx) in pattern.effects" :key="idx">{{ effect }}</li>
+                  <li v-for="(effect, idx) in pattern.effects" :key="idx">
+                    {{ effect }}
+                  </li>
                 </ul>
               </div>
               <div class="pattern-palaces">
                 <h6>涉及宮位</h6>
                 <div class="palace-tags">
-                  <span 
-                    v-for="palace in pattern.involvedPalaces" 
+                  <span
+                    v-for="palace in pattern.involvedPalaces"
                     :key="palace"
                     class="palace-tag"
                   >
@@ -101,20 +108,20 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="pattern-strength">
               <span class="strength-label">格局強度：</span>
               <div class="strength-bars">
-                <div 
-                  v-for="i in 5" 
+                <div
+                  v-for="i in 5"
                   :key="i"
                   :class="['strength-bar', { active: i <= pattern.strength }]"
-                ></div>
+                />
               </div>
             </div>
           </div>
         </div>
-        
+
         <div v-else class="no-patterns">
           <div class="no-patterns-icon">🌸</div>
           <p>命盤中未發現特殊格局，屬於一般格局。</p>
@@ -138,14 +145,18 @@
                 <span class="system-icon">🔴</span>
                 <div class="system-info">
                   <div class="system-name">紫微斗數</div>
-                  <div class="system-desc">分析十二宮位、星曜分佈與四化飛星</div>
+                  <div class="system-desc">
+                    分析十二宮位、星曜分佈與四化飛星
+                  </div>
                 </div>
               </div>
               <div class="system-item">
                 <span class="system-icon">🟡</span>
                 <div class="system-info">
                   <div class="system-name">八字命理</div>
-                  <div class="system-desc">分析天干地支、五行生剋與十神關係</div>
+                  <div class="system-desc">
+                    分析天干地支、五行生剋與十神關係
+                  </div>
                 </div>
               </div>
               <div class="system-item">
@@ -157,7 +168,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="methodology-card">
             <h5>計算參數</h5>
             <div class="parameters-grid">
@@ -179,11 +190,15 @@
               </div>
             </div>
           </div>
-          
+
           <div class="methodology-card">
             <h5>分析流程</h5>
             <div class="process-steps">
-              <div v-for="(step, index) in analysisSteps" :key="index" class="process-step">
+              <div
+                v-for="(step, index) in analysisSteps"
+                :key="index"
+                class="process-step"
+              >
                 <div class="step-number">{{ index + 1 }}</div>
                 <div class="step-content">
                   <div class="step-title">{{ step.title }}</div>
@@ -192,7 +207,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="methodology-card">
             <h5>重要提醒</h5>
             <div class="disclaimers">
@@ -216,7 +231,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="methodology-card">
             <h5>報告生成資訊</h5>
             <div class="generation-info">
@@ -241,159 +256,176 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, ref, onMounted, onUnmounted, nextTick } from 'vue'
-import type { PurpleStarChart, Palace, Star } from '@/types/astrologyTypes'
+import { computed, watch, ref, onMounted, onUnmounted } from 'vue';
+import type { PurpleStarChart } from '@/types/astrologyTypes';
 
 // Props
 interface Props {
-  chartData: PurpleStarChart
+  chartData: PurpleStarChart;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 // 響應式資料更新標記
-const updateKey = ref(0)
+const updateKey = ref(0);
 
 // 五行對應顏色
 const elementColors = {
-  '金': '#FFD700',
-  '木': '#32CD32',
-  '水': '#4169E1',
-  '火': '#FF4500',
-  '土': '#8B4513'
-}
+  金: '#FFD700',
+  木: '#32CD32',
+  水: '#4169E1',
+  火: '#FF4500',
+  土: '#8B4513',
+};
 
 // 五行分析
 const fiveElements = computed(() => {
   const elements = {
-    '金': 0,
-    '木': 0,
-    '水': 0,
-    '火': 0,
-    '土': 0
-  }
-  
+    金: 0,
+    木: 0,
+    水: 0,
+    火: 0,
+    土: 0,
+  };
+
   // 統計各宮位星曜的五行屬性
   if (props.chartData?.palaces) {
-    console.log('AstrologicalBasis: 五行分析 - 宮位數量:', props.chartData.palaces.length);
-    props.chartData.palaces.forEach(palace => {
-      palace.stars?.forEach(star => {
-        if (star.element && elements.hasOwnProperty(star.element)) {
-          elements[star.element as keyof typeof elements]++
+    console.log(
+      'AstrologicalBasis: 五行分析 - 宮位數量:',
+      props.chartData.palaces.length,
+    );
+    props.chartData.palaces.forEach((palace) => {
+      palace.stars?.forEach((star) => {
+        if (
+          star.element &&
+          Object.prototype.hasOwnProperty.call(elements, star.element)
+        ) {
+          elements[star.element as keyof typeof elements]++;
         }
-      })
-    })
+      });
+    });
     console.log('AstrologicalBasis: 五行統計結果:', elements);
   } else {
     console.log('AstrologicalBasis: 五行分析 - 沒有命盤宮位資料');
   }
-  
-  const total = Object.values(elements).reduce((sum, count) => sum + count, 0)
-  
+
+  const total = Object.values(elements).reduce((sum, count) => sum + count, 0);
+
   return Object.entries(elements).map(([name, count]) => ({
     name,
     count,
     percentage: total > 0 ? (count / total) * 100 : 0,
-    color: elementColors[name as keyof typeof elementColors]
-  }))
-})
+    color: elementColors[name as keyof typeof elementColors],
+  }));
+});
 
 // 主導五行
 const dominantElement = computed(() => {
-  return fiveElements.value.reduce((max, current) => 
-    current.count > max.count ? current : max
-  )
-})
+  return fiveElements.value.reduce((max, current) =>
+    current.count > max.count ? current : max,
+  );
+});
 
 // 五行平衡度
 const elementBalance = computed(() => {
-  const counts = fiveElements.value.map(e => e.count)
-  const max = Math.max(...counts)
-  const min = Math.min(...counts)
-  const variance = max - min
-  
-  if (variance <= 1) return '極佳'
-  if (variance <= 2) return '良好'
-  if (variance <= 3) return '一般'
-  if (variance <= 4) return '偏差'
-  return '失衡'
-})
+  const counts = fiveElements.value.map((e) => e.count);
+  const max = Math.max(...counts);
+  const min = Math.min(...counts);
+  const variance = max - min;
+
+  if (variance <= 1) {
+    return '極佳';
+  }
+  if (variance <= 2) {
+    return '良好';
+  }
+  if (variance <= 3) {
+    return '一般';
+  }
+  if (variance <= 4) {
+    return '偏差';
+  }
+  return '失衡';
+});
 
 // 五行特質解析
 const fiveElementsInterpretation = computed(() => {
-  const interpretations: string[] = []
-  const dominant = dominantElement.value
-  
+  const interpretations: string[] = [];
+  const dominant = dominantElement.value;
+
   if (dominant.count > 0) {
     switch (dominant.name) {
       case '金':
-        interpretations.push('金行主導：性格堅毅，做事有原則，重視規則和秩序')
-        break
+        interpretations.push('金行主導：性格堅毅，做事有原則，重視規則和秩序');
+        break;
       case '木':
-        interpretations.push('木行主導：富有生命力，善於成長和創新，適應力強')
-        break
+        interpretations.push('木行主導：富有生命力，善於成長和創新，適應力強');
+        break;
       case '水':
-        interpretations.push('水行主導：思維靈活，直覺敏銳，善於變通和適應')
-        break
+        interpretations.push('水行主導：思維靈活，直覺敏銳，善於變通和適應');
+        break;
       case '火':
-        interpretations.push('火行主導：熱情積極，行動力強，具有領導魅力')
-        break
+        interpretations.push('火行主導：熱情積極，行動力強，具有領導魅力');
+        break;
       case '土':
-        interpretations.push('土行主導：穩重踏實，重視安全感，具有包容性')
-        break
+        interpretations.push('土行主導：穩重踏實，重視安全感，具有包容性');
+        break;
     }
   }
-  
+
   // 分析五行平衡狀況
-  const balance = elementBalance.value
+  const balance = elementBalance.value;
   switch (balance) {
     case '極佳':
-      interpretations.push('五行分佈均衡，個性發展全面，適應力強')
-      break
+      interpretations.push('五行分佈均衡，個性發展全面，適應力強');
+      break;
     case '良好':
-      interpretations.push('五行分佈相對均衡，個性穩定，發展潛力大')
-      break
+      interpretations.push('五行分佈相對均衡，個性穩定，發展潛力大');
+      break;
     case '一般':
-      interpretations.push('五行分佈基本平衡，需要注意弱勢五行的補強')
-      break
+      interpretations.push('五行分佈基本平衡，需要注意弱勢五行的補強');
+      break;
     case '偏差':
-      interpretations.push('五行分佈不均，建議透過後天努力來平衡發展')
-      break
+      interpretations.push('五行分佈不均，建議透過後天努力來平衡發展');
+      break;
     case '失衡':
-      interpretations.push('五行分佈失衡，需要特別注意個性的調整和發展')
-      break
+      interpretations.push('五行分佈失衡，需要特別注意個性的調整和發展');
+      break;
   }
-  
-  return interpretations
-})
+
+  return interpretations;
+});
 
 // 關鍵格局分析
 const keyPatterns = computed(() => {
   const patterns: Array<{
-    name: string
-    description: string
-    effects: string[]
-    involvedPalaces: string[]
-    strength: number
-    type: 'auspicious' | 'inauspicious' | 'special'
-  }> = []
-  
+    name: string;
+    description: string;
+    effects: string[];
+    involvedPalaces: string[];
+    strength: number;
+    type: 'auspicious' | 'inauspicious' | 'special';
+  }> = [];
+
   if (!props.chartData?.palaces) {
     console.log('AstrologicalBasis: 格局分析 - 沒有命盤宮位資料');
     return patterns;
   }
-  
-  console.log('AstrologicalBasis: 格局分析 - 宮位數量:', props.chartData.palaces.length);
-  
+
+  console.log(
+    'AstrologicalBasis: 格局分析 - 宮位數量:',
+    props.chartData.palaces.length,
+  );
+
   // 分析格局
-  const palaces = props.chartData.palaces
-  
+  const { palaces } = props.chartData;
+
   // 檢查紫府夾命格
-  const mingPalace = palaces.find(p => p.name === '命宮')
+  const mingPalace = palaces.find((p) => p.name === '命宮');
   if (mingPalace) {
-    const hasZiwei = mingPalace.stars?.some(s => s.name === '紫微')
-    const hasTianfu = mingPalace.stars?.some(s => s.name === '天府')
-    
+    const hasZiwei = mingPalace.stars?.some((s) => s.name === '紫微');
+    const hasTianfu = mingPalace.stars?.some((s) => s.name === '天府');
+
     if (hasZiwei && hasTianfu) {
       patterns.push({
         name: '紫府夾命格',
@@ -401,21 +433,22 @@ const keyPatterns = computed(() => {
         effects: [
           '具有天生的領導氣質和權威感',
           '容易得到他人的尊重和信任',
-          '事業發展潛力大，適合管理職位'
+          '事業發展潛力大，適合管理職位',
         ],
         involvedPalaces: ['命宮'],
         strength: 5,
-        type: 'auspicious'
-      })
+        type: 'auspicious',
+      });
     }
   }
-  
+
   // 檢查左右夾命格
-  const leftRight = palaces.some(p => 
-    p.stars?.some(s => s.name === '左輔') && 
-    p.stars?.some(s => s.name === '右弼')
-  )
-  
+  const leftRight = palaces.some(
+    (p) =>
+      p.stars?.some((s) => s.name === '左輔') &&
+      p.stars?.some((s) => s.name === '右弼'),
+  );
+
   if (leftRight) {
     patterns.push({
       name: '左右夹命格',
@@ -423,20 +456,21 @@ const keyPatterns = computed(() => {
       effects: [
         '一生貴人運佳，容易得到幫助',
         '人際關係良好，善於合作',
-        '事業上容易得到支持和提攜'
+        '事業上容易得到支持和提攜',
       ],
       involvedPalaces: ['命宮'],
       strength: 4,
-      type: 'auspicious'
-    })
+      type: 'auspicious',
+    });
   }
-  
+
   // 檢查文昌文曲格
-  const wenchangWenqu = palaces.some(p => 
-    p.stars?.some(s => s.name === '文昌') && 
-    p.stars?.some(s => s.name === '文曲')
-  )
-  
+  const wenchangWenqu = palaces.some(
+    (p) =>
+      p.stars?.some((s) => s.name === '文昌') &&
+      p.stars?.some((s) => s.name === '文曲'),
+  );
+
   if (wenchangWenqu) {
     patterns.push({
       name: '文昌文曲格',
@@ -444,20 +478,21 @@ const keyPatterns = computed(() => {
       effects: [
         '學習能力強，文筆佳',
         '適合從事文化、教育、傳媒工作',
-        '考試運佳，學業成就突出'
+        '考試運佳，學業成就突出',
       ],
       involvedPalaces: ['命宮'],
       strength: 4,
-      type: 'auspicious'
-    })
+      type: 'auspicious',
+    });
   }
-  
+
   // 檢查火鈴夾命格（不吉格局）
-  const fireRing = palaces.some(p => 
-    p.stars?.some(s => s.name === '火星') && 
-    p.stars?.some(s => s.name === '鈴星')
-  )
-  
+  const fireRing = palaces.some(
+    (p) =>
+      p.stars?.some((s) => s.name === '火星') &&
+      p.stars?.some((s) => s.name === '鈴星'),
+  );
+
   if (fireRing) {
     patterns.push({
       name: '火鈴夾命格',
@@ -465,164 +500,191 @@ const keyPatterns = computed(() => {
       effects: [
         '性格較為急躁，容易發脾氣',
         '做事衝動，需要學會控制情緒',
-        '適合從事需要行動力的工作'
+        '適合從事需要行動力的工作',
       ],
       involvedPalaces: ['命宮'],
       strength: 3,
-      type: 'inauspicious'
-    })
+      type: 'inauspicious',
+    });
   }
-  
-  return patterns
-})
+
+  return patterns;
+});
 
 // 獲取格局樣式類別
 const getPatternClass = (pattern: any) => {
-  return `pattern-${pattern.type}`
-}
+  return `pattern-${pattern.type}`;
+};
 
 // 獲取格局圖示
 const getPatternIcon = (pattern: any) => {
   const icons = {
-    'auspicious': '🌟',
-    'inauspicious': '⚠️',
-    'special': '🔮'
-  }
-  return icons[pattern.type as keyof typeof icons] || '🔸'
-}
+    auspicious: '🌟',
+    inauspicious: '⚠️',
+    special: '🔮',
+  };
+  return icons[pattern.type as keyof typeof icons] || '🔸';
+};
 
 // 獲取格局類型文字
 const getPatternType = (pattern: any) => {
   const types = {
-    'auspicious': '吉格',
-    'inauspicious': '凶格',
-    'special': '特殊格局'
-  }
-  return types[pattern.type as keyof typeof types] || '一般格局'
-}
+    auspicious: '吉格',
+    inauspicious: '凶格',
+    special: '特殊格局',
+  };
+  return types[pattern.type as keyof typeof types] || '一般格局';
+};
 
 // 生辰資訊
 const birthInfo = computed(() => {
   // 這裡應該從 props 中獲取生辰資料
   // 暫時使用假資料
-  return '1990年1月1日 12:00 (示例)'
-})
+  return '1990年1月1日 12:00 (示例)';
+});
 
 // 分析步驟
 const analysisSteps = [
   {
     title: '基礎資料處理',
-    description: '根據生辰八字和出生地點計算真太陽時，確定準確的起盤時間'
+    description: '根據生辰八字和出生地點計算真太陽時，確定準確的起盤時間',
   },
   {
     title: '星盤建構',
-    description: '排列十二宮位，安星定位，計算各星曜的位置和亮度'
+    description: '排列十二宮位，安星定位，計算各星曜的位置和亮度',
   },
   {
     title: '格局識別',
-    description: '分析星曜組合，識別特殊格局和重要配置'
+    description: '分析星曜組合，識別特殊格局和重要配置',
   },
   {
     title: '四化飛星',
-    description: '計算生年四化，分析能量流動和轉化關係'
+    description: '計算生年四化，分析能量流動和轉化關係',
   },
   {
     title: '綜合判斷',
-    description: '結合各項因素，生成個人化的命理分析報告'
-  }
-]
+    description: '結合各項因素，生成個人化的命理分析報告',
+  },
+];
 
 // 報告生成時間
 const generationTime = computed(() => {
-  return new Date().toLocaleString('zh-TW')
-})
+  return new Date().toLocaleString('zh-TW');
+});
 
 // 監聽命盤資料變化
-watch(() => props.chartData, (newChartData, oldChartData) => {
-  console.log('AstrologicalBasis: 監聽到 chartData 變化');
-  console.log('新資料存在:', !!newChartData);
-  console.log('新資料宮位數:', newChartData?.palaces?.length || 0);
-  console.log('舊資料存在:', !!oldChartData);
-  console.log('舊資料宮位數:', oldChartData?.palaces?.length || 0);
-  
-  // 更寬鬆的更新條件
-  if (newChartData && newChartData.palaces && newChartData.palaces.length > 0) {
-    console.log('AstrologicalBasis: 資料有效，開始更新');
-    updateKey.value++;
-    console.log('AstrologicalBasis: updateKey 已更新為', updateKey.value);
-  } else {
-    console.log('AstrologicalBasis: 資料無效，跳過更新');
-  }
-}, { deep: true, immediate: true })
+watch(
+  () => props.chartData,
+  (newChartData, oldChartData) => {
+    console.log('AstrologicalBasis: 監聽到 chartData 變化');
+    console.log('新資料存在:', !!newChartData);
+    console.log('新資料宮位數:', newChartData?.palaces?.length || 0);
+    console.log('舊資料存在:', !!oldChartData);
+    console.log('舊資料宮位數:', oldChartData?.palaces?.length || 0);
+
+    // 更寬鬆的更新條件
+    if (
+      newChartData &&
+      newChartData.palaces &&
+      newChartData.palaces.length > 0
+    ) {
+      console.log('AstrologicalBasis: 資料有效，開始更新');
+      updateKey.value++;
+      console.log('AstrologicalBasis: updateKey 已更新為', updateKey.value);
+    } else {
+      console.log('AstrologicalBasis: 資料無效，跳過更新');
+    }
+  },
+  { deep: true, immediate: true },
+);
 
 // 監聽全域命盤更新事件
 const handleGlobalChartUpdate = (event: CustomEvent) => {
   console.log('AstrologicalBasis: 收到全域命盤更新事件', event.detail);
-  updateKey.value++ // 強制更新所有計算屬性
-}
+  updateKey.value++; // 強制更新所有計算屬性
+};
 
 // 添加全域事件監聽器
 if (typeof window !== 'undefined') {
-  window.addEventListener('purple-star-chart-updated', handleGlobalChartUpdate as EventListener);
-  window.addEventListener('purple-star-chart-force-updated', handleGlobalChartUpdate as EventListener);
+  window.addEventListener(
+    'purple-star-chart-updated',
+    handleGlobalChartUpdate as EventListener,
+  );
+  window.addEventListener(
+    'purple-star-chart-force-updated',
+    handleGlobalChartUpdate as EventListener,
+  );
 }
 
 // 在五行分析中使用更新標記以確保響應性
 const fiveElementsWithReactivity = computed(() => {
   // 強制響應更新標記變化
-  const _ = updateKey.value
-  return fiveElements.value
-})
+  // eslint-disable-next-line no-unused-vars
+  const _unused = updateKey.value;
+  return fiveElements.value;
+});
 
 const keyPatternsWithReactivity = computed(() => {
-  // 強制響應更新標記變化  
-  const _ = updateKey.value
-  return keyPatterns.value
-})
+  // 強制響應更新標記變化
+  // eslint-disable-next-line no-unused-vars
+  const _unused = updateKey.value;
+  return keyPatterns.value;
+});
 
 // 生命週期鉤子
 onMounted(() => {
   console.log('AstrologicalBasis: 組件掛載，初始化完成');
   console.log('掛載時 chartData:', props.chartData);
   console.log('掛載時 palaces 數量:', props.chartData?.palaces?.length || 0);
-  
+
   // 檢查資料內容
   if (props.chartData?.palaces) {
-    console.log('宮位列表:', props.chartData.palaces.map(p => p.name));
-    
+    console.log(
+      '宮位列表:',
+      props.chartData.palaces.map((p) => p.name),
+    );
+
     // 檢查星曜的五行屬性
-    const starsWithElements = props.chartData.palaces.flatMap(palace => 
-      palace.stars?.filter(star => star.element) || []
+    const starsWithElements = props.chartData.palaces.flatMap(
+      (palace) => palace.stars?.filter((star) => star.element) || [],
     );
     console.log('有五行屬性的星曜:', starsWithElements.length);
   }
-})
+});
 
 // 組件卸載時清除事件監聽器
 onUnmounted(() => {
   if (typeof window !== 'undefined') {
-    window.removeEventListener('purple-star-chart-updated', handleGlobalChartUpdate as EventListener);
-    window.removeEventListener('purple-star-chart-force-updated', handleGlobalChartUpdate as EventListener);
+    window.removeEventListener(
+      'purple-star-chart-updated',
+      handleGlobalChartUpdate as EventListener,
+    );
+    window.removeEventListener(
+      'purple-star-chart-force-updated',
+      handleGlobalChartUpdate as EventListener,
+    );
     console.log('AstrologicalBasis: 已清除全域事件監聽器');
   }
-})
+});
 
 // 手動刷新分析
 const refreshAnalysis = () => {
   console.log('AstrologicalBasis: 手動刷新分析');
-  updateKey.value++
-  
+  updateKey.value++;
+
   // 通知其他組件手動刷新事件
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('basis-analysis-refreshed', {
-      detail: { 
-        component: 'AstrologicalBasis',
-        timestamp: Date.now(),
-        source: 'manual-refresh'
-      }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('basis-analysis-refreshed', {
+        detail: {
+          component: 'AstrologicalBasis',
+          timestamp: Date.now(),
+          source: 'manual-refresh',
+        },
+      }),
+    );
   }
-}
+};
 
 // 調試函數：輸出當前資料結構
 const logCurrentDataStructure = () => {
@@ -633,7 +695,7 @@ const logCurrentDataStructure = () => {
   console.log('五行平衡度:', elementBalance.value);
   console.log('關鍵格局:', keyPatternsWithReactivity.value);
   console.log('=====================================');
-}
+};
 
 // 在全域暴露調試函數（開發環境）
 if (typeof window !== 'undefined' && import.meta.env.DEV) {
@@ -646,8 +708,9 @@ if (typeof window !== 'undefined' && import.meta.env.DEV) {
 .astrological-basis {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafe 100%);
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 
-              0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   border: 1px solid rgba(102, 126, 234, 0.1);
   position: relative;
@@ -832,7 +895,9 @@ if (typeof window !== 'undefined' && import.meta.env.DEV) {
   border-radius: 12px;
   padding: 20px;
   border-left: 4px solid #6c757d;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .pattern-card:hover {
@@ -1155,20 +1220,20 @@ if (typeof window !== 'undefined' && import.meta.env.DEV) {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .patterns-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .parameters-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .section-title {
     font-size: 1.2rem;
     padding: 16px 16px 0 16px;
   }
-  
+
   .elements-container,
   .patterns-container,
   .methodology-container {
@@ -1181,17 +1246,17 @@ if (typeof window !== 'undefined' && import.meta.env.DEV) {
     grid-template-columns: 50px 1fr 30px;
     gap: 8px;
   }
-  
+
   .pattern-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .process-step {
     gap: 12px;
   }
-  
+
   .step-number {
     width: 28px;
     height: 28px;

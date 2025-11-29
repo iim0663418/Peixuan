@@ -1,16 +1,21 @@
 <template>
   <div class="display-depth-container">
     <div class="display-options-section">
-      <div class="mode-help-text">{{ $t('display.modeHelp') || '選擇顯示模式' }}</div>
+      <div class="mode-help-text">
+        {{ $t('display.modeHelp') || '選擇顯示模式' }}
+      </div>
       <div class="display-mode-selector">
         <div class="mode-toggle-group">
-          <button 
-            v-for="depth in availableDepths" 
+          <button
+            v-for="depth in availableDepths"
             :key="depth"
-            @click="setDisplayDepth(depth)" 
             class="depth-tab-button"
             :class="{ active: modelValue === depth }"
-            :title="$t(`display.displayDepthDesc.${depth}`) || getDefaultDescription(depth)"
+            :title="
+              $t(`display.displayDepthDesc.${depth}`) ||
+              getDefaultDescription(depth)
+            "
+            @click="setDisplayDepth(depth)"
           >
             {{ $t(`display.displayDepth.${depth}`) || getDefaultLabel(depth) }}
           </button>
@@ -18,10 +23,13 @@
       </div>
     </div>
     <div class="depth-description">
-      {{ $t(`display.displayDepthDesc.${modelValue}`) || getDefaultDescription(modelValue) }}
+      {{
+        $t(`display.displayDepthDesc.${modelValue}`) ||
+        getDefaultDescription(modelValue)
+      }}
     </div>
     <div v-if="showAnimation" class="animation-control">
-      <button @click="$emit('toggle-animation')" class="toggle-button">
+      <button class="toggle-button" @click="$emit('toggle-animation')">
         {{ isAnimationActive ? '停止動畫' : '啟動動畫' }}
       </button>
     </div>
@@ -29,7 +37,6 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue';
 import type { DisplayMode } from '@/types/displayModes';
 
 // Props
@@ -46,7 +53,7 @@ const props = withDefaults(defineProps<Props>(), {
   availableDepths: () => ['minimal', 'compact', 'standard', 'comprehensive'],
   showAnimation: false,
   isAnimationActive: false,
-  moduleType: 'purpleStar'
+  moduleType: 'purpleStar',
 });
 
 // Emits
@@ -58,20 +65,24 @@ const emit = defineEmits<{
 // 設置顯示深度
 const setDisplayDepth = (depth: DisplayMode) => {
   emit('update:modelValue', depth);
-  
+
   try {
     // 保存設置到 sessionStorage，為每個模塊單獨存儲設置
     sessionStorage.setItem(`${props.moduleType}-display-depth`, depth);
-    
+
     // 觸發自定義事件，通知全域控制面板顯示深度已更改
-    window.dispatchEvent(new CustomEvent('module-changed', { 
-      detail: { module: props.moduleType, depth } 
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent('module-changed', {
+        detail: { module: props.moduleType, depth },
+      }),
+    );
+
     // 額外發送 display-depth-changed 事件以確保雙向同步
-    window.dispatchEvent(new CustomEvent('display-depth-changed', { 
-      detail: { module: props.moduleType, depth } 
-    }));
+    window.dispatchEvent(
+      new CustomEvent('display-depth-changed', {
+        detail: { module: props.moduleType, depth },
+      }),
+    );
   } catch (error) {
     console.warn('無法保存顯示深度設定:', error);
   }
@@ -80,24 +91,24 @@ const setDisplayDepth = (depth: DisplayMode) => {
 // 預設標籤文字
 const getDefaultLabel = (depth: string): string => {
   const labels: Record<string, string> = {
-    'minimal': '簡要預覽',
-    'compact': '精簡檢視',
-    'standard': '標準解讀',
-    'comprehensive': '深度分析'
+    minimal: '簡要預覽',
+    compact: '精簡檢視',
+    standard: '標準解讀',
+    comprehensive: '深度分析',
   };
-  
+
   return labels[depth] || depth;
 };
 
 // 預設描述文字
 const getDefaultDescription = (depth: string): string => {
   const descriptions: Record<string, string> = {
-    'minimal': '最簡潔的命盤展示，僅呈現基本框架',
-    'compact': '顯示主要星曜和基本效應，快速了解命盤特點',
-    'standard': '完整展示星曜資訊和效應，深入解析命盤結構',
-    'comprehensive': '全面詳盡的命盤分析'
+    minimal: '最簡潔的命盤展示，僅呈現基本框架',
+    compact: '顯示主要星曜和基本效應，快速了解命盤特點',
+    standard: '完整展示星曜資訊和效應，深入解析命盤結構',
+    comprehensive: '全面詳盡的命盤分析',
   };
-  
+
   return descriptions[depth] || '';
 };
 </script>
@@ -194,8 +205,14 @@ const getDefaultDescription = (depth: string): string => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 768px) {
@@ -203,13 +220,13 @@ const getDefaultDescription = (depth: string): string => {
     min-width: 240px;
     padding: 10px;
   }
-  
+
   .depth-tab-button {
     padding: 5px 8px;
     font-size: 0.8rem;
     min-width: 55px;
   }
-  
+
   .mode-help-text {
     font-size: 0.8rem;
     margin-bottom: 8px;

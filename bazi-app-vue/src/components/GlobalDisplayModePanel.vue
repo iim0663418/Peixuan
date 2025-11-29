@@ -1,61 +1,109 @@
 <template>
   <Transition name="slide-fade">
-    <div class="global-display-panel" :class="{ 'collapsed': isCollapsed }" 
-      :aria-label="isCollapsed ? $t('display.tooltips.panelCollapsed') || '點擊展開全域顯示設定' : $t('display.tooltips.panelExpanded') || '全域顯示設定面板'"
-      :title="isCollapsed ? $t('display.tooltips.collapsedHint') || '點擊展開全域顯示設定\n快速調整命理模組顯示深度' : ''">
-      <div class="panel-content" :style="{ background: moduleColors[props.activeModule] }">
+    <div
+      v-if="true"
+      class="global-display-panel"
+      :class="{ collapsed: isCollapsed }"
+      :aria-label="
+        isCollapsed
+          ? $t('display.tooltips.panelCollapsed') || '點擊展開全域顯示設定'
+          : $t('display.tooltips.panelExpanded') || '全域顯示設定面板'
+      "
+      :title="
+        isCollapsed
+          ? $t('display.tooltips.collapsedHint') ||
+            '點擊展開全域顯示設定\n快速調整命理模組顯示深度'
+          : ''
+      "
+    >
+      <div
+        class="panel-content"
+        :style="{ background: moduleColors[props.activeModule] }"
+      >
         <div class="panel-header">
-          <h3 v-if="!isCollapsed">{{ $t('display.globalSettings') || '顯示設定' }}</h3>
-          <button @click="toggleCollapse" class="collapse-button" 
-            :title="isCollapsed ? $t('display.tooltips.expand') || '展開設定面板' : $t('display.tooltips.collapse') || '收起設定面板'"
-            :aria-label="isCollapsed ? $t('display.tooltips.expand') || '展開設定面板' : $t('display.tooltips.collapse') || '收起設定面板'">
-            <i class="icon" :class="isCollapsed ? 'icon-settings' : 'icon-collapse'">
+          <h3 v-if="!isCollapsed">
+            {{ $t('display.globalSettings') || '顯示設定' }}
+          </h3>
+          <button
+            class="collapse-button"
+            :title="
+              isCollapsed
+                ? $t('display.tooltips.expand') || '展開設定面板'
+                : $t('display.tooltips.collapse') || '收起設定面板'
+            "
+            :aria-label="
+              isCollapsed
+                ? $t('display.tooltips.expand') || '展開設定面板'
+                : $t('display.tooltips.collapse') || '收起設定面板'
+            "
+            @click="toggleCollapse"
+          >
+            <i
+              class="icon"
+              :class="isCollapsed ? 'icon-settings' : 'icon-collapse'"
+            >
               {{ isCollapsed ? '⚙️' : '←' }}
             </i>
           </button>
         </div>
-        
+
         <div v-if="!isCollapsed" class="panel-body">
           <div class="module-selector">
-            <button 
-              v-for="(color, module) in moduleColors" 
+            <button
+              v-for="(color, module) in moduleColors"
               :key="module"
-              @click="setActiveModule(module)"
               class="module-button"
               :class="{ active: props.activeModule === module }"
-              :style="{ backgroundColor: props.activeModule === module ? color : 'transparent', borderColor: color }"
-              :title="$t('display.tooltips.selectModule') || '選擇模組：切換命理分析類型'"
+              :style="{
+                backgroundColor:
+                  props.activeModule === module ? color : 'transparent',
+                borderColor: color,
+              }"
+              :title="
+                $t('display.tooltips.selectModule') ||
+                '選擇模組：切換命理分析類型'
+              "
               :aria-label="`${$t('display.tooltips.selectModule') || '選擇模組'}: ${getModuleLabel(module)}`"
+              @click="setActiveModule(module)"
             >
               {{ getModuleLabel(module) }}
             </button>
           </div>
-          
+
           <div class="depth-selector">
             <h4>{{ $t('display.depthSelector') || '顯示深度' }}</h4>
             <div class="depth-buttons">
-              <button 
-                v-for="depth in availableDepths" 
+              <button
+                v-for="depth in availableDepths"
                 :key="depth"
-                @click="setDisplayDepth(depth)"
                 class="depth-button"
-                :class="{ 
+                :class="{
                   active: getModuleDepth(props.activeModule) === depth,
                   'depth-minimal': depth === 'minimal',
                   'depth-compact': depth === 'compact',
                   'depth-standard': depth === 'standard',
-                  'depth-comprehensive': depth === 'comprehensive'
+                  'depth-comprehensive': depth === 'comprehensive',
                 }"
-                :title="$t('display.tooltips.adjustDepth') || '調整深度：控制資訊詳細程度'"
+                :title="
+                  $t('display.tooltips.adjustDepth') ||
+                  '調整深度：控制資訊詳細程度'
+                "
                 :aria-label="`${$t('display.tooltips.adjustDepth') || '調整深度'}: ${$t(`display.displayDepth.${depth}`) || getDefaultLabel(depth)}`"
+                @click="setDisplayDepth(depth)"
               >
-                {{ $t(`display.displayDepth.${depth}`) || getDefaultLabel(depth) }}
+                {{
+                  $t(`display.displayDepth.${depth}`) || getDefaultLabel(depth)
+                }}
               </button>
             </div>
           </div>
-          
+
           <div class="depth-description">
-            {{ $t(`display.displayDepthDesc.${getModuleDepth(props.activeModule)}`) || getDefaultDescription(getModuleDepth(props.activeModule)) }}
+            {{
+              $t(
+                `display.displayDepthDesc.${getModuleDepth(props.activeModule)}`,
+              ) || getDefaultDescription(getModuleDepth(props.activeModule))
+            }}
           </div>
         </div>
       </div>
@@ -64,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import type { DisplayMode } from '@/types/displayModes';
 
 // 模組類型定義
@@ -90,30 +138,37 @@ const moduleColors = {
   purpleStar: 'linear-gradient(135deg, #8E4585 0%, #6A0DAD 100%)',
   bazi: 'linear-gradient(135deg, #D2691E 0%, #8B4513 100%)',
   transformationStars: 'linear-gradient(135deg, #4169E1 0%, #1E4D8C 100%)',
-  integrated: 'linear-gradient(135deg, #3CB371 0%, #2E8B57 100%)'
+  integrated: 'linear-gradient(135deg, #3CB371 0%, #2E8B57 100%)',
 };
 
 // 模組對比顏色 (用於邊框和高亮)
+// eslint-disable-next-line no-unused-vars
 const moduleContrastColors = {
-  purpleStar: '#D8BFD8',  // 淺紫色
-  bazi: '#DEB887',        // 淺駝色
-  transformationStars: '#87CEEB',  // 淺藍色
-  integrated: '#90EE90'   // 淺綠色
+  purpleStar: '#D8BFD8', // 淺紫色
+  bazi: '#DEB887', // 淺駝色
+  transformationStars: '#87CEEB', // 淺藍色
+  integrated: '#90EE90', // 淺綠色
 };
 
 // 模組文字顏色
+// eslint-disable-next-line no-unused-vars
 const moduleTextColors = {
-  purpleStar: '#FFFFFF',  // 白色
-  bazi: '#FFFFFF',        // 白色
-  transformationStars: '#FFFFFF',  // 白色
-  integrated: '#FFFFFF'   // 白色
+  purpleStar: '#FFFFFF', // 白色
+  bazi: '#FFFFFF', // 白色
+  transformationStars: '#FFFFFF', // 白色
+  integrated: '#FFFFFF', // 白色
 };
 
 // 響應式狀態（僅保留面板收縮狀態）
 const isCollapsed = ref(true);
 
 // 可用的顯示深度選項
-const availableDepths: DisplayMode[] = ['minimal', 'compact', 'standard', 'comprehensive'];
+const availableDepths: DisplayMode[] = [
+  'minimal',
+  'compact',
+  'standard',
+  'comprehensive',
+];
 
 // 計算當前模組的顯示深度
 const getModuleDepth = (module: ModuleType): DisplayMode => {
@@ -126,7 +181,7 @@ const displayDepth = computed(() => getModuleDepth(props.activeModule));
 // 方法: 切換收起/展開
 const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value;
-  
+
   // 播放彈性動畫
   if (!isCollapsed.value) {
     const panel = document.querySelector('.global-display-panel');
@@ -143,18 +198,18 @@ const toggleCollapse = () => {
 const setActiveModule = (module: ModuleType) => {
   // 觸發事件通知父組件
   emit('update:activeModule', module);
-  
+
   // 觸發動畫效果
   const buttons = document.querySelectorAll('.module-button');
-  buttons.forEach(button => {
+  buttons.forEach((button) => {
     button.classList.remove('rotate-animation');
   });
-  
+
   const activeButton = document.querySelector(`.module-button.active`);
   if (activeButton) {
     activeButton.classList.add('rotate-animation');
   }
-  
+
   // 優化的無障礙宣告 - 僅在存在無障礙元素時通知
   const announcement = document.getElementById('a11y-announcement');
   if (announcement) {
@@ -166,9 +221,11 @@ const setActiveModule = (module: ModuleType) => {
 const setDisplayDepth = (depth: DisplayMode) => {
   // 觸發事件通知父組件
   emit('update:displayDepth', depth);
-  
-  console.log(`全域面板：請求更新${getModuleLabel(props.activeModule)}的顯示深度為: ${depth}`);
-  
+
+  console.log(
+    `全域面板：請求更新${getModuleLabel(props.activeModule)}的顯示深度為: ${depth}`,
+  );
+
   // 播放按鈕動畫
   const depthButton = document.querySelector(`.depth-button.active`);
   if (depthButton) {
@@ -185,33 +242,33 @@ const getModuleLabel = (module: ModuleType): string => {
     purpleStar: '紫微斗數',
     bazi: '八字命盤',
     transformationStars: '四化飛星',
-    integrated: '整合分析'
+    integrated: '整合分析',
   };
-  
+
   return labels[module] || '未知模組';
 };
 
 // 預設標籤文字
 const getDefaultLabel = (depth: string): string => {
   const labels: Record<string, string> = {
-    'minimal': '簡要預覽',
-    'compact': '精簡檢視',
-    'standard': '標準解讀',
-    'comprehensive': '深度分析'
+    minimal: '簡要預覽',
+    compact: '精簡檢視',
+    standard: '標準解讀',
+    comprehensive: '深度分析',
   };
-  
+
   return labels[depth] || depth;
 };
 
 // 預設描述文字
 const getDefaultDescription = (depth: string): string => {
   const descriptions: Record<string, string> = {
-    'minimal': '最簡潔的命盤展示，僅呈現基本框架',
-    'compact': '顯示主要星曜和基本效應，快速了解命盤特點',
-    'standard': '完整展示星曜資訊和效應，深入解析命盤結構',
-    'comprehensive': '全面詳盡的命盤分析'
+    minimal: '最簡潔的命盤展示，僅呈現基本框架',
+    compact: '顯示主要星曜和基本效應，快速了解命盤特點',
+    standard: '完整展示星曜資訊和效應，深入解析命盤結構',
+    comprehensive: '全面詳盡的命盤分析',
   };
-  
+
   return descriptions[depth] || '';
 };
 
@@ -219,8 +276,9 @@ const getDefaultDescription = (depth: string): string => {
 onMounted(() => {
   // 無障礙宣告功能改為完全按需啟用
   // 用戶可以透過 sessionStorage.setItem('enable-accessibility-announcements', 'true') 來啟用
-  const enableA11yAnnouncements = sessionStorage.getItem('enable-accessibility-announcements') === 'true';
-  
+  const enableA11yAnnouncements =
+    sessionStorage.getItem('enable-accessibility-announcements') === 'true';
+
   if (enableA11yAnnouncements) {
     const announcement = document.createElement('div');
     announcement.id = 'a11y-announcement';
@@ -229,59 +287,63 @@ onMounted(() => {
     announcement.className = 'sr-only';
     document.body.appendChild(announcement);
   }
-  
+
   // 添加鍵盤事件處理
   document.addEventListener('keydown', handleKeyboardNavigation);
-  
+
   console.log('GlobalDisplayModePanel 初始化，當前狀態:', {
     activeModule: props.activeModule,
-    moduleDepths: props.moduleDepths
+    moduleDepths: props.moduleDepths,
   });
 });
 
 // 鍵盤無障礙導航
 const handleKeyboardNavigation = (event: KeyboardEvent) => {
   // 僅當面板展開時處理
-  if (isCollapsed.value) return;
-  
+  if (isCollapsed.value) {
+    return;
+  }
+
   // 確認焦點元素
   const focusedElement = document.activeElement;
-  
+
   // 處理 Escape 鍵收起面板
   if (event.key === 'Escape') {
     toggleCollapse();
     event.preventDefault();
     return;
   }
-  
+
   // 處理模組按鈕導航
   if (focusedElement?.classList.contains('module-button')) {
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       const buttons = Array.from(document.querySelectorAll('.module-button'));
       const currentIndex = buttons.indexOf(focusedElement as HTMLElement);
-      
+
       if (currentIndex !== -1) {
-        const newIndex = event.key === 'ArrowLeft'
-          ? (currentIndex - 1 + buttons.length) % buttons.length
-          : (currentIndex + 1) % buttons.length;
-        
+        const newIndex =
+          event.key === 'ArrowLeft'
+            ? (currentIndex - 1 + buttons.length) % buttons.length
+            : (currentIndex + 1) % buttons.length;
+
         (buttons[newIndex] as HTMLElement).focus();
         event.preventDefault();
       }
     }
   }
-  
+
   // 處理深度按鈕導航
   if (focusedElement?.classList.contains('depth-button')) {
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       const buttons = Array.from(document.querySelectorAll('.depth-button'));
       const currentIndex = buttons.indexOf(focusedElement as HTMLElement);
-      
+
       if (currentIndex !== -1) {
-        const newIndex = event.key === 'ArrowUp'
-          ? (currentIndex - 1 + buttons.length) % buttons.length
-          : (currentIndex + 1) % buttons.length;
-        
+        const newIndex =
+          event.key === 'ArrowUp'
+            ? (currentIndex - 1 + buttons.length) % buttons.length
+            : (currentIndex + 1) % buttons.length;
+
         (buttons[newIndex] as HTMLElement).focus();
         event.preventDefault();
       }
@@ -292,7 +354,7 @@ const handleKeyboardNavigation = (event: KeyboardEvent) => {
 // 導出組件方法供父組件使用
 defineExpose({
   setActiveModule,
-  displayDepth
+  displayDepth,
 });
 </script>
 
@@ -403,7 +465,7 @@ defineExpose({
 }
 
 .module-button:after {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -513,10 +575,18 @@ defineExpose({
 
 /* 彈性動畫 */
 @keyframes bounce {
-  0% { transform: translateY(-50%) scale(0.9); }
-  50% { transform: translateY(-50%) scale(1.05) rotate(2deg); }
-  70% { transform: translateY(-50%) scale(0.95) rotate(-2deg); }
-  100% { transform: translateY(-50%) scale(1); }
+  0% {
+    transform: translateY(-50%) scale(0.9);
+  }
+  50% {
+    transform: translateY(-50%) scale(1.05) rotate(2deg);
+  }
+  70% {
+    transform: translateY(-50%) scale(0.95) rotate(-2deg);
+  }
+  100% {
+    transform: translateY(-50%) scale(1);
+  }
 }
 
 .bounce-animation {
@@ -525,9 +595,15 @@ defineExpose({
 
 /* 旋轉動畫 */
 @keyframes rotate {
-  0% { transform: rotate(-3deg); }
-  50% { transform: rotate(3deg); }
-  100% { transform: rotate(0); }
+  0% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
 }
 
 .rotate-animation {
@@ -536,9 +612,18 @@ defineExpose({
 
 /* 脈動動畫 */
 @keyframes pulse {
-  0% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
-  50% { transform: scale(1.05); box-shadow: 0 0 10px rgba(0,0,0,0.2); }
-  100% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
 }
 
 .pulse-animation {
@@ -551,29 +636,29 @@ defineExpose({
     background-color: #1f2937;
     box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
   }
-  
+
   .global-display-panel.collapsed {
     background-color: rgba(31, 41, 55, 0.9);
   }
-  
+
   .panel-header h3 {
     color: #e5e7eb;
   }
-  
+
   .collapse-button:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
-  
+
   .depth-button {
     background: #374151;
     border-color: #4b5563;
     color: #e5e7eb;
   }
-  
+
   .depth-button:hover:not(.active) {
     background-color: #4b5563;
   }
-  
+
   .depth-description {
     background-color: rgba(31, 41, 55, 0.7);
     color: #d1d5db;
@@ -592,7 +677,7 @@ defineExpose({
     width: 230px;
     font-size: 0.9rem;
   }
-  
+
   .depth-button {
     padding: 6px 10px;
   }
@@ -607,7 +692,7 @@ defineExpose({
   .depth-button {
     transition: none !important;
   }
-  
+
   .bounce-animation,
   .rotate-animation,
   .pulse-animation {
@@ -619,7 +704,7 @@ defineExpose({
 .module-button:focus-visible,
 .depth-button:focus-visible,
 .collapse-button:focus-visible {
-  outline: 3px solid #4D90FE;
+  outline: 3px solid #4d90fe;
   outline-offset: 2px;
   position: relative;
   z-index: 3;
@@ -630,13 +715,13 @@ defineExpose({
   .global-display-panel {
     border: 2px solid CanvasText;
   }
-  
-  .module-button, 
+
+  .module-button,
   .depth-button,
   .collapse-button {
     border: 1px solid CanvasText;
   }
-  
+
   .module-button.active,
   .depth-button.active {
     border-width: 2px;

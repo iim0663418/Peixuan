@@ -2,79 +2,109 @@
   <div class="integrated-analysis-container">
     <!-- 主描述卡片 -->
     <el-row :gutter="20">
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb-4">
+      <el-col
+:xs="24"
+:sm="24" :md="24" :lg="24"
+:xl="24" class="mb-4"
+>
         <el-card shadow="hover" class="description-card">
           <template #header>
             <div class="card-header">
               <span class="header-title">時運分析</span>
-              <div class="header-actions" v-if="analysisState.integratedAnalysis.value">
+              <div
+                v-if="analysisState.integratedAnalysis.value"
+                class="header-actions"
+              >
                 <el-button
                   type="danger"
                   :icon="Delete"
-                  @click="clearData"
                   size="small"
+                  @click="clearData"
                 >
                   清除資料
                 </el-button>
               </div>
             </div>
           </template>
-          
+
           <div class="analysis-description">
             <el-collapse v-model="activeCollapse" accordion>
               <el-collapse-item title="系統介紹" name="description">
                 <p>{{ $t('astrology.integrated_analysis.description') }}</p>
               </el-collapse-item>
-              
+
               <el-collapse-item title="運作原理" name="howItWorks">
-                <h4>{{ $t('astrology.integrated_analysis.howItWorks.title') }}</h4>
+                <h4>
+                  {{ $t('astrology.integrated_analysis.howItWorks.title') }}
+                </h4>
                 <ol class="steps-list">
-                  <li v-for="(step, index) in $t('astrology.integrated_analysis.howItWorks.steps')" :key="index">
+                  <li
+                    v-for="(step, index) in $t(
+                      'astrology.integrated_analysis.howItWorks.steps',
+                    )"
+                    :key="index"
+                  >
                     {{ step }}
                   </li>
                 </ol>
               </el-collapse-item>
-              
+
               <el-collapse-item title="系統優勢" name="benefits">
                 <ul class="benefits-list">
-                  <li v-for="(benefit, index) in $t('features.integrated_analysis.benefits')" :key="index">
+                  <li
+                    v-for="(benefit, index) in $t(
+                      'features.integrated_analysis.benefits',
+                    )"
+                    :key="index"
+                  >
                     {{ benefit }}
                   </li>
                 </ul>
               </el-collapse-item>
             </el-collapse>
-            
+
             <!-- 快速操作區 -->
-            <div class="quick-actions" v-if="hasSavedBaziData || chartDataStatus.total > 0">
-              <el-alert 
-                title="💡 提示" 
+            <div
+              v-if="hasSavedBaziData || chartDataStatus.total > 0"
+              class="quick-actions"
+            >
+              <el-alert
+                title="💡 提示"
                 :description="`檢測到 ${chartDataStatus.total} 項命盤資料，您可以快速使用現有資料進行分析`"
-                type="info" 
-                :closable="false" 
-                show-icon 
+                type="info"
+                :closable="false"
+                show-icon
                 class="mb-3"
               />
-              
+
               <!-- 命盤狀態顯示 -->
               <div class="chart-status mb-3">
                 <el-row :gutter="8">
-                  <el-col :span="6" v-if="chartDataStatus.bazi">
-                    <el-tag type="success" effect="light" size="small">八字命盤</el-tag>
+                  <el-col v-if="chartDataStatus.bazi" :span="6">
+                    <el-tag type="success" effect="light" size="small"
+                      >八字命盤</el-tag
+                    >
                   </el-col>
-                  <el-col :span="6" v-if="chartDataStatus.purpleStar">
-                    <el-tag type="primary" effect="light" size="small">紫微斗數</el-tag>
+                  <el-col v-if="chartDataStatus.purpleStar" :span="6">
+                    <el-tag type="primary" effect="light" size="small"
+                      >紫微斗數</el-tag
+                    >
                   </el-col>
-                  <el-col :span="6" v-if="chartDataStatus.transformationStars">
-                    <el-tag type="warning" effect="light" size="small">四化飛星</el-tag>
+                  <el-col v-if="chartDataStatus.transformationStars" :span="6">
+                    <el-tag type="warning" effect="light" size="small"
+                      >四化飛星</el-tag
+                    >
                   </el-col>
-                  <el-col :span="6" v-if="chartDataStatus.integrated">
-                    <el-tag type="danger" effect="light" size="small">整合分析</el-tag>
+                  <el-col v-if="chartDataStatus.integrated" :span="6">
+                    <el-tag type="danger" effect="light" size="small"
+                      >整合分析</el-tag
+                    >
                   </el-col>
                 </el-row>
               </div>
-              
+
               <!-- 會話資料摘要 -->
-              <div class="session-summary mb-3" v-if="sessionDataSummary">
+              <div v-if="sessionDataSummary" class="session-summary mb-3">
                 <el-descriptions :column="2" size="small" border>
                   <el-descriptions-item label="會話ID">
                     {{ sessionDataSummary.sessionId.slice(-8) }}
@@ -86,22 +116,30 @@
                     {{ sessionDataSummary.chartsAvailable }} 項
                   </el-descriptions-item>
                   <el-descriptions-item label="資料狀態">
-                    <el-tag 
-                      :type="sessionDataSummary.validationStatus === 'valid' ? 'success' : 'warning'" 
+                    <el-tag
+                      :type="
+                        sessionDataSummary.validationStatus === 'valid'
+                          ? 'success'
+                          : 'warning'
+                      "
                       size="small"
                     >
-                      {{ sessionDataSummary.validationStatus === 'valid' ? '正常' : '警告' }}
+                      {{
+                        sessionDataSummary.validationStatus === 'valid'
+                          ? '正常'
+                          : '警告'
+                      }}
                     </el-tag>
                   </el-descriptions-item>
                 </el-descriptions>
               </div>
-              
-              <el-button 
-                type="success" 
-                @click="useBaziData" 
+
+              <el-button
+                v-if="hasSavedBaziData"
+                type="success"
                 :disabled="analysisState.loading.value"
                 size="small"
-                v-if="hasSavedBaziData"
+                @click="useBaziData"
               >
                 使用現有八字資料分析
               </el-button>
@@ -114,25 +152,31 @@
     <!-- 表單與結果區域 -->
     <el-row :gutter="20" class="main-content">
       <!-- 輸入表單 -->
-      <el-col :xs="24" :sm="24" :md="12" :lg="10" :xl="8">
+      <el-col
+:xs="24"
+:sm="24" :md="12" :lg="10"
+:xl="8"
+>
         <el-card shadow="hover" class="input-card">
           <template #header>
             <div class="form-header">
-              <span>{{ $t('astrology.integrated_analysis.inputSection') }}</span>
-              <el-badge 
-                :value="formProgress + '%'" 
+              <span>{{
+                $t('astrology.integrated_analysis.inputSection')
+              }}</span>
+              <el-badge
+                :value="formProgress + '%'"
                 :type="formProgress === 100 ? 'success' : 'primary'"
                 class="progress-badge"
               />
             </div>
           </template>
-          
-          <el-form 
+
+          <el-form
             ref="analysisForm"
-            :model="birthInfo" 
+            :model="birthInfo"
             :rules="formRules"
-            @submit.prevent="submitAnalysis"
             label-position="top"
+            @submit.prevent="submitAnalysis"
           >
             <el-form-item :label="$t('form.birth_date')" prop="birthDate">
               <el-date-picker
@@ -158,28 +202,32 @@
 
             <el-form-item :label="$t('form.gender')" prop="gender">
               <el-radio-group v-model="birthInfo.gender" size="large">
-                <el-radio-button :value="'male'">{{ $t('form.genderOptions.male') }}</el-radio-button>
-                <el-radio-button :value="'female'">{{ $t('form.genderOptions.female') }}</el-radio-button>
+                <el-radio-button :value="'male'">{{
+                  $t('form.genderOptions.male')
+                }}</el-radio-button>
+                <el-radio-button :value="'female'">{{
+                  $t('form.genderOptions.female')
+                }}</el-radio-button>
               </el-radio-group>
             </el-form-item>
 
             <el-form-item :label="$t('form.location')" prop="location">
-              <el-input 
+              <el-input
                 v-model="locationInputValue"
-                @input="handleLocationInput"
                 :placeholder="'例如：台北市'"
                 size="large"
                 clearable
+                @input="handleLocationInput"
               />
             </el-form-item>
 
             <el-form-item class="submit-section">
-              <el-button 
-                type="primary" 
-                @click="submitAnalysis()"
+              <el-button
+                type="primary"
                 :loading="analysisState.loading.value"
                 size="large"
                 class="submit-button"
+                @click="submitAnalysis()"
               >
                 <template v-if="analysisState.loading.value">
                   <el-icon class="is-loading mr-2"><Loading /></el-icon>
@@ -195,14 +243,25 @@
       </el-col>
 
       <!-- 分析結果 -->
-      <el-col :xs="24" :sm="24" :md="12" :lg="14" :xl="16">
-        <el-card shadow="hover" class="result-card" v-if="analysisState.integratedAnalysis.value || analysisState.loading.value">
+      <el-col
+:xs="24"
+:sm="24" :md="12" :lg="14"
+:xl="16"
+>
+        <el-card
+          v-if="
+            analysisState.integratedAnalysis.value ||
+            analysisState.loading.value
+          "
+          shadow="hover"
+          class="result-card"
+        >
           <template #header>
             <div class="result-header">
               <span>分析結果</span>
-              <el-tag 
-                v-if="analysisState.integratedAnalysis.value" 
-                type="success" 
+              <el-tag
+                v-if="analysisState.integratedAnalysis.value"
+                type="success"
                 effect="light"
                 size="small"
               >
@@ -210,15 +269,15 @@
               </el-tag>
             </div>
           </template>
-          
-          <IntegratedAnalysisDisplay 
-            :integratedAnalysis="analysisState.integratedAnalysis.value"
+
+          <IntegratedAnalysisDisplay
+            :integrated-analysis="analysisState.integratedAnalysis.value"
             :loading="analysisState.loading.value"
             :error="analysisState.error.value"
           />
         </el-card>
-        
-        <el-card shadow="hover" class="placeholder-card" v-else>
+
+        <el-card v-else shadow="hover" class="placeholder-card">
           <div class="placeholder">
             <el-icon :size="64" color="#c0c4cc">
               <Connection />
@@ -226,7 +285,7 @@
             <h3>等待分析</h3>
             <p>請填寫左側表單開始時運分析</p>
             <p class="sub-text">系統將同時計算紫微斗數與八字，並進行交叉分析</p>
-            
+
             <!-- 功能預覽 -->
             <div class="feature-preview">
               <el-row :gutter="12">
@@ -258,14 +317,30 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted, watch, computed, defineAsyncComponent } from 'vue';
+import {
+  reactive,
+  ref,
+  onMounted,
+  watch,
+  computed,
+  defineAsyncComponent,
+} from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Connection, Delete, Loading, Star, Document, TrendCharts } from '@element-plus/icons-vue';
+import {
+  Connection,
+  Delete,
+  Loading,
+  Star,
+  Document,
+  TrendCharts,
+} from '@element-plus/icons-vue';
 
 // 動態導入組件以提升效能
-const IntegratedAnalysisDisplay = defineAsyncComponent(() => import('@/components/IntegratedAnalysisDisplay.vue'));
+const IntegratedAnalysisDisplay = defineAsyncComponent(
+  () => import('@/components/IntegratedAnalysisDisplay.vue'),
+);
 import AstrologyIntegrationService from '@/services/astrologyIntegrationService';
-import { BirthInfo } from '@/services/astrologyIntegrationService';
+import type { BirthInfo } from '@/services/astrologyIntegrationService';
 import type { IntegratedAnalysisResponse } from '@/types/astrologyTypes';
 import storageService from '@/utils/storageService';
 import enhancedStorageService from '@/utils/enhancedStorageService';
@@ -277,25 +352,28 @@ const sessionId = storageService.getOrCreateSessionId();
 const analysisState = AstrologyIntegrationService.createReactiveAnalysis();
 
 // 監視分析結果變化，用於調試
-watch(() => analysisState.integratedAnalysis.value, (newVal) => {
-  if (newVal) {
-    console.log('IntegratedAnalysisView - 分析結果更新:', newVal);
-  }
-});
+watch(
+  () => analysisState.integratedAnalysis.value,
+  (newVal) => {
+    if (newVal) {
+      console.log('IntegratedAnalysisView - 分析結果更新:', newVal);
+    }
+  },
+);
 
 // 生成或獲取表單資料
 const birthInfo = reactive<BirthInfo>({
   birthDate: '',
   birthTime: '',
   gender: 'male' as 'male' | 'female',
-  location: '台北市'
+  location: '台北市',
 });
 
 // 創建位置輸入值響應式變數
 const locationInputValue = ref(
-  typeof birthInfo.location === 'string' 
-    ? birthInfo.location 
-    : (birthInfo.location?.name || '台北市')
+  typeof birthInfo.location === 'string'
+    ? birthInfo.location
+    : birthInfo.location?.name || '台北市',
 );
 
 // 折疊面板狀態
@@ -304,33 +382,55 @@ const activeCollapse = ref('');
 // 計算表單完成進度
 const formProgress = computed(() => {
   let progress = 0;
-  if (birthInfo.birthDate) progress += 25;
-  if (birthInfo.birthTime) progress += 25;
-  if (birthInfo.gender) progress += 25;
-  if (locationInputValue.value && locationInputValue.value.trim()) progress += 25;
+  if (birthInfo.birthDate) {
+    progress += 25;
+  }
+  if (birthInfo.birthTime) {
+    progress += 25;
+  }
+  if (birthInfo.gender) {
+    progress += 25;
+  }
+  if (locationInputValue.value && locationInputValue.value.trim()) {
+    progress += 25;
+  }
   return progress;
 });
 
 // 檢查是否有已保存的八字資料
 const hasSavedBaziData = computed(() => {
-  const savedBaziChart = storageService.getFromStorage(storageService.STORAGE_KEYS.BAZI_CHART);
-  const savedBaziInfo = storageService.getFromStorage<BirthInfo>(storageService.STORAGE_KEYS.BAZI_BIRTH_INFO);
+  const savedBaziChart = storageService.getFromStorage(
+    storageService.STORAGE_KEYS.BAZI_CHART,
+  );
+  const savedBaziInfo = storageService.getFromStorage<BirthInfo>(
+    storageService.STORAGE_KEYS.BAZI_BIRTH_INFO,
+  );
   return !!(savedBaziChart || savedBaziInfo);
 });
 
 // 檢查各種命盤資料的存在狀態
 const chartDataStatus = computed(() => {
-  const bazi = storageService.getFromStorage(storageService.STORAGE_KEYS.BAZI_CHART);
-  const purpleStar = storageService.getFromStorage(storageService.STORAGE_KEYS.PURPLE_STAR_CHART);
-  const integrated = storageService.getFromStorage(storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS);
+  const bazi = storageService.getFromStorage(
+    storageService.STORAGE_KEYS.BAZI_CHART,
+  );
+  const purpleStar = storageService.getFromStorage(
+    storageService.STORAGE_KEYS.PURPLE_STAR_CHART,
+  );
+  const integrated = storageService.getFromStorage(
+    storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS,
+  );
   const transformationStars = storageService.getTransformationStarsData();
-  
+
   return {
     bazi: !!bazi,
     purpleStar: !!purpleStar,
     integrated: !!integrated,
-    transformationStars: transformationStars.stars || Object.keys(transformationStars.flows).length > 0,
-    total: [bazi, purpleStar, integrated, transformationStars.stars].filter(Boolean).length
+    transformationStars:
+      transformationStars.stars ||
+      Object.keys(transformationStars.flows).length > 0,
+    total: [bazi, purpleStar, integrated, transformationStars.stars].filter(
+      Boolean,
+    ).length,
   };
 });
 
@@ -342,8 +442,9 @@ const sessionDataSummary = computed(() => {
       return {
         sessionId: unifiedData.sessionId,
         lastUpdated: new Date(unifiedData.lastUpdated).toLocaleString('zh-TW'),
-        chartsAvailable: Object.values(unifiedData.status).filter(Boolean).length,
-        validationStatus: unifiedData.validationStatus
+        chartsAvailable: Object.values(unifiedData.status).filter(Boolean)
+          .length,
+        validationStatus: unifiedData.validationStatus,
       };
     }
   } catch (error) {
@@ -359,28 +460,34 @@ const handleLocationInput = (value: string) => {
 
 // 使用已有的八字資料
 const useBaziData = () => {
-  const savedBaziInfo = storageService.getFromStorage<BirthInfo>(storageService.STORAGE_KEYS.BAZI_BIRTH_INFO);
+  const savedBaziInfo = storageService.getFromStorage<BirthInfo>(
+    storageService.STORAGE_KEYS.BAZI_BIRTH_INFO,
+  );
   if (savedBaziInfo) {
     birthInfo.birthDate = savedBaziInfo.birthDate || '';
     birthInfo.birthTime = savedBaziInfo.birthTime || '';
     birthInfo.gender = savedBaziInfo.gender || 'male';
     birthInfo.location = savedBaziInfo.location || '台北市';
-    locationInputValue.value = typeof savedBaziInfo.location === 'string' 
-      ? savedBaziInfo.location 
-      : (savedBaziInfo.location?.name || '台北市');
-    
+    locationInputValue.value =
+      typeof savedBaziInfo.location === 'string'
+        ? savedBaziInfo.location
+        : savedBaziInfo.location?.name || '台北市';
+
     ElMessage.success('已載入現有八字資料');
-    
+
     // 同步到整合分析的出生資訊存儲
-    storageService.saveToStorage(storageService.STORAGE_KEYS.INTEGRATED_BIRTH_INFO, savedBaziInfo);
-    
+    storageService.saveToStorage(
+      storageService.STORAGE_KEYS.INTEGRATED_BIRTH_INFO,
+      savedBaziInfo,
+    );
+
     // 使用增強存儲服務同步資料
     try {
       enhancedStorageService.syncChartsToUnifiedData();
     } catch (syncError) {
       console.error('同步資料時出錯:', syncError);
     }
-    
+
     // 自動提交分析
     setTimeout(() => {
       submitAnalysis();
@@ -389,15 +496,9 @@ const useBaziData = () => {
 };
 
 const formRules = {
-  birthDate: [
-    { required: true, message: '請選擇出生日期', trigger: 'change' }
-  ],
-  birthTime: [
-    { required: true, message: '請選擇出生時間', trigger: 'change' }
-  ],
-  gender: [
-    { required: true, message: '請選擇性別', trigger: 'change' }
-  ]
+  birthDate: [{ required: true, message: '請選擇出生日期', trigger: 'change' }],
+  birthTime: [{ required: true, message: '請選擇出生時間', trigger: 'change' }],
+  gender: [{ required: true, message: '請選擇性別', trigger: 'change' }],
 };
 
 // 資料清除函數
@@ -405,26 +506,31 @@ const clearData = () => {
   ElMessageBox.confirm('確定要清除當前的時運分析結果嗎？', '清除資料', {
     confirmButtonText: '確定',
     cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    storageService.clearAnalysisData('integrated');
-    analysisState.integratedAnalysis.value = null;
-    analysisState.confidenceAssessment.value = null;
-    analysisState.error.value = null;
-    ElMessage.success('時運分析資料已清除');
-  }).catch(() => {
-    // 用戶取消操作
-  });
+    type: 'warning',
+  })
+    .then(() => {
+      storageService.clearAnalysisData('integrated');
+      analysisState.integratedAnalysis.value = null;
+      analysisState.confidenceAssessment.value = null;
+      analysisState.error.value = null;
+      ElMessage.success('時運分析資料已清除');
+    })
+    .catch(() => {
+      // 用戶取消操作
+    });
 };
 
 const submitAnalysis = async (useSessionData = false) => {
   try {
     console.log('提交分析請求，出生資訊:', birthInfo);
-    
+
     if (!useSessionData) {
       // 保存出生資訊到 sessionStorage
-      storageService.saveToStorage(storageService.STORAGE_KEYS.INTEGRATED_BIRTH_INFO, birthInfo);
-      
+      storageService.saveToStorage(
+        storageService.STORAGE_KEYS.INTEGRATED_BIRTH_INFO,
+        birthInfo,
+      );
+
       // 同步資料到增強存儲服務
       try {
         enhancedStorageService.syncChartsToUnifiedData();
@@ -432,20 +538,20 @@ const submitAnalysis = async (useSessionData = false) => {
         console.error('同步到增強存儲服務時出錯:', syncError);
       }
     }
-    
+
     // 執行分析，傳入是否使用 sessionStorage 中的資料標識
     await analysisState.analyze(birthInfo, useSessionData);
-    
+
     // 檢查分析結果
     if (analysisState.integratedAnalysis.value) {
       console.log('分析完成，結果:', analysisState.integratedAnalysis.value);
-      
+
       // 保存分析結果到 sessionStorage
       storageService.saveToStorage(
-        storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS, 
-        analysisState.integratedAnalysis.value
+        storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS,
+        analysisState.integratedAnalysis.value,
       );
-      
+
       // 再次同步資料到增強存儲服務
       try {
         enhancedStorageService.syncChartsToUnifiedData();
@@ -453,7 +559,7 @@ const submitAnalysis = async (useSessionData = false) => {
       } catch (syncError) {
         console.error('最終同步時出錯:', syncError);
       }
-      
+
       ElMessage.success('時運分析完成');
     } else {
       console.error('分析完成但沒有結果');
@@ -462,9 +568,7 @@ const submitAnalysis = async (useSessionData = false) => {
   } catch (error) {
     console.error('分析過程發生錯誤:', error);
     ElMessage.error(
-      error instanceof Error 
-        ? error.message 
-        : '分析失敗，請稍後再試'
+      error instanceof Error ? error.message : '分析失敗，請稍後再試',
     );
   }
 };
@@ -473,31 +577,36 @@ const submitAnalysis = async (useSessionData = false) => {
 const loadFromSessionStorage = () => {
   try {
     console.log('開始從 sessionStorage 載入資料');
-    
+
     // 記錄當前 sessionStorage 狀態
-    const keysInStorage = Object.keys(sessionStorage).filter(key => 
-      key.startsWith('peixuan_')
+    const keysInStorage = Object.keys(sessionStorage).filter((key) =>
+      key.startsWith('peixuan_'),
     );
-    
+
     console.log('sessionStorage 中的相關鍵:', keysInStorage);
-    
+
     // 檢查出生資訊
-    const savedBirthInfo = storageService.getFromStorage<BirthInfo>(storageService.STORAGE_KEYS.INTEGRATED_BIRTH_INFO);
-    
+    const savedBirthInfo = storageService.getFromStorage<BirthInfo>(
+      storageService.STORAGE_KEYS.INTEGRATED_BIRTH_INFO,
+    );
+
     if (savedBirthInfo) {
       console.log('找到保存的出生資訊');
-      
+
       // 安全地更新各個字段，添加默認值
       birthInfo.birthDate = savedBirthInfo.birthDate || '';
       birthInfo.birthTime = savedBirthInfo.birthTime || '';
-      
+
       // 確保性別是正確的類型
-      if (savedBirthInfo.gender === 'male' || savedBirthInfo.gender === 'female') {
+      if (
+        savedBirthInfo.gender === 'male' ||
+        savedBirthInfo.gender === 'female'
+      ) {
         birthInfo.gender = savedBirthInfo.gender;
       } else {
         birthInfo.gender = 'male'; // 預設值
       }
-      
+
       // 處理地點資訊
       if (savedBirthInfo.location) {
         if (typeof savedBirthInfo.location === 'string') {
@@ -517,12 +626,13 @@ const loadFromSessionStorage = () => {
     }
 
     // 檢查整合分析結果
-    const savedAnalysis = storageService.getFromStorage<IntegratedAnalysisResponse>(
-      storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS
-    );
-    
+    const savedAnalysis =
+      storageService.getFromStorage<IntegratedAnalysisResponse>(
+        storageService.STORAGE_KEYS.INTEGRATED_ANALYSIS,
+      );
+
     console.log('保存的分析結果:', savedAnalysis ? '已找到' : '未找到');
-    
+
     if (savedAnalysis && analysisState.integratedAnalysis) {
       try {
         // 驗證資料完整性
@@ -531,7 +641,7 @@ const loadFromSessionStorage = () => {
           storageService.clearAnalysisData('integrated');
           return;
         }
-        
+
         // 安全地構建符合 IntegratedAnalysisResponse 格式的物件
         const formattedResult = {
           ...savedAnalysis,
@@ -544,24 +654,27 @@ const loadFromSessionStorage = () => {
             analysisInfo: savedAnalysis.data.analysisInfo || {
               calculationTime: new Date().toISOString(),
               methodsUsed: ['紫微斗數', '四柱八字'],
-              confidence: 0.5
-            }
+              confidence: 0.5,
+            },
           },
           meta: savedAnalysis.meta || {
             userRole: 'user',
             features: ['sessionStorage'],
-            sources: ['cache']
+            sources: ['cache'],
           },
-          timestamp: savedAnalysis.timestamp || new Date().toISOString()
+          timestamp: savedAnalysis.timestamp || new Date().toISOString(),
         } as IntegratedAnalysisResponse;
-        
+
         // 設置分析狀態
         analysisState.integratedAnalysis.value = formattedResult;
         console.log('已從 sessionStorage 載入並格式化分析結果');
-        
+
         // 如果有已保存的分析結果但缺少完整資料，重新分析
-        if (savedBirthInfo && formattedResult.data.integratedAnalysis && 
-            Object.keys(formattedResult.data.integratedAnalysis).length === 0) {
+        if (
+          savedBirthInfo &&
+          formattedResult.data.integratedAnalysis &&
+          Object.keys(formattedResult.data.integratedAnalysis).length === 0
+        ) {
           console.log('檢測到不完整的分析結果，準備重新分析');
           submitAnalysis(true);
         }
@@ -571,7 +684,7 @@ const loadFromSessionStorage = () => {
         storageService.clearAnalysisData('integrated');
       }
     }
-    
+
     // 使用增強版存儲服務驗證資料
     try {
       console.log('使用增強版存儲服務驗證資料');
@@ -579,10 +692,10 @@ const loadFromSessionStorage = () => {
     } catch (validateError) {
       console.error('驗證資料時出錯:', validateError);
     }
-    
+
     console.log('從 sessionStorage 載入的整合分析資料總結:', {
       birthInfo: !!savedBirthInfo,
-      analysis: !!savedAnalysis
+      analysis: !!savedAnalysis,
     });
   } catch (error) {
     console.error('從 sessionStorage 載入資料時出錯:', error);
@@ -595,7 +708,7 @@ const loadFromSessionStorage = () => {
 const setupComponentData = () => {
   console.log('IntegratedAnalysisView 組件初始化');
   loadFromSessionStorage();
-  
+
   // 初始化增強存儲服務
   try {
     enhancedStorageService.initializeStorage();
@@ -913,35 +1026,35 @@ onMounted(() => {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .form-header,
   .result-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .header-actions {
     width: 100%;
     justify-content: flex-end;
   }
-  
+
   .submit-button {
     height: 44px;
   }
-  
+
   .placeholder {
     padding: 30px 15px;
   }
-  
+
   .feature-preview {
     margin-top: 20px;
     padding: 15px;
   }
-  
+
   .preview-item {
     padding: 8px;
   }
-  
+
   :deep(.el-collapse-item__header) {
     padding: 10px 12px;
     font-size: 14px;
@@ -952,16 +1065,16 @@ onMounted(() => {
   .header-title {
     font-size: 16px;
   }
-  
+
   .placeholder h3 {
     font-size: 18px;
   }
-  
+
   .submit-button {
     height: 42px;
     font-size: 14px;
   }
-  
+
   :deep(.el-form-item__label) {
     font-size: 14px;
   }

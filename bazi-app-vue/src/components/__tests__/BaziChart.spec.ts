@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mount, VueWrapper } from '@vue/test-utils';
+import { mount, type VueWrapper } from '@vue/test-utils';
 import BaziChart from '../BaziChart.vue';
 // Import TenGod for type safety (it's exported as TenGod in baziCalc.ts)
 import type { BaziResult, TenGodsPillars, TenGod } from '../../utils/baziCalc';
@@ -11,18 +11,38 @@ describe('BaziChart.vue', () => {
   let wrapper: VueWrapper<any>;
 
   const mockBaziResult: BaziResult = {
-    yearPillar: { stem: '甲', branch: '子', stemElement: '木', branchElement: '水' },
-    monthPillar: { stem: '丙', branch: '寅', stemElement: '火', branchElement: '木' },
-    dayPillar: { stem: '戊', branch: '辰', stemElement: '土', branchElement: '土' }, // Day Master is 戊
-    hourPillar: { stem: '庚', branch: '午', stemElement: '金', branchElement: '火' },
+    yearPillar: {
+      stem: '甲',
+      branch: '子',
+      stemElement: '木',
+      branchElement: '水',
+    },
+    monthPillar: {
+      stem: '丙',
+      branch: '寅',
+      stemElement: '火',
+      branchElement: '木',
+    },
+    dayPillar: {
+      stem: '戊',
+      branch: '辰',
+      stemElement: '土',
+      branchElement: '土',
+    }, // Day Master is 戊
+    hourPillar: {
+      stem: '庚',
+      branch: '午',
+      stemElement: '金',
+      branchElement: '火',
+    },
   };
 
   // Corrected TenGods based on Day Master 戊
   const correctedMockTenGodsResult: TenGodsPillars = {
-    yearStemGod: '七殺' as TenGod,    // 甲 (wood) vs 戊 (earth) -> Wood controls Earth (Yang vs Yang) -> 七殺
-    monthStemGod: '偏印' as TenGod,   // 丙 (fire) vs 戊 (earth) -> Fire produces Earth (Yang vs Yang) -> 偏印
-    dayStemGod: '比肩' as TenGod,     // 戊 (earth) vs 戊 (earth) -> Same element, same polarity -> 比肩
-    hourStemGod: '食神' as TenGod,    // 庚 (metal) vs 戊 (earth) -> Earth produces Metal (Yang vs Yang) -> 食神
+    yearStemGod: '七殺' as TenGod, // 甲 (wood) vs 戊 (earth) -> Wood controls Earth (Yang vs Yang) -> 七殺
+    monthStemGod: '偏印' as TenGod, // 丙 (fire) vs 戊 (earth) -> Fire produces Earth (Yang vs Yang) -> 偏印
+    dayStemGod: '比肩' as TenGod, // 戊 (earth) vs 戊 (earth) -> Same element, same polarity -> 比肩
+    hourStemGod: '食神' as TenGod, // 庚 (metal) vs 戊 (earth) -> Earth produces Metal (Yang vs Yang) -> 食神
   };
 
   const mountComponent = (propsData: any) => {
@@ -67,47 +87,66 @@ describe('BaziChart.vue', () => {
       expect(pillarWrapper.find('h5').text()).toBe(pData.name);
       const stemBranchElements = pillarWrapper.findAll('.stem-branch');
       expect(stemBranchElements[0].find('.char').text()).toBe(pData.data.stem);
-      expect(stemBranchElements[0].find('.label').text()).toBe(`(${pData.data.stemElement})`);
-      expect(stemBranchElements[1].find('.char').text()).toBe(pData.data.branch);
-      expect(stemBranchElements[1].find('.label').text()).toBe(`(${pData.data.branchElement})`);
+      expect(stemBranchElements[0].find('.label').text()).toBe(
+        `(${pData.data.stemElement})`,
+      );
+      expect(stemBranchElements[1].find('.char').text()).toBe(
+        pData.data.branch,
+      );
+      expect(stemBranchElements[1].find('.label').text()).toBe(
+        `(${pData.data.branchElement})`,
+      );
     });
   });
 
   it('displays Ten Gods information if provided', () => {
-    wrapper = mountComponent({ bazi: mockBaziResult, tenGods: correctedMockTenGodsResult });
+    wrapper = mountComponent({
+      bazi: mockBaziResult,
+      tenGods: correctedMockTenGodsResult,
+    });
     const pillarElements = wrapper.findAll('.pillar-card-display');
-    expect(pillarElements[0].find('.ten-god').text()).toBe(correctedMockTenGodsResult.hourStemGod);
-    expect(pillarElements[1].find('.ten-god').text()).toBe(correctedMockTenGodsResult.dayStemGod);
-    expect(pillarElements[2].find('.ten-god').text()).toBe(correctedMockTenGodsResult.monthStemGod);
-    expect(pillarElements[3].find('.ten-god').text()).toBe(correctedMockTenGodsResult.yearStemGod);
+    expect(pillarElements[0].find('.ten-god').text()).toBe(
+      correctedMockTenGodsResult.hourStemGod,
+    );
+    expect(pillarElements[1].find('.ten-god').text()).toBe(
+      correctedMockTenGodsResult.dayStemGod,
+    );
+    expect(pillarElements[2].find('.ten-god').text()).toBe(
+      correctedMockTenGodsResult.monthStemGod,
+    );
+    expect(pillarElements[3].find('.ten-god').text()).toBe(
+      correctedMockTenGodsResult.yearStemGod,
+    );
   });
 
   it('does not display Ten Gods if not provided or null', () => {
     wrapper = mountComponent({ bazi: mockBaziResult, tenGods: null });
     const tenGodElements = wrapper.findAll('.ten-god');
-    tenGodElements.forEach(el => {
-        expect(el.text().trim()).toBe(''); 
+    tenGodElements.forEach((el) => {
+      expect(el.text().trim()).toBe('');
     });
   });
-  
+
   it('highlights specified pillars', async () => {
-    wrapper = mountComponent({ 
-      bazi: mockBaziResult, 
-      highlightedPillars: ['monthPillar', 'dayPillar'] as PillarKey[] 
+    wrapper = mountComponent({
+      bazi: mockBaziResult,
+      highlightedPillars: ['monthPillar', 'dayPillar'] as PillarKey[],
     });
-    await wrapper.vm.$nextTick(); 
+    await wrapper.vm.$nextTick();
 
     const pillars = wrapper.findAll('.pillar-card-display');
     expect(pillars[0].classes().includes('highlighted')).toBe(false); // Hour
-    expect(pillars[1].classes().includes('highlighted')).toBe(true);  // Day
-    expect(pillars[2].classes().includes('highlighted')).toBe(true);  // Month
+    expect(pillars[1].classes().includes('highlighted')).toBe(true); // Day
+    expect(pillars[2].classes().includes('highlighted')).toBe(true); // Month
     expect(pillars[3].classes().includes('highlighted')).toBe(false); // Year
   });
 
   it('does not render if bazi prop is not provided (or null)', () => {
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const consoleWarnSpy = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => {});
     // @ts-ignore to test missing required prop, as bazi is required
-    wrapper = mount(BaziChart, { props: { tenGods: null } }); 
+    wrapper = mount(BaziChart, { props: { tenGods: null } });
     expect(wrapper.find('.bazi-chart').exists()).toBe(false);
     consoleWarnSpy.mockRestore();
   });

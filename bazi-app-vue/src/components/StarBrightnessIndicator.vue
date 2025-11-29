@@ -1,6 +1,6 @@
 <template>
   <div class="star-brightness-indicator">
-    <span 
+    <span
       :class="['brightness-badge', `brightness-${brightness}`]"
       :title="getBrightnessDescription(brightness)"
     >
@@ -10,26 +10,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
 interface Props {
-  brightness?: string
+  brightness?: string;
 }
 
-const props = defineProps<Props>()
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+const props = defineProps<Props>();
 
 const getBrightnessDescription = (brightness?: string): string => {
   const descriptions: Record<string, string> = {
-    '廟': '星曜最強勢，能量發揮到極致',
-    '旺': '星曜強勢，表現優異',
-    '得地': '星曜穩定，表現良好',
-    '利益': '星曜平穩，有一定助益',
-    '平和': '星曜中性，影響適中',
-    '不得地': '星曜較弱，影響有限',
-    '落陷': '星曜最弱，需要調和'
-  }
-  return descriptions[brightness || ''] || '亮度未知'
-}
+    廟: '星曜最強勢，能量發揮到極致',
+    旺: '星曜強勢，表現優異',
+    得地: '星曜穩定，表現良好',
+    利益: '星曜平穩，有一定助益',
+    平和: '星曜中性，影響適中',
+    不得地: '星曜較弱，影響有限',
+    落陷: '星曜最弱，需要調和',
+  };
+  return descriptions[brightness || ''] || '亮度未知';
+};
 </script>
 
 <style scoped>

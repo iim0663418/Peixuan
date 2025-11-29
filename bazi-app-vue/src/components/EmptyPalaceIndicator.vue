@@ -4,21 +4,21 @@
       <span class="empty-icon">○</span>
       <span class="empty-text">空宮</span>
     </div>
-    
+
     <div v-if="borrowedPalace" class="borrowed-info">
       <div class="borrowed-label">借星</div>
       <div class="borrowed-palace">
         <span class="palace-name">{{ borrowedPalace.name }}</span>
         <div class="borrowed-stars">
-          <div 
-            v-for="star in borrowedPalace.mainStars" 
+          <div
+            v-for="star in borrowedPalace.mainStars"
             :key="star.name"
             class="borrowed-star"
           >
             <span class="star-name">{{ star.name }}</span>
-            <StarBrightnessIndicator 
-              v-if="star.brightness" 
-              :brightness="star.brightness" 
+            <StarBrightnessIndicator
+              v-if="star.brightness"
+              :brightness="star.brightness"
             />
             <span class="power-reduction">7成</span>
           </div>
@@ -42,28 +42,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import StarBrightnessIndicator from './StarBrightnessIndicator.vue'
+import StarBrightnessIndicator from './StarBrightnessIndicator.vue';
 
 interface Star {
-  name: string
-  brightness?: string
-  type?: string
+  name: string;
+  brightness?: string;
+  type?: string;
 }
 
 interface BorrowedPalace {
-  name: string
-  mainStars: Star[]
+  name: string;
+  mainStars: Star[];
 }
 
 interface Props {
-  borrowedPalace?: BorrowedPalace
-  showTooltip?: boolean
+  borrowedPalace?: BorrowedPalace;
+  showTooltip?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  showTooltip: false
-})
+  showTooltip: false,
+});
 </script>
 
 <style scoped>
@@ -200,16 +199,16 @@ const props = withDefaults(defineProps<Props>(), {
   .tooltip {
     width: 200px;
   }
-  
+
   .tooltip-content {
     font-size: 11px;
     padding: 10px;
   }
-  
+
   .borrowed-info {
     font-size: 9px;
   }
-  
+
   .star-name {
     font-size: 8px;
   }

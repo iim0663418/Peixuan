@@ -1,7 +1,6 @@
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useLayeredReading } from '@/composables/useLayeredReading';
 import { ReadingLevel } from '@/types/layeredReading';
-import type { ReadingLevel as ReadingLevelType } from '@/types/layeredReading';
 
 // 全域共享狀態
 const purpleStarReadingLevel = ref<ReadingLevel>(ReadingLevel.STANDARD);
@@ -11,7 +10,9 @@ const isInitialized = ref(false);
  * 紫微斗數和四化飛星共享的分層閱讀管理
  * 紫微斗數為主控，四化飛星自動同步
  */
-export function useSharedLayeredReading(moduleType: 'purpleStar' | 'transformationStars') {
+export function useSharedLayeredReading(
+  moduleType: 'purpleStar' | 'transformationStars',
+) {
   const {
     readingState,
     userPreferences,
@@ -26,13 +27,15 @@ export function useSharedLayeredReading(moduleType: 'purpleStar' | 'transformati
     autoSelectOptimalLevel,
     updateLayeredData,
     saveUserPreferences,
-    resetToDefaults
+    resetToDefaults,
   } = useLayeredReading();
 
   // 初始化共享狀態
   if (!isInitialized.value) {
     // 從 sessionStorage 初始化或使用預設值
-    const savedLevel = sessionStorage.getItem('purple-star-reading-level') as ReadingLevel;
+    const savedLevel = sessionStorage.getItem(
+      'purple-star-reading-level',
+    ) as ReadingLevel;
     if (savedLevel && Object.values(ReadingLevel).includes(savedLevel)) {
       purpleStarReadingLevel.value = savedLevel;
     } else {
@@ -52,43 +55,68 @@ export function useSharedLayeredReading(moduleType: 'purpleStar' | 'transformati
       return readingState.currentLevel;
     },
     set: (newLevel: ReadingLevel) => {
-      console.log(`useSharedLayeredReading[${moduleType}]: effectiveReadingLevel.set 被調用，newLevel=${newLevel}`);
-      
+      console.log(
+        `useSharedLayeredReading[${moduleType}]: effectiveReadingLevel.set 被調用，newLevel=${newLevel}`,
+      );
+
       if (moduleType === 'purpleStar') {
         // 紫微斗數更新時，同時更新共享狀態
-        console.log(`useSharedLayeredReading: 紫微斗數更新共享狀態: ${purpleStarReadingLevel.value} → ${newLevel}`);
+        console.log(
+          `useSharedLayeredReading: 紫微斗數更新共享狀態: ${purpleStarReadingLevel.value} → ${newLevel}`,
+        );
         purpleStarReadingLevel.value = newLevel;
         // 保存到 sessionStorage
         sessionStorage.setItem('purple-star-reading-level', newLevel);
         // 觸發自定義事件通知四化飛星更新
-        window.dispatchEvent(new CustomEvent('purple-star-level-changed', {
-          detail: { level: newLevel }
-        }));
-        console.log(`useSharedLayeredReading: 已發送 purple-star-level-changed 事件: ${newLevel}`);
+        window.dispatchEvent(
+          new CustomEvent('purple-star-level-changed', {
+            detail: { level: newLevel },
+          }),
+        );
+        console.log(
+          `useSharedLayeredReading: 已發送 purple-star-level-changed 事件: ${newLevel}`,
+        );
       }
       // 更新本地狀態
       switchToLevel(newLevel);
-    }
+    },
   });
 
   // 監聽紫微斗數層級變化（僅四化飛星需要）
   if (moduleType === 'transformationStars') {
     const handlePurpleStarLevelChange = (event: CustomEvent) => {
-      console.log(`useSharedLayeredReading[transformationStars]: 收到 purple-star-level-changed 事件`, event.detail);
-      if (event.detail?.level && event.detail.level !== readingState.currentLevel) {
-        console.log(`useSharedLayeredReading[transformationStars]: 切換層級 ${readingState.currentLevel} → ${event.detail.level}`);
+      console.log(
+        `useSharedLayeredReading[transformationStars]: 收到 purple-star-level-changed 事件`,
+        event.detail,
+      );
+      if (
+        event.detail?.level &&
+        event.detail.level !== readingState.currentLevel
+      ) {
+        console.log(
+          `useSharedLayeredReading[transformationStars]: 切換層級 ${readingState.currentLevel} → ${event.detail.level}`,
+        );
         switchToLevel(event.detail.level);
       } else {
-        console.log(`useSharedLayeredReading[transformationStars]: 層級相同，無需切換: ${event.detail?.level}`);
+        console.log(
+          `useSharedLayeredReading[transformationStars]: 層級相同，無需切換: ${event.detail?.level}`,
+        );
       }
     };
 
-    window.addEventListener('purple-star-level-changed', handlePurpleStarLevelChange as EventListener);
-    console.log(`useSharedLayeredReading[transformationStars]: 已註冊 purple-star-level-changed 監聽器`);
-    
+    window.addEventListener(
+      'purple-star-level-changed',
+      handlePurpleStarLevelChange as EventListener,
+    );
+    console.log(
+      `useSharedLayeredReading[transformationStars]: 已註冊 purple-star-level-changed 監聽器`,
+    );
+
     // 同步初始狀態
     if (purpleStarReadingLevel.value !== readingState.currentLevel) {
-      console.log(`useSharedLayeredReading[transformationStars]: 同步初始狀態 ${readingState.currentLevel} → ${purpleStarReadingLevel.value}`);
+      console.log(
+        `useSharedLayeredReading[transformationStars]: 同步初始狀態 ${readingState.currentLevel} → ${purpleStarReadingLevel.value}`,
+      );
       switchToLevel(purpleStarReadingLevel.value);
     }
   }
@@ -137,9 +165,8 @@ export function useSharedLayeredReading(moduleType: 'purpleStar' | 'transformati
   const syncStatusDescription = computed(() => {
     if (moduleType === 'purpleStar') {
       return '主控模組 - 變更將同步至四化飛星';
-    } else {
-      return '同步模組 - 自動跟隨紫微斗數設定';
     }
+    return '同步模組 - 自動跟隨紫微斗數設定';
   });
 
   return {
@@ -169,7 +196,7 @@ export function useSharedLayeredReading(moduleType: 'purpleStar' | 'transformati
     syncStatusDescription,
 
     // 共享狀態
-    purpleStarReadingLevel: computed(() => purpleStarReadingLevel.value)
+    purpleStarReadingLevel: computed(() => purpleStarReadingLevel.value),
   };
 }
 
@@ -186,7 +213,9 @@ export function getPurpleStarReadingLevel(): ReadingLevel {
 export function resetSharedLayeredReading() {
   purpleStarReadingLevel.value = ReadingLevel.STANDARD;
   sessionStorage.removeItem('purple-star-reading-level');
-  window.dispatchEvent(new CustomEvent('purple-star-level-changed', {
-    detail: { level: ReadingLevel.STANDARD }
-  }));
+  window.dispatchEvent(
+    new CustomEvent('purple-star-level-changed', {
+      detail: { level: ReadingLevel.STANDARD },
+    }),
+  );
 }

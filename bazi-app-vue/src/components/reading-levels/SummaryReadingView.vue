@@ -1,5 +1,8 @@
 <template>
-  <div class="summary-reading-view" :class="{ 'mobile': isMobile, 'compact': isCompact }">
+  <div
+    class="summary-reading-view"
+    :class="{ mobile: isMobile, compact: isCompact }"
+  >
     <!-- 頂部概要卡片 -->
     <div class="overview-card">
       <div class="card-header">
@@ -24,31 +27,35 @@
           核心特質
         </h4>
         <div class="traits-grid">
-          <div 
-            v-for="(trait, index) in displayedCoreTraits" 
+          <div
+            v-for="(trait, index) in displayedCoreTraits"
             :key="index"
             class="trait-item"
-            :class="{ 'primary': index === 0, 'secondary': index > 0 }"
+            :class="{ primary: index === 0, secondary: index > 0 }"
           >
             <div class="trait-content">
               <span class="trait-icon">{{ getTraitIcon(index) }}</span>
               <span class="trait-text">{{ trait }}</span>
             </div>
           </div>
-          
+
           <!-- 展開更多按鈕 -->
-          <div 
+          <div
             v-if="coreTraits.length > maxDisplayedTraits"
             class="expand-button"
             @click="toggleExpanded"
           >
-            <el-button 
-              :icon="expanded ? ArrowUp : ArrowDown" 
-              size="small" 
-              type="primary" 
+            <el-button
+              :icon="expanded ? ArrowUp : ArrowDown"
+              size="small"
+              type="primary"
               text
             >
-              {{ expanded ? '收起' : `還有 ${coreTraits.length - maxDisplayedTraits} 項` }}
+              {{
+                expanded
+                  ? '收起'
+                  : `還有 ${coreTraits.length - maxDisplayedTraits} 項`
+              }}
             </el-button>
           </div>
         </div>
@@ -66,16 +73,16 @@
               {{ currentFortune }}
             </div>
             <div class="fortune-score">
-              <el-rate 
-                v-model="fortuneScore" 
-                :max="5" 
-                disabled 
-                show-score 
+              <el-rate
+                v-model="fortuneScore"
+                :max="5"
+                disabled
+                show-score
                 score-template="運勢指數"
               />
             </div>
           </div>
-          
+
           <!-- 運勢趨勢指示器 -->
           <div class="trend-indicator">
             <div class="trend-arrow" :class="getTrendClass()">
@@ -90,14 +97,14 @@
     </div>
 
     <!-- 快速行動建議 -->
-    <div class="quick-actions-card" v-if="quickActions.length > 0">
+    <div v-if="quickActions.length > 0" class="quick-actions-card">
       <h4 class="section-title">
         <el-icon><Lightning /></el-icon>
         即時建議
       </h4>
       <div class="actions-list">
-        <div 
-          v-for="(action, index) in quickActions.slice(0, 3)" 
+        <div
+          v-for="(action, index) in quickActions.slice(0, 3)"
           :key="index"
           class="action-item"
         >
@@ -110,7 +117,7 @@
     </div>
 
     <!-- 升級提示 -->
-    <div class="upgrade-prompt" v-if="canUpgrade">
+    <div v-if="canUpgrade" class="upgrade-prompt">
       <div class="prompt-content">
         <div class="prompt-icon">
           <el-icon :size="24" color="#409EFF"><ArrowRight /></el-icon>
@@ -120,8 +127,8 @@
           <p>升級到「精簡檢視」或「標準解讀」獲得更詳細的分析</p>
         </div>
         <div class="prompt-actions">
-          <el-button 
-            type="primary" 
+          <el-button
+            type="primary"
             size="small"
             @click="$emit('upgradeRequested')"
           >
@@ -142,19 +149,18 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { 
-  Star, 
-  TrendCharts, 
-  Lightning, 
-  ArrowRight, 
-  ArrowUp, 
+import {
+  Star,
+  TrendCharts,
+  Lightning,
+  ArrowRight,
+  ArrowUp,
   ArrowDown,
   InfoFilled,
   TopRight,
   Top,
-  Bottom
+  Bottom,
 } from '@element-plus/icons-vue';
-import type { LayeredContent } from '@/types/layeredReading';
 
 // Props
 interface Props {
@@ -173,11 +179,12 @@ const props = withDefaults(defineProps<Props>(), {
   canUpgrade: true,
   isMobile: false,
   isCompact: false,
-  timestamp: () => new Date()
+  timestamp: () => new Date(),
 });
 
 // Emits
-const emit = defineEmits<{
+// eslint-disable-next-line no-unused-vars
+const _emit = defineEmits<{
   upgradeRequested: [];
   traitSelected: [trait: string, index: number];
   actionSelected: [action: string, index: number];
@@ -189,8 +196,12 @@ const fortuneScore = ref(4); // 模擬運勢評分
 
 // 計算屬性
 const maxDisplayedTraits = computed(() => {
-  if (props.isMobile) return 2;
-  if (props.isCompact) return 3;
+  if (props.isMobile) {
+    return 2;
+  }
+  if (props.isCompact) {
+    return 3;
+  }
   return expanded.value ? props.coreTraits.length : 4;
 });
 
@@ -203,7 +214,7 @@ const formattedTimestamp = computed(() => {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
 });
 
@@ -213,8 +224,12 @@ const toggleExpanded = () => {
 };
 
 const getCompletenessType = (completeness: number) => {
-  if (completeness >= 80) return 'success';
-  if (completeness >= 60) return 'warning';
+  if (completeness >= 80) {
+    return 'success';
+  }
+  if (completeness >= 60) {
+    return 'warning';
+  }
   return 'info';
 };
 
@@ -230,31 +245,46 @@ const getActionIcon = (index: number) => {
 
 const getTrendClass = () => {
   const score = fortuneScore.value;
-  if (score >= 4) return 'trend-up';
-  if (score >= 3) return 'trend-stable';
+  if (score >= 4) {
+    return 'trend-up';
+  }
+  if (score >= 3) {
+    return 'trend-stable';
+  }
   return 'trend-down';
 };
 
 const getTrendIcon = () => {
   const score = fortuneScore.value;
-  if (score >= 4) return TopRight;
-  if (score >= 3) return Top;
+  if (score >= 4) {
+    return TopRight;
+  }
+  if (score >= 3) {
+    return Top;
+  }
   return Bottom;
 };
 
 const getTrendText = () => {
   const score = fortuneScore.value;
-  if (score >= 4) return '上升趨勢';
-  if (score >= 3) return '平穩發展';
+  if (score >= 4) {
+    return '上升趨勢';
+  }
+  if (score >= 3) {
+    return '平穩發展';
+  }
   return '需要注意';
 };
 
 // 監聽資料變化，自動調整展示
-watch(() => props.coreTraits.length, (newLength) => {
-  if (newLength <= maxDisplayedTraits.value) {
-    expanded.value = false;
-  }
-});
+watch(
+  () => props.coreTraits.length,
+  (newLength) => {
+    if (newLength <= maxDisplayedTraits.value) {
+      expanded.value = false;
+    }
+  },
+);
 </script>
 
 <style scoped>
@@ -588,10 +618,18 @@ watch(() => props.coreTraits.length, (newLength) => {
   animation: fadeInUp 0.3s ease;
 }
 
-.trait-item:nth-child(1) { animation-delay: 0.1s; }
-.trait-item:nth-child(2) { animation-delay: 0.2s; }
-.trait-item:nth-child(3) { animation-delay: 0.3s; }
-.trait-item:nth-child(4) { animation-delay: 0.4s; }
+.trait-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.trait-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.trait-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.trait-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
 
 @keyframes fadeInUp {
   from {
@@ -609,19 +647,19 @@ watch(() => props.coreTraits.length, (newLength) => {
   .level-icon {
     font-size: 24px;
   }
-  
+
   .level-info h3 {
     font-size: 16px;
   }
-  
+
   .section-title {
     font-size: 14px;
   }
-  
+
   .trait-text {
     font-size: 13px;
   }
-  
+
   .fortune-text {
     font-size: 14px;
     padding: 12px;
@@ -636,17 +674,17 @@ watch(() => props.coreTraits.length, (newLength) => {
     border-color: #333;
     color: #fff;
   }
-  
+
   .trait-item {
     background: linear-gradient(135deg, #2a2a2a 0%, #333 100%);
     border-color: #444;
   }
-  
+
   .fortune-text {
     background: #2a2a2a;
     color: #fff;
   }
-  
+
   .upgrade-prompt {
     background: linear-gradient(135deg, #1a2f3a 0%, #2a3f4a 100%);
     border-color: #3a5f6a;

@@ -4,17 +4,17 @@
     <p class="description">{{ $t('chart.description') }}</p>
 
     <!-- 輸入表單 -->
-    <form @submit.prevent="calculateChart" class="calculator-form">
+    <form class="calculator-form" @submit.prevent="calculateChart">
       <div class="form-section">
         <h3>{{ $t('chart.birth_info') }}</h3>
-        
+
         <!-- 出生年份 -->
         <div class="form-group">
           <label for="birth-year">{{ $t('chart.birth_year') }}:</label>
           <input
             id="birth-year"
-            type="number"
             v-model.number="formData.year"
+            type="number"
             :min="1900"
             :max="2100"
             required
@@ -27,8 +27,8 @@
           <label for="birth-month">{{ $t('chart.birth_month') }}:</label>
           <input
             id="birth-month"
-            type="number"
             v-model.number="formData.month"
+            type="number"
             :min="1"
             :max="12"
             required
@@ -41,8 +41,8 @@
           <label for="birth-day">{{ $t('chart.birth_day') }}:</label>
           <input
             id="birth-day"
-            type="number"
             v-model.number="formData.day"
+            type="number"
             :min="1"
             :max="31"
             required
@@ -55,8 +55,8 @@
           <label for="birth-hour">{{ $t('chart.birth_hour') }} (0-23):</label>
           <input
             id="birth-hour"
-            type="number"
             v-model.number="formData.hour"
+            type="number"
             :min="0"
             :max="23"
             required
@@ -66,11 +66,13 @@
 
         <!-- 出生分鐘 -->
         <div class="form-group">
-          <label for="birth-minute">{{ $t('chart.birth_minute') }} (0-59):</label>
+          <label for="birth-minute"
+            >{{ $t('chart.birth_minute') }} (0-59):</label
+          >
           <input
             id="birth-minute"
-            type="number"
             v-model.number="formData.minute"
+            type="number"
             :min="0"
             :max="59"
             class="form-control"
@@ -82,11 +84,11 @@
           <label>{{ $t('chart.gender') }}:</label>
           <div class="radio-group">
             <label class="radio-label">
-              <input type="radio" v-model="formData.gender" value="male" />
+              <input v-model="formData.gender" type="radio" value="male" />
               {{ $t('chart.male') }}
             </label>
             <label class="radio-label">
-              <input type="radio" v-model="formData.gender" value="female" />
+              <input v-model="formData.gender" type="radio" value="female" />
               {{ $t('chart.female') }}
             </label>
           </div>
@@ -95,11 +97,15 @@
 
       <!-- 提交按鈕 -->
       <div class="form-actions">
-        <button type="submit" :disabled="isLoading || !isFormValid" class="btn btn-primary">
-          <span v-if="isLoading" class="loading-spinner"></span>
+        <button
+          type="submit"
+          :disabled="isLoading || !isFormValid"
+          class="btn btn-primary"
+        >
+          <span v-if="isLoading" class="loading-spinner" />
           {{ isLoading ? $t('common.loading') : $t('chart.generate') }}
         </button>
-        <button type="button" @click="resetForm" class="btn btn-secondary">
+        <button type="button" class="btn btn-secondary" @click="resetForm">
           {{ $t('common.reset') }}
         </button>
       </div>
@@ -114,7 +120,7 @@
     <!-- 計算結果 -->
     <div v-if="chartResult && !isLoading" class="chart-result">
       <h3>{{ $t('chart.result_title') }}</h3>
-      
+
       <!-- 基本資訊 -->
       <div class="result-summary">
         <div class="summary-item">
@@ -139,25 +145,28 @@
             v-for="(palace, index) in chartResult.palaces"
             :key="index"
             class="palace-card"
-            @click="selectPalace(palace)"
-            :class="{ 
+            :class="{
               active: selectedPalace?.name === palace.name,
               ming: index === 0,
-              shen: index === getRelativeShenIndex()
+              shen: index === getRelativeShenIndex(),
             }"
+            @click="selectPalace(palace)"
           >
             <div class="palace-name">
               {{ palace.name }}
               <span class="palace-zhi">({{ palace.zhi }})</span>
             </div>
             <div class="palace-stars">
-              <div 
-                v-for="star in palace.stars" 
-                :key="star.name" 
+              <div
+                v-for="star in palace.stars"
+                :key="star.name"
                 :class="['star', `star-${star.type}`]"
               >
                 {{ star.name }}
-                <span v-if="star.transformations && star.transformations.length > 0" class="transformations">
+                <span
+                  v-if="star.transformations && star.transformations.length > 0"
+                  class="transformations"
+                >
                   {{ star.transformations.join('') }}
                 </span>
               </div>
@@ -177,9 +186,18 @@
           <div class="detail-section">
             <strong>星曜:</strong>
             <div class="stars-list">
-              <div v-for="star in selectedPalace.stars" :key="star.name" class="star-item">
-                <span :class="['star-name', `star-${star.type}`]">{{ star.name }}</span>
-                <span v-if="star.transformations && star.transformations.length > 0" class="transformations">
+              <div
+                v-for="star in selectedPalace.stars"
+                :key="star.name"
+                class="star-item"
+              >
+                <span :class="['star-name', `star-${star.type}`]">{{
+                  star.name
+                }}</span>
+                <span
+                  v-if="star.transformations && star.transformations.length > 0"
+                  class="transformations"
+                >
                   ({{ star.transformations.join('、') }})
                 </span>
               </div>
@@ -190,7 +208,7 @@
 
       <!-- 操作按鈕 -->
       <div class="result-actions">
-        <button @click="exportChart" class="btn btn-info">
+        <button class="btn btn-info" @click="exportChart">
           {{ $t('chart.export_chart') }}
         </button>
       </div>
@@ -206,7 +224,20 @@ import apiService from '../services/apiService';
 const { t } = useI18n();
 
 // 地支名稱
-const ZHI_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+const ZHI_NAMES = [
+  '子',
+  '丑',
+  '寅',
+  '卯',
+  '辰',
+  '巳',
+  '午',
+  '未',
+  '申',
+  '酉',
+  '戌',
+  '亥',
+];
 
 // 響應式資料
 const isLoading = ref(false);
@@ -221,22 +252,24 @@ const formData = reactive({
   day: 1,
   hour: 12,
   minute: 0,
-  gender: 'male' as 'male' | 'female'
+  gender: 'male' as 'male' | 'female',
 });
 
 // 計算屬性
 const isFormValid = computed(() => {
-  return formData.year >= 1900 &&
-         formData.year <= 2100 &&
-         formData.month >= 1 &&
-         formData.month <= 12 &&
-         formData.day >= 1 &&
-         formData.day <= 31 &&
-         formData.hour >= 0 &&
-         formData.hour <= 23 &&
-         formData.minute >= 0 &&
-         formData.minute <= 59 &&
-         formData.gender;
+  return (
+    formData.year >= 1900 &&
+    formData.year <= 2100 &&
+    formData.month >= 1 &&
+    formData.month <= 12 &&
+    formData.day >= 1 &&
+    formData.day <= 31 &&
+    formData.hour >= 0 &&
+    formData.hour <= 23 &&
+    formData.minute >= 0 &&
+    formData.minute <= 59 &&
+    formData.gender
+  );
 });
 
 // 輔助方法
@@ -245,7 +278,9 @@ const getZhiName = (index: number): string => {
 };
 
 const getRelativeShenIndex = (): number => {
-  if (!chartResult.value) return -1;
+  if (!chartResult.value) {
+    return -1;
+  }
   const mingIndex = chartResult.value.mingPalaceIndex;
   const shenIndex = chartResult.value.shenPalaceIndex;
   // 計算身宮相對於命宮的相對位置
@@ -257,15 +292,15 @@ const convertToLunar = (solarDate: Date) => {
   try {
     // 使用全局的 Lunar 對象
     const solar = (window as any).Lunar.Solar.fromYmdHms(
-      solarDate.getFullYear(), 
-      solarDate.getMonth() + 1, 
-      solarDate.getDate(), 
-      solarDate.getHours(), 
-      solarDate.getMinutes(), 
-      solarDate.getSeconds()
+      solarDate.getFullYear(),
+      solarDate.getMonth() + 1,
+      solarDate.getDate(),
+      solarDate.getHours(),
+      solarDate.getMinutes(),
+      solarDate.getSeconds(),
     );
     const lunar = solar.getLunar();
-    
+
     return {
       year: lunar.getYear(),
       month: lunar.getMonth(),
@@ -282,7 +317,7 @@ const convertToLunar = (solarDate: Date) => {
       yearInGanZhi: lunar.getYearInGanZhi(),
       monthInGanZhi: lunar.getMonthInGanZhi(),
       dayInGanZhi: lunar.getDayInGanZhi(),
-      timeInGanZhi: lunar.getTimeInGanZhi()
+      timeInGanZhi: lunar.getTimeInGanZhi(),
     };
   } catch (error) {
     console.error('農曆轉換失敗:', error);
@@ -309,32 +344,32 @@ const calculateChart = async (): Promise<void> => {
       formData.month - 1,
       formData.day,
       formData.hour,
-      formData.minute
+      formData.minute,
     );
 
     // 轉換為農曆
     const lunarInfo = convertToLunar(birthDate);
-    
+
     // 組裝請求資料
     const requestData = {
       birthDate: birthDate.toISOString().split('T')[0], // YYYY-MM-DD 格式
       birthTime: `${formData.hour.toString().padStart(2, '0')}:${formData.minute.toString().padStart(2, '0')}:00`, // HH:MM:SS 格式
       gender: formData.gender,
-      lunarInfo: lunarInfo,
+      lunarInfo,
       options: {
         includeMajorCycles: true,
         includeMinorCycles: true,
         includeAnnualCycles: false,
         detailLevel: 'basic',
-        maxAge: 100
-      }
+        maxAge: 100,
+      },
     };
 
     console.log('發送計算請求:', requestData);
 
     // 調用 API
     const response = await apiService.calculatePurpleStar(requestData);
-    
+
     if (response.success && response.data) {
       chartResult.value = response.data.chart;
       console.log('計算結果:', response.data);
@@ -370,17 +405,19 @@ const selectPalace = (palace: any): void => {
 };
 
 const exportChart = (): void => {
-  if (!chartResult.value) return;
-  
+  if (!chartResult.value) {
+    return;
+  }
+
   const dataStr = JSON.stringify(chartResult.value, null, 2);
   const dataBlob = new Blob([dataStr], { type: 'application/json' });
   const url = URL.createObjectURL(dataBlob);
-  
+
   const link = document.createElement('a');
   link.href = url;
   link.download = `紫微斗數命盤_${new Date().toISOString().split('T')[0]}.json`;
   link.click();
-  
+
   URL.revokeObjectURL(url);
 };
 </script>
@@ -500,8 +537,12 @@ const exportChart = (): void => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-message {
@@ -668,16 +709,16 @@ const exportChart = (): void => {
   .ziwei-calculator {
     padding: 1rem;
   }
-  
+
   .form-actions,
   .result-actions {
     flex-direction: column;
   }
-  
+
   .btn {
     width: 100%;
   }
-  
+
   .palaces-container {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(6, 1fr);

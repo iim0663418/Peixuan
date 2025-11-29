@@ -1,12 +1,14 @@
 <template>
   <div class="language-selector">
-    <label for="language-select" class="sr-only">{{ $t('common.language') }}</label>
-    <select 
+    <label for="language-select" class="sr-only">{{
+      $t('common.language')
+    }}</label>
+    <select
       id="language-select"
-      v-model="currentLocale" 
-      @change="changeLanguage"
+      v-model="currentLocale"
       class="language-select"
       :aria-label="$t('common.language')"
+      @change="changeLanguage"
     >
       <option value="zh_TW">繁體中文</option>
       <option value="en">English</option>
@@ -26,7 +28,9 @@ const currentLocale = ref(locale.value);
 // 從 sessionStorage 讀取保存的語言設定
 function loadLanguagePreference(): string {
   try {
-    const savedLocale = sessionStorage.getItem('preferred-language') || localStorage.getItem('preferred-language');
+    const savedLocale =
+      sessionStorage.getItem('preferred-language') ||
+      localStorage.getItem('preferred-language');
     // 移除對簡體中文的支持
     if (savedLocale && ['en', 'zh_TW'].includes(savedLocale)) {
       return savedLocale;
@@ -36,9 +40,12 @@ function loadLanguagePreference(): string {
       return 'zh_TW';
     }
   } catch (error) {
-    console.warn('Failed to load language preference from sessionStorage:', error);
+    console.warn(
+      'Failed to load language preference from sessionStorage:',
+      error,
+    );
   }
-  
+
   // 如果沒有保存的設定，預設使用繁體中文
   return 'zh_TW';
 }
@@ -48,7 +55,10 @@ function saveLanguagePreference(language: string): void {
   try {
     sessionStorage.setItem('preferred-language', language);
   } catch (error) {
-    console.warn('Failed to save language preference to sessionStorage:', error);
+    console.warn(
+      'Failed to save language preference to sessionStorage:',
+      error,
+    );
   }
 }
 
@@ -92,7 +102,9 @@ watch(locale, (newLocale) => {
   background-color: white;
   color: #374151;
   cursor: pointer;
-  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition:
+    border-color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
   min-width: 120px;
 }
 
@@ -125,11 +137,11 @@ watch(locale, (newLocale) => {
     color: #f9fafb;
     border-color: #4b5563;
   }
-  
+
   .language-select:hover {
     border-color: #6b7280;
   }
-  
+
   .language-select:focus {
     border-color: #60a5fa;
     box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);

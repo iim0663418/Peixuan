@@ -298,22 +298,26 @@ const handleLevelChange = (newLevel: ReadingLevelType) => {
   }
 };
 
-const handleUpgrade = () => {
-  upgradeLevel().then((success: boolean) => {
+const handleUpgrade = async () => {
+  const result = upgradeLevel();
+  if (result !== false) {
+    const success = await result;
     if (success) {
       emit('upgradeRequested');
       ElMessage.success('已升級到更詳細的解讀層級');
     }
-  });
+  }
 };
 
-const handleDowngrade = () => {
-  downgradeLevel().then((success: boolean) => {
+const handleDowngrade = async () => {
+  const result = downgradeLevel();
+  if (result !== false) {
+    const success = await result;
     if (success) {
       emit('downgradeRequested');
       ElMessage.success('已降級到更簡潔的解讀層級');
     }
-  });
+  }
 };
 
 const handleAutoSelect = () => {

@@ -4,7 +4,6 @@ import type {
   HeavenlyStem,
   EarthlyBranch,
   BaziResult,
-  Pillar,
 } from './baziCalc';
 import { HEAVENLY_STEMS, EARTHLY_BRANCHES, STEM_TO_ELEMENT } from './baziCalc';
 

@@ -13,6 +13,7 @@ export interface DisplayModeProps {
 /**
  * 元件 Emits 介面定義，用於更新顯示模式
  */
+// eslint-disable-next-line no-unused-vars
 export interface DisplayModeEmits {
   (_event: 'update:displayMode', _mode: DisplayMode): void;
 }

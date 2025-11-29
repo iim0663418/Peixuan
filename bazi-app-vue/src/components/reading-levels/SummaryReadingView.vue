@@ -183,6 +183,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 // Emits
+// eslint-disable-next-line no-unused-vars
 const _emit = defineEmits<{
   upgradeRequested: [];
   traitSelected: [trait: string, index: number];

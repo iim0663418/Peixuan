@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import ElementsChart from '../ElementsChart.vue';

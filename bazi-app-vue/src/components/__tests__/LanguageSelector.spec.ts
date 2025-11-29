@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';

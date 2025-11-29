@@ -214,6 +214,7 @@ const props = defineProps({
   },
 });
 
+// eslint-disable-next-line no-unused-vars
 const emit = defineEmits<{
   (_e: 'level-changed', _level: ReadingLevel): void;
   (_e: 'update:modelValue', _mode: DisplayMode): void;

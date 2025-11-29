@@ -333,25 +333,33 @@ class PurpleStarCalculator {
     );
   }
   private extractBureauNumber(bureau: string | undefined): number | undefined {
-    console.log('提取五行局數字:', { bureau });
-
     if (!bureau) {
       throw new Error('五行局資料為空，無法進行後續計算');
     }
 
-    const match = bureau.match(/\d+/);
-    if (match) {
-      const number = parseInt(match[0], 10);
-      console.log('成功提取五行局數字:', number);
+    // 支援阿拉伯數字和中文數字
+    const chineseNumbers: Record<string, number> = {
+      '二': 2, '三': 3, '四': 4, '五': 5, '六': 6
+    };
 
-      // 驗證數字是否有效（應該是2,3,4,5,6之一）
+    // 先嘗試匹配阿拉伯數字
+    const arabicMatch = bureau.match(/\d+/);
+    if (arabicMatch) {
+      const number = parseInt(arabicMatch[0], 10);
       if ([2, 3, 4, 5, 6].includes(number)) {
         return number;
       }
       throw new Error(`提取到的五行局數字 ${number} 無效，應該是2,3,4,5,6之一`);
-    } else {
-      throw new Error(`無法從五行局 "${bureau}" 中提取有效數字`);
     }
+
+    // 嘗試匹配中文數字
+    for (const [chinese, arabic] of Object.entries(chineseNumbers)) {
+      if (bureau.includes(chinese)) {
+        return arabic;
+      }
+    }
+
+    throw new Error(`無法從五行局 "${bureau}" 中提取有效數字`);
   }
   private locateZiWeiStar(): number {
     const lunarDay = this.lunarDate.getDay();

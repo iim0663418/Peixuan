@@ -1,6 +1,7 @@
 <template>
   <Transition name="slide-fade">
     <div
+      v-if="true"
       class="global-display-panel"
       :class="{ collapsed: isCollapsed }"
       :aria-label="

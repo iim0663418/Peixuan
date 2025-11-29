@@ -133,7 +133,7 @@ export class FrontendValidator {
     if (!location.timezone) {
       errors.push('請選擇時區');
     } else {
-      const timezonePattern = /^(UTC[+-]\d{2}:\d{2}|[A-Za-z\/]+)$/;
+      const timezonePattern = /^(UTC[+-]\d{2}:\d{2}|[A-Za-z/]+)$/;
       if (!timezonePattern.test(location.timezone)) {
         errors.push('時區格式無效，請選擇有效的時區');
       }

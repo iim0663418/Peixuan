@@ -183,3 +183,21 @@ node_modules/
 # Task files
 tasks.json
 tasks/ 
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.cursor/
+.roo/
+.taskmaster/
+.amazonq/
+.claude/
+.windsurfrules
+.roomodes
+
+# Temporary
+*.tmp
+*.log
+/tmp/

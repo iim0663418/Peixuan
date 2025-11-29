@@ -54,6 +54,7 @@ export interface PurpleStarChart {
   palaces: Palace[];
   mingPalaceIndex: number; // 命宮的地支索引 (子=0)
   shenPalaceIndex: number; // 身宮的地支索引 (子=0)
+  mingGan?: string; // 命宮天干
   fiveElementsBureau?: string; // 五行局，例如 "水二局"
   daXian?: DaXianInfo[]; // 大限資訊
   xiaoXian?: XiaoXianInfo[]; // 小限資訊 (例如到100歲)
@@ -648,6 +649,7 @@ class PurpleStarCalculator {
       palaces,
       mingPalaceIndex: this.mingPalaceStdIndex,
       shenPalaceIndex: this.shenPalaceStdIndex,
+      mingGan: this.mingPalaceGan,
       fiveElementsBureau: this.fiveElementsBureau,
       daXian,
       xiaoXian,

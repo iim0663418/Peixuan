@@ -35,11 +35,8 @@
 		"strict": true,
 
     /* Skip type checking all .d.ts files. */
-		"skipLibCheck": true,
-		"types": [
-			"@cloudflare/workers-types"
-		]
+		"skipLibCheck": true
 	},
-	"exclude": ["test", "public", "dist", "node_modules"],
+	"exclude": ["test", "public", "dist", "node_modules", "**/*.d.ts"],
 	"include": ["src/**/*.ts"]
 }

@@ -15,10 +15,11 @@ describe('BaziCalculator', () => {
     });
     
     // 驗證四柱
-    expect(result.yearPillar).toBe('庚午');
-    expect(result.monthPillar).toBe('丙午');
-    expect(result.dayPillar).toBe('壬戌');
-    expect(result.hourPillar).toBe('己未');
+    expect(result).not.toBeNull();
+    expect(result!.yearPillar).toBe('庚午');
+    expect(result!.monthPillar).toBe('丙午');
+    expect(result!.dayPillar).toBe('壬戌');
+    expect(result!.hourPillar).toBe('己未');
   });
   
   // 測試八字納音

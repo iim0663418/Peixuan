@@ -39,9 +39,9 @@ jobs:
           cd peixuan-worker
           npm ci
 
-      # 編譯 Worker 代碼
-      - name: Build Worker
-        run: cd peixuan-worker && npm run build
+      # 編譯 Worker 代碼 (已預編譯並提交到 Git)
+      # - name: Build Worker
+      #   run: cd peixuan-worker && npm run build
 
       # 清理前端目錄避免類型污染
       - name: Clean Frontend Artifacts

@@ -66,7 +66,8 @@ const createOrUpdateChart = () => {
   if (chartInstance) {
     chartInstance.data.labels = labels;
     chartInstance.data.datasets = datasets;
-    chartInstance.config.type = props.chartType; // 允許圖表類型動態更改
+    // 使用類型斷言來更新圖表類型
+    (chartInstance.config as any).type = props.chartType;
     chartInstance.update();
   } else {
     chartInstance = new Chart(chartCanvasRef.value, {

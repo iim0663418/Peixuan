@@ -147,8 +147,7 @@ import BaziChart from './BaziChart.vue';
 import ElementsChart from './ElementsChart.vue';
 import YearlyFateTimeline, { type YearlyFateInfo } from './YearlyFateTimeline.vue';
 
-interface WindowWithCalendar extends Window { Lunar?: any; Solar?: any; LunarMonth?: any; }
-declare let window: WindowWithCalendar;
+// Window 介面已在 global.d.ts 中定義，這裡不需要重複聲明
 
 const userId = ref<string | null>(null);
 const conversionDisplayResult = ref<string>(''); 

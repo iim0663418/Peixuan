@@ -176,6 +176,7 @@ export interface LayeredEnergy {
 
 export interface PurpleStarAPIResponse {
   success: boolean;
+  error?: string; // 錯誤訊息（當 success 為 false 時）
   data: {
     chart: PurpleStarChart;
     calculationInfo: {

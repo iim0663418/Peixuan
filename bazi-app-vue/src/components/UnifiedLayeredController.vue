@@ -1,5 +1,8 @@
 <template>
-  <div class="unified-layered-controller" :class="{ 'mobile': isMobile, 'compact': isCompact }">
+  <div
+    class="unified-layered-controller"
+    :class="{ mobile: isMobile, compact: isCompact }"
+  >
     <!-- 層級選擇器 -->
     <div class="level-selector">
       <div class="selector-header">
@@ -7,52 +10,64 @@
           <span class="level-icon">{{ currentLevelConfig.icon }}</span>
           <div class="level-details">
             <h4 class="level-name">{{ currentLevelConfig.label }}</h4>
-            <p class="level-description">{{ currentLevelConfig.description }}</p>
+            <p class="level-description">
+              {{ currentLevelConfig.description }}
+            </p>
           </div>
         </div>
-        
+
         <!-- 資料完整度指示器 -->
-        <div class="data-completeness" v-if="showDataStatus && !ignoreDataCompleteness">
-          <el-tooltip :content="`資料完整度: ${dataCompleteness}%`" placement="top">
-            <el-progress 
-              type="circle" 
-              :percentage="dataCompleteness" 
+        <div
+          v-if="showDataStatus && !ignoreDataCompleteness"
+          class="data-completeness"
+        >
+          <ElTooltip
+            :content="`資料完整度: ${dataCompleteness}%`"
+            placement="top"
+          >
+            <ElProgress
+              type="circle"
+              :percentage="dataCompleteness"
               :width="40"
               :show-text="false"
               :status="getCompletenessStatus(dataCompleteness)"
             />
-          </el-tooltip>
+          </ElTooltip>
         </div>
       </div>
 
       <!-- 層級切換按鈕組 (桌面版) -->
-      <div class="level-buttons" v-if="!isMobile">
-        <el-button-group>
-          <el-button
+      <div v-if="!isMobile" class="level-buttons">
+        <ElButtonGroup>
+          <ElButton
             v-for="level in availableLevels"
             :key="level"
             :type="level === currentLevel ? 'primary' : 'default'"
             :size="isCompact ? 'small' : 'default'"
             :disabled="isTransitioning"
-            @click="switchToLevel(level)"
             class="level-button"
+            @click="switchToLevel(level)"
           >
-            <span class="button-icon">{{ READING_LEVEL_CONFIGS[level].icon }}</span>
-            <span class="button-text">{{ READING_LEVEL_CONFIGS[level].label }}</span>
-          </el-button>
-        </el-button-group>
+            <span class="button-icon">{{
+              READING_LEVEL_CONFIGS[level].icon
+            }}</span>
+            <span class="button-text">{{
+              READING_LEVEL_CONFIGS[level].label
+            }}</span>
+          </ElButton>
+        </ElButtonGroup>
       </div>
 
       <!-- 移動端下拉選擇器 -->
-      <div class="mobile-selector" v-else>
-        <el-select 
-          v-model="currentLevel" 
-          @change="handleLevelChange"
+      <div v-else class="mobile-selector">
+        <ElSelect
+          v-model="currentLevel"
           placeholder="選擇閱覽層級"
           :disabled="isTransitioning"
           class="level-select"
+          @change="handleLevelChange"
         >
-          <el-option
+          <ElOption
             v-for="level in availableLevels"
             :key="level"
             :label="READING_LEVEL_CONFIGS[level].label"
@@ -60,47 +75,53 @@
             :disabled="isTransitioning"
           >
             <div class="option-content">
-              <span class="option-icon">{{ READING_LEVEL_CONFIGS[level].icon }}</span>
+              <span class="option-icon">{{
+                READING_LEVEL_CONFIGS[level].icon
+              }}</span>
               <div class="option-text">
-                <span class="option-label">{{ READING_LEVEL_CONFIGS[level].label }}</span>
-                <span class="option-time">{{ READING_LEVEL_CONFIGS[level].estimatedReadTime }}</span>
+                <span class="option-label">{{
+                  READING_LEVEL_CONFIGS[level].label
+                }}</span>
+                <span class="option-time">{{
+                  READING_LEVEL_CONFIGS[level].estimatedReadTime
+                }}</span>
               </div>
             </div>
-          </el-option>
-        </el-select>
+          </ElOption>
+        </ElSelect>
       </div>
 
       <!-- 快速操作按鈕 -->
-      <div class="quick-actions" v-if="showToolbar">
-        <el-tooltip content="降低層級" placement="top">
-          <el-button 
-            :icon="ArrowLeft" 
+      <div v-if="showToolbar" class="quick-actions">
+        <ElTooltip content="降低層級" placement="top">
+          <ElButton
+            :icon="ArrowLeft"
             :disabled="!canDowngrade || isTransitioning"
+            size="small"
+            circle
             @click="downgradeLevel"
-            size="small"
-            circle
           />
-        </el-tooltip>
-        
-        <el-tooltip content="提升層級" placement="top">
-          <el-button 
-            :icon="ArrowRight" 
+        </ElTooltip>
+
+        <ElTooltip content="提升層級" placement="top">
+          <ElButton
+            :icon="ArrowRight"
             :disabled="!canUpgrade || isTransitioning"
+            size="small"
+            circle
             @click="upgradeLevel"
-            size="small"
-            circle
           />
-        </el-tooltip>
-        
-        <el-tooltip content="自動選擇最佳層級" placement="top">
-          <el-button 
-            :icon="MagicStick" 
+        </ElTooltip>
+
+        <ElTooltip content="自動選擇最佳層級" placement="top">
+          <ElButton
+            :icon="MagicStick"
             :disabled="isTransitioning"
-            @click="autoSelectOptimalLevel"
             size="small"
             circle
+            @click="autoSelectOptimalLevel"
           />
-        </el-tooltip>
+        </ElTooltip>
       </div>
     </div>
   </div>
@@ -108,7 +129,14 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { ElProgress, ElButton, ElButtonGroup, ElSelect, ElOption, ElTooltip } from 'element-plus';
+import {
+  ElProgress,
+  ElButton,
+  ElButtonGroup,
+  ElSelect,
+  ElOption,
+  ElTooltip,
+} from 'element-plus';
 import { ArrowLeft, ArrowRight, MagicStick } from '@element-plus/icons-vue';
 import type { PropType } from 'vue';
 import type { LayeredIntegratedAnalysis } from '@/types/layeredReading';
@@ -122,72 +150,74 @@ const READING_LEVEL_CONFIGS = {
     label: '簡要預覽',
     description: '快速瀏覽核心要點',
     estimatedReadTime: '2-3分鐘',
-    minDataRequirement: 30
+    minDataRequirement: 30,
   },
   [ReadingLevel.COMPACT]: {
     icon: '📊',
     label: '精簡檢視',
     description: '重點資訊精煉呈現',
     estimatedReadTime: '5-8分鐘',
-    minDataRequirement: 50
+    minDataRequirement: 50,
   },
   [ReadingLevel.STANDARD]: {
     icon: '📖',
     label: '標準解讀',
     description: '全面分析與深入解釋',
     estimatedReadTime: '10-15分鐘',
-    minDataRequirement: 70
+    minDataRequirement: 70,
   },
   [ReadingLevel.DEEP_ANALYSIS]: {
     icon: '🔬',
     label: '深度分析',
     description: '詳盡解析與專業洞察',
     estimatedReadTime: '20-30分鐘',
-    minDataRequirement: 85
-  }
+    minDataRequirement: 85,
+  },
 } as const;
 
 const props = defineProps({
   moduleType: {
-    type: String as PropType<'purpleStar' | 'integrated' | 'transformationStars'>,
-    required: true
+    type: String as PropType<
+      'purpleStar' | 'integrated' | 'transformationStars'
+    >,
+    required: true,
   },
   layeredData: {
     type: Object as PropType<LayeredIntegratedAnalysis | null>,
-    default: null
+    default: null,
   },
   dataCompleteness: {
     type: Number,
-    default: 0
+    default: 0,
   },
   enableSync: {
     type: Boolean,
-    default: false
+    default: false,
   },
   isMobile: {
     type: Boolean,
-    default: false
+    default: false,
   },
   isCompact: {
     type: Boolean,
-    default: false
+    default: false,
   },
   showToolbar: {
     type: Boolean,
-    default: false
+    default: false,
   },
   ignoreDataCompleteness: {
     type: Boolean,
-    default: false
+    default: false,
   },
   showDataStatus: {
     type: Boolean,
-    default: false
+    default: false,
   },
   modelValue: {
     type: String as PropType<DisplayMode>,
-    default: 'standard'
-  }
+    default: 'standard',
+  },
 });
 
 const emit = defineEmits<{
@@ -204,43 +234,49 @@ const currentLevel = ref<ReadingLevel>(ReadingLevel.STANDARD);
 
 // 映射 DisplayMode 到 ReadingLevel
 const displayModeToLevel: Record<DisplayMode, ReadingLevel> = {
-  'minimal': ReadingLevel.SUMMARY,
-  'compact': ReadingLevel.COMPACT, 
-  'standard': ReadingLevel.STANDARD,
-  'comprehensive': ReadingLevel.DEEP_ANALYSIS
+  minimal: ReadingLevel.SUMMARY,
+  compact: ReadingLevel.COMPACT,
+  standard: ReadingLevel.STANDARD,
+  comprehensive: ReadingLevel.DEEP_ANALYSIS,
 };
 
 const levelToDisplayMode: Record<ReadingLevel, DisplayMode> = {
   [ReadingLevel.SUMMARY]: 'minimal',
   [ReadingLevel.COMPACT]: 'compact',
   [ReadingLevel.STANDARD]: 'standard',
-  [ReadingLevel.DEEP_ANALYSIS]: 'comprehensive'
+  [ReadingLevel.DEEP_ANALYSIS]: 'comprehensive',
 };
 
 // 初始化當前層級
-watch(() => props.modelValue, (newValue) => {
-  if (newValue && displayModeToLevel[newValue]) {
-    const newLevel = displayModeToLevel[newValue];
-    console.log(`UnifiedLayeredController: modelValue=${newValue} → level=${newLevel}`);
-    currentLevel.value = newLevel;
-  }
-}, { immediate: true });
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (newValue && displayModeToLevel[newValue]) {
+      const newLevel = displayModeToLevel[newValue];
+      console.log(
+        `UnifiedLayeredController: modelValue=${newValue} → level=${newLevel}`,
+      );
+      currentLevel.value = newLevel;
+    }
+  },
+  { immediate: true },
+);
 
 // 可用層級計算
 const availableLevels = computed<ReadingLevel[]>(() => {
   const allLevels: ReadingLevel[] = [
-    ReadingLevel.SUMMARY, 
-    ReadingLevel.COMPACT, 
-    ReadingLevel.STANDARD, 
-    ReadingLevel.DEEP_ANALYSIS
+    ReadingLevel.SUMMARY,
+    ReadingLevel.COMPACT,
+    ReadingLevel.STANDARD,
+    ReadingLevel.DEEP_ANALYSIS,
   ];
-  
+
   if (props.ignoreDataCompleteness) {
     return allLevels;
   }
 
   const completeness = props.dataCompleteness;
-  const levels = allLevels.filter(level => {
+  const levels = allLevels.filter((level) => {
     const config = READING_LEVEL_CONFIGS[level];
     return config && completeness >= config.minDataRequirement;
   });
@@ -266,22 +302,32 @@ const canDowngrade = computed(() => {
 
 // 資料完整度狀態
 const getCompletenessStatus = (percentage: number) => {
-  if (percentage >= 80) return 'success';
-  if (percentage >= 60) return 'warning';
+  if (percentage >= 80) {
+    return 'success';
+  }
+  if (percentage >= 60) {
+    return 'warning';
+  }
   return 'exception';
 };
 
 // 層級切換方法
 const switchToLevel = async (level: ReadingLevel) => {
-  if (level === currentLevel.value || isTransitioning.value) return;
-  
-  console.log(`UnifiedLayeredController: switchToLevel ${currentLevel.value} → ${level}`);
-  
+  if (level === currentLevel.value || isTransitioning.value) {
+    return;
+  }
+
+  console.log(
+    `UnifiedLayeredController: switchToLevel ${currentLevel.value} → ${level}`,
+  );
+
   isTransitioning.value = true;
   try {
     currentLevel.value = level;
     const displayMode = levelToDisplayMode[level];
-    console.log(`UnifiedLayeredController: 發送事件 level-changed=${level}, update:modelValue=${displayMode}`);
+    console.log(
+      `UnifiedLayeredController: 發送事件 level-changed=${level}, update:modelValue=${displayMode}`,
+    );
     emit('level-changed', level);
     emit('update:modelValue', displayMode);
   } finally {
@@ -316,11 +362,15 @@ const downgradeLevel = () => {
 const autoSelectOptimalLevel = () => {
   const completeness = props.dataCompleteness;
   let optimalLevel: ReadingLevel = ReadingLevel.SUMMARY;
-  
-  if (completeness >= 85) optimalLevel = ReadingLevel.DEEP_ANALYSIS;
-  else if (completeness >= 70) optimalLevel = ReadingLevel.STANDARD;
-  else if (completeness >= 50) optimalLevel = ReadingLevel.COMPACT;
-  
+
+  if (completeness >= 85) {
+    optimalLevel = ReadingLevel.DEEP_ANALYSIS;
+  } else if (completeness >= 70) {
+    optimalLevel = ReadingLevel.STANDARD;
+  } else if (completeness >= 50) {
+    optimalLevel = ReadingLevel.COMPACT;
+  }
+
   if (availableLevels.value.includes(optimalLevel)) {
     switchToLevel(optimalLevel);
     emit('reset-requested');

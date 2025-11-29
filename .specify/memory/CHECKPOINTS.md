@@ -1,5 +1,40 @@
 # 檢查點記錄
 
+## Checkpoint: day2-eslint-baseline-established
+**時間**: 2025-11-29 21:28
+**狀態**: ✅ 完成
+
+### 完成的任務
+- Day 1: v-for :key 覆蓋率 100% (68 items)
+- Day 2: ESLint 基線建立
+  - Task 1: 瀏覽器全域變數配置
+  - Task 2-5: 未使用變數修復
+  - Task 3: Auto-fix 執行 (81 warnings)
+  - Task 6: Event naming hyphenation
+
+### 關鍵成果
+- 總問題數: 840 → 699 (-141, -16.8%)
+- 錯誤: 421 → 307 (-114, -27.1%)
+- 警告: 419 → 392 (-27, -6.4%)
+- ESLint 基線: 699 issues
+
+### 關鍵配置
+- `bazi-app-vue/eslint.config.js` - 手動瀏覽器全域變數
+- 修復檔案: PurpleStarChartDisplay.vue, PurpleStarView.vue, LayeredReadingController.vue
+
+### 延後項目
+- 複雜度警告: 2 (Phase 2)
+- 檔案長度警告: 1 (Phase 2)
+- @typescript-eslint/no-explicit-any: ~20 (Week 2)
+- Prettier 格式化: 81 auto-fixable
+
+### 下一步
+- Day 3: Prettier 格式化修復
+- Day 4-5: 錯誤分析與修復計畫
+- Week 2: TypeScript 類型優化
+
+---
+
 ## Checkpoint: production-deployment-success
 **時間**: 2025-11-29 20:50  
 **狀態**: ✅ 完成

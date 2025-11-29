@@ -2,7 +2,7 @@
   <div class="yearly-fate-timeline section-card">
     <h4>流年時間軸</h4>
     <div v-if="yearlyFatesToDisplay.length > 0" class="timeline-container">
-      <input 
+      <input
         type="range"
         :min="0"
         :max="yearlyFatesToDisplay.length - 1"
@@ -12,21 +12,24 @@
       />
       <div class="timeline-info">
         <p>
-          <strong>年份:</strong> {{ selectedYearData?.year }} ({{ selectedYearData?.ganZhi }})
+          <strong>年份:</strong> {{ selectedYearData?.year }} ({{
+            selectedYearData?.ganZhi
+          }})
         </p>
-        <p>
-          <strong>歲數:</strong> {{ selectedYearData?.age }}
-        </p>
+        <p><strong>歲數:</strong> {{ selectedYearData?.age }}</p>
       </div>
       <div class="timeline-labels">
         <span>{{ yearlyFatesToDisplay[0]?.year }}</span>
-        <span>{{ yearlyFatesToDisplay[Math.floor(yearlyFatesToDisplay.length / 2)]?.year }}</span>
-        <span>{{ yearlyFatesToDisplay[yearlyFatesToDisplay.length - 1]?.year }}</span>
+        <span>{{
+          yearlyFatesToDisplay[Math.floor(yearlyFatesToDisplay.length / 2)]
+            ?.year
+        }}</span>
+        <span>{{
+          yearlyFatesToDisplay[yearlyFatesToDisplay.length - 1]?.year
+        }}</span>
       </div>
     </div>
-    <p v-else>
-      無法生成流年時間軸，請先完成八字排盤。
-    </p>
+    <p v-else>無法生成流年時間軸，請先完成八字排盤。</p>
   </div>
 </template>
 
@@ -35,8 +38,8 @@ import { ref, computed, watch, type PropType } from 'vue';
 import { type HeavenlyStem, type EarthlyBranch } from '../utils/baziCalc';
 
 // Solar 和 Lunar 來自全局 window 物件（lunar.min.js）
-const Solar = window.Solar;
-const Lunar = window.Lunar;
+const { Solar } = window;
+const { Lunar } = window;
 
 export interface YearlyFateInfo {
   year: number;
@@ -64,7 +67,11 @@ const selectedIndex = ref(0);
 
 // 生成從出生年開始的100個流年資訊
 const yearlyFatesToDisplay = computed((): YearlyFateInfo[] => {
-  if (!props.birthYear || typeof window.Solar === 'undefined' || typeof window.Lunar === 'undefined') {
+  if (
+    !props.birthYear ||
+    typeof window.Solar === 'undefined' ||
+    typeof window.Lunar === 'undefined'
+  ) {
     return [];
   }
   const fates: YearlyFateInfo[] = [];
@@ -73,11 +80,11 @@ const yearlyFatesToDisplay = computed((): YearlyFateInfo[] => {
     try {
       // 使用公曆年的1月1日來獲取該年的干支
       // 注意：嚴格的流年干支是以立春為界，這裡簡化處理
-      const solarDate = window.Solar.fromYmd(currentYear, 1, 1); 
+      const solarDate = window.Solar.fromYmd(currentYear, 1, 1);
       const lunarDate = solarDate.getLunar();
       const yearGan = lunarDate.getYearGanExact() as HeavenlyStem;
       const yearZhi = lunarDate.getYearZhiExact() as EarthlyBranch;
-      
+
       fates.push({
         year: currentYear,
         age: currentYear - props.birthYear + 1, // 週歲 + 1 = 虛歲 (近似)
@@ -93,7 +100,10 @@ const yearlyFatesToDisplay = computed((): YearlyFateInfo[] => {
 });
 
 const selectedYearData = computed((): YearlyFateInfo | null => {
-  if (yearlyFatesToDisplay.value.length > 0 && selectedIndex.value < yearlyFatesToDisplay.value.length) {
+  if (
+    yearlyFatesToDisplay.value.length > 0 &&
+    selectedIndex.value < yearlyFatesToDisplay.value.length
+  ) {
     return yearlyFatesToDisplay.value[selectedIndex.value];
   }
   return null;
@@ -122,7 +132,7 @@ watch(selectedYearData, (newValue) => {
 
 defineExpose({
   yearlyFatesToDisplay,
-  selectedYearData
+  selectedYearData,
 });
 </script>
 

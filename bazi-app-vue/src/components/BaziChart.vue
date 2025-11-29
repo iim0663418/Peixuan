@@ -1,9 +1,9 @@
 <template>
-  <div class="bazi-chart section-card" v-if="props.bazi">
+  <div v-if="props.bazi" class="bazi-chart section-card">
     <h4>八字命盤</h4>
     <div class="pillars-container">
-      <div 
-        v-for="pillarKey in pillarOrder" 
+      <div
+        v-for="pillarKey in pillarOrder"
         :key="pillarKey"
         class="pillar-card-display"
         :class="{ highlighted: props.highlightedPillars?.includes(pillarKey) }"
@@ -12,13 +12,17 @@
         <div class="stem-branch">
           <span class="char">{{ props.bazi[pillarKey].stem }}</span>
           <span class="label"> ({{ props.bazi[pillarKey].stemElement }})</span>
-          <span class="ten-god" v-if="props.tenGods && tenGodsForPillars[pillarKey]">
+          <span
+            v-if="props.tenGods && tenGodsForPillars[pillarKey]"
+            class="ten-god"
+          >
             {{ tenGodsForPillars[pillarKey] }}
           </span>
         </div>
         <div class="stem-branch">
           <span class="char">{{ props.bazi[pillarKey].branch }}</span>
-          <span class="label"> ({{ props.bazi[pillarKey].branchElement }})</span>
+          <span class="label">
+            ({{ props.bazi[pillarKey].branchElement }})</span>
           <!-- 地支藏干及其十神可以後續添加 -->
         </div>
       </div>
@@ -48,15 +52,25 @@ const props = defineProps({
 });
 
 // 確保柱子從右到左顯示 (時日月年) - 傳統排盤習慣
-const pillarOrder: PillarKey[] = ['hourPillar', 'dayPillar', 'monthPillar', 'yearPillar'];
+const pillarOrder: PillarKey[] = [
+  'hourPillar',
+  'dayPillar',
+  'monthPillar',
+  'yearPillar',
+];
 
 const getPillarName = (key: PillarKey): string => {
   switch (key) {
-    case 'yearPillar': return '年柱';
-    case 'monthPillar': return '月柱';
-    case 'dayPillar': return '日柱';
-    case 'hourPillar': return '時柱';
-    default: return '';
+    case 'yearPillar':
+      return '年柱';
+    case 'monthPillar':
+      return '月柱';
+    case 'dayPillar':
+      return '日柱';
+    case 'hourPillar':
+      return '時柱';
+    default:
+      return '';
   }
 };
 
@@ -76,7 +90,6 @@ const tenGodsForPillars = computed(() => {
     hourPillar: props.tenGods.hourStemGod,
   };
 });
-
 </script>
 
 <style scoped>

@@ -3,67 +3,71 @@
     <!-- 卡片骨架 -->
     <div v-if="variant === 'card'" class="skeleton-card">
       <div class="skeleton-header">
-        <div class="skeleton-title"></div>
-        <div class="skeleton-subtitle"></div>
+        <div class="skeleton-title" />
+        <div class="skeleton-subtitle" />
       </div>
       <div class="skeleton-content">
-        <div class="skeleton-line"></div>
-        <div class="skeleton-line"></div>
-        <div class="skeleton-line short"></div>
+        <div class="skeleton-line" />
+        <div class="skeleton-line" />
+        <div class="skeleton-line short" />
       </div>
       <div class="skeleton-actions">
-        <div class="skeleton-button"></div>
-        <div class="skeleton-button secondary"></div>
+        <div class="skeleton-button" />
+        <div class="skeleton-button secondary" />
       </div>
     </div>
 
     <!-- 圖表骨架 -->
     <div v-else-if="variant === 'chart'" class="skeleton-chart">
       <div class="skeleton-chart-header">
-        <div class="skeleton-title"></div>
+        <div class="skeleton-title" />
       </div>
       <div class="skeleton-chart-grid">
         <div v-for="i in 12" :key="i" class="skeleton-chart-cell">
-          <div class="skeleton-char"></div>
-          <div class="skeleton-char"></div>
+          <div class="skeleton-char" />
+          <div class="skeleton-char" />
         </div>
       </div>
       <div class="skeleton-chart-legend">
-        <div class="skeleton-legend-item" v-for="i in 4" :key="i"></div>
+        <div v-for="i in 4" :key="i" class="skeleton-legend-item" />
       </div>
     </div>
 
     <!-- 表單骨架 -->
     <div v-else-if="variant === 'form'" class="skeleton-form">
-      <div class="skeleton-form-item" v-for="i in formItems" :key="i">
-        <div class="skeleton-label"></div>
-        <div class="skeleton-input"></div>
+      <div v-for="i in formItems" :key="i" class="skeleton-form-item">
+        <div class="skeleton-label" />
+        <div class="skeleton-input" />
       </div>
-      <div class="skeleton-submit-button"></div>
+      <div class="skeleton-submit-button" />
     </div>
 
     <!-- 列表骨架 -->
     <div v-else-if="variant === 'list'" class="skeleton-list">
       <div v-for="i in listItems" :key="i" class="skeleton-list-item">
-        <div class="skeleton-avatar"></div>
+        <div class="skeleton-avatar" />
         <div class="skeleton-list-content">
-          <div class="skeleton-list-title"></div>
-          <div class="skeleton-list-description"></div>
+          <div class="skeleton-list-title" />
+          <div class="skeleton-list-description" />
         </div>
       </div>
     </div>
 
     <!-- 文字骨架 -->
     <div v-else-if="variant === 'text'" class="skeleton-text">
-      <div v-for="i in textLines" :key="i" class="skeleton-text-line" 
-           :class="{ 'short': i === textLines }"></div>
+      <div
+        v-for="i in textLines"
+        :key="i"
+        class="skeleton-text-line"
+        :class="{ short: i === textLines }"
+      />
     </div>
 
     <!-- 通用骨架 -->
     <div v-else class="skeleton-generic">
-      <div class="skeleton-header"></div>
+      <div class="skeleton-header" />
       <div class="skeleton-content">
-        <div class="skeleton-line" v-for="i in 3" :key="i"></div>
+        <div v-for="i in 3" :key="i" class="skeleton-line" />
       </div>
     </div>
   </div>
@@ -81,7 +85,7 @@ withDefaults(defineProps<Props>(), {
   variant: 'generic',
   formItems: 4,
   listItems: 3,
-  textLines: 3
+  textLines: 3,
 });
 </script>
 
@@ -93,9 +97,15 @@ withDefaults(defineProps<Props>(), {
 
 /* 脈衝動畫 */
 @keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 /* 骨架基本元素 */
@@ -317,21 +327,21 @@ withDefaults(defineProps<Props>(), {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-sm);
   }
-  
+
   .skeleton-chart-cell {
     padding: var(--space-xs);
   }
-  
+
   .skeleton-char {
     width: 16px;
     height: 16px;
   }
-  
+
   .skeleton-actions {
     flex-direction: column;
     gap: var(--space-md);
   }
-  
+
   .skeleton-button {
     width: 100%;
     margin-right: 0;
@@ -342,16 +352,16 @@ withDefaults(defineProps<Props>(), {
   .skeleton-chart-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .skeleton-list-item {
     padding: var(--space-sm) 0;
   }
-  
+
   .skeleton-avatar {
     width: 40px;
     height: 40px;
   }
-  
+
   .skeleton-form,
   .skeleton-card,
   .skeleton-chart {
@@ -360,7 +370,7 @@ withDefaults(defineProps<Props>(), {
 }
 
 /* 深色主題支援 */
-[data-theme="dark"] .skeleton-loader {
+[data-theme='dark'] .skeleton-loader {
   /* 深色主題下的骨架顏色會自動通過design-tokens調整 */
 }
 </style>

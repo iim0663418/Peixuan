@@ -1,5 +1,35 @@
 # 決策記錄
 
+## 2025-11-29: ESLint 基線建立與配置
+
+### 決策：手動配置瀏覽器全域變數
+- **原因**: globals.browser 導入會造成 whitespace 格式化 bug
+- **影響**: 在 eslint.config.js 手動新增 5 個瀏覽器全域變數
+- **變數列表**: document, window, navigator, localStorage, console
+- **替代方案**: 使用 globals.browser (已回滾)
+
+### 決策：建立 ESLint 基線 (699 issues)
+- **原因**: 需要可量化的優化起點
+- **影響**:
+  - 錯誤: 307
+  - 警告: 392
+  - 可自動修復: 81
+- **策略**: 漸進式修復，優先處理高影響問題
+
+### 決策：延後複雜度與檔案長度重構
+- **原因**: 需要架構層級的重構，非快速修復
+- **影響**:
+  - 複雜度警告: 2 個（延後至 Phase 2）
+  - 檔案長度警告: 1 個（延後至 Phase 2）
+- **時程**: Week 2-3 處理
+
+### 決策：延後 @typescript-eslint/no-explicit-any 替換
+- **原因**: 需要完整類型系統設計，約 20 個 any 需替換
+- **影響**: 暫時保留 any 類型
+- **時程**: Week 2 專門處理 TypeScript 類型優化
+
+---
+
 ## 2025-11-29: Cloudflare Workers 部署與 TypeScript 修復
 
 ### 決策：環境隔離策略

@@ -1,6 +1,11 @@
 // yearlyInteractionUtils.ts
 
-import type { HeavenlyStem, EarthlyBranch, BaziResult, Pillar } from './baziCalc';
+import type {
+  HeavenlyStem,
+  EarthlyBranch,
+  BaziResult,
+  Pillar,
+} from './baziCalc';
 import { HEAVENLY_STEMS, EARTHLY_BRANCHES, STEM_TO_ELEMENT } from './baziCalc';
 
 // 地支關係介面
@@ -14,8 +19,17 @@ export interface BranchRelation {
 
 // 流年互動結果介面
 export interface YearlyInteractionResult {
-  yearStemInteractions: { pillarName: string; pillarStem: HeavenlyStem; relationType: string; description: string }[];
-  yearBranchInteractions: { pillarName: string; pillarBranch: EarthlyBranch; relations: BranchRelation }[];
+  yearStemInteractions: {
+    pillarName: string;
+    pillarStem: HeavenlyStem;
+    relationType: string;
+    description: string;
+  }[];
+  yearBranchInteractions: {
+    pillarName: string;
+    pillarBranch: EarthlyBranch;
+    relations: BranchRelation;
+  }[];
   significantInteractions: string[]; // 重要互動的文字描述
 }
 
@@ -30,63 +44,120 @@ const PILLAR_NAMES: Record<PillarName, string> = {
 
 export class YearlyInteractionAnalyzer {
   // 天干五合
-  private static HEAVENLY_STEM_COMBINATIONS: Record<HeavenlyStem, HeavenlyStem | null> = {
-    '甲': '己', '乙': '庚', '丙': '辛', '丁': '壬', '戊': '癸',
-    '己': '甲', '庚': '乙', '辛': '丙', '壬': '丁', '癸': '戊',
+  private static HEAVENLY_STEM_COMBINATIONS: Record<
+    HeavenlyStem,
+    HeavenlyStem | null
+  > = {
+    甲: '己',
+    乙: '庚',
+    丙: '辛',
+    丁: '壬',
+    戊: '癸',
+    己: '甲',
+    庚: '乙',
+    辛: '丙',
+    壬: '丁',
+    癸: '戊',
   };
 
   // 天干相沖
-  private static HEAVENLY_STEM_CLASHES: Record<HeavenlyStem, HeavenlyStem | null> = {
-    '甲': '庚', '乙': '辛', '丙': '壬', '丁': '癸',
-    '戊': null, '己': null, // 戊己土無沖
-    '庚': '甲', '辛': '乙', '壬': '丙', '癸': '丁',
+  private static HEAVENLY_STEM_CLASHES: Record<
+    HeavenlyStem,
+    HeavenlyStem | null
+  > = {
+    甲: '庚',
+    乙: '辛',
+    丙: '壬',
+    丁: '癸',
+    戊: null,
+    己: null, // 戊己土無沖
+    庚: '甲',
+    辛: '乙',
+    壬: '丙',
+    癸: '丁',
   };
 
   // 地支六合
-  private static EARTHLY_BRANCH_COMBINATIONS: Record<EarthlyBranch, EarthlyBranch> = {
-    '子': '丑', '丑': '子',
-    '寅': '亥', '亥': '寅',
-    '卯': '戌', '戌': '卯',
-    '辰': '酉', '酉': '辰',
-    '巳': '申', '申': '巳',
-    '午': '未', '未': '午',
+  private static EARTHLY_BRANCH_COMBINATIONS: Record<
+    EarthlyBranch,
+    EarthlyBranch
+  > = {
+    子: '丑',
+    丑: '子',
+    寅: '亥',
+    亥: '寅',
+    卯: '戌',
+    戌: '卯',
+    辰: '酉',
+    酉: '辰',
+    巳: '申',
+    申: '巳',
+    午: '未',
+    未: '午',
   };
 
   // 地支六沖
-  private static EARTHLY_BRANCH_CLASHES: Record<EarthlyBranch, EarthlyBranch> = {
-    '子': '午', '午': '子',
-    '丑': '未', '未': '丑',
-    '寅': '申', '申': '寅',
-    '卯': '酉', '酉': '卯',
-    '辰': '戌', '戌': '辰',
-    '巳': '亥', '亥': '巳',
-  };
+  private static EARTHLY_BRANCH_CLASHES: Record<EarthlyBranch, EarthlyBranch> =
+    {
+      子: '午',
+      午: '子',
+      丑: '未',
+      未: '丑',
+      寅: '申',
+      申: '寅',
+      卯: '酉',
+      酉: '卯',
+      辰: '戌',
+      戌: '辰',
+      巳: '亥',
+      亥: '巳',
+    };
 
   // 地支相刑 (兩兩)
   // 寅巳申三刑: 寅刑巳, 巳刑申, 申刑寅
   // 丑未戌三刑: 丑刑戌, 戌刑未, 未刑丑
   // 子卯相刑
-  private static EARTHLY_BRANCH_PUNISHMENTS: Record<EarthlyBranch, EarthlyBranch[]> = {
-    '子': ['卯'], '卯': ['子'],
-    '寅': ['巳', '申'], '巳': ['寅', '申'], '申': ['寅', '巳'],
-    '丑': ['戌', '未'], '未': ['丑', '戌'], '戌': ['丑', '未'],
-    '辰': [], '午': [], '酉': [], '亥': [], // 辰午酉亥自刑，此處不處理兩兩相刑
+  private static EARTHLY_BRANCH_PUNISHMENTS: Record<
+    EarthlyBranch,
+    EarthlyBranch[]
+  > = {
+    子: ['卯'],
+    卯: ['子'],
+    寅: ['巳', '申'],
+    巳: ['寅', '申'],
+    申: ['寅', '巳'],
+    丑: ['戌', '未'],
+    未: ['丑', '戌'],
+    戌: ['丑', '未'],
+    辰: [],
+    午: [],
+    酉: [],
+    亥: [], // 辰午酉亥自刑，此處不處理兩兩相刑
   };
 
   // 地支六害 (相穿)
   private static EARTHLY_BRANCH_HARMS: Record<EarthlyBranch, EarthlyBranch> = {
-    '子': '未', '未': '子',
-    '丑': '午', '午': '丑',
-    '寅': '巳', '巳': '寅',
-    '卯': '辰', '辰': '卯',
-    '申': '亥', '亥': '申',
-    '酉': '戌', '戌': '酉',
+    子: '未',
+    未: '子',
+    丑: '午',
+    午: '丑',
+    寅: '巳',
+    巳: '寅',
+    卯: '辰',
+    辰: '卯',
+    申: '亥',
+    亥: '申',
+    酉: '戌',
+    戌: '酉',
   };
 
   /**
    * 檢查兩個地支之間的關係：沖、刑、合、害
    */
-  public static checkBranchRelations(branch1: EarthlyBranch, branch2: EarthlyBranch): BranchRelation {
+  public static checkBranchRelations(
+    branch1: EarthlyBranch,
+    branch2: EarthlyBranch,
+  ): BranchRelation {
     const relations: BranchRelation = {
       isClashing: false,
       isPunishing: false,
@@ -120,14 +191,22 @@ export class YearlyInteractionAnalyzer {
   /**
    * 分析流年與八字的互動
    */
-  public static analyzeYearlyInteraction(bazi: BaziResult, yearlyFate: { stem: HeavenlyStem; branch: EarthlyBranch }): YearlyInteractionResult {
+  public static analyzeYearlyInteraction(
+    bazi: BaziResult,
+    yearlyFate: { stem: HeavenlyStem; branch: EarthlyBranch },
+  ): YearlyInteractionResult {
     const result: YearlyInteractionResult = {
       yearStemInteractions: [],
       yearBranchInteractions: [],
       significantInteractions: [],
     };
 
-    const pillars: PillarName[] = ['yearPillar', 'monthPillar', 'dayPillar', 'hourPillar'];
+    const pillars: PillarName[] = [
+      'yearPillar',
+      'monthPillar',
+      'dayPillar',
+      'hourPillar',
+    ];
 
     // 分析天干互動
     for (const pillarName of pillars) {
@@ -158,15 +237,25 @@ export class YearlyInteractionAnalyzer {
     // 分析地支互動
     for (const pillarName of pillars) {
       const pillar = bazi[pillarName];
-      const branchRelations = this.checkBranchRelations(yearlyFate.branch, pillar.branch);
-      if (branchRelations.isClashing || branchRelations.isPunishing || branchRelations.isCombining || branchRelations.isHarming) {
+      const branchRelations = this.checkBranchRelations(
+        yearlyFate.branch,
+        pillar.branch,
+      );
+      if (
+        branchRelations.isClashing ||
+        branchRelations.isPunishing ||
+        branchRelations.isCombining ||
+        branchRelations.isHarming
+      ) {
         result.yearBranchInteractions.push({
           pillarName: PILLAR_NAMES[pillarName],
           pillarBranch: pillar.branch,
           relations: branchRelations,
         });
         if (branchRelations.relationDescription) {
-          result.significantInteractions.push(`流年地支${yearlyFate.branch}與${PILLAR_NAMES[pillarName]}地支${pillar.branch}：${branchRelations.relationDescription}`);
+          result.significantInteractions.push(
+            `流年地支${yearlyFate.branch}與${PILLAR_NAMES[pillarName]}地支${pillar.branch}：${branchRelations.relationDescription}`,
+          );
         }
       }
     }
@@ -176,7 +265,9 @@ export class YearlyInteractionAnalyzer {
   /**
    * 獲取互動重點 (此方法暫時返回所有分析結果，可根據需求進一步篩選)
    */
-  public static getInteractionHighlights(interactions: YearlyInteractionResult): string[] {
+  public static getInteractionHighlights(
+    interactions: YearlyInteractionResult,
+  ): string[] {
     return interactions.significantInteractions;
   }
 }

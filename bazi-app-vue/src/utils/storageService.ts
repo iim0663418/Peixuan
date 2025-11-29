@@ -12,11 +12,12 @@ export const STORAGE_KEYS = {
   TRANSFORMATION_STARS: 'peixuan_transformation_stars',
   TRANSFORMATION_FLOWS: 'peixuan_transformation_flows',
   TRANSFORMATION_COMBINATIONS: 'peixuan_transformation_combinations',
-  TRANSFORMATION_MULTI_LAYER_ENERGIES: 'peixuan_transformation_multi_layer_energies',
+  TRANSFORMATION_MULTI_LAYER_ENERGIES:
+    'peixuan_transformation_multi_layer_energies',
   INTEGRATED_ANALYSIS: 'peixuan_integrated_analysis',
   INTEGRATED_BIRTH_INFO: 'peixuan_integrated_birth_info',
   SESSION_ID: 'peixuan_session_id',
-  TIMEZONE_INFO: 'peixuan_timezone_info'
+  TIMEZONE_INFO: 'peixuan_timezone_info',
 };
 
 /**
@@ -71,7 +72,7 @@ export const removeFromStorage = (key: string): void => {
  */
 export const clearAllAstrologyData = (): void => {
   try {
-    Object.values(STORAGE_KEYS).forEach(key => {
+    Object.values(STORAGE_KEYS).forEach((key) => {
       sessionStorage.removeItem(key);
     });
   } catch (error) {
@@ -82,7 +83,14 @@ export const clearAllAstrologyData = (): void => {
 /**
  * 清除特定分析的資料
  */
-export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'purpleStarAll' | 'integrated' | 'transformationStars'): void => {
+export const clearAnalysisData = (
+  analysisType:
+    | 'bazi'
+    | 'purpleStar'
+    | 'purpleStarAll'
+    | 'integrated'
+    | 'transformationStars',
+): void => {
   try {
     switch (analysisType) {
       case 'bazi':
@@ -104,13 +112,17 @@ export const clearAnalysisData = (analysisType: 'bazi' | 'purpleStar' | 'purpleS
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_STARS);
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_FLOWS);
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS);
-        sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_MULTI_LAYER_ENERGIES);
+        sessionStorage.removeItem(
+          STORAGE_KEYS.TRANSFORMATION_MULTI_LAYER_ENERGIES,
+        );
         break;
       case 'transformationStars':
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_STARS);
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_FLOWS);
         sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS);
-        sessionStorage.removeItem(STORAGE_KEYS.TRANSFORMATION_MULTI_LAYER_ENERGIES);
+        sessionStorage.removeItem(
+          STORAGE_KEYS.TRANSFORMATION_MULTI_LAYER_ENERGIES,
+        );
         break;
       case 'integrated':
         sessionStorage.removeItem(STORAGE_KEYS.INTEGRATED_ANALYSIS);
@@ -138,7 +150,7 @@ export const saveTimeZoneInfo = (timeZone: string, year: number): void => {
     const timeZoneInfo: TimeZoneInfo = {
       timeZone,
       year,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
     saveToStorage(STORAGE_KEYS.TIMEZONE_INFO, timeZoneInfo);
   } catch (error) {
@@ -165,25 +177,31 @@ export const saveTransformationStarsData = (
   transformationStars: any = null,
   transformationFlows: Record<number, any> = {},
   transformationCombinations: Array<any> = [],
-  multiLayerEnergies: Record<number, any> = {}
+  multiLayerEnergies: Record<number, any> = {},
 ): void => {
   try {
     if (transformationStars) {
       saveToStorage(STORAGE_KEYS.TRANSFORMATION_STARS, transformationStars);
     }
-    
+
     if (Object.keys(transformationFlows).length > 0) {
       saveToStorage(STORAGE_KEYS.TRANSFORMATION_FLOWS, transformationFlows);
     }
-    
+
     if (transformationCombinations.length > 0) {
-      saveToStorage(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS, transformationCombinations);
+      saveToStorage(
+        STORAGE_KEYS.TRANSFORMATION_COMBINATIONS,
+        transformationCombinations,
+      );
     }
-    
+
     if (Object.keys(multiLayerEnergies).length > 0) {
-      saveToStorage(STORAGE_KEYS.TRANSFORMATION_MULTI_LAYER_ENERGIES, multiLayerEnergies);
+      saveToStorage(
+        STORAGE_KEYS.TRANSFORMATION_MULTI_LAYER_ENERGIES,
+        multiLayerEnergies,
+      );
     }
-    
+
     console.log('四化飛星資料已保存到 sessionStorage (包含多層次能量資料)');
   } catch (error) {
     console.error('保存四化飛星資料失敗:', error);
@@ -202,10 +220,17 @@ export const getTransformationStarsData = (): {
 } => {
   try {
     const stars = getFromStorage<any>(STORAGE_KEYS.TRANSFORMATION_STARS);
-    const flows = getFromStorage<Record<number, any>>(STORAGE_KEYS.TRANSFORMATION_FLOWS) || {};
-    const combinations = getFromStorage<Array<any>>(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS) || [];
-    const multiLayerEnergies = getFromStorage<Record<number, any>>(STORAGE_KEYS.TRANSFORMATION_MULTI_LAYER_ENERGIES) || {};
-    
+    const flows =
+      getFromStorage<Record<number, any>>(STORAGE_KEYS.TRANSFORMATION_FLOWS) ||
+      {};
+    const combinations =
+      getFromStorage<Array<any>>(STORAGE_KEYS.TRANSFORMATION_COMBINATIONS) ||
+      [];
+    const multiLayerEnergies =
+      getFromStorage<Record<number, any>>(
+        STORAGE_KEYS.TRANSFORMATION_MULTI_LAYER_ENERGIES,
+      ) || {};
+
     return { stars, flows, combinations, multiLayerEnergies };
   } catch (error) {
     console.error('獲取四化飛星資料失敗:', error);
@@ -218,8 +243,14 @@ export const getTransformationStarsData = (): {
  * @returns 是否存在四化飛星資料
  */
 export const hasTransformationStarsData = (): boolean => {
-  const { stars, flows, combinations, multiLayerEnergies } = getTransformationStarsData();
-  return !!(stars || Object.keys(flows).length > 0 || combinations.length > 0 || Object.keys(multiLayerEnergies).length > 0);
+  const { stars, flows, combinations, multiLayerEnergies } =
+    getTransformationStarsData();
+  return !!(
+    stars ||
+    Object.keys(flows).length > 0 ||
+    combinations.length > 0 ||
+    Object.keys(multiLayerEnergies).length > 0
+  );
 };
 
 export default {
@@ -234,5 +265,5 @@ export default {
   getTimeZoneInfo,
   saveTransformationStarsData,
   getTransformationStarsData,
-  hasTransformationStarsData
+  hasTransformationStarsData,
 };

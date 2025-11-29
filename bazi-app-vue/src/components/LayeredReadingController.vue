@@ -1,22 +1,30 @@
 <template>
   <div class="layered-reading-controller">
     <!-- 層級選擇器 -->
-    <div class="level-selector" :class="{ 'mobile': isMobile, 'compact': isCompact }">
+    <div
+      class="level-selector"
+      :class="{ mobile: isMobile, compact: isCompact }"
+    >
       <div class="selector-header">
         <div class="current-level-info">
           <span class="level-icon">{{ currentLevelConfig.icon }}</span>
           <div class="level-details">
             <h4 class="level-name">{{ currentLevelConfig.label }}</h4>
-            <p class="level-description">{{ currentLevelConfig.description }}</p>
+            <p class="level-description">
+              {{ currentLevelConfig.description }}
+            </p>
           </div>
         </div>
-        
+
         <!-- 資料完整度指示器 -->
         <div class="data-completeness">
-          <el-tooltip :content="`資料完整度: ${dataCompleteness}%`" placement="top">
-            <el-progress 
-              type="circle" 
-              :percentage="dataCompleteness" 
+          <el-tooltip
+            :content="`資料完整度: ${dataCompleteness}%`"
+            placement="top"
+          >
+            <el-progress
+              type="circle"
+              :percentage="dataCompleteness"
               :width="40"
               :show-text="false"
               :status="getCompletenessStatus(dataCompleteness)"
@@ -26,7 +34,7 @@
       </div>
 
       <!-- 層級切換按鈕組 -->
-      <div class="level-buttons" v-if="!isMobile">
+      <div v-if="!isMobile" class="level-buttons">
         <el-button-group>
           <el-button
             v-for="level in availableLevels"
@@ -34,23 +42,27 @@
             :type="level === currentLevel ? 'primary' : 'default'"
             :size="isCompact ? 'small' : 'default'"
             :disabled="isTransitioning"
-            @click="switchToLevel(level)"
             class="level-button"
+            @click="switchToLevel(level)"
           >
-            <span class="button-icon">{{ READING_LEVEL_CONFIGS[level].icon }}</span>
-            <span class="button-text">{{ READING_LEVEL_CONFIGS[level].label }}</span>
+            <span class="button-icon">{{
+              READING_LEVEL_CONFIGS[level].icon
+            }}</span>
+            <span class="button-text">{{
+              READING_LEVEL_CONFIGS[level].label
+            }}</span>
           </el-button>
         </el-button-group>
       </div>
 
       <!-- 移動端下拉選擇器 -->
-      <div class="mobile-selector" v-else>
-        <el-select 
-          v-model="currentLevel" 
-          @change="handleLevelChange"
+      <div v-else class="mobile-selector">
+        <el-select
+          v-model="currentLevel"
           placeholder="選擇閱覽層級"
           :disabled="isTransitioning"
           class="level-select"
+          @change="handleLevelChange"
         >
           <el-option
             v-for="level in availableLevels"
@@ -60,10 +72,16 @@
             :disabled="isTransitioning"
           >
             <div class="option-content">
-              <span class="option-icon">{{ READING_LEVEL_CONFIGS[level].icon }}</span>
+              <span class="option-icon">{{
+                READING_LEVEL_CONFIGS[level].icon
+              }}</span>
               <div class="option-text">
-                <span class="option-label">{{ READING_LEVEL_CONFIGS[level].label }}</span>
-                <span class="option-time">{{ READING_LEVEL_CONFIGS[level].estimatedReadTime }}</span>
+                <span class="option-label">{{
+                  READING_LEVEL_CONFIGS[level].label
+                }}</span>
+                <span class="option-time">{{
+                  READING_LEVEL_CONFIGS[level].estimatedReadTime
+                }}</span>
               </div>
             </div>
           </el-option>
@@ -73,61 +91,65 @@
       <!-- 快速操作按鈕 -->
       <div class="quick-actions">
         <el-tooltip content="降低層級" placement="top">
-          <el-button 
-            :icon="ArrowLeft" 
+          <el-button
+            :icon="ArrowLeft"
             :disabled="!canDowngrade || isTransitioning"
+            size="small"
+            circle
             @click="downgradeLevel"
-            size="small"
-            circle
           />
         </el-tooltip>
-        
+
         <el-tooltip content="提升層級" placement="top">
-          <el-button 
-            :icon="ArrowRight" 
+          <el-button
+            :icon="ArrowRight"
             :disabled="!canUpgrade || isTransitioning"
-            @click="upgradeLevel"
             size="small"
             circle
+            @click="upgradeLevel"
           />
         </el-tooltip>
-        
+
         <el-tooltip content="自動選擇最佳層級" placement="top">
-          <el-button 
-            :icon="MagicStick" 
+          <el-button
+            :icon="MagicStick"
             :disabled="isTransitioning"
-            @click="autoSelectOptimalLevel"
             size="small"
             circle
             type="success"
+            @click="autoSelectOptimalLevel"
           />
         </el-tooltip>
       </div>
     </div>
 
     <!-- 層級資訊展示 -->
-    <div class="level-info-panel" v-if="showInfoPanel">
+    <div v-if="showInfoPanel" class="level-info-panel">
       <div class="info-header">
         <h5>{{ currentLevelConfig.label }}解讀內容</h5>
-        <el-button 
-          :icon="Close" 
-          @click="showInfoPanel = false"
+        <el-button
+          :icon="Close"
           size="small"
           text
+          @click="showInfoPanel = false"
         />
       </div>
-      
+
       <div class="info-content">
         <div class="info-item">
           <span class="info-label">預估閱讀時間:</span>
-          <span class="info-value">{{ currentLevelConfig.estimatedReadTime }}</span>
+          <span class="info-value">{{
+            currentLevelConfig.estimatedReadTime
+          }}</span>
         </div>
-        
+
         <div class="info-item">
           <span class="info-label">資料要求:</span>
-          <span class="info-value">{{ currentLevelConfig.minDataRequirement }}% 以上</span>
+          <span class="info-value"
+            >{{ currentLevelConfig.minDataRequirement }}% 以上</span
+          >
         </div>
-        
+
         <div class="info-item">
           <span class="info-label">內容特色:</span>
           <span class="info-value">{{ getLevelFeatures(currentLevel) }}</span>
@@ -136,35 +158,35 @@
     </div>
 
     <!-- 用戶偏好設置 -->
-    <div class="preferences-panel" v-if="showPreferences">
+    <div v-if="showPreferences" class="preferences-panel">
       <div class="preferences-header">
         <h5>閱覽偏好設置</h5>
-        <el-button 
-          :icon="Close" 
-          @click="showPreferences = false"
+        <el-button
+          :icon="Close"
           size="small"
           text
+          @click="showPreferences = false"
         />
       </div>
-      
+
       <div class="preferences-content">
         <el-form label-position="top" size="small">
           <el-form-item label="自動升級層級">
-            <el-switch 
+            <el-switch
               v-model="userPreferences.autoUpgrade"
               @change="saveUserPreferences"
             />
           </el-form-item>
-          
+
           <el-form-item label="啟用動畫效果">
-            <el-switch 
+            <el-switch
               v-model="userPreferences.animationsEnabled"
               @change="saveUserPreferences"
             />
           </el-form-item>
-          
+
           <el-form-item label="緊湊模式">
-            <el-switch 
+            <el-switch
               v-model="userPreferences.compactMode"
               @change="saveUserPreferences"
             />
@@ -176,35 +198,35 @@
     <!-- 操作工具欄 -->
     <div class="toolbar">
       <el-tooltip content="顯示層級資訊" placement="top">
-        <el-button 
-          :icon="InfoFilled" 
-          @click="showInfoPanel = !showInfoPanel"
+        <el-button
+          :icon="InfoFilled"
           size="small"
           :type="showInfoPanel ? 'primary' : 'default'"
+          @click="showInfoPanel = !showInfoPanel"
         />
       </el-tooltip>
-      
+
       <el-tooltip content="偏好設置" placement="top">
-        <el-button 
-          :icon="Setting" 
-          @click="showPreferences = !showPreferences"
+        <el-button
+          :icon="Setting"
           size="small"
           :type="showPreferences ? 'primary' : 'default'"
+          @click="showPreferences = !showPreferences"
         />
       </el-tooltip>
-      
+
       <el-tooltip content="重置為默認" placement="top">
-        <el-button 
-          :icon="RefreshLeft" 
-          @click="handleReset"
+        <el-button
+          :icon="RefreshLeft"
           size="small"
           type="warning"
+          @click="handleReset"
         />
       </el-tooltip>
     </div>
 
     <!-- 載入狀態覆蓋 -->
-    <div class="loading-overlay" v-if="isTransitioning">
+    <div v-if="isTransitioning" class="loading-overlay">
       <el-icon class="loading-icon" :size="24">
         <Loading />
       </el-icon>
@@ -224,7 +246,7 @@ import {
   InfoFilled,
   Setting,
   RefreshLeft,
-  Loading
+  Loading,
 } from '@element-plus/icons-vue';
 import { useLayeredReading } from '@/composables/useLayeredReading';
 import { READING_LEVEL_CONFIGS, ReadingLevel } from '@/types/layeredReading';
@@ -240,7 +262,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   showControls: true,
   compactMode: false,
-  disabled: false
+  disabled: false,
 });
 
 // Emits
@@ -266,7 +288,7 @@ const {
   downgradeLevel,
   autoSelectOptimalLevel,
   saveUserPreferences,
-  resetToDefaults
+  resetToDefaults,
 } = useLayeredReading();
 
 // 本地狀態
@@ -278,13 +300,15 @@ const currentLevel = computed({
   get: () => readingState.currentLevel,
   set: (value: ReadingLevelType) => {
     switchToLevel(value);
-  }
+  },
 });
 
 const isTransitioning = computed(() => readingState.isTransitioning);
 const dataCompleteness = computed(() => readingState.dataCompleteness);
 const isMobile = computed(() => currentBreakpoint.value === 'mobile');
-const isCompact = computed(() => props.compactMode || userPreferences.value.compactMode);
+const isCompact = computed(
+  () => props.compactMode || userPreferences.value.compactMode,
+);
 
 // 方法
 const handleLevelChange = (newLevel: ReadingLevelType) => {
@@ -298,7 +322,7 @@ const handleLevelChange = (newLevel: ReadingLevelType) => {
   }
 };
 
-const handleUpgrade = async () => {
+const _handleUpgrade = async () => {
   const result = upgradeLevel();
   if (result !== false) {
     const success = await result;
@@ -309,7 +333,7 @@ const handleUpgrade = async () => {
   }
 };
 
-const handleDowngrade = async () => {
+const _handleDowngrade = async () => {
   const result = downgradeLevel();
   if (result !== false) {
     const success = await result;
@@ -320,33 +344,35 @@ const handleDowngrade = async () => {
   }
 };
 
-const handleAutoSelect = () => {
+const _handleAutoSelect = () => {
   autoSelectOptimalLevel().then(() => {
     ElMessage.success('已自動選擇最佳閱覽層級');
   });
 };
 
 const handleReset = () => {
-  ElMessageBox.confirm(
-    '確定要重置所有閱覽偏好設置嗎？',
-    '重置確認',
-    {
-      confirmButtonText: '確定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(() => {
-    resetToDefaults();
-    emit('resetRequested');
-    ElMessage.success('已重置為默認設置');
-  }).catch(() => {
-    // 用戶取消
-  });
+  ElMessageBox.confirm('確定要重置所有閱覽偏好設置嗎？', '重置確認', {
+    confirmButtonText: '確定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  })
+    .then(() => {
+      resetToDefaults();
+      emit('resetRequested');
+      ElMessage.success('已重置為默認設置');
+    })
+    .catch(() => {
+      // 用戶取消
+    });
 };
 
 const getCompletenessStatus = (completeness: number) => {
-  if (completeness >= 80) return 'success';
-  if (completeness >= 60) return 'warning';
+  if (completeness >= 80) {
+    return 'success';
+  }
+  if (completeness >= 60) {
+    return 'warning';
+  }
   return 'exception';
 };
 
@@ -355,7 +381,7 @@ const getLevelFeatures = (level: ReadingLevelType): string => {
     [ReadingLevel.SUMMARY]: '核心特質、快速預覽',
     [ReadingLevel.COMPACT]: '重點分析、運勢要點',
     [ReadingLevel.STANDARD]: '完整解讀、人生建議',
-    [ReadingLevel.DEEP_ANALYSIS]: '深度分析、詳盡指導'
+    [ReadingLevel.DEEP_ANALYSIS]: '深度分析、詳盡指導',
   };
   return features[level];
 };
@@ -589,16 +615,16 @@ watch(availableLevels, (newLevels) => {
   .layered-reading-controller {
     padding: 12px;
   }
-  
+
   .level-buttons {
     overflow-x: auto;
     padding: 4px 0;
   }
-  
+
   .quick-actions {
     justify-content: space-around;
   }
-  
+
   .toolbar {
     justify-content: space-around;
   }
@@ -609,7 +635,7 @@ watch(availableLevels, (newLevels) => {
     padding: 8px 12px;
     min-height: 50px;
   }
-  
+
   .button-text {
     font-size: 11px;
   }
@@ -621,13 +647,13 @@ watch(availableLevels, (newLevels) => {
     background: #1a1a1a;
     color: #fff;
   }
-  
+
   .level-info-panel,
   .preferences-panel {
     background: #2a2a2a;
     border-color: #3a3a3a;
   }
-  
+
   .loading-overlay {
     background: rgba(0, 0, 0, 0.8);
   }

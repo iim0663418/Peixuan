@@ -14,10 +14,10 @@
           <option value="煞星">煞星類</option>
           <option value="其他">其他類</option>
         </select>
-        <button 
-          @click="toggleExpanded"
+        <button
           class="expand-button"
           :class="{ expanded: isExpanded }"
+          @click="toggleExpanded"
         >
           {{ isExpanded ? '收起' : '展開' }}
         </button>
@@ -49,11 +49,11 @@
 
       <!-- 雜曜分類標籤 -->
       <div class="category-tabs">
-        <button 
-          v-for="category in availableCategories" 
+        <button
+          v-for="category in availableCategories"
           :key="category"
-          @click="selectedCategory = category"
           :class="['category-tab', { active: selectedCategory === category }]"
+          @click="selectedCategory = category"
         >
           {{ getCategoryName(category) }}
           <span class="tab-count">{{ getCategoryCount(category) }}</span>
@@ -62,29 +62,30 @@
 
       <!-- 雜曜列表 -->
       <div class="minor-stars-list">
-        <div 
-          v-for="starInfo in filteredMinorStars" 
+        <div
+          v-for="starInfo in filteredMinorStars"
           :key="`${starInfo.star.name}-${starInfo.palace.name}`"
           class="minor-star-item"
         >
           <div class="star-info">
             <div class="star-header">
-              <span 
-                :class="['star-name', `star-${starInfo.star.attribute}`]"
-              >
+              <span :class="['star-name', `star-${starInfo.star.attribute}`]">
                 {{ starInfo.star.name }}
               </span>
-              <StarBrightnessIndicator 
-                v-if="starInfo.star.brightness" 
-                :brightness="starInfo.star.brightness" 
+              <StarBrightnessIndicator
+                v-if="starInfo.star.brightness"
+                :brightness="starInfo.star.brightness"
               />
-              <span 
-                :class="['star-category-badge', `category-${getStarCategory(starInfo.star.name)}`]"
+              <span
+                :class="[
+                  'star-category-badge',
+                  `category-${getStarCategory(starInfo.star.name)}`,
+                ]"
               >
                 {{ getCategoryName(getStarCategory(starInfo.star.name)) }}
               </span>
             </div>
-            
+
             <div class="star-location">
               <span class="location-label">位於</span>
               <span class="palace-name">{{ starInfo.palace.name }}</span>
@@ -106,12 +107,21 @@
             </div>
 
             <!-- 雜曜四化 -->
-            <div v-if="starInfo.star.transformations && starInfo.star.transformations.length > 0" class="star-transformations">
+            <div
+              v-if="
+                starInfo.star.transformations &&
+                starInfo.star.transformations.length > 0
+              "
+              class="star-transformations"
+            >
               <span class="transformations-label">四化：</span>
-              <span 
-                v-for="transformation in starInfo.star.transformations" 
+              <span
+                v-for="transformation in starInfo.star.transformations"
                 :key="transformation"
-                :class="['transformation-badge', `transformation-${transformation}`]"
+                :class="[
+                  'transformation-badge',
+                  `transformation-${transformation}`,
+                ]"
               >
                 {{ transformation }}
               </span>
@@ -124,7 +134,7 @@
       <div v-if="filteredMinorStars.length > 0" class="minor-stars-impact">
         <h4>雜曜綜合影響</h4>
         <div class="impact-content">
-          <div class="impact-positive" v-if="positiveInfluences.length > 0">
+          <div v-if="positiveInfluences.length > 0" class="impact-positive">
             <h5>正面影響</h5>
             <ul>
               <li v-for="influence in positiveInfluences" :key="influence">
@@ -132,8 +142,8 @@
               </li>
             </ul>
           </div>
-          
-          <div class="impact-negative" v-if="negativeInfluences.length > 0">
+
+          <div v-if="negativeInfluences.length > 0" class="impact-negative">
             <h5>需要注意</h5>
             <ul>
               <li v-for="influence in negativeInfluences" :key="influence">
@@ -153,9 +163,10 @@
       <div v-if="filteredMinorStars.length === 0" class="no-minor-stars">
         <div class="no-stars-icon">🌟</div>
         <p>
-          {{ selectedCategory === 'all' ? 
-            '此命盤中未發現雜曜，這是正常情況。' : 
-            `此命盤中未發現${getCategoryName(selectedCategory)}雜曜。` 
+          {{
+            selectedCategory === 'all'
+              ? '此命盤中未發現雜曜，這是正常情況。'
+              : `此命盤中未發現${getCategoryName(selectedCategory)}雜曜。`
           }}
         </p>
         <div v-if="selectedCategory === 'all'" class="no-stars-explanation">
@@ -173,244 +184,257 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import StarBrightnessIndicator from './StarBrightnessIndicator.vue'
+import { computed, ref } from 'vue';
+import StarBrightnessIndicator from './StarBrightnessIndicator.vue';
 
 interface Star {
-  name: string
-  type: string
-  attribute?: string
-  brightness?: string
-  description?: string
-  transformations?: string[]
+  name: string;
+  type: string;
+  attribute?: string;
+  brightness?: string;
+  description?: string;
+  transformations?: string[];
 }
 
 interface Palace {
-  name: string
-  zhi: string
-  stars: Star[]
+  name: string;
+  zhi: string;
+  stars: Star[];
 }
 
 interface Props {
-  palaces: Palace[]
+  palaces: Palace[];
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const isExpanded = ref(false)
-const selectedCategory = ref<string>('all')
+const isExpanded = ref(false);
+const selectedCategory = ref<string>('all');
 
 const toggleExpanded = () => {
-  isExpanded.value = !isExpanded.value
-}
+  isExpanded.value = !isExpanded.value;
+};
 
 // 雜曜分類映射
 const getStarCategory = (starName: string): string => {
   const categories: Record<string, string[]> = {
-    '桃花': ['天姚', '紅鸞', '天喜', '咸池'],
-    '文藝': ['龍池', '鳳閣', '天才', '天壽'],
-    '德星': ['天德', '月德', '解神'],
-    '煞星': ['擎羊', '陀羅', '火星', '鈴星', '天刑', '孤辰', '寡宿', '天月', '陰煞'],
-    '其他': ['天馬', '天巫', '台輔', '封誥']
-  }
-  
+    桃花: ['天姚', '紅鸞', '天喜', '咸池'],
+    文藝: ['龍池', '鳳閣', '天才', '天壽'],
+    德星: ['天德', '月德', '解神'],
+    煞星: [
+      '擎羊',
+      '陀羅',
+      '火星',
+      '鈴星',
+      '天刑',
+      '孤辰',
+      '寡宿',
+      '天月',
+      '陰煞',
+    ],
+    其他: ['天馬', '天巫', '台輔', '封誥'],
+  };
+
   for (const [category, stars] of Object.entries(categories)) {
-    if (stars.includes(starName)) return category
+    if (stars.includes(starName)) {
+      return category;
+    }
   }
-  return '其他'
-}
+  return '其他';
+};
 
 // 獲取分類名稱
 const getCategoryName = (category: string): string => {
   const names: Record<string, string> = {
-    'all': '全部',
-    '桃花': '桃花',
-    '文藝': '文藝',
-    '德星': '德星',
-    '煞星': '煞星',
-    '其他': '其他'
-  }
-  return names[category] || category
-}
+    all: '全部',
+    桃花: '桃花',
+    文藝: '文藝',
+    德星: '德星',
+    煞星: '煞星',
+    其他: '其他',
+  };
+  return names[category] || category;
+};
 
 // 提取所有雜曜
 const allMinorStars = computed(() => {
-  const stars: Array<{ star: Star; palace: Palace }> = []
-  
-  props.palaces.forEach(palace => {
-    palace.stars.forEach(star => {
+  const stars: Array<{ star: Star; palace: Palace }> = [];
+
+  props.palaces.forEach((palace) => {
+    palace.stars.forEach((star) => {
       if (star.type === 'minor') {
-        stars.push({ star, palace })
+        stars.push({ star, palace });
       }
-    })
-  })
-  
-  return stars
-})
+    });
+  });
+
+  return stars;
+});
 
 // 過濾的雜曜
 const filteredMinorStars = computed(() => {
   if (selectedCategory.value === 'all') {
-    return allMinorStars.value
+    return allMinorStars.value;
   }
-  
-  return allMinorStars.value.filter(item => 
-    getStarCategory(item.star.name) === selectedCategory.value
-  )
-})
+
+  return allMinorStars.value.filter(
+    (item) => getStarCategory(item.star.name) === selectedCategory.value,
+  );
+});
 
 // 可用分類
 const availableCategories = computed(() => {
-  const categories = new Set(['all'])
-  allMinorStars.value.forEach(item => {
-    categories.add(getStarCategory(item.star.name))
-  })
-  return Array.from(categories)
-})
+  const categories = new Set(['all']);
+  allMinorStars.value.forEach((item) => {
+    categories.add(getStarCategory(item.star.name));
+  });
+  return Array.from(categories);
+});
 
 // 獲取分類數量
 const getCategoryCount = (category: string): number => {
-  if (category === 'all') return allMinorStars.value.length
-  return allMinorStars.value.filter(item => 
-    getStarCategory(item.star.name) === category
-  ).length
-}
+  if (category === 'all') {
+    return allMinorStars.value.length;
+  }
+  return allMinorStars.value.filter(
+    (item) => getStarCategory(item.star.name) === category,
+  ).length;
+};
 
 // 分類統計
 const categoryStats = computed(() => {
-  const stats = { beneficial: 0, malefic: 0, neutral: 0 }
-  
-  filteredMinorStars.value.forEach(item => {
+  const stats = { beneficial: 0, malefic: 0, neutral: 0 };
+
+  filteredMinorStars.value.forEach((item) => {
     switch (item.star.attribute) {
       case '吉':
-        stats.beneficial++
-        break
+        stats.beneficial++;
+        break;
       case '凶':
-        stats.malefic++
-        break
+        stats.malefic++;
+        break;
       default:
-        stats.neutral++
+        stats.neutral++;
     }
-  })
-  
-  return stats
-})
+  });
+
+  return stats;
+});
 
 // 獲取星曜特殊影響
 const getStarInfluence = (starInfo: { star: Star; palace: Palace }): string => {
-  const { star, palace } = starInfo
-  
+  const { star, palace } = starInfo;
+
   const influences: Record<string, Record<string, string>> = {
-    '天馬': {
-      '遷移宮': '增強外出運勢，利於旅行發展',
-      '官祿宮': '事業有變動機會，宜主動出擊'
+    天馬: {
+      遷移宮: '增強外出運勢，利於旅行發展',
+      官祿宮: '事業有變動機會，宜主動出擊',
     },
-    '天姚': {
-      '夫妻宮': '感情豐富，桃花運旺，需注意感情處理',
-      '命宮': '人緣佳，具有魅力，易得異性緣'
+    天姚: {
+      夫妻宮: '感情豐富，桃花運旺，需注意感情處理',
+      命宮: '人緣佳，具有魅力，易得異性緣',
     },
-    '紅鸞': {
-      '夫妻宮': '婚姻運佳，感情順利，有喜慶之事',
-      '子女宮': '子女緣分深厚，家庭和樂'
+    紅鸞: {
+      夫妻宮: '婚姻運佳，感情順利，有喜慶之事',
+      子女宮: '子女緣分深厚，家庭和樂',
     },
-    '天喜': {
-      '命宮': '人生多喜事，個性樂觀開朗',
-      '福德宮': '精神愉悦，享受生活樂趣'
+    天喜: {
+      命宮: '人生多喜事，個性樂觀開朗',
+      福德宮: '精神愉悦，享受生活樂趣',
     },
-    '龍池': {
-      '命宮': '具有藝術天賦，品味高雅',
-      '官祿宮': '工作與文藝創作相關，才華出眾'
+    龍池: {
+      命宮: '具有藝術天賦，品味高雅',
+      官祿宮: '工作與文藝創作相關，才華出眾',
     },
-    '鳳閣': {
-      '命宮': '具有美感，追求精緻生活',
-      '夫妻宮': '配偶有藝術氣質，夫妻生活優雅'
+    鳳閣: {
+      命宮: '具有美感，追求精緻生活',
+      夫妻宮: '配偶有藝術氣質，夫妻生活優雅',
     },
-    '天德': {
-      '命宮': '有貴人相助，能逢凶化吉',
-      '疾厄宮': '身體健康，疾病易癒'
+    天德: {
+      命宮: '有貴人相助，能逢凶化吉',
+      疾厄宮: '身體健康，疾病易癒',
     },
-    '月德': {
-      '命宮': '心地善良，常得人助',
-      '父母宮': '與長輩關係良好，得到庇佑'
-    }
-  }
-  
-  return influences[star.name]?.[palace.name] || ''
-}
+    月德: {
+      命宮: '心地善良，常得人助',
+      父母宮: '與長輩關係良好，得到庇佑',
+    },
+  };
+
+  return influences[star.name]?.[palace.name] || '';
+};
 
 // 正面影響
 const positiveInfluences = computed(() => {
-  const influences: string[] = []
-  
-  filteredMinorStars.value.forEach(item => {
+  const influences: string[] = [];
+
+  filteredMinorStars.value.forEach((item) => {
     if (item.star.attribute === '吉') {
-      const category = getStarCategory(item.star.name)
-      
+      const category = getStarCategory(item.star.name);
+
       switch (category) {
         case '桃花':
-          influences.push('人際關係和諧，感情運勢良好')
-          break
+          influences.push('人際關係和諧，感情運勢良好');
+          break;
         case '文藝':
-          influences.push('具有藝術天賦，品味高雅')
-          break
+          influences.push('具有藝術天賦，品味高雅');
+          break;
         case '德星':
-          influences.push('道德品格高尚，能獲得庇佑')
-          break
+          influences.push('道德品格高尚，能獲得庇佑');
+          break;
       }
     }
-  })
-  
-  return [...new Set(influences)]
-})
+  });
+
+  return [...new Set(influences)];
+});
 
 // 負面影響
 const negativeInfluences = computed(() => {
-  const influences: string[] = []
-  
-  filteredMinorStars.value.forEach(item => {
+  const influences: string[] = [];
+
+  filteredMinorStars.value.forEach((item) => {
     if (item.star.attribute === '凶') {
-      const category = getStarCategory(item.star.name)
-      
+      const category = getStarCategory(item.star.name);
+
       switch (category) {
         case '煞星':
-          influences.push('需要注意人際關係，避免衝突')
-          break
+          influences.push('需要注意人際關係，避免衝突');
+          break;
       }
-      
+
       // 特定星曜的影響
       switch (item.star.name) {
         case '孤辰':
         case '寡宿':
-          influences.push('容易感到孤獨，需主動建立社交圈')
-          break
+          influences.push('容易感到孤獨，需主動建立社交圈');
+          break;
         case '擎羊':
         case '陀羅':
-          influences.push('行事需謹慎，避免急躁冒進')
-          break
+          influences.push('行事需謹慎，避免急躁冒進');
+          break;
         case '火星':
         case '鈴星':
-          influences.push('情緒容易激動，需要冷靜處理問題')
-          break
+          influences.push('情緒容易激動，需要冷靜處理問題');
+          break;
       }
     }
-  })
-  
-  return [...new Set(influences)]
-})
+  });
+
+  return [...new Set(influences)];
+});
 
 // 綜合建議
 const getOverallSuggestion = (): string => {
-  const beneficialCount = categoryStats.value.beneficial
-  const maleficCount = categoryStats.value.malefic
-  
+  const beneficialCount = categoryStats.value.beneficial;
+  const maleficCount = categoryStats.value.malefic;
+
   if (beneficialCount > maleficCount) {
-    return '雜曜整體影響偏向正面，建議善用這些星曜帶來的特殊才能和機會。'
+    return '雜曜整體影響偏向正面，建議善用這些星曜帶來的特殊才能和機會。';
   } else if (maleficCount > beneficialCount) {
-    return '需要特別注意雜曜帶來的挑戰，透過修養和智慧來化解不利影響。'
-  } else {
-    return '雜曜影響平衡，關鍵在於如何運用智慧來趨吉避凶。'
+    return '需要特別注意雜曜帶來的挑戰，透過修養和智慧來化解不利影響。';
   }
-}
+  return '雜曜影響平衡，關鍵在於如何運用智慧來趨吉避凶。';
+};
 </script>
 
 <style scoped>
@@ -820,16 +844,16 @@ const getOverallSuggestion = (): string => {
     gap: 8px;
     align-items: stretch;
   }
-  
+
   .summary-stats {
     flex-wrap: wrap;
     gap: 16px;
   }
-  
+
   .category-tabs {
     justify-content: center;
   }
-  
+
   .star-header {
     flex-wrap: wrap;
   }

@@ -1,5 +1,8 @@
 <template>
-  <div class="compact-reading-view" :class="{ 'mobile': isMobile, 'tablet': isTablet }">
+  <div
+    class="compact-reading-view"
+    :class="{ mobile: isMobile, tablet: isTablet }"
+  >
     <!-- 頂部導航 -->
     <div class="reading-nav">
       <div class="nav-header">
@@ -45,12 +48,15 @@
       <div v-show="activeTab === 'personality'" class="personality-section">
         <div class="section-header">
           <h4>個性特質分析</h4>
-          <el-tag type="info" size="small">{{ personalityHighlights.length }} 項特質</el-tag>
+          <el-tag
+type="info" size="small"
+            >{{ personalityHighlights.length }} 項特質</el-tag
+          >
         </div>
-        
+
         <div class="highlights-grid">
-          <div 
-            v-for="(highlight, index) in personalityHighlights" 
+          <div
+            v-for="(highlight, index) in personalityHighlights"
             :key="index"
             class="highlight-card"
             :class="getHighlightType(index)"
@@ -62,10 +68,10 @@
               <p class="highlight-desc">{{ extractDescription(highlight) }}</p>
             </div>
             <div class="card-score">
-              <el-rate 
-                :model-value="getTraitScore(index)" 
-                :max="5" 
-                disabled 
+              <el-rate
+                :model-value="getTraitScore(index)"
+                :max="5"
+                disabled
                 size="small"
                 :show-text="false"
               />
@@ -74,19 +80,23 @@
         </div>
 
         <!-- 性格雷達圖 -->
-        <div class="personality-radar" v-if="!isMobile">
+        <div v-if="!isMobile" class="personality-radar">
           <h5>性格維度分析</h5>
           <div class="radar-container">
             <div class="radar-chart">
               <!-- 簡化的雷達圖展示 -->
-              <div class="radar-item" v-for="(dimension, index) in personalityDimensions" :key="index">
+              <div
+                v-for="(dimension, index) in personalityDimensions"
+                :key="index"
+                class="radar-item"
+              >
                 <span class="dimension-label">{{ dimension.name }}</span>
                 <div class="dimension-bar">
-                  <div 
-                    class="bar-fill" 
+                  <div
+                    class="bar-fill"
                     :style="{ width: `${dimension.score}%` }"
                     :class="getBarClass(dimension.score)"
-                  ></div>
+                  />
                 </div>
                 <span class="dimension-score">{{ dimension.score }}%</span>
               </div>
@@ -103,15 +113,18 @@
         </div>
 
         <div class="trends-timeline">
-          <div 
-            v-for="(trend, index) in fortuneTrends" 
+          <div
+            v-for="(trend, index) in fortuneTrends"
             :key="index"
             class="timeline-item"
-            :class="{ 'active': index === 0 }"
+            :class="{ active: index === 0 }"
           >
             <div class="timeline-marker">
-              <div class="marker-dot" :class="getTrendClass(index)"></div>
-              <div class="marker-line" v-if="index < fortuneTrends.length - 1"></div>
+              <div class="marker-dot" :class="getTrendClass(index)" />
+              <div
+                v-if="index < fortuneTrends.length - 1"
+                class="marker-line"
+              />
             </div>
             <div class="timeline-content">
               <div class="timeline-header">
@@ -123,8 +136,8 @@
               <p class="timeline-desc">{{ trend }}</p>
               <div class="timeline-score">
                 <span class="score-label">運勢指數:</span>
-                <el-progress 
-                  :percentage="getTrendScore(index)" 
+                <el-progress
+                  :percentage="getTrendScore(index)"
                   :status="getTrendProgressStatus(index)"
                   :show-text="false"
                   :stroke-width="6"
@@ -136,11 +149,11 @@
         </div>
 
         <!-- 重要時間節點提醒 -->
-        <div class="key-dates" v-if="keyDates.length > 0">
+        <div v-if="keyDates.length > 0" class="key-dates">
           <h5>重要時間節點</h5>
           <div class="dates-list">
-            <div 
-              v-for="(date, index) in keyDates" 
+            <div
+              v-for="(date, index) in keyDates"
               :key="index"
               class="date-item"
             >
@@ -149,7 +162,9 @@
                 <span class="date-time">{{ date.time }}</span>
                 <span class="date-event">{{ date.event }}</span>
               </div>
-              <el-tag :type="date.type" size="small">{{ date.importance }}</el-tag>
+              <el-tag :type="date.type" size="small">{{
+                date.importance
+              }}</el-tag>
             </div>
           </div>
         </div>
@@ -159,12 +174,15 @@
       <div v-show="activeTab === 'advice'" class="advice-section">
         <div class="section-header">
           <h4>個性化建議</h4>
-          <el-tag type="warning" size="small">{{ quickAdvice.length }} 條建議</el-tag>
+          <el-tag
+type="warning" size="small"
+            >{{ quickAdvice.length }} 條建議</el-tag
+          >
         </div>
 
         <div class="advice-categories">
-          <div 
-            v-for="(category, index) in adviceCategories" 
+          <div
+            v-for="(category, index) in adviceCategories"
             :key="index"
             class="category-section"
           >
@@ -175,16 +193,19 @@
                 {{ category.label }}
               </el-tag>
             </div>
-            
+
             <div class="advice-list">
-              <div 
-                v-for="(advice, adviceIndex) in category.items" 
+              <div
+                v-for="(advice, adviceIndex) in category.items"
                 :key="adviceIndex"
                 class="advice-item"
                 @click="selectAdvice(advice, index, adviceIndex)"
               >
                 <div class="advice-priority">
-                  <span class="priority-badge" :class="getAdvicePriority(index, adviceIndex)">
+                  <span
+                    class="priority-badge"
+                    :class="getAdvicePriority(index, adviceIndex)"
+                  >
                     {{ getAdviceLevel(index, adviceIndex) }}
                   </span>
                 </div>
@@ -192,9 +213,7 @@
                   <p class="advice-text">{{ advice }}</p>
                 </div>
                 <div class="advice-action">
-                  <el-button size="small" type="primary" text>
-                    詳細
-                  </el-button>
+                  <el-button size="small" type="primary" text> 詳細 </el-button>
                 </div>
               </div>
             </div>
@@ -206,8 +225,8 @@
           <h5>本週行動清單</h5>
           <div class="checklist-items">
             <el-checkbox-group v-model="completedActions">
-              <div 
-                v-for="(action, index) in weeklyActions" 
+              <div
+                v-for="(action, index) in weeklyActions"
                 :key="index"
                 class="checklist-item"
               >
@@ -226,30 +245,30 @@
     <div class="bottom-actions">
       <div class="progress-indicator">
         <span class="progress-text">閱讀進度:</span>
-        <el-progress 
-          :percentage="readingProgress" 
+        <el-progress
+          :percentage="readingProgress"
           :show-text="false"
           :stroke-width="4"
         />
         <span class="progress-value">{{ readingProgress }}%</span>
       </div>
-      
+
       <div class="action-buttons">
-        <el-button 
+        <el-button
           v-if="canDowngrade"
-          :icon="ArrowLeft" 
-          @click="$emit('downgradeRequested')"
+          :icon="ArrowLeft"
           size="small"
+          @click="$emit('downgradeRequested')"
         >
           簡要預覽
         </el-button>
-        
-        <el-button 
+
+        <el-button
           v-if="canUpgrade"
           type="primary"
-          :icon="ArrowRight" 
-          @click="$emit('upgradeRequested')"
+          :icon="ArrowRight"
           size="small"
+          @click="$emit('upgradeRequested')"
         >
           標準解讀
         </el-button>
@@ -260,12 +279,12 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
-import { 
-  User, 
-  TrendCharts, 
+import {
+  User,
+  TrendCharts,
   Lightning,
   ArrowLeft,
-  ArrowRight
+  ArrowRight,
 } from '@element-plus/icons-vue';
 
 // Props
@@ -286,7 +305,7 @@ const props = withDefaults(defineProps<Props>(), {
   canDowngrade: true,
   isMobile: false,
   isTablet: false,
-  timestamp: () => new Date()
+  timestamp: () => new Date(),
 });
 
 // Emits
@@ -309,7 +328,7 @@ const personalityDimensions = computed(() => [
   { name: '穩定性', score: 85 },
   { name: '責任感', score: 90 },
   { name: '親和力', score: 80 },
-  { name: '創新性', score: 70 }
+  { name: '創新性', score: 70 },
 ]);
 
 const adviceCategories = computed(() => [
@@ -318,28 +337,38 @@ const adviceCategories = computed(() => [
     icon: '👥',
     priority: 'warning',
     label: '重要',
-    items: props.quickAdvice.filter((_, i) => i % 3 === 0)
+    items: props.quickAdvice.filter((_, i) => i % 3 === 0),
   },
   {
     title: '事業發展',
     icon: '💼',
     priority: 'success',
     label: '機會',
-    items: props.quickAdvice.filter((_, i) => i % 3 === 1)
+    items: props.quickAdvice.filter((_, i) => i % 3 === 1),
   },
   {
     title: '健康養生',
     icon: '🏃‍♂️',
     priority: 'info',
     label: '提醒',
-    items: props.quickAdvice.filter((_, i) => i % 3 === 2)
-  }
+    items: props.quickAdvice.filter((_, i) => i % 3 === 2),
+  },
 ]);
 
 const keyDates = computed(() => [
-  { time: '本週三', event: '重要決策最佳時機', type: 'success', importance: '佳時' },
-  { time: '下週一', event: '避免重大變動', type: 'warning', importance: '注意' },
-  { time: '月底', event: '財運轉機期', type: 'success', importance: '機會' }
+  {
+    time: '本週三',
+    event: '重要決策最佳時機',
+    type: 'success',
+    importance: '佳時',
+  },
+  {
+    time: '下週一',
+    event: '避免重大變動',
+    type: 'warning',
+    importance: '注意',
+  },
+  { time: '月底', event: '財運轉機期', type: 'success', importance: '機會' },
 ]);
 
 const weeklyActions = computed(() => [
@@ -347,7 +376,7 @@ const weeklyActions = computed(() => [
   '制定下月工作計劃',
   '安排健康檢查',
   '整理重要文件',
-  '學習新技能或知識'
+  '學習新技能或知識',
 ]);
 
 // 方法
@@ -355,7 +384,11 @@ const selectHighlight = (highlight: string, index: number) => {
   emit('highlightSelected', highlight, index);
 };
 
-const selectAdvice = (advice: string, categoryIndex: number, adviceIndex: number) => {
+const selectAdvice = (
+  advice: string,
+  categoryIndex: number,
+  adviceIndex: number,
+) => {
   emit('adviceSelected', advice, categoryIndex, adviceIndex);
 };
 
@@ -408,14 +441,22 @@ const getTrendScore = (index: number) => {
 
 const getTrendProgressStatus = (index: number) => {
   const scores = getTrendScore(index);
-  if (scores >= 80) return 'success';
-  if (scores >= 60) return 'warning';
+  if (scores >= 80) {
+    return 'success';
+  }
+  if (scores >= 60) {
+    return 'warning';
+  }
   return 'exception';
 };
 
 const getBarClass = (score: number) => {
-  if (score >= 80) return 'bar-excellent';
-  if (score >= 60) return 'bar-good';
+  if (score >= 80) {
+    return 'bar-excellent';
+  }
+  if (score >= 60) {
+    return 'bar-good';
+  }
   return 'bar-normal';
 };
 
@@ -438,9 +479,10 @@ const updateReadingProgress = () => {
   const tabProgresses = {
     personality: 33,
     fortune: 66,
-    advice: 100
+    advice: 100,
   };
-  readingProgress.value = tabProgresses[activeTab.value as keyof typeof tabProgresses] || 0;
+  readingProgress.value =
+    tabProgresses[activeTab.value as keyof typeof tabProgresses] || 0;
 };
 
 // 監聽器
@@ -449,14 +491,17 @@ watch(activeTab, (newTab) => {
   updateReadingProgress();
 });
 
-watch(() => completedActions.value.length, (newLength) => {
-  // 根據完成的行動數量調整進度
-  if (activeTab.value === 'advice') {
-    const baseProgress = 80;
-    const actionProgress = (newLength / weeklyActions.value.length) * 20;
-    readingProgress.value = Math.min(100, baseProgress + actionProgress);
-  }
-});
+watch(
+  () => completedActions.value.length,
+  (newLength) => {
+    // 根據完成的行動數量調整進度
+    if (activeTab.value === 'advice') {
+      const baseProgress = 80;
+      const actionProgress = (newLength / weeklyActions.value.length) * 20;
+      readingProgress.value = Math.min(100, baseProgress + actionProgress);
+    }
+  },
+);
 
 // 生命週期
 onMounted(() => {

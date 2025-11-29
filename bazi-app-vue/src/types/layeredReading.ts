@@ -5,10 +5,10 @@
 
 // 閱覽層級枚舉
 export enum ReadingLevel {
-  SUMMARY = 'summary',           // 簡要預覽
-  COMPACT = 'compact',           // 精簡檢視  
-  STANDARD = 'standard',         // 標準解讀
-  DEEP_ANALYSIS = 'deep'         // 深度分析
+  SUMMARY = 'summary', // 簡要預覽
+  COMPACT = 'compact', // 精簡檢視
+  STANDARD = 'standard', // 標準解讀
+  DEEP_ANALYSIS = 'deep', // 深度分析
 }
 
 // 層級配置
@@ -17,8 +17,8 @@ export interface ReadingLevelConfig {
   label: string;
   description: string;
   icon: string;
-  minDataRequirement: number;    // 最低資料完整度要求 (0-100)
-  estimatedReadTime: string;     // 預估閱讀時間
+  minDataRequirement: number; // 最低資料完整度要求 (0-100)
+  estimatedReadTime: string; // 預估閱讀時間
 }
 
 // 分層閱覽配置
@@ -29,7 +29,7 @@ export const READING_LEVEL_CONFIGS: Record<ReadingLevel, ReadingLevelConfig> = {
     description: '快速了解核心特質，1分鐘速覽',
     icon: '👁️',
     minDataRequirement: 30,
-    estimatedReadTime: '1分鐘'
+    estimatedReadTime: '1分鐘',
   },
   [ReadingLevel.COMPACT]: {
     level: ReadingLevel.COMPACT,
@@ -37,7 +37,7 @@ export const READING_LEVEL_CONFIGS: Record<ReadingLevel, ReadingLevelConfig> = {
     description: '重點特質與運勢要點，3分鐘掌握',
     icon: '📝',
     minDataRequirement: 50,
-    estimatedReadTime: '3分鐘'
+    estimatedReadTime: '3分鐘',
   },
   [ReadingLevel.STANDARD]: {
     level: ReadingLevel.STANDARD,
@@ -45,7 +45,7 @@ export const READING_LEVEL_CONFIGS: Record<ReadingLevel, ReadingLevelConfig> = {
     description: '完整人生解讀與建議，10分鐘深度了解',
     icon: '📊',
     minDataRequirement: 70,
-    estimatedReadTime: '10分鐘'
+    estimatedReadTime: '10分鐘',
   },
   [ReadingLevel.DEEP_ANALYSIS]: {
     level: ReadingLevel.DEEP_ANALYSIS,
@@ -53,15 +53,15 @@ export const READING_LEVEL_CONFIGS: Record<ReadingLevel, ReadingLevelConfig> = {
     description: '全方位詳盡分析，20分鐘完整解讀',
     icon: '🔍',
     minDataRequirement: 85,
-    estimatedReadTime: '20分鐘'
-  }
+    estimatedReadTime: '20分鐘',
+  },
 };
 
 // 分層內容資料結構
 export interface LayeredContent {
   level: ReadingLevel;
   visible: boolean;
-  priority: number;              // 顯示優先級
+  priority: number; // 顯示優先級
   content: {
     title?: string;
     items: string[];
@@ -73,8 +73,8 @@ export interface LayeredContent {
 export interface LayeredReadingState {
   currentLevel: ReadingLevel;
   availableLevels: ReadingLevel[];
-  dataCompleteness: number;      // 資料完整度 (0-100)
-  isTransitioning: boolean;      // 是否正在切換層級
+  dataCompleteness: number; // 資料完整度 (0-100)
+  isTransitioning: boolean; // 是否正在切換層級
   lastUpdated: Date;
 }
 
@@ -87,62 +87,62 @@ export interface LayeredIntegratedAnalysis {
     dataCompleteness: number;
     availableLevels: ReadingLevel[];
   };
-  
+
   // 分層內容
   layers: {
     // 簡要預覽層
     summary: {
-      coreTraits: LayeredContent;           // 核心特質 (3-5個關鍵詞)
-      currentFortune: LayeredContent;       // 近期運勢 (1句話總結)
+      coreTraits: LayeredContent; // 核心特質 (3-5個關鍵詞)
+      currentFortune: LayeredContent; // 近期運勢 (1句話總結)
     };
-    
+
     // 精簡檢視層
     compact: {
-      personalityHighlights: LayeredContent;  // 性格亮點 (5-8個要點)
-      fortuneTrends: LayeredContent;          // 運勢趨勢 (3個主要週期)
-      quickAdvice: LayeredContent;            // 快速建議 (3-5條)
+      personalityHighlights: LayeredContent; // 性格亮點 (5-8個要點)
+      fortuneTrends: LayeredContent; // 運勢趨勢 (3個主要週期)
+      quickAdvice: LayeredContent; // 快速建議 (3-5條)
     };
-    
+
     // 標準解讀層
     standard: {
-      personalityAnalysis: LayeredContent;    // 完整性格分析
-      lifeStages: LayeredContent;             // 人生階段解讀
-      relationships: LayeredContent;          // 人際關係分析  
-      careerGuidance: LayeredContent;         // 事業指導
-      healthWellness: LayeredContent;         // 健康養生
-      recommendations: LayeredContent;        // 綜合建議
+      personalityAnalysis: LayeredContent; // 完整性格分析
+      lifeStages: LayeredContent; // 人生階段解讀
+      relationships: LayeredContent; // 人際關係分析
+      careerGuidance: LayeredContent; // 事業指導
+      healthWellness: LayeredContent; // 健康養生
+      recommendations: LayeredContent; // 綜合建議
     };
-    
+
     // 深度分析層
     deep: {
-      elementalAnalysis: LayeredContent;      // 五行深度分析
-      cosmicInfluences: LayeredContent;       // 星曜影響解讀
-      transformationCycles: LayeredContent;   // 四化週期分析
-      detailedForecasts: LayeredContent;      // 詳細預測
-      spiritualGuidance: LayeredContent;      // 心靈指導
-      actionPlans: LayeredContent;            // 具體行動計劃
+      elementalAnalysis: LayeredContent; // 五行深度分析
+      cosmicInfluences: LayeredContent; // 星曜影響解讀
+      transformationCycles: LayeredContent; // 四化週期分析
+      detailedForecasts: LayeredContent; // 詳細預測
+      spiritualGuidance: LayeredContent; // 心靈指導
+      actionPlans: LayeredContent; // 具體行動計劃
     };
   };
 }
 
 // 層級切換動畫配置
 export interface TransitionConfig {
-  duration: number;              // 動畫持續時間 (ms)
-  easing: string;               // 緩動函數
-  staggerDelay: number;         // 交錯延遲 (ms)
+  duration: number; // 動畫持續時間 (ms)
+  easing: string; // 緩動函數
+  staggerDelay: number; // 交錯延遲 (ms)
 }
 
 export const DEFAULT_TRANSITION_CONFIG: TransitionConfig = {
   duration: 300,
   easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  staggerDelay: 50
+  staggerDelay: 50,
 };
 
 // 響應式斷點配置
 export enum ResponsiveBreakpoint {
-  MOBILE = 'mobile',     // < 768px
-  TABLET = 'tablet',     // 768px - 1024px  
-  DESKTOP = 'desktop'    // > 1024px
+  MOBILE = 'mobile', // < 768px
+  TABLET = 'tablet', // 768px - 1024px
+  DESKTOP = 'desktop', // > 1024px
 }
 
 export interface ResponsiveConfig {
@@ -152,7 +152,10 @@ export interface ResponsiveConfig {
   layoutType: 'stack' | 'grid' | 'accordion';
 }
 
-export const RESPONSIVE_CONFIGS: Record<ResponsiveBreakpoint, ResponsiveConfig> = {
+export const RESPONSIVE_CONFIGS: Record<
+  ResponsiveBreakpoint,
+  ResponsiveConfig
+> = {
   [ResponsiveBreakpoint.MOBILE]: {
     breakpoint: ResponsiveBreakpoint.MOBILE,
     defaultLevel: ReadingLevel.SUMMARY,
@@ -160,9 +163,9 @@ export const RESPONSIVE_CONFIGS: Record<ResponsiveBreakpoint, ResponsiveConfig> 
       [ReadingLevel.SUMMARY]: 3,
       [ReadingLevel.COMPACT]: 5,
       [ReadingLevel.STANDARD]: 8,
-      [ReadingLevel.DEEP_ANALYSIS]: 10
+      [ReadingLevel.DEEP_ANALYSIS]: 10,
     },
-    layoutType: 'accordion'
+    layoutType: 'accordion',
   },
   [ResponsiveBreakpoint.TABLET]: {
     breakpoint: ResponsiveBreakpoint.TABLET,
@@ -171,9 +174,9 @@ export const RESPONSIVE_CONFIGS: Record<ResponsiveBreakpoint, ResponsiveConfig> 
       [ReadingLevel.SUMMARY]: 5,
       [ReadingLevel.COMPACT]: 8,
       [ReadingLevel.STANDARD]: 12,
-      [ReadingLevel.DEEP_ANALYSIS]: 15
+      [ReadingLevel.DEEP_ANALYSIS]: 15,
     },
-    layoutType: 'grid'
+    layoutType: 'grid',
   },
   [ResponsiveBreakpoint.DESKTOP]: {
     breakpoint: ResponsiveBreakpoint.DESKTOP,
@@ -182,10 +185,10 @@ export const RESPONSIVE_CONFIGS: Record<ResponsiveBreakpoint, ResponsiveConfig> 
       [ReadingLevel.SUMMARY]: 6,
       [ReadingLevel.COMPACT]: 10,
       [ReadingLevel.STANDARD]: 15,
-      [ReadingLevel.DEEP_ANALYSIS]: 20
+      [ReadingLevel.DEEP_ANALYSIS]: 20,
     },
-    layoutType: 'grid'
-  }
+    layoutType: 'grid',
+  },
 };
 
 // 資料轉換器類型
@@ -198,9 +201,9 @@ export interface DataAdapter<T> {
 // 用戶偏好設置
 export interface UserReadingPreferences {
   preferredLevel: ReadingLevel;
-  autoUpgrade: boolean;          // 資料完整時自動升級層級
+  autoUpgrade: boolean; // 資料完整時自動升級層級
   animationsEnabled: boolean;
-  compactMode: boolean;          // 緊湊模式
+  compactMode: boolean; // 緊湊模式
   customizations: {
     hiddenSections: string[];
     pinnedSections: string[];
@@ -217,6 +220,6 @@ export const DEFAULT_USER_PREFERENCES: UserReadingPreferences = {
   customizations: {
     hiddenSections: [],
     pinnedSections: [],
-    sectionOrder: []
-  }
+    sectionOrder: [],
+  },
 };

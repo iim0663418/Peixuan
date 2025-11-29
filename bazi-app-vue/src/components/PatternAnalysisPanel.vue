@@ -5,10 +5,10 @@
         <span class="icon">🔮</span>
         格局分析
       </h3>
-      <button 
-        @click="toggleExpanded"
+      <button
         class="expand-button"
         :class="{ expanded: isExpanded }"
+        @click="toggleExpanded"
       >
         <span>{{ isExpanded ? '收起' : '展開' }}</span>
         <span class="arrow">{{ isExpanded ? '▲' : '▼' }}</span>
@@ -22,16 +22,14 @@
           <span class="count-badge">{{ patterns.length }}</span>
           <span class="count-text">個格局特徵</span>
         </div>
-        
+
         <div class="patterns-types">
-          <div 
-            v-for="patternType in patternTypes" 
+          <div
+            v-for="patternType in patternTypes"
             :key="patternType.type"
             class="pattern-type-summary"
           >
-            <span 
-              :class="['type-indicator', `type-${patternType.type}`]"
-            >
+            <span :class="['type-indicator', `type-${patternType.type}`]">
               {{ patternType.name }}
             </span>
             <span class="type-count">{{ patternType.count }}</span>
@@ -41,24 +39,24 @@
 
       <!-- 格局詳細列表 -->
       <div class="patterns-list">
-        <div 
-          v-for="(pattern, index) in patterns" 
+        <div
+          v-for="(pattern, index) in patterns"
           :key="`pattern-${index}`"
           class="pattern-item"
         >
           <div class="pattern-header">
-            <span 
+            <span
               :class="['pattern-name', `pattern-${getPatternType(pattern)}`]"
             >
               {{ getPatternName(pattern) }}
             </span>
-            <span 
+            <span
               :class="['pattern-badge', `badge-${getPatternType(pattern)}`]"
             >
               {{ getPatternTypeName(getPatternType(pattern)) }}
             </span>
           </div>
-          
+
           <div class="pattern-description">
             {{ getPatternDescription(pattern) }}
           </div>
@@ -67,11 +65,14 @@
             <div class="impact-level">
               <span class="impact-label">影響程度：</span>
               <div class="impact-bars">
-                <div 
-                  v-for="i in 5" 
+                <div
+                  v-for="i in 5"
                   :key="i"
-                  :class="['impact-bar', { active: i <= getPatternImpact(pattern) }]"
-                ></div>
+                  :class="[
+                    'impact-bar',
+                    { active: i <= getPatternImpact(pattern) },
+                  ]"
+                />
               </div>
             </div>
           </div>
@@ -83,9 +84,9 @@
         <div class="no-patterns-icon">📋</div>
         <p class="no-patterns-text">
           此命盤未發現明顯的特殊格局，屬於一般格局類型。
-          <br>
+          <br />
           這代表您的人生道路相對平穩，可以透過努力學習和積累來創造成就。
-          <br>
+          <br />
           請參考星曜亮度和雜曜分析來了解個人特質。
         </p>
         <div class="no-patterns-explanation">
@@ -105,15 +106,21 @@
         <div class="advice-content">
           <div v-if="hasAuspiciousPatterns" class="advice-section positive">
             <span class="advice-icon">✨</span>
-            <p>命盤中的吉格為您帶來天賦優勢，建議善用這些特質來發展事業和人際關係。</p>
+            <p>
+              命盤中的吉格為您帶來天賦優勢，建議善用這些特質來發展事業和人際關係。
+            </p>
           </div>
           <div v-if="hasInauspiciousPatterns" class="advice-section cautionary">
             <span class="advice-icon">⚠️</span>
-            <p>注意命盤中的挑戰格局，透過自我修煉和智慧決策可以化解不利影響。</p>
+            <p>
+              注意命盤中的挑戰格局，透過自我修煉和智慧決策可以化解不利影響。
+            </p>
           </div>
           <div class="advice-section general">
             <span class="advice-icon">💡</span>
-            <p>格局分析提供人生方向的參考，最終的成就仍需要個人努力和正確的選擇。</p>
+            <p>
+              格局分析提供人生方向的參考，最終的成就仍需要個人努力和正確的選擇。
+            </p>
           </div>
         </div>
       </div>
@@ -122,112 +129,137 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref } from 'vue';
 
 interface Props {
-  patterns?: string[]
+  patterns?: string[];
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const isExpanded = ref(true)
+const isExpanded = ref(true);
 
 const toggleExpanded = () => {
-  isExpanded.value = !isExpanded.value
-}
+  isExpanded.value = !isExpanded.value;
+};
 
 // 解析格局名稱
 const getPatternName = (pattern: string): string => {
-  return pattern.split('：')[0] || pattern
-}
+  return pattern.split('：')[0] || pattern;
+};
 
 // 解析格局描述
 const getPatternDescription = (pattern: string): string => {
-  const parts = pattern.split('：')
-  return parts.length > 1 ? parts[1] : '格局描述未提供'
-}
+  const parts = pattern.split('：');
+  return parts.length > 1 ? parts[1] : '格局描述未提供';
+};
 
 // 判斷格局類型
 const getPatternType = (pattern: string): string => {
-  const name = getPatternName(pattern)
-  
+  const name = getPatternName(pattern);
+
   // 吉格
   const auspiciousPatterns = [
-    '紫府夾命格', '左右夾命格', '文昌文曲格', '財蔭夾印格', 
-    '殺破狼格', '機月同梁格'
-  ]
-  
+    '紫府夾命格',
+    '左右夾命格',
+    '文昌文曲格',
+    '財蔭夾印格',
+    '殺破狼格',
+    '機月同梁格',
+  ];
+
   // 凶格
   const inauspiciousPatterns = [
-    '日月反背格', '火鈴夾命格', '羊陀夾命格', '空劫夾命格'
-  ]
-  
-  if (auspiciousPatterns.some(p => name.includes(p))) return 'auspicious'
-  if (inauspiciousPatterns.some(p => name.includes(p))) return 'inauspicious'
-  return 'neutral'
-}
+    '日月反背格',
+    '火鈴夾命格',
+    '羊陀夾命格',
+    '空劫夾命格',
+  ];
+
+  if (auspiciousPatterns.some((p) => name.includes(p))) {
+    return 'auspicious';
+  }
+  if (inauspiciousPatterns.some((p) => name.includes(p))) {
+    return 'inauspicious';
+  }
+  return 'neutral';
+};
 
 // 格局類型名稱
 const getPatternTypeName = (type: string): string => {
   const names: Record<string, string> = {
-    'auspicious': '吉格',
-    'inauspicious': '凶格',
-    'neutral': '中性格局'
-  }
-  return names[type] || '未知'
-}
+    auspicious: '吉格',
+    inauspicious: '凶格',
+    neutral: '中性格局',
+  };
+  return names[type] || '未知';
+};
 
 // 計算格局影響程度 (1-5)
 const getPatternImpact = (pattern: string): number => {
-  const name = getPatternName(pattern)
-  
+  const name = getPatternName(pattern);
+
   // 高影響格局
-  if (['殺破狼格', '機月同梁格', '日月反背格'].some(p => name.includes(p))) {
-    return 5
+  if (['殺破狼格', '機月同梁格', '日月反背格'].some((p) => name.includes(p))) {
+    return 5;
   }
-  
+
   // 中高影響格局
-  if (['紫府夾命格', '左右夾命格', '火鈴夾命格', '羊陀夾命格'].some(p => name.includes(p))) {
-    return 4
+  if (
+    ['紫府夾命格', '左右夾命格', '火鈴夾命格', '羊陀夾命格'].some((p) =>
+      name.includes(p),
+    )
+  ) {
+    return 4;
   }
-  
+
   // 中等影響格局
-  if (['文昌文曲格', '空劫夾命格'].some(p => name.includes(p))) {
-    return 3
+  if (['文昌文曲格', '空劫夾命格'].some((p) => name.includes(p))) {
+    return 3;
   }
-  
-  return 2
-}
+
+  return 2;
+};
 
 // 格局類型統計
 const patternTypes = computed(() => {
-  if (!props.patterns) return []
-  
+  if (!props.patterns) {
+    return [];
+  }
+
   const types = {
     auspicious: { name: '吉格', count: 0, type: 'auspicious' },
     inauspicious: { name: '凶格', count: 0, type: 'inauspicious' },
-    neutral: { name: '中性', count: 0, type: 'neutral' }
-  }
-  
-  props.patterns.forEach(pattern => {
-    const type = getPatternType(pattern)
+    neutral: { name: '中性', count: 0, type: 'neutral' },
+  };
+
+  props.patterns.forEach((pattern) => {
+    const type = getPatternType(pattern);
     if (types[type as keyof typeof types]) {
-      types[type as keyof typeof types].count++
+      types[type as keyof typeof types].count++;
     }
-  })
-  
-  return Object.values(types).filter(type => type.count > 0)
-})
+  });
+
+  return Object.values(types).filter((type) => type.count > 0);
+});
 
 // 是否有吉格
 const hasAuspiciousPatterns = computed(() => {
-  return props.patterns?.some(pattern => getPatternType(pattern) === 'auspicious') || false
-})
+  return (
+    props.patterns?.some(
+      (pattern) => getPatternType(pattern) === 'auspicious',
+    ) || false
+  );
+});
 
 // 是否有凶格
 const hasInauspiciousPatterns = computed(() => {
-  return props.patterns?.some(pattern => getPatternType(pattern) === 'inauspicious') || false
-})
+  return (
+    props.patterns?.some(
+      (pattern) => getPatternType(pattern) === 'inauspicious',
+    ) || false
+  );
+});
 </script>
 
 <style scoped>
@@ -559,11 +591,11 @@ const hasInauspiciousPatterns = computed(() => {
     gap: 12px;
     align-items: flex-start;
   }
-  
+
   .patterns-types {
     flex-wrap: wrap;
   }
-  
+
   .pattern-header {
     flex-direction: column;
     align-items: flex-start;

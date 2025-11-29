@@ -7,7 +7,7 @@
     <div v-else-if="error" class="error-state">
       <h3>{{ $t('baziChart.loadError') }}</h3>
       <p>{{ error }}</p>
-      <button @click="$emit('retry')" class="retry-button">
+      <button class="retry-button" @click="$emit('retry')">
         {{ $t('baziChart.retry') }}
       </button>
     </div>
@@ -16,7 +16,7 @@
       <!-- 八字排盤顯示 -->
       <div class="chart-header">
         <h3>{{ $t('baziChart.title') }}</h3>
-        
+
         <!-- 八字不使用分層顯示，保持固定模式 -->
         <div class="fixed-mode-indicator">
           <el-tag type="info" size="small" effect="plain">
@@ -29,8 +29,8 @@
       <div class="bazi-pillars">
         <!-- 桌面版網格布局 -->
         <div class="pillars-grid desktop-layout">
-          <div 
-            v-for="(pillar, index) in pillarsDisplay" 
+          <div
+            v-for="(pillar, index) in pillarsDisplay"
             :key="pillar.name"
             class="pillar-column"
             @click="handlePillarClick(pillar.name)"
@@ -40,10 +40,16 @@
             <div class="pillar-branch">{{ pillar.branch }}</div>
             <div v-if="tenGods" class="pillar-god">{{ getTenGod(index) }}</div>
             <div class="pillar-elements">
-              <span class="stem-element" :class="`element-${getElementClass(pillar.stemElement)}`">
+              <span
+                class="stem-element"
+                :class="`element-${getElementClass(pillar.stemElement)}`"
+              >
                 {{ pillar.stemElement }}
               </span>
-              <span class="branch-element" :class="`element-${getElementClass(pillar.branchElement)}`">
+              <span
+                class="branch-element"
+                :class="`element-${getElementClass(pillar.branchElement)}`"
+              >
                 {{ pillar.branchElement }}
               </span>
             </div>
@@ -52,8 +58,8 @@
 
         <!-- 手機版卡片布局 -->
         <div class="pillars-mobile mobile-layout">
-          <div 
-            v-for="(pillar, index) in pillarsDisplay" 
+          <div
+            v-for="(pillar, index) in pillarsDisplay"
             :key="pillar.name"
             class="pillar-card"
             @click="handlePillarClick(pillar.name)"
@@ -73,13 +79,19 @@
               <div class="pillar-elements-mobile">
                 <div class="element-row">
                   <span class="element-label">天干五行：</span>
-                  <span class="stem-element" :class="`element-${getElementClass(pillar.stemElement)}`">
+                  <span
+                    class="stem-element"
+                    :class="`element-${getElementClass(pillar.stemElement)}`"
+                  >
                     {{ pillar.stemElement }}
                   </span>
                 </div>
                 <div class="element-row">
                   <span class="element-label">地支五行：</span>
-                  <span class="branch-element" :class="`element-${getElementClass(pillar.branchElement)}`">
+                  <span
+                    class="branch-element"
+                    :class="`element-${getElementClass(pillar.branchElement)}`"
+                  >
                     {{ pillar.branchElement }}
                   </span>
                 </div>
@@ -93,18 +105,18 @@
       <div v-if="elementsDistribution" class="elements-section">
         <h4>{{ $t('baziChart.elementsDistribution') }}</h4>
         <div class="elements-chart">
-          <div 
-            v-for="(count, element) in elementsDistribution" 
+          <div
+            v-for="(count, element) in elementsDistribution"
             :key="element"
             class="element-item"
           >
             <span class="element-name">{{ element }}</span>
             <div class="element-bar">
-              <div 
-                class="element-fill" 
+              <div
+                class="element-fill"
                 :style="{ width: `${getElementPercentage(count)}%` }"
                 :class="`element-${getElementClass(element)}`"
-              ></div>
+              />
               <span class="element-count">{{ count }}</span>
             </div>
           </div>
@@ -115,8 +127,8 @@
       <div v-if="tenGods" class="ten-gods-section">
         <h4>{{ $t('baziChart.tenGodsAnalysis') }}</h4>
         <div class="ten-gods-grid">
-          <div 
-            v-for="(god, pillar) in tenGods" 
+          <div
+            v-for="(god, pillar) in tenGods"
             :key="pillar"
             class="ten-god-item"
           >
@@ -152,7 +164,7 @@
       </div>
        -->
     </div>
-   
+
     <div v-else class="empty-state">
       <p>{{ $t('baziChart.noData') }}</p>
     </div>
@@ -170,7 +182,7 @@ import type {
   TenGodsPillars,
   ElementsDistribution,
   StartLuckInfo,
-  Pillar
+  Pillar,
 } from '../utils/baziCalc';
 
 const { t } = useI18n();
@@ -197,7 +209,7 @@ const props = withDefaults(defineProps<Props>(), {
   elementsDistribution: null,
   startLuckInfo: null,
   isLoading: false,
-  error: null
+  error: null,
 });
 
 // Emits
@@ -214,27 +226,50 @@ const displayMode = ref<DisplayMode>('standard');
 console.log('八字命盤初始化：使用固定模式（standard）');
 
 // 向上通知父組件當前使用固定模式
-watch(displayMode, (newMode: DisplayMode) => {
-  emit('update:displayMode', newMode);
-}, { immediate: true });
+watch(
+  displayMode,
+  (newMode: DisplayMode) => {
+    emit('update:displayMode', newMode);
+  },
+  { immediate: true },
+);
 
 // 計算屬性
 const pillarsDisplay = computed(() => {
   // 完全沒有資料的情況
-  if (!props.baziResult) return [];
-  
+  if (!props.baziResult) {
+    return [];
+  }
+
   // 檢查是否有正確的資料結構
-  const hasValidYearPillar = props.baziResult.yearPillar && props.baziResult.yearPillar.stem && props.baziResult.yearPillar.branch;
-  const hasValidMonthPillar = props.baziResult.monthPillar && props.baziResult.monthPillar.stem && props.baziResult.monthPillar.branch;
-  const hasValidDayPillar = props.baziResult.dayPillar && props.baziResult.dayPillar.stem && props.baziResult.dayPillar.branch;
-  const hasValidHourPillar = props.baziResult.hourPillar && props.baziResult.hourPillar.stem && props.baziResult.hourPillar.branch;
-  
+  const hasValidYearPillar =
+    props.baziResult.yearPillar &&
+    props.baziResult.yearPillar.stem &&
+    props.baziResult.yearPillar.branch;
+  const hasValidMonthPillar =
+    props.baziResult.monthPillar &&
+    props.baziResult.monthPillar.stem &&
+    props.baziResult.monthPillar.branch;
+  const hasValidDayPillar =
+    props.baziResult.dayPillar &&
+    props.baziResult.dayPillar.stem &&
+    props.baziResult.dayPillar.branch;
+  const hasValidHourPillar =
+    props.baziResult.hourPillar &&
+    props.baziResult.hourPillar.stem &&
+    props.baziResult.hourPillar.branch;
+
   // 如果資料不完整，返回空數組
-  if (!hasValidYearPillar || !hasValidMonthPillar || !hasValidDayPillar || !hasValidHourPillar) {
+  if (
+    !hasValidYearPillar ||
+    !hasValidMonthPillar ||
+    !hasValidDayPillar ||
+    !hasValidHourPillar
+  ) {
     console.warn('BaziChartDisplay: 不完整的命盤資料', props.baziResult);
     return [];
   }
-  
+
   // 所有資料都存在，安全構建柱子顯示
   return [
     {
@@ -242,45 +277,50 @@ const pillarsDisplay = computed(() => {
       stem: props.baziResult.yearPillar.stem,
       branch: props.baziResult.yearPillar.branch,
       stemElement: props.baziResult.yearPillar.stemElement || '',
-      branchElement: props.baziResult.yearPillar.branchElement || ''
+      branchElement: props.baziResult.yearPillar.branchElement || '',
     },
     {
       name: t('baziChart.monthPillar'),
       stem: props.baziResult.monthPillar.stem,
       branch: props.baziResult.monthPillar.branch,
       stemElement: props.baziResult.monthPillar.stemElement || '',
-      branchElement: props.baziResult.monthPillar.branchElement || ''
+      branchElement: props.baziResult.monthPillar.branchElement || '',
     },
     {
       name: t('baziChart.dayPillar'),
       stem: props.baziResult.dayPillar.stem,
       branch: props.baziResult.dayPillar.branch,
       stemElement: props.baziResult.dayPillar.stemElement || '',
-      branchElement: props.baziResult.dayPillar.branchElement || ''
+      branchElement: props.baziResult.dayPillar.branchElement || '',
     },
     {
       name: t('baziChart.hourPillar'),
       stem: props.baziResult.hourPillar.stem,
       branch: props.baziResult.hourPillar.branch,
       stemElement: props.baziResult.hourPillar.stemElement || '',
-      branchElement: props.baziResult.hourPillar.branchElement || ''
-    }
+      branchElement: props.baziResult.hourPillar.branchElement || '',
+    },
   ];
 });
 
 const totalElements = computed(() => {
-  if (!props.elementsDistribution) return 0;
-  return Object.values(props.elementsDistribution).reduce((sum, count) => sum + count, 0);
+  if (!props.elementsDistribution) {
+    return 0;
+  }
+  return Object.values(props.elementsDistribution).reduce(
+    (sum, count) => sum + count,
+    0,
+  );
 });
 
 // 方法
 const getElementClass = (element: string): string => {
   const mapping: Record<string, string> = {
-    '木': 'wood',
-    '火': 'fire',
-    '土': 'earth',
-    '金': 'metal',
-    '水': 'water'
+    木: 'wood',
+    火: 'fire',
+    土: 'earth',
+    金: 'metal',
+    水: 'water',
   };
   return mapping[element] || 'default';
 };
@@ -290,8 +330,10 @@ const getElementPercentage = (count: number): number => {
 };
 
 const getTenGod = (pillarIndex: number): string => {
-  if (!props.tenGods) return '';
-  
+  if (!props.tenGods) {
+    return '';
+  }
+
   const godKeys = ['yearStemGod', 'monthStemGod', 'dayStemGod', 'hourStemGod'];
   const key = godKeys[pillarIndex] as keyof TenGodsPillars;
   return props.tenGods[key] || '';
@@ -299,10 +341,10 @@ const getTenGod = (pillarIndex: number): string => {
 
 const getPillarName = (pillar: string): string => {
   const mapping: Record<string, string> = {
-    'yearStemGod': t('baziChart.yearPillar'),
-    'monthStemGod': t('baziChart.monthPillar'),
-    'dayStemGod': t('baziChart.dayPillar'),
-    'hourStemGod': t('baziChart.hourPillar')
+    yearStemGod: t('baziChart.yearPillar'),
+    monthStemGod: t('baziChart.monthPillar'),
+    dayStemGod: t('baziChart.dayPillar'),
+    hourStemGod: t('baziChart.hourPillar'),
   };
   return mapping[pillar] || pillar;
 };
@@ -324,7 +366,9 @@ const exportChart = () => {
   overflow: hidden;
 }
 
-.loading-state, .error-state, .empty-state {
+.loading-state,
+.error-state,
+.empty-state {
   padding: 60px 30px;
   text-align: center;
 }
@@ -340,8 +384,12 @@ const exportChart = () => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-state {
@@ -432,7 +480,8 @@ const exportChart = () => {
   font-size: 0.9rem;
 }
 
-.pillar-stem, .pillar-branch {
+.pillar-stem,
+.pillar-branch {
   font-size: 2rem;
   font-weight: 700;
   color: #8b4513;
@@ -453,7 +502,8 @@ const exportChart = () => {
   margin-top: 15px;
 }
 
-.stem-element, .branch-element {
+.stem-element,
+.branch-element {
   padding: 4px 8px;
   border-radius: 4px;
   font-weight: 600;
@@ -461,13 +511,26 @@ const exportChart = () => {
   color: white;
 }
 
-.element-wood { background: #228b22; }
-.element-fire { background: #dc143c; }
-.element-earth { background: #daa520; }
-.element-metal { background: #c0c0c0; color: #333; }
-.element-water { background: #4682b4; }
+.element-wood {
+  background: #228b22;
+}
+.element-fire {
+  background: #dc143c;
+}
+.element-earth {
+  background: #daa520;
+}
+.element-metal {
+  background: #c0c0c0;
+  color: #333;
+}
+.element-water {
+  background: #4682b4;
+}
 
-.elements-section, .ten-gods-section, .luck-section {
+.elements-section,
+.ten-gods-section,
+.luck-section {
   margin: 30px 0;
   padding: 25px;
   background: #faf9f7;
@@ -475,7 +538,9 @@ const exportChart = () => {
   border: 1px solid #e9dcc9;
 }
 
-.elements-section h4, .ten-gods-section h4, .luck-section h4 {
+.elements-section h4,
+.ten-gods-section h4,
+.luck-section h4 {
   margin: 0 0 20px 0;
   color: #8b4513;
   font-size: 1.2rem;
@@ -521,7 +586,7 @@ const exportChart = () => {
   font-weight: 600;
   color: white;
   font-size: 0.8rem;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .ten-gods-grid {
@@ -645,7 +710,11 @@ const exportChart = () => {
 }
 
 .pillar-card-header {
-  background: linear-gradient(135deg, var(--primary-lightest), var(--bazi-orange-lightest));
+  background: linear-gradient(
+    135deg,
+    var(--primary-lightest),
+    var(--bazi-orange-lightest)
+  );
   padding: var(--space-lg);
   border-bottom: 1px solid var(--border-light);
 }
@@ -748,51 +817,54 @@ const exportChart = () => {
   .desktop-layout {
     display: none;
   }
-  
+
   .mobile-layout {
     display: flex;
   }
-  
+
   .chart-content {
     padding: var(--space-lg);
   }
-  
+
   .chart-header {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
-  
+
   .fixed-mode-indicator {
     justify-content: center;
   }
-  
+
   .chart-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
     padding: 12px;
   }
-  
+
   .chart-header h3 {
     font-size: 1.2rem;
   }
-  
-  .elements-section, .ten-gods-section, .luck-section {
+
+  .elements-section,
+  .ten-gods-section,
+  .luck-section {
     padding: var(--space-lg);
   }
-  
-  .ten-gods-grid, .luck-details {
+
+  .ten-gods-grid,
+  .luck-details {
     grid-template-columns: 1fr;
     gap: var(--space-md);
   }
-  
+
   .chart-actions {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-md);
   }
-  
+
   .export-button,
   .chart-actions button {
     min-height: 48px;
@@ -804,26 +876,26 @@ const exportChart = () => {
   .chart-content {
     padding: var(--space-md);
   }
-  
+
   .pillar-card-header {
     padding: var(--space-md);
   }
-  
+
   .pillar-card-content {
     padding: var(--space-md);
   }
-  
+
   .pillar-main {
     gap: var(--space-md);
   }
-  
+
   .pillar-card .pillar-stem,
   .pillar-card .pillar-branch {
     font-size: 1.5rem;
     min-width: 50px;
     padding: var(--space-sm) var(--space-md);
   }
-  
+
   .pillar-name {
     font-size: var(--font-size-base);
   }

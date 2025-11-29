@@ -2,7 +2,7 @@
   <div class="purple-star-chart-container">
     <!-- 載入狀態 -->
     <div v-if="isLoading" class="loading-state">
-      <div class="loading-spinner"></div>
+      <div class="loading-spinner" />
       <p>{{ $t('purpleStarChart.loading') }}</p>
     </div>
 
@@ -11,7 +11,7 @@
       <div class="error-icon">⚠️</div>
       <h3>{{ $t('purpleStarChart.loadError') }}</h3>
       <p>{{ error }}</p>
-      <button @click="$emit('retry')" class="retry-button">
+      <button class="retry-button" @click="$emit('retry')">
         {{ $t('purpleStarChart.retry') }}
       </button>
     </div>
@@ -19,7 +19,16 @@
     <!-- 命盤內容 -->
     <div v-else-if="chartData" class="chart-content">
       <!-- 調試資訊 -->
-      <div v-if="false" class="debug-info" style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px;">
+      <div
+        v-if="false"
+        class="debug-info"
+        style="
+          background: #f0f0f0;
+          padding: 10px;
+          margin-bottom: 10px;
+          font-size: 12px;
+        "
+      >
         <p><strong>調試資訊:</strong></p>
         <p>宮位數量: {{ chartData?.palaces?.length || 0 }}</p>
         <p>大限數量: {{ chartData?.daXian?.length || 0 }}</p>
@@ -32,24 +41,31 @@
       <div class="chart-header">
         <h2>{{ $t('purpleStarChart.title') }}</h2>
         <div class="header-actions">
-          <button @click="showGuideModal = true" class="guide-button">
+          <button class="guide-button" @click="showGuideModal = true">
             <span class="guide-icon">💡</span>
             進階功能說明
           </button>
         </div>
       </div>
-      
+
       <!-- 簡要解讀區域 -->
       <div v-if="showSummary && chartSummary" class="chart-summary">
         <div class="summary-header">
           <h3>{{ $t('purpleStarChart.chartSummary') }}</h3>
-          <button @click="showSummary = !showSummary" class="toggle-summary-button">
+          <button
+            class="toggle-summary-button"
+            @click="showSummary = !showSummary"
+          >
             {{ $t('purpleStarChart.hideSummary') }}
           </button>
         </div>
         <div class="summary-content">
           <div class="summary-features">
-            <div v-for="(feature, idx) in chartSummary.features" :key="`feature-${idx}`" class="feature-item">
+            <div
+              v-for="(feature, idx) in chartSummary.features"
+              :key="`feature-${idx}`"
+              class="feature-item"
+            >
               <span class="feature-icon">✧</span>
               <span class="feature-text">{{ feature }}</span>
             </div>
@@ -57,26 +73,32 @@
           <div class="summary-detailed">
             <p>{{ chartSummary.detailedSummary }}</p>
           </div>
-          <div class="interaction-hint" v-if="showInteractionTips">
-          <div class="hint-content">
-            <span class="hint-icon">💡</span>
-            <div class="hint-text-container">
-              <span class="hint-text">{{ $t('purpleStarChart.interactionTips.comprehensive') }}</span>
-              <span class="swipe-hint">{{ $t('purpleStarChart.interactionTipDesc') }} <span class="swipe-arrow">↔️</span></span>
+          <div v-if="showInteractionTips" class="interaction-hint">
+            <div class="hint-content">
+              <span class="hint-icon">💡</span>
+              <div class="hint-text-container">
+                <span class="hint-text">{{
+                  $t('purpleStarChart.interactionTips.comprehensive')
+                }}</span>
+                <span class="swipe-hint"
+                  >{{ $t('purpleStarChart.interactionTipDesc') }}
+                  <span class="swipe-arrow">↔️</span></span
+                >
+              </div>
+              <button class="close-hint" @click="showInteractionTips = false">
+                ×
+              </button>
             </div>
-            <button @click="showInteractionTips = false" class="close-hint">×</button>
-          </div>
           </div>
         </div>
       </div>
-      
+
       <!-- 當解讀區域被隱藏時顯示的重新展開按鈕 -->
       <div v-else-if="chartSummary" class="show-summary-button-container">
-        <button @click="showSummary = true" class="show-summary-button">
+        <button class="show-summary-button" @click="showSummary = true">
           {{ $t('purpleStarChart.showSummary') }}
         </button>
       </div>
-
 
       <!-- 主命盤網格 -->
       <div class="chart-grid" :class="viewMode">
@@ -85,75 +107,113 @@
           :key="`position-${index}`"
           :class="['palace-cell', getPositionClass(position, index)]"
           :data-palace-zhi="position !== 'center' ? position : undefined"
-          :data-palace-index="position !== 'center' ? getPalaceByZhi(position)?.index : undefined"
+          :data-palace-index="
+            position !== 'center' ? getPalaceByZhi(position)?.index : undefined
+          "
           @click="handlePalaceClick(position)"
         >
           <!-- 中央太極 -->
           <div v-if="position === 'center'" class="palace-center">
             <h4>{{ $t('purpleStarChart.centerPalace') }}</h4>
             <div class="center-info">
-              <p v-if="chartData.fiveElementsBureau">{{ chartData.fiveElementsBureau }}</p>
-              <p>{{ $t('purpleStarChart.mingPalace') }}: {{ getMingPalaceName() }}</p>
-              <p>{{ $t('purpleStarChart.shenPalace') }}: {{ getShenPalaceName() }}</p>
+              <p v-if="chartData.fiveElementsBureau">
+                {{ chartData.fiveElementsBureau }}
+              </p>
+              <p>
+                {{ $t('purpleStarChart.mingPalace') }}:
+                {{ getMingPalaceName() }}
+              </p>
+              <p>
+                {{ $t('purpleStarChart.shenPalace') }}:
+                {{ getShenPalaceName() }}
+              </p>
             </div>
           </div>
 
           <!-- 宮位內容 -->
-          <div v-else-if="getPalaceByZhi(position)" 
-               class="palace-content" 
-               :class="getPalaceFortuneClass(getPalaceByZhi(position))"
-               :data-palace-zhi="position">
+          <div
+            v-else-if="getPalaceByZhi(position)"
+            class="palace-content"
+            :class="getPalaceFortuneClass(getPalaceByZhi(position))"
+            :data-palace-zhi="position"
+          >
             <div class="palace-header">
-              <span class="palace-name">{{ getPalaceByZhi(position)?.name }}</span>
+              <span class="palace-name">{{
+                getPalaceByZhi(position)?.name
+              }}</span>
               <span class="palace-zhi">{{ position }}</span>
-              <span v-if="isMingPalace(position)" class="ming-indicator">命</span>
-              <span v-if="isShenPalace(position)" class="shen-indicator">身</span>
-              <span v-if="getPalaceByZhi(position)?.fortuneType" 
-                    :class="['fortune-indicator', `fortune-${getPalaceByZhi(position)?.fortuneType}`]">
+              <span
+v-if="isMingPalace(position)" class="ming-indicator"
+                >命</span
+              >
+              <span
+v-if="isShenPalace(position)" class="shen-indicator"
+                >身</span
+              >
+              <span
+                v-if="getPalaceByZhi(position)?.fortuneType"
+                :class="[
+                  'fortune-indicator',
+                  `fortune-${getPalaceByZhi(position)?.fortuneType}`,
+                ]"
+              >
                 {{ getPalaceByZhi(position)?.fortuneType }}
               </span>
             </div>
 
             <div class="stars-container">
               <!-- 檢查是否為空宮 -->
-              <EmptyPalaceIndicator 
+              <EmptyPalaceIndicator
                 v-if="isEmptyPalace(position)"
                 :borrowed-palace="getBorrowedPalaceInfo(position)"
                 class="empty-palace-indicator"
               />
-              
+
               <!-- 顯示星曜 -->
-              <div 
-                v-for="star in getPalaceByZhi(position)?.stars" 
+              <div
+                v-for="star in getPalaceByZhi(position)?.stars"
                 :key="star.name"
                 :class="getStarClasses(star)"
-                @click.stop="handleStarClick(star)"
                 :title="getStarTooltip(star)"
+                @click.stop="handleStarClick(star)"
               >
                 <span class="star-name">{{ star.name }}</span>
-                
+
                 <!-- 星曜亮度指示器 -->
-                <StarBrightnessIndicator 
-                  v-if="star.brightness" 
-                  :brightness="star.brightness" 
+                <StarBrightnessIndicator
+                  v-if="star.brightness"
+                  :brightness="star.brightness"
                 />
-                
+
                 <!-- 四化顯示 -->
-                <span v-if="star.transformations && star.transformations.length > 0" 
-                      :class="['transformations', { 'detailed-transformations': viewMode === 'detailed' }]">
-                  <span v-for="trans in star.transformations" 
-                        :key="trans" 
-                        :class="`transformation-${trans}`">{{ trans }}</span>
+                <span
+                  v-if="star.transformations && star.transformations.length > 0"
+                  :class="[
+                    'transformations',
+                    { 'detailed-transformations': viewMode === 'detailed' },
+                  ]"
+                >
+                  <span
+                    v-for="trans in star.transformations"
+                    :key="trans"
+                    :class="`transformation-${trans}`"
+                    >{{ trans }}</span
+                  >
                 </span>
-                
+
                 <!-- 星曜屬性 -->
-                <span v-if="star.attribute" 
-                      :class="['star-attribute', `attribute-${star.attribute}`]">
+                <span
+                  v-if="star.attribute"
+                  :class="['star-attribute', `attribute-${star.attribute}`]"
+                >
                   {{ star.attribute }}
                 </span>
-                
+
                 <!-- 星曜類型標記 -->
-                <span v-if="star.type === 'minor'" class="star-type-badge minor">
+                <span
+                  v-if="star.type === 'minor'"
+                  class="star-type-badge minor"
+                >
                   雜
                 </span>
               </div>
@@ -161,7 +221,7 @@
 
             <!-- 特徵解析提示 (詳細模式) -->
             <div v-if="viewMode === 'detailed'" class="feature-hints">
-              <FeatureHintsDisplay 
+              <FeatureHintsDisplay
                 :palace="getPalaceByZhi(position)"
                 :position="position"
                 :is-empty="isEmptyPalace(position)"
@@ -175,7 +235,9 @@
                 <small>{{ formatDaXianInfo(getDaXianInfo(position)!) }}</small>
               </div>
               <div v-if="getXiaoXianInfo(position)" class="xiao-xian-info">
-                <small>{{ formatXiaoXianInfo(getXiaoXianInfo(position)!) }}</small>
+                <small>{{
+                  formatXiaoXianInfo(getXiaoXianInfo(position)!)
+                }}</small>
               </div>
             </div>
           </div>
@@ -197,63 +259,93 @@
           </div>
         </div>
         <div class="cycles-grid">
-          <div 
-            v-for="cycle in chartData.daXian" 
+          <div
+            v-for="cycle in chartData.daXian"
             :key="`daxian-${cycle.startAge}`"
             class="cycle-item"
             :class="{ current: isCurrentCycle(cycle) }"
           >
             <div class="cycle-header">
-              <span class="cycle-age">{{ cycle.startAge }}-{{ cycle.endAge }}{{ $t('purpleStarChart.years') }}</span>
+              <span class="cycle-age"
+                >{{ cycle.startAge }}-{{ cycle.endAge
+                }}{{ $t('purpleStarChart.years') }}</span
+              >
               <span class="cycle-palace">{{ cycle.palaceName }}</span>
             </div>
             <div class="cycle-zhi">{{ cycle.palaceZhi }}</div>
             <div class="cycle-description">
-              大限落在{{ cycle.palaceName }}，著重於{{ getCycleTheme(cycle.palaceName) }}主題。
+              大限落在{{ cycle.palaceName }}，著重於{{
+                getCycleTheme(cycle.palaceName)
+              }}主題。
             </div>
           </div>
         </div>
       </div>
 
       <!-- 星曜詳細資訊彈窗 -->
-      <div v-if="selectedStar" class="star-detail-modal" @click="closeStarDetail">
+      <div
+        v-if="selectedStar"
+        class="star-detail-modal"
+        @click="closeStarDetail"
+      >
         <div class="modal-content" @click.stop>
           <div class="modal-header">
             <h3>{{ selectedStar.name }}</h3>
-            <button @click="closeStarDetail" class="close-button">×</button>
+            <button class="close-button" @click="closeStarDetail">×</button>
           </div>
           <div class="modal-body">
-            <p><strong>{{ $t('purpleStarChart.starType') }}:</strong> {{ $t(`purpleStarChart.starTypes.${selectedStar.type}`) }}</p>
-            <p><strong>{{ $t('purpleStarChart.palace') }}:</strong> {{ getStarPalaceName(selectedStar) }}</p>
-            
+            <p>
+              <strong>{{ $t('purpleStarChart.starType') }}:</strong>
+              {{ $t(`purpleStarChart.starTypes.${selectedStar.type}`) }}
+            </p>
+            <p>
+              <strong>{{ $t('purpleStarChart.palace') }}:</strong>
+              {{ getStarPalaceName(selectedStar) }}
+            </p>
+
             <!-- 星曜屬性資訊 -->
             <div class="star-attributes-section">
               <div v-if="selectedStar.attribute" class="attribute-item">
                 <strong>吉凶屬性：</strong>
-                <span :class="`attribute-tag attribute-${selectedStar.attribute}`">{{ selectedStar.attribute }}</span>
+                <span
+                  :class="`attribute-tag attribute-${selectedStar.attribute}`"
+                  >{{ selectedStar.attribute }}</span
+                >
               </div>
               <div v-if="selectedStar.propertyType" class="attribute-item">
                 <strong>陰陽屬性：</strong>
-                <span class="attribute-tag">{{ selectedStar.propertyType }}</span>
+                <span class="attribute-tag">{{
+                  selectedStar.propertyType
+                }}</span>
               </div>
               <div v-if="selectedStar.element" class="attribute-item">
                 <strong>五行屬性：</strong>
                 <span class="attribute-tag">{{ selectedStar.element }}</span>
               </div>
-              <div v-if="selectedStar.strength !== undefined" class="attribute-item">
+              <div
+                v-if="selectedStar.strength !== undefined"
+                class="attribute-item"
+              >
                 <strong>星曜強度：</strong>
-                <span class="attribute-tag">{{ selectedStar.strength }}/10</span>
+                <span class="attribute-tag"
+                  >{{ selectedStar.strength }}/10</span
+                >
               </div>
             </div>
-            
+
             <!-- 星曜描述 -->
             <div v-if="selectedStar.description" class="star-description">
               <strong>星曜特點：</strong>
               <p>{{ selectedStar.description }}</p>
             </div>
-            
+
             <!-- 四化資訊 -->
-            <div v-if="selectedStar.transformations && selectedStar.transformations.length > 0">
+            <div
+              v-if="
+                selectedStar.transformations &&
+                selectedStar.transformations.length > 0
+              "
+            >
               <strong>{{ $t('purpleStarChart.transformations') }}:</strong>
               <ul>
                 <li v-for="trans in selectedStar.transformations" :key="trans">
@@ -266,7 +358,7 @@
       </div>
 
       <!-- 功能指南彈窗 -->
-      <PurpleStarGuideModal 
+      <PurpleStarGuideModal
         :visible="showGuideModal"
         @close="showGuideModal = false"
       />
@@ -281,12 +373,12 @@ import StarBrightnessIndicator from './StarBrightnessIndicator.vue';
 import EmptyPalaceIndicator from './EmptyPalaceIndicator.vue';
 import PurpleStarGuideModal from './PurpleStarGuideModal.vue';
 import FeatureHintsDisplay from '@/components/FeatureHintsDisplay.vue';
-import type { 
-  PurpleStarChart, 
-  Palace, 
-  Star, 
-  DaXianInfo, 
-  XiaoXianInfo
+import type {
+  PurpleStarChart,
+  Palace,
+  Star,
+  DaXianInfo,
+  XiaoXianInfo,
 } from '@/types/astrologyTypes';
 
 // 計算資訊介面定義
@@ -313,7 +405,7 @@ const props = withDefaults(defineProps<Props>(), {
   calculationInfo: null,
   isLoading: false,
   error: null,
-  showCyclesDetail: false
+  showCyclesDetail: false,
 });
 
 // Emits
@@ -332,29 +424,34 @@ const selectedPalace = ref<Palace | null>(null); // 選中的宮位
 const showInteractionTips = ref<boolean>(true); // 顯示互動提示
 const showSummary = ref<boolean>(true); // 顯示簡要解讀
 const showGuideModal = ref<boolean>(false); // 顯示功能指南彈窗
-const activeDomain = ref<'career' | 'wealth' | 'marriage' | 'health' | 'education' | 'social'>('career');
+const activeDomain = ref<
+  'career' | 'wealth' | 'marriage' | 'health' | 'education' | 'social'
+>('career');
 const activePalaceName = ref<string>('');
 const interpretationMode = ref<'fortune' | 'basic' | 'advanced'>('fortune');
 
 // 四化流動和多層次能量數據
 const transformationFlows = computed(() => {
   // 從 TransformationStarsDisplay 的邏輯中提取能量流動數據
-  const flows: Record<number, {
-    palaceIndex: number
-    palaceName: string
-    energyScore: number
-    majorInfluences: string[]
-  }> = {};
+  const flows: Record<
+    number,
+    {
+      palaceIndex: number;
+      palaceName: string;
+      energyScore: number;
+      majorInfluences: string[];
+    }
+  > = {};
 
   if (props.chartData?.palaces) {
-    props.chartData.palaces.forEach(palace => {
+    props.chartData.palaces.forEach((palace) => {
       let energyScore = 0;
       const influences: string[] = [];
 
       // 計算宮位能量分數
-      palace.stars.forEach(star => {
+      palace.stars.forEach((star) => {
         if (star.transformations) {
-          star.transformations.forEach(trans => {
+          star.transformations.forEach((trans) => {
             switch (trans) {
               case '祿':
                 energyScore += 3;
@@ -388,7 +485,7 @@ const transformationFlows = computed(() => {
         palaceIndex: palace.index,
         palaceName: palace.name,
         energyScore,
-        majorInfluences: influences
+        majorInfluences: influences,
       };
     });
   }
@@ -398,19 +495,23 @@ const transformationFlows = computed(() => {
 
 const multiLayerEnergies = computed(() => {
   // 模擬多層次能量數據
-  const energies: Record<number, {
-    palaceIndex: number
-    palaceName: string
-    baseEnergy: number
-    daXianEnergy: number
-    liuNianEnergy: number
-    totalEnergy: number
-    interpretation: string
-  }> = {};
+  const energies: Record<
+    number,
+    {
+      palaceIndex: number;
+      palaceName: string;
+      baseEnergy: number;
+      daXianEnergy: number;
+      liuNianEnergy: number;
+      totalEnergy: number;
+      interpretation: string;
+    }
+  > = {};
 
   if (props.chartData?.palaces) {
-    props.chartData.palaces.forEach(palace => {
-      const baseEnergy = transformationFlows.value[palace.index]?.energyScore || 0;
+    props.chartData.palaces.forEach((palace) => {
+      const baseEnergy =
+        transformationFlows.value[palace.index]?.energyScore || 0;
       const daXianEnergy = Math.floor(Math.random() * 6) - 3; // 模擬大限能量 -3 to +3
       const liuNianEnergy = Math.floor(Math.random() * 4) - 2; // 模擬流年能量 -2 to +2
       const totalEnergy = baseEnergy + daXianEnergy + liuNianEnergy;
@@ -435,7 +536,7 @@ const multiLayerEnergies = computed(() => {
         daXianEnergy,
         liuNianEnergy,
         totalEnergy,
-        interpretation
+        interpretation,
       };
     });
   }
@@ -443,33 +544,45 @@ const multiLayerEnergies = computed(() => {
   return energies;
 });
 
-
 // 計算屬性
 // 命盤概要解讀
 const chartSummary = computed(() => {
-  if (!props.chartData || !props.chartData.palaces || !Array.isArray(props.chartData.palaces)) return null;
-  
+  if (
+    !props.chartData ||
+    !props.chartData.palaces ||
+    !Array.isArray(props.chartData.palaces)
+  ) {
+    return null;
+  }
+
   // 從命盤資料中提取重要資訊生成簡要解讀
-  const mainStars = props.chartData.palaces.flatMap(p => 
-    p.stars && Array.isArray(p.stars) 
-      ? p.stars.filter(s => s.type === 'main' || (s.transformations && s.transformations.length)) 
-      : []
+  const mainStars = props.chartData.palaces.flatMap((p) =>
+    p.stars && Array.isArray(p.stars)
+      ? p.stars.filter(
+          (s) =>
+            s.type === 'main' ||
+            (s.transformations && s.transformations.length),
+        )
+      : [],
   );
-  
+
   const mainStarCounts = {
-    '吉': mainStars.filter(s => s.attribute === '吉').length,
-    '凶': mainStars.filter(s => s.attribute === '凶').length,
-    '中性': mainStars.filter(s => s.attribute === '中性').length
+    吉: mainStars.filter((s) => s.attribute === '吉').length,
+    凶: mainStars.filter((s) => s.attribute === '凶').length,
+    中性: mainStars.filter((s) => s.attribute === '中性').length,
   };
-  
-  const hasMingPalaceGoodStars = props.chartData.palaces[props.chartData.mingPalaceIndex]?.stars
-    .some(s => s.type === 'main' && s.attribute === '吉');
-  
-  const transformationCount = mainStars.filter(s => s.transformations?.length).length;
-  
+
+  const _hasMingPalaceGoodStars = props.chartData.palaces[
+    props.chartData.mingPalaceIndex
+  ]?.stars.some((s) => s.type === 'main' && s.attribute === '吉');
+
+  const transformationCount = mainStars.filter(
+    (s) => s.transformations?.length,
+  ).length;
+
   // 命盤特徵摘要
   const features = [];
-  
+
   if (mainStarCounts['吉'] > mainStarCounts['凶']) {
     features.push('吉星較多，整體運勢偏向正面');
   } else if (mainStarCounts['凶'] > mainStarCounts['吉']) {
@@ -477,201 +590,283 @@ const chartSummary = computed(() => {
   } else {
     features.push('吉凶星均衡，順逆交替');
   }
-  
-  if (hasMingPalaceGoodStars) {
+
+  if (_hasMingPalaceGoodStars) {
     features.push('命宮有吉星入駐，基礎運勢良好');
   }
-  
+
   if (transformationCount > 3) {
     features.push('四化星豐富，命盤變化較大');
   }
-  
+
   // 從命宮情況添加特徵
   const mingPalace = props.chartData.palaces[props.chartData.mingPalaceIndex];
   if (mingPalace) {
-    const mingStars = mingPalace.stars.filter(s => s.type === 'main');
+    const mingStars = mingPalace.stars.filter((s) => s.type === 'main');
     if (mingStars.length > 2) {
       features.push('命宮聚集多顆主星，命運變化豐富');
     }
-    
+
     // 檢查命宮是否有特定星曜
-    const hasPurpleStar = mingStars.some(s => s.name.includes('紫微'));
+    const hasPurpleStar = mingStars.some((s) => s.name.includes('紫微'));
     if (hasPurpleStar) {
       features.push('紫微星入命，具有領導才能與權威性');
     }
   }
-  
+
   // 自動生成命盤摘要
   let generatedSummary = '';
   if (props.chartData.comprehensiveInterpretation?.overallLifePattern) {
-    generatedSummary = props.chartData.comprehensiveInterpretation.overallLifePattern;
+    generatedSummary =
+      props.chartData.comprehensiveInterpretation.overallLifePattern;
   } else {
     // 當後端未提供解讀時自動生成
     const mingPalaceName = mingPalace?.name || '命宮';
-    const fortuneType = mainStarCounts['吉'] > mainStarCounts['凶'] ? '較為順遂' : 
-                        mainStarCounts['凶'] > mainStarCounts['吉'] ? '較多挑戰' : '順逆參半';
-    
-    generatedSummary = `此命盤以${mingPalaceName}為中心，整體運勢${fortuneType}。` + 
-                       `命盤中共有${mainStars.length}顆主要星曜，其中吉星${mainStarCounts['吉']}顆，` +
-                       `凶星${mainStarCounts['凶']}顆。在紫微斗數的十二宮位結構中，` + 
-                       `每個宮位代表人生不同領域，宮位中的星曜組合則揭示了各領域的特質與發展。` +
-                       `透過分析命宮、財帛宮、官祿宮等關鍵宮位的星曜組合，可進一步了解命主的潛能與挑戰。`;
+    const fortuneType =
+      mainStarCounts['吉'] > mainStarCounts['凶']
+        ? '較為順遂'
+        : mainStarCounts['凶'] > mainStarCounts['吉']
+          ? '較多挑戰'
+          : '順逆參半';
+
+    generatedSummary =
+      `此命盤以${mingPalaceName}為中心，整體運勢${fortuneType}。` +
+      `命盤中共有${mainStars.length}顆主要星曜，其中吉星${mainStarCounts['吉']}顆，` +
+      `凶星${mainStarCounts['凶']}顆。在紫微斗數的十二宮位結構中，` +
+      `每個宮位代表人生不同領域，宮位中的星曜組合則揭示了各領域的特質與發展。` +
+      `透過分析命宮、財帛宮、官祿宮等關鍵宮位的星曜組合，可進一步了解命主的潛能與挑戰。`;
   }
-  
+
   return {
     features,
-    detailedSummary: generatedSummary
+    detailedSummary: generatedSummary,
   };
 });
 
 const activeDomainAnalysis = computed(() => {
-  if (!props.chartData?.domainAnalyses) return null;
-  return props.chartData.domainAnalyses.find(d => d.domain === activeDomain.value) || null;
+  if (!props.chartData?.domainAnalyses) {
+    return null;
+  }
+  return (
+    props.chartData.domainAnalyses.find(
+      (d) => d.domain === activeDomain.value,
+    ) || null
+  );
 });
 
 const activePalaceInterpretation = computed(() => {
-  if (!props.chartData?.palaceInterpretations || !activePalaceName.value) return null;
-  return props.chartData.palaceInterpretations.find(p => p.palaceName === activePalaceName.value) || null;
+  if (!props.chartData?.palaceInterpretations || !activePalaceName.value) {
+    return null;
+  }
+  return (
+    props.chartData.palaceInterpretations.find(
+      (p) => p.palaceName === activePalaceName.value,
+    ) || null
+  );
 });
 
 // 十二地支命盤網格佈局 (傳統佈局：逆時針)
 const gridLayout = [
-  '巳', '午', '未', '申',
-  '辰', 'center', 'center', '酉', 
-  '卯', 'center', 'center', '戌',
-  '寅', '丑', '子', '亥'
+  '巳',
+  '午',
+  '未',
+  '申',
+  '辰',
+  'center',
+  'center',
+  '酉',
+  '卯',
+  'center',
+  'center',
+  '戌',
+  '寅',
+  '丑',
+  '子',
+  '亥',
 ];
 
 // 地支到索引的映射
 const zhiToIndex: Record<string, number> = {
-  '子': 0, '丑': 1, '寅': 2, '卯': 3, '辰': 4, '巳': 5,
-  '午': 6, '未': 7, '申': 8, '酉': 9, '戌': 10, '亥': 11
+  子: 0,
+  丑: 1,
+  寅: 2,
+  卯: 3,
+  辰: 4,
+  巳: 5,
+  午: 6,
+  未: 7,
+  申: 8,
+  酉: 9,
+  戌: 10,
+  亥: 11,
 };
 
 // 方法
 const getPalaceByZhi = (zhiName: string): Palace | undefined => {
-  if (!props.chartData || !props.chartData.palaces || zhiName === 'center') return undefined;
-  return props.chartData.palaces.find(palace => palace.zhi === zhiName);
+  if (!props.chartData || !props.chartData.palaces || zhiName === 'center') {
+    return undefined;
+  }
+  return props.chartData.palaces.find((palace) => palace.zhi === zhiName);
 };
 
 const getPositionClass = (position: string, index: number): string => {
   const classes = [`grid-position-${index}`];
-  
+
   if (position === 'center') {
     classes.push('center-position');
   } else {
     classes.push(`zhi-${position}`);
-    
-    if (isMingPalace(position)) classes.push('ming-palace');
-    if (isShenPalace(position)) classes.push('shen-palace');
+
+    if (isMingPalace(position)) {
+      classes.push('ming-palace');
+    }
+    if (isShenPalace(position)) {
+      classes.push('shen-palace');
+    }
   }
-  
+
   return classes.join(' ');
 };
 
 const getStarClasses = (star: Star): string[] => {
   const classes = ['star-item', `star-${star.type}`];
-  
+
   if (star.transformations) {
-    star.transformations.forEach(trans => {
+    star.transformations.forEach((trans) => {
       classes.push(`transform-${trans}`);
     });
   }
-  
+
   return classes;
 };
 
 const getStarTooltip = (star: Star): string => {
   let tooltip = `${star.name} (${t(`purpleStarChart.starTypes.${star.type}`)})`;
-  
+
   // 添加亮度資訊
   if (star.brightness) {
     tooltip += ` - 亮度: ${star.brightness}`;
   }
-  
+
   // 添加星曜屬性
   if (star.attribute) {
     tooltip += ` - 屬性: ${star.attribute}`;
   }
-  
+
   // 添加四化資訊
   if (star.transformations && star.transformations.length > 0) {
-    tooltip += ` - 四化: ${star.transformations.map(t => t).join(', ')}`;
+    tooltip += ` - 四化: ${star.transformations.map((t) => t).join(', ')}`;
   }
-  
+
   // 添加描述
   if (star.description) {
     tooltip += `\n${star.description}`;
   }
-  
+
   return tooltip;
 };
 
 const isMingPalace = (zhiName: string): boolean => {
-  if (!props.chartData || !props.chartData.palaces || !Array.isArray(props.chartData.palaces)) return false;
-  
-  // 確保 mingPalaceIndex 存在且有效
-  if (typeof props.chartData.mingPalaceIndex !== 'number' || 
-      props.chartData.mingPalaceIndex < 0 || 
-      props.chartData.mingPalaceIndex >= props.chartData.palaces.length) {
+  if (
+    !props.chartData ||
+    !props.chartData.palaces ||
+    !Array.isArray(props.chartData.palaces)
+  ) {
     return false;
   }
-  
+
+  // 確保 mingPalaceIndex 存在且有效
+  if (
+    typeof props.chartData.mingPalaceIndex !== 'number' ||
+    props.chartData.mingPalaceIndex < 0 ||
+    props.chartData.mingPalaceIndex >= props.chartData.palaces.length
+  ) {
+    return false;
+  }
+
   const mingPalace = props.chartData.palaces[props.chartData.mingPalaceIndex];
   return mingPalace && mingPalace.zhi === zhiName;
 };
 
 const isShenPalace = (zhiName: string): boolean => {
-  if (!props.chartData || !props.chartData.palaces || !Array.isArray(props.chartData.palaces)) return false;
-  
-  // 確保 shenPalaceIndex 存在且有效
-  if (typeof props.chartData.shenPalaceIndex !== 'number' || 
-      props.chartData.shenPalaceIndex < 0 || 
-      props.chartData.shenPalaceIndex >= props.chartData.palaces.length) {
+  if (
+    !props.chartData ||
+    !props.chartData.palaces ||
+    !Array.isArray(props.chartData.palaces)
+  ) {
     return false;
   }
-  
+
+  // 確保 shenPalaceIndex 存在且有效
+  if (
+    typeof props.chartData.shenPalaceIndex !== 'number' ||
+    props.chartData.shenPalaceIndex < 0 ||
+    props.chartData.shenPalaceIndex >= props.chartData.palaces.length
+  ) {
+    return false;
+  }
+
   const shenPalace = props.chartData.palaces[props.chartData.shenPalaceIndex];
   return shenPalace && shenPalace.zhi === zhiName;
 };
 
 const getMingPalaceName = (): string => {
-  if (!props.chartData || !props.chartData.palaces || !Array.isArray(props.chartData.palaces)) return '';
-  
-  // 確保 mingPalaceIndex 存在且有效
-  if (typeof props.chartData.mingPalaceIndex !== 'number' || 
-      props.chartData.mingPalaceIndex < 0 || 
-      props.chartData.mingPalaceIndex >= props.chartData.palaces.length) {
+  if (
+    !props.chartData ||
+    !props.chartData.palaces ||
+    !Array.isArray(props.chartData.palaces)
+  ) {
     return '';
   }
-  
+
+  // 確保 mingPalaceIndex 存在且有效
+  if (
+    typeof props.chartData.mingPalaceIndex !== 'number' ||
+    props.chartData.mingPalaceIndex < 0 ||
+    props.chartData.mingPalaceIndex >= props.chartData.palaces.length
+  ) {
+    return '';
+  }
+
   const mingPalace = props.chartData.palaces[props.chartData.mingPalaceIndex];
   return mingPalace?.name || '';
 };
 
 const getShenPalaceName = (): string => {
-  if (!props.chartData || !props.chartData.palaces || !Array.isArray(props.chartData.palaces)) return '';
-  
-  // 確保 shenPalaceIndex 存在且有效
-  if (typeof props.chartData.shenPalaceIndex !== 'number' || 
-      props.chartData.shenPalaceIndex < 0 || 
-      props.chartData.shenPalaceIndex >= props.chartData.palaces.length) {
+  if (
+    !props.chartData ||
+    !props.chartData.palaces ||
+    !Array.isArray(props.chartData.palaces)
+  ) {
     return '';
   }
-  
+
+  // 確保 shenPalaceIndex 存在且有效
+  if (
+    typeof props.chartData.shenPalaceIndex !== 'number' ||
+    props.chartData.shenPalaceIndex < 0 ||
+    props.chartData.shenPalaceIndex >= props.chartData.palaces.length
+  ) {
+    return '';
+  }
+
   const shenPalace = props.chartData.palaces[props.chartData.shenPalaceIndex];
   return shenPalace?.name || '';
 };
 
 const getDaXianInfo = (zhiName: string): DaXianInfo | undefined => {
-  if (!props.chartData?.daXian) return undefined;
-  return props.chartData.daXian.find(cycle => cycle.palaceZhi === zhiName);
+  if (!props.chartData?.daXian) {
+    return undefined;
+  }
+  return props.chartData.daXian.find((cycle) => cycle.palaceZhi === zhiName);
 };
 
 const getXiaoXianInfo = (zhiName: string): XiaoXianInfo | undefined => {
-  if (!props.chartData?.xiaoXian) return undefined;
+  if (!props.chartData?.xiaoXian) {
+    return undefined;
+  }
   // 這裡可能需要根據當前年齡或指定年齡來查找小限
-  return props.chartData.xiaoXian.find(cycle => cycle.palaceZhi === zhiName);
+  return props.chartData.xiaoXian.find((cycle) => cycle.palaceZhi === zhiName);
 };
 
 const formatDaXianInfo = (cycle: DaXianInfo): string => {
@@ -688,73 +883,93 @@ const isCurrentCycle = (cycle: DaXianInfo): boolean => {
   return false;
 };
 
-const formatBirthDate = (): string => {
-  if (!props.calculationInfo) return '';
-  return new Date(props.calculationInfo.birthInfo.solarDate).toLocaleDateString();
+const _formatBirthDate = (): string => {
+  if (!props.calculationInfo) {
+    return '';
+  }
+  return new Date(
+    props.calculationInfo.birthInfo.solarDate,
+  ).toLocaleDateString();
 };
 
-const formatGender = (): string => {
-  if (!props.calculationInfo) return '';
+const _formatGender = (): string => {
+  if (!props.calculationInfo) {
+    return '';
+  }
   return t(`purpleStarChart.genders.${props.calculationInfo.birthInfo.gender}`);
 };
 
 const getStarPalaceName = (star: Star): string => {
-  if (!props.chartData) return '';
-  const palace = props.chartData.palaces.find(p => p.index === star.palaceIndex);
+  if (!props.chartData) {
+    return '';
+  }
+  const palace = props.chartData.palaces.find(
+    (p) => p.index === star.palaceIndex,
+  );
   return palace?.name || '';
 };
 
 // 檢查是否為空宮（無主星）
 const isEmptyPalace = (zhiName: string): boolean => {
   const palace = getPalaceByZhi(zhiName);
-  if (!palace) return false;
-  
-  const mainStars = palace.stars.filter(star => star.type === 'main');
+  if (!palace) {
+    return false;
+  }
+
+  const mainStars = palace.stars.filter((star) => star.type === 'main');
   return mainStars.length === 0;
 };
 
 // 獲取借星資訊
 const getBorrowedPalaceInfo = (zhiName: string) => {
   const palace = getPalaceByZhi(zhiName);
-  if (!palace || !isEmptyPalace(zhiName)) return undefined;
-  
+  if (!palace || !isEmptyPalace(zhiName)) {
+    return undefined;
+  }
+
   // 計算對宮索引
   const oppositePalaceIndex = (palace.index + 6) % 12;
-  const oppositePalace = props.chartData?.palaces.find(p => p.index === oppositePalaceIndex);
-  
-  if (!oppositePalace) return undefined;
-  
-  const mainStars = oppositePalace.stars.filter(star => star.type === 'main');
-  
+  const oppositePalace = props.chartData?.palaces.find(
+    (p) => p.index === oppositePalaceIndex,
+  );
+
+  if (!oppositePalace) {
+    return undefined;
+  }
+
+  const mainStars = oppositePalace.stars.filter((star) => star.type === 'main');
+
   return {
     name: oppositePalace.name,
-    mainStars: mainStars
+    mainStars,
   };
 };
 
 const getPalaceFortuneClass = (palace?: Palace): string => {
-  if (!palace || !palace.fortuneType) return '';
-  
+  if (!palace || !palace.fortuneType) {
+    return '';
+  }
+
   return `palace-fortune-${palace.fortuneType}`;
 };
 
 // 根據宮位名稱返回對應的生命主題說明
 const getCycleTheme = (palaceName: string): string => {
   const themes: Record<string, string> = {
-    '命宮': '個人特質與基本運勢',
-    '兄弟宮': '手足關係與朋友圈',
-    '夫妻宮': '婚姻與伴侶關係',
-    '子女宮': '後代與創造力',
-    '財帛宮': '財富與物質生活',
-    '疾厄宮': '健康與困境',
-    '遷移宮': '居所變動與旅行',
-    '交友宮': '人際關係與合作',
-    '官祿宮': '事業成就與社會地位',
-    '田宅宮': '不動產與居家環境',
-    '福德宮': '內在幸福與精神追求',
-    '父母宮': '長輩關係與根源'
+    命宮: '個人特質與基本運勢',
+    兄弟宮: '手足關係與朋友圈',
+    夫妻宮: '婚姻與伴侶關係',
+    子女宮: '後代與創造力',
+    財帛宮: '財富與物質生活',
+    疾厄宮: '健康與困境',
+    遷移宮: '居所變動與旅行',
+    交友宮: '人際關係與合作',
+    官祿宮: '事業成就與社會地位',
+    田宅宮: '不動產與居家環境',
+    福德宮: '內在幸福與精神追求',
+    父母宮: '長輩關係與根源',
   };
-  
+
   return themes[palaceName] || '人生特定領域';
 };
 
@@ -762,7 +977,7 @@ const getCycleTheme = (palaceName: string): string => {
 // 切換視圖模式：簡潔/詳細
 const toggleViewMode = () => {
   viewMode.value = viewMode.value === 'simple' ? 'detailed' : 'simple';
-  
+
   // 立即應用視圖模式變化
   setTimeout(() => {
     if (viewMode.value === 'detailed') {
@@ -792,7 +1007,7 @@ const toggleViewMode = () => {
 // 切換顯示模式：精簡/展開
 const toggleDisplayMode = () => {
   displayMode.value = displayMode.value === 'compact' ? 'expanded' : 'compact';
-  
+
   // 立即應用顯示模式變化
   setTimeout(() => {
     if (displayMode.value === 'compact') {
@@ -801,7 +1016,7 @@ const toggleDisplayMode = () => {
         (el as HTMLElement).style.pointerEvents = 'none';
         (el as HTMLElement).classList.add('compact-mode');
       });
-      
+
       // 隱藏非必要元素
       document.querySelectorAll('.star-item:not(.star-main)').forEach((el) => {
         (el as HTMLElement).style.opacity = '0.5';
@@ -812,7 +1027,7 @@ const toggleDisplayMode = () => {
         (el as HTMLElement).style.pointerEvents = 'auto';
         (el as HTMLElement).classList.remove('compact-mode');
       });
-      
+
       // 恢復所有星曜顯示
       document.querySelectorAll('.star-item').forEach((el) => {
         (el as HTMLElement).style.opacity = '1';
@@ -822,7 +1037,9 @@ const toggleDisplayMode = () => {
 };
 
 const handlePalaceClick = (position: string) => {
-  if (position === 'center') return;
+  if (position === 'center') {
+    return;
+  }
   const palace = getPalaceByZhi(position);
   if (palace) {
     selectedPalace.value = palace;
@@ -842,47 +1059,51 @@ const closeStarDetail = () => {
 // FortuneOverview 相關事件處理
 const handleFortuneOverviewPalaceClick = (palaceIndex: number) => {
   console.log(`正在導航到宮位 ${palaceIndex}`);
-  
+
   // 滾動到對應的宮位並高亮
-  const palace = props.chartData?.palaces.find(p => p.index === palaceIndex);
+  const palace = props.chartData?.palaces.find((p) => p.index === palaceIndex);
   if (palace) {
     console.log(`找到宮位: ${palace.name} (${palace.zhi})`);
-    
+
     // 使用多種選擇器嘗試找到宮位元素
-    let palaceElement = document.querySelector(`[data-palace-zhi="${palace.zhi}"]`);
+    let palaceElement = document.querySelector(
+      `[data-palace-zhi="${palace.zhi}"]`,
+    );
     if (!palaceElement) {
-      palaceElement = document.querySelector(`[data-palace-index="${palaceIndex}"]`);
+      palaceElement = document.querySelector(
+        `[data-palace-index="${palaceIndex}"]`,
+      );
     }
     if (!palaceElement) {
       palaceElement = document.querySelector(`.palace-${palace.zhi}`);
     }
-    
+
     if (palaceElement) {
       console.log('找到宮位元素，開始滾動和高亮');
-      
+
       // 先移除任何現有的高亮
-      document.querySelectorAll('.palace-highlight').forEach(el => {
+      document.querySelectorAll('.palace-highlight').forEach((el) => {
         el.classList.remove('palace-highlight');
       });
-      
+
       // 滾動到宮位
-      palaceElement.scrollIntoView({ 
-        behavior: 'smooth', 
+      palaceElement.scrollIntoView({
+        behavior: 'smooth',
         block: 'center',
-        inline: 'center'
+        inline: 'center',
       });
-      
+
       // 添加高亮效果
       palaceElement.classList.add('palace-highlight');
-      
+
       // 設置選中的宮位
       selectedPalace.value = palace;
-      
+
       // 3秒後移除高亮
       setTimeout(() => {
         palaceElement.classList.remove('palace-highlight');
       }, 3000);
-      
+
       // 發送宮位點擊事件
       emit('palaceClick', palace);
     } else {
@@ -910,7 +1131,9 @@ const handleChallengeClick = (challenge: any) => {
 
 // 解讀相關方法
 
-const setActiveDomain = (domain: 'career' | 'wealth' | 'marriage' | 'health' | 'education' | 'social') => {
+const setActiveDomain = (
+  domain: 'career' | 'wealth' | 'marriage' | 'health' | 'education' | 'social',
+) => {
   activeDomain.value = domain;
 };
 
@@ -920,23 +1143,23 @@ const setActivePalace = (palaceName: string) => {
 
 const getDomainDisplayName = (domain: string): string => {
   const displayNames: Record<string, string> = {
-    'career': '事業分析',
-    'wealth': '財富分析',
-    'marriage': '婚姻分析',
-    'health': '健康分析',
-    'education': '學業分析',
-    'social': '人際分析'
+    career: '事業分析',
+    wealth: '財富分析',
+    marriage: '婚姻分析',
+    health: '健康分析',
+    education: '學業分析',
+    social: '人際分析',
   };
   return displayNames[domain] || domain;
 };
 
 const getFortuneDisplayName = (fortune: string): string => {
   const displayNames: Record<string, string> = {
-    'excellent': '極佳',
-    'good': '良好',
-    'neutral': '中性',
-    'challenging': '挑戰',
-    'difficult': '困難'
+    excellent: '極佳',
+    good: '良好',
+    neutral: '中性',
+    challenging: '挑戰',
+    difficult: '困難',
   };
   return displayNames[fortune] || fortune;
 };
@@ -945,28 +1168,33 @@ const getFortuneDisplayName = (fortune: string): string => {
 onMounted(() => {
   // 設置為最詳細展開模式
   const chartGrid = document.querySelector('.chart-grid');
-  
+
   // 清除所有深度相關的類
   document.querySelectorAll('.palace-cell').forEach((el) => {
-    (el as HTMLElement).classList.remove('depth-minimal', 'depth-compact', 'depth-standard', 'depth-comprehensive');
+    (el as HTMLElement).classList.remove(
+      'depth-minimal',
+      'depth-compact',
+      'depth-standard',
+      'depth-comprehensive',
+    );
     (el as HTMLElement).classList.add('depth-comprehensive');
   });
-  
+
   if (chartGrid) {
     (chartGrid as HTMLElement).classList.remove('simple');
     (chartGrid as HTMLElement).classList.add('detailed');
   }
-  
+
   // 顯示所有大限小限資訊
   document.querySelectorAll('.cycles-info').forEach((el) => {
     (el as HTMLElement).style.display = 'block';
   });
-  
+
   // 顯示所有星曜
   document.querySelectorAll('.star-item').forEach((el) => {
     (el as HTMLElement).style.opacity = '1';
   });
-  
+
   // 啟用宮位互動
   document.querySelectorAll('.palace-cell').forEach((el) => {
     (el as HTMLElement).style.pointerEvents = 'auto';
@@ -974,30 +1202,36 @@ onMounted(() => {
 });
 
 // 監聽
-watch(() => props.chartData, (newData) => {
-  if (newData) {
-    // 重置選中狀態
-    selectedStar.value = null;
-    
-    // 設置默認解讀模式
-    interpretationMode.value = 'fortune';
-    
-    // 設置默認領域和宮位
-    if (newData.domainAnalyses && newData.domainAnalyses.length > 0) {
-      activeDomain.value = newData.domainAnalyses[0].domain;
+watch(
+  () => props.chartData,
+  (newData) => {
+    if (newData) {
+      // 重置選中狀態
+      selectedStar.value = null;
+
+      // 設置默認解讀模式
+      interpretationMode.value = 'fortune';
+
+      // 設置默認領域和宮位
+      if (newData.domainAnalyses && newData.domainAnalyses.length > 0) {
+        activeDomain.value = newData.domainAnalyses[0].domain;
+      }
+
+      if (
+        newData.palaceInterpretations &&
+        newData.palaceInterpretations.length > 0
+      ) {
+        activePalaceName.value = newData.palaceInterpretations[0].palaceName;
+      }
     }
-    
-    if (newData.palaceInterpretations && newData.palaceInterpretations.length > 0) {
-      activePalaceName.value = newData.palaceInterpretations[0].palaceName;
-    }
-  }
-});
+  },
+);
 
 // 暴露方法給父組件使用
 defineExpose({
   handleFortuneOverviewPalaceClick,
   handleStrengthClick,
-  handleChallengeClick
+  handleChallengeClick,
 });
 </script>
 
@@ -1010,7 +1244,8 @@ defineExpose({
 }
 
 /* 載入和錯誤狀態 */
-.loading-state, .error-state {
+.loading-state,
+.error-state {
   text-align: center;
   padding: 40px 20px;
 }
@@ -1026,8 +1261,12 @@ defineExpose({
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-icon {
@@ -1097,7 +1336,8 @@ defineExpose({
   font-size: 16px;
 }
 
-.view-toggle-button, .export-button {
+.view-toggle-button,
+.export-button {
   padding: 8px 16px;
   border: 2px solid #3498db;
   background: white;
@@ -1163,8 +1403,14 @@ defineExpose({
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 深度相關樣式 */
@@ -1183,44 +1429,44 @@ defineExpose({
     gap: 15px;
     padding: 12px;
   }
-  
+
   .chart-header h2 {
     font-size: 1.2rem;
   }
-  
+
   .header-actions {
     width: 100%;
     justify-content: center;
   }
-  
+
   /* intro-card 響應式優化 */
   .features-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .feature-item {
     padding: 16px;
     min-height: 100px;
   }
-  
+
   .intro-card {
     padding: 20px;
   }
-  
+
   .intro-card h3 {
     font-size: 18px;
     margin-bottom: 20px;
   }
-  
+
   .feature-content h4 {
     font-size: 15px;
   }
-  
+
   .feature-content p {
     font-size: 13px;
   }
-  
+
   .learn-more-button {
     padding: 10px 24px;
     font-size: 13px;
@@ -1234,7 +1480,7 @@ defineExpose({
   padding: 20px;
   background: #f0f8ff;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .summary-header {
@@ -1353,11 +1599,21 @@ defineExpose({
 }
 
 @keyframes swipeAnimation {
-  0% { transform: translate(-3px, -3px); }
-  25% { transform: translate(3px, -3px); }
-  50% { transform: translate(3px, 3px); }
-  75% { transform: translate(-3px, 3px); }
-  100% { transform: translate(-3px, -3px); }
+  0% {
+    transform: translate(-3px, -3px);
+  }
+  25% {
+    transform: translate(3px, -3px);
+  }
+  50% {
+    transform: translate(3px, 3px);
+  }
+  75% {
+    transform: translate(-3px, 3px);
+  }
+  100% {
+    transform: translate(-3px, -3px);
+  }
 }
 
 .close-hint {
@@ -1398,9 +1654,8 @@ defineExpose({
 .show-summary-button:hover {
   background: #2980b9;
   transform: translateY(-1px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-
 
 /* 命盤網格 */
 .chart-grid {
@@ -1487,7 +1742,8 @@ defineExpose({
   color: #495057;
 }
 
-.ming-indicator, .shen-indicator {
+.ming-indicator,
+.shen-indicator {
   background: #dc3545;
   color: white;
   padding: 1px 4px;
@@ -1522,7 +1778,7 @@ defineExpose({
 
 .star-item:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .star-name {
@@ -1693,7 +1949,8 @@ defineExpose({
   border-top: 1px solid #eee;
 }
 
-.da-xian-info, .xiao-xian-info {
+.da-xian-info,
+.xiao-xian-info {
   margin: 2px 0;
 }
 
@@ -1938,7 +2195,6 @@ defineExpose({
   color: #333;
 }
 
-
 /* 空宮指示器樣式 */
 .empty-palace-indicator {
   margin-bottom: 8px;
@@ -1954,7 +2210,8 @@ defineExpose({
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.da-xian-info, .xiao-xian-info {
+.da-xian-info,
+.xiao-xian-info {
   margin: 3px 0;
   font-size: 0.8rem;
   color: #555;
@@ -2022,7 +2279,7 @@ defineExpose({
   background: white;
   padding: 15px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .interpretation-card h4 {
@@ -2106,7 +2363,7 @@ defineExpose({
   background: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .domain-header {
@@ -2205,7 +2462,7 @@ defineExpose({
   background: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .palace-content h4 {
@@ -2250,7 +2507,7 @@ defineExpose({
     max-width: 900px;
     margin: 0 auto;
   }
-  
+
   .interpretation-section {
     max-width: 1000px;
     margin-left: auto;
@@ -2263,11 +2520,11 @@ defineExpose({
   .chart-grid {
     max-width: 100%;
   }
-  
+
   .comprehensive-interpretation {
     grid-template-columns: 1fr;
   }
-  
+
   .domain-periods {
     grid-template-columns: 1fr;
   }
@@ -2281,53 +2538,53 @@ defineExpose({
     gap: 15px;
     padding: 12px;
   }
-  
+
   .chart-header h2 {
     font-size: 1.2rem;
   }
-  
+
   .header-actions {
     width: 100%;
     justify-content: center;
   }
-  
+
   .guide-button {
     font-size: 13px;
     padding: 6px 16px;
   }
-  
+
   .chart-grid {
     grid-template-rows: repeat(4, minmax(100px, auto));
     gap: 1px;
   }
-  
+
   .chart-grid.detailed {
     grid-template-rows: repeat(4, minmax(160px, auto));
   }
-  
+
   .palace-cell {
     padding: 6px;
     font-size: 0.9rem;
   }
-  
+
   .palace-header {
     flex-wrap: wrap;
     gap: 4px;
   }
-  
+
   .palace-name {
     font-size: 0.85rem;
   }
-  
+
   .palace-zhi {
     font-size: 0.75rem;
   }
-  
+
   .star-item {
     font-size: 0.8rem;
     padding: 2px 4px;
   }
-  
+
   .star-name {
     font-size: 0.8rem;
   }
@@ -2345,18 +2602,18 @@ defineExpose({
     margin-bottom: 2px;
     padding: 4px 6px;
   }
-  
-  .da-xian-info, .xiao-xian-info {
+
+  .da-xian-info,
+  .xiao-xian-info {
     font-size: 0.75rem;
     margin: 2px 0;
   }
-  
+
   .interpretation-section {
     margin-top: 20px;
     padding: 16px;
   }
-  
-  
+
   .cycles-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
@@ -2367,105 +2624,104 @@ defineExpose({
   .purple-star-chart-container {
     padding: 8px;
   }
-  
+
   .chart-header {
     padding: 8px;
   }
-  
+
   .chart-header h2 {
     font-size: 1.1rem;
   }
-  
+
   .guide-button {
     font-size: 12px;
     padding: 6px 12px;
   }
-  
+
   .chart-grid {
     grid-template-rows: repeat(4, minmax(80px, auto));
     gap: 1px;
   }
-  
+
   .palace-cell {
     padding: 4px;
     font-size: 0.8rem;
   }
-  
+
   .palace-center {
     padding: 8px;
   }
-  
+
   .center-info p {
     font-size: 0.8rem;
   }
-  
+
   .palace-name {
     font-size: 0.8rem;
   }
-  
+
   .palace-zhi {
     font-size: 0.7rem;
     padding: 1px 4px;
   }
-  
+
   .star-item {
     font-size: 0.75rem;
     padding: 1px 3px;
     margin: 1px;
   }
-  
+
   .star-name {
     font-size: 0.75rem;
   }
-  
+
   .transformations {
     font-size: 0.65rem;
   }
-  
+
   .star-attribute {
     font-size: 0.6rem;
     padding: 1px 2px;
   }
-  
+
   .interpretation-section {
     padding: 12px;
   }
-  
+
   .interpretation-header {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .interpretation-tabs {
     justify-content: stretch;
   }
-  
+
   .tab-button {
     flex: 1;
     font-size: 12px;
     padding: 8px 4px;
     text-align: center;
   }
-  
+
   .interpretation-card {
     padding: 12px;
   }
-  
+
   .lifecycle-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .domain-tabs {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
-  
+
   .palace-tabs {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
-  
 }
 
 /* 極小螢幕 */
@@ -2473,16 +2729,15 @@ defineExpose({
   .chart-grid {
     grid-template-rows: repeat(4, minmax(70px, auto));
   }
-  
+
   .palace-cell {
     padding: 3px;
   }
-  
+
   .star-item {
     font-size: 0.7rem;
     padding: 1px 2px;
   }
-  
 }
 
 /* 宮位高亮動畫 */
@@ -2490,7 +2745,11 @@ defineExpose({
   animation: highlightPulse 3s ease-in-out;
   border: 3px solid #667eea !important;
   box-shadow: 0 0 25px rgba(102, 126, 234, 0.7) !important;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1)) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.15),
+    rgba(118, 75, 162, 0.1)
+  ) !important;
   transform: scale(1.02) !important;
   z-index: 10 !important;
   position: relative !important;

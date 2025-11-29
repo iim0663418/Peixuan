@@ -1,9 +1,10 @@
 <template>
-  <div class="transformation-stars-display" :class="{ 'animation-active': isAnimationActive }">
+  <div
+    class="transformation-stars-display"
+    :class="{ 'animation-active': isAnimationActive }"
+  >
     <div class="display-header">
       <h3>四化飛星</h3>
-      
-      
     </div>
 
     <div class="explanation-panel">
@@ -12,12 +13,29 @@
         <h4>四化飛星解釋</h4>
       </div>
       <div class="explanation-content">
-        <p>四化飛星是紫微斗數中重要的變化星曜，包括<span class="t-lu">化祿</span>、<span class="t-quan">化權</span>、<span class="t-ke">化科</span>和<span class="t-ji">化忌</span>，每顆主星會依照命宮天干而有不同的四化狀態。四化飛星對命盤產生的影響如下：</p>
+        <p>
+          四化飛星是紫微斗數中重要的變化星曜，包括<span class="t-lu">化祿</span
+          >、<span class="t-quan">化權</span>、<span class="t-ke">化科</span
+          >和<span class="t-ji">化忌</span
+          >，每顆主星會依照命宮天干而有不同的四化狀態。四化飛星對命盤產生的影響如下：
+        </p>
         <ul>
-          <li><span class="t-lu">化祿</span>：代表財帛、福分、名利、物質收穫，對宮位增添吉相</li>
-          <li><span class="t-quan">化權</span>：代表權力、地位、決策能力，增強宮位力量感</li>
-          <li><span class="t-ke">化科</span>：代表學業、文憑、榮譽、才華，添加智慧和貴人相助</li>
-          <li><span class="t-ji">化忌</span>：代表阻礙、病痛、衝突、災厄，使宮位能量受損</li>
+          <li>
+            <span class="t-lu">化祿</span
+            >：代表財帛、福分、名利、物質收穫，對宮位增添吉相
+          </li>
+          <li>
+            <span class="t-quan">化權</span
+            >：代表權力、地位、決策能力，增強宮位力量感
+          </li>
+          <li>
+            <span class="t-ke">化科</span
+            >：代表學業、文憑、榮譽、才華，添加智慧和貴人相助
+          </li>
+          <li>
+            <span class="t-ji">化忌</span
+            >：代表阻礙、病痛、衝突、災厄，使宮位能量受損
+          </li>
         </ul>
       </div>
     </div>
@@ -34,16 +52,23 @@
           <div class="cell">所在宮位</div>
           <div class="cell">影響</div>
         </div>
-        <div v-for="star in transformedStars" :key="star.name" class="table-row">
+        <div
+          v-for="star in transformedStars"
+          :key="star.name"
+          class="table-row"
+        >
           <div class="cell star-name">{{ star.name }}</div>
           <div class="cell transformations">
-            <span 
-              v-for="trans in star.transformations" 
-              :key="trans" 
+            <span
+              v-for="trans in star.transformations"
+              :key="trans"
               :class="`transformation transformation-${trans}`"
-            >{{ trans }}</span>
+              >{{ trans }}</span
+            >
           </div>
-          <div class="cell palace-name">{{ getPalaceNameByIndex(star.palaceIndex) }}</div>
+          <div class="cell palace-name">
+            {{ getPalaceNameByIndex(star.palaceIndex) }}
+          </div>
           <div class="cell effect">{{ getTransformationEffect(star) }}</div>
         </div>
       </div>
@@ -53,8 +78,8 @@
     <div class="transformation-flows">
       <h4>四化能量流動</h4>
       <div class="flows-container">
-        <div 
-          v-for="(palace, index) in chartData.palaces" 
+        <div
+          v-for="(palace, index) in chartData.palaces"
           :key="`flow-${index}`"
           class="flow-item"
           :class="getEnergyClass(palace.index)"
@@ -64,21 +89,22 @@
             <span class="palace-zhi">({{ palace.zhi }})</span>
           </div>
           <div class="flow-energy">
-            <div class="energy-bar" :style="getEnergyBarStyle(palace.index)"></div>
+            <div class="energy-bar" :style="getEnergyBarStyle(palace.index)" />
             <span class="energy-value">{{ getEnergyValue(palace.index) }}</span>
           </div>
           <div class="flow-stars">
-            <div 
-              v-for="star in getTransformedStarsInPalace(palace)" 
+            <div
+              v-for="star in getTransformedStarsInPalace(palace)"
               :key="`flow-star-${star.name}`"
               class="flow-star"
             >
               <span class="star-name">{{ star.name }}</span>
-              <span 
-                v-for="trans in star.transformations" 
-                :key="`flow-trans-${trans}`" 
+              <span
+                v-for="trans in star.transformations"
+                :key="`flow-trans-${trans}`"
                 :class="`trans-indicator trans-${trans}`"
-              >{{ trans }}</span>
+                >{{ trans }}</span
+              >
             </div>
           </div>
         </div>
@@ -88,9 +114,9 @@
     <!-- 四化特殊組合 -->
     <div class="transformation-combinations">
       <h4>四化特殊組合</h4>
-      <div class="combinations-list" v-if="combinations.length > 0">
-        <div 
-          v-for="(combo, index) in combinations" 
+      <div v-if="combinations.length > 0" class="combinations-list">
+        <div
+          v-for="(combo, index) in combinations"
           :key="`combo-${index}`"
           class="combination-item"
           :class="`significance-${combo.significance}`"
@@ -102,24 +128,31 @@
           <div class="combo-effect">{{ combo.effect }}</div>
         </div>
       </div>
-      <div class="no-combinations-message" v-else>
+      <div v-else class="no-combinations-message">
         <div class="message-container">
           <i class="info-icon">ℹ️</i>
           <div class="message-content">
             <p>未發現四化組合</p>
-            <p class="message-detail">當前命盤中的四化飛星分布較為分散，未形成特殊組合。這意味著各宮位的能量可能更均衡，不會因特定組合而產生極端吉凶。</p>
+            <p class="message-detail">
+              當前命盤中的四化飛星分布較為分散，未形成特殊組合。這意味著各宮位的能量可能更均衡，不會因特定組合而產生極端吉凶。
+            </p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 多層次疊加 -->
-    <div class="layered-effects" v-if="hasMultiLayerData">
-      <h4>大限與流年疊加 <span class="energy-tooltip">
-        <i class="info-tooltip">ℹ️</i>
-        <span class="tooltip-content">多層次能量疊加分析結合原命盤、大限與流年的四化能量，呈現宮位能量在不同時間維度的變化。</span>
-      </span></h4>
-      <div class="energy-summary" v-if="selectedLayer === 'total'">
+    <div v-if="hasMultiLayerData" class="layered-effects">
+      <h4>
+        大限與流年疊加
+        <span class="energy-tooltip">
+          <i class="info-tooltip">ℹ️</i>
+          <span class="tooltip-content"
+            >多層次能量疊加分析結合原命盤、大限與流年的四化能量，呈現宮位能量在不同時間維度的變化。</span
+          >
+        </span>
+      </h4>
+      <div v-if="selectedLayer === 'total'" class="energy-summary">
         <div class="energy-highlight">
           <div class="highlight-title">當前最強能量宮位</div>
           <div class="highlight-value">{{ getMaxEnergyPalace() }}</div>
@@ -129,70 +162,88 @@
         </div>
       </div>
       <div class="layer-selector">
-        <button 
-          @click="selectedLayer = 'base'"
+        <button
           :class="{ active: selectedLayer === 'base' }"
-        >本命</button>
-        <button 
-          @click="selectedLayer = 'daXian'"
+          @click="selectedLayer = 'base'"
+        >
+          本命
+        </button>
+        <button
           :class="{ active: selectedLayer === 'daXian' }"
-        >大限</button>
-        <button 
-          @click="selectedLayer = 'liuNian'"
+          @click="selectedLayer = 'daXian'"
+        >
+          大限
+        </button>
+        <button
           :class="{ active: selectedLayer === 'liuNian' }"
-        >流年</button>
-        <button 
-          @click="selectedLayer = 'total'"
+          @click="selectedLayer = 'liuNian'"
+        >
+          流年
+        </button>
+        <button
           :class="{ active: selectedLayer === 'total' }"
-        >綜合</button>
+          @click="selectedLayer = 'total'"
+        >
+          綜合
+        </button>
       </div>
       <div class="layer-content">
         <div v-if="selectedLayer === 'base'" class="layer-palaces">
-          <div 
-            v-for="(palace, index) in chartData.palaces" 
+          <div
+            v-for="(palace, index) in chartData.palaces"
             :key="`base-${index}`"
             class="layer-palace"
             :class="getEnergyClass(palace.index, 'base')"
           >
             <div class="palace-header">{{ palace.name }}</div>
-            <div class="palace-energy">{{ getLayerEnergy(palace.index, 'baseEnergy') }}</div>
+            <div class="palace-energy">
+              {{ getLayerEnergy(palace.index, 'baseEnergy') }}
+            </div>
           </div>
         </div>
-        
+
         <div v-else-if="selectedLayer === 'daXian'" class="layer-palaces">
-          <div 
-            v-for="(palace, index) in chartData.palaces" 
+          <div
+            v-for="(palace, index) in chartData.palaces"
             :key="`daxian-${index}`"
             class="layer-palace"
             :class="getEnergyClass(palace.index, 'daXian')"
           >
             <div class="palace-header">{{ palace.name }}</div>
-            <div class="palace-energy">{{ getLayerEnergy(palace.index, 'daXianEnergy') }}</div>
+            <div class="palace-energy">
+              {{ getLayerEnergy(palace.index, 'daXianEnergy') }}
+            </div>
           </div>
         </div>
-        
+
         <div v-else-if="selectedLayer === 'liuNian'" class="layer-palaces">
-          <div 
-            v-for="(palace, index) in chartData.palaces" 
+          <div
+            v-for="(palace, index) in chartData.palaces"
             :key="`liunian-${index}`"
             class="layer-palace"
             :class="getEnergyClass(palace.index, 'liuNian')"
           >
             <div class="palace-header">{{ palace.name }}</div>
-            <div class="palace-energy">{{ getLayerEnergy(palace.index, 'liuNianEnergy') }}</div>
+            <div class="palace-energy">
+              {{ getLayerEnergy(palace.index, 'liuNianEnergy') }}
+            </div>
           </div>
         </div>
-        
+
         <div v-else-if="selectedLayer === 'total'" class="layer-palaces">
-          <div 
-            v-for="(palace, index) in chartData.palaces" 
+          <div
+            v-for="(palace, index) in chartData.palaces"
             :key="`total-${index}`"
             class="layer-palace"
             :class="getEnergyClass(palace.index, 'total')"
           >
             <div class="palace-header">{{ palace.name }}</div>
-            <div class="palace-energy">{{ getLayerEnergy(palace.index, 'totalEnergy') }}</div>
-            <div class="palace-interp">{{ getLayerInterpretation(palace.index) }}</div>
+            <div class="palace-energy">
+              {{ getLayerEnergy(palace.index, 'totalEnergy') }}
+            </div>
+            <div class="palace-interp">
+              {{ getLayerInterpretation(palace.index) }}
+            </div>
           </div>
         </div>
       </div>
@@ -204,17 +255,19 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import type { PurpleStarChart, Palace, Star } from '@/types/astrologyTypes';
 
-
 // Props - 簡潔版，固定為最高詳細顯示
 interface Props {
   chartData: PurpleStarChart;
   mingGan?: string;
-  transformationFlows?: Record<number, {
-    palaceIndex: number;
-    palaceName: string;
-    energyScore: number;
-    majorInfluences: string[];
-  }>;
+  transformationFlows?: Record<
+    number,
+    {
+      palaceIndex: number;
+      palaceName: string;
+      energyScore: number;
+      majorInfluences: string[];
+    }
+  >;
   transformationCombinations?: Array<{
     palaceIndex: number;
     palaceName: string;
@@ -222,23 +275,26 @@ interface Props {
     effect: string;
     significance: 'high' | 'medium' | 'low';
   }>;
-  multiLayerEnergies?: Record<number, {
-    palaceIndex: number;
-    palaceName: string;
-    baseEnergy: number;
-    daXianEnergy: number;
-    liuNianEnergy: number;
-    liuYueEnergy: number;
-    totalEnergy: number;
-    interpretation: string;
-  }>;
+  multiLayerEnergies?: Record<
+    number,
+    {
+      palaceIndex: number;
+      palaceName: string;
+      baseEnergy: number;
+      daXianEnergy: number;
+      liuNianEnergy: number;
+      liuYueEnergy: number;
+      totalEnergy: number;
+      interpretation: string;
+    }
+  >;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   mingGan: '',
   transformationFlows: () => ({}),
   transformationCombinations: () => [],
-  multiLayerEnergies: () => ({})
+  multiLayerEnergies: () => ({}),
 });
 
 // 響應式狀態 - 固定為最詳細顯示
@@ -251,7 +307,9 @@ const isMobile = ref(window.innerWidth <= 768);
 const layeredData = computed(() => null); // 待實現分層資料
 const dataCompleteness = computed(() => {
   let score = 0;
-  if (!props.chartData) return 0;
+  if (!props.chartData) {
+    return 0;
+  }
 
   // 核心資料：命宮天干是計算四化的基礎
   if (props.mingGan && props.mingGan.length > 0) {
@@ -259,21 +317,29 @@ const dataCompleteness = computed(() => {
   }
 
   // 核心資料：命盤宮位和星曜資訊
-  const hasTransformedStars = props.chartData.palaces?.some(p => p.stars.some(s => s.transformations && s.transformations.length > 0));
+  const hasTransformedStars = props.chartData.palaces?.some((p) =>
+    p.stars.some((s) => s.transformations && s.transformations.length > 0),
+  );
   if (hasTransformedStars) {
     score += 30;
   }
 
   // 輔助資料：特殊組合，用於深度分析
-  if (props.transformationCombinations && props.transformationCombinations.length > 0) {
+  if (
+    props.transformationCombinations &&
+    props.transformationCombinations.length > 0
+  ) {
     score += 15;
   }
 
   // 輔助資料：多層次能量，用於深度分析
-  if (props.multiLayerEnergies && Object.keys(props.multiLayerEnergies).length > 0) {
+  if (
+    props.multiLayerEnergies &&
+    Object.keys(props.multiLayerEnergies).length > 0
+  ) {
     score += 15;
   }
-  
+
   return Math.min(score, 100); // 確保最高為 100
 }); // 四化飛星資料完整度
 
@@ -283,12 +349,10 @@ const handleLevelChanged = (level: any) => {
   // TODO: 實現層級變化邏輯
 };
 
-
-
 // 計算屬性
 const transformedStars = computed(() => {
   const result: Star[] = [];
-  
+
   // 遍歷所有宮位尋找帶有四化的星曜
   if (props.chartData && props.chartData.palaces) {
     for (const palace of props.chartData.palaces) {
@@ -299,7 +363,7 @@ const transformedStars = computed(() => {
       }
     }
   }
-  
+
   return result;
 });
 
@@ -311,20 +375,24 @@ const hasMultiLayerData = computed(() => {
   return Object.keys(props.multiLayerEnergies || {}).length > 0;
 });
 
-
 // 動畫控制方法
 const toggleAnimation = () => {
   isAnimationActive.value = !isAnimationActive.value;
-  
+
   // 如果開啟動畫，設置定時器
   if (isAnimationActive.value) {
     if (animationInterval.value) {
       clearInterval(animationInterval.value);
     }
-    
+
     // 每5秒切換顯示層次
     animationInterval.value = window.setInterval(() => {
-      const layers: ('base' | 'daXian' | 'liuNian' | 'total')[] = ['base', 'daXian', 'liuNian', 'total'];
+      const layers: ('base' | 'daXian' | 'liuNian' | 'total')[] = [
+        'base',
+        'daXian',
+        'liuNian',
+        'total',
+      ];
       const currentIndex = layers.indexOf(selectedLayer.value);
       const nextIndex = (currentIndex + 1) % layers.length;
       selectedLayer.value = layers[nextIndex];
@@ -338,9 +406,8 @@ const toggleAnimation = () => {
   }
 };
 
-
 const getPalaceNameByIndex = (index: number): string => {
-  const palace = props.chartData.palaces.find(p => p.index === index);
+  const palace = props.chartData.palaces.find((p) => p.index === index);
   return palace ? `${palace.name}(${palace.zhi})` : '未知宮位';
 };
 
@@ -348,36 +415,42 @@ const getTransformationEffect = (star: Star): string => {
   if (!star.transformations || star.transformations.length === 0) {
     return '';
   }
-  
+
   // 四化效應說明
   const effects: Record<string, string> = {
-    '祿': '增加財帛和福分',
-    '權': '增加權威和地位',
-    '科': '增加學業和榮譽',
-    '忌': '帶來阻礙和衝突'
+    祿: '增加財帛和福分',
+    權: '增加權威和地位',
+    科: '增加學業和榮譽',
+    忌: '帶來阻礙和衝突',
   };
-  
-  return star.transformations.map(t => effects[t] || t).join('，');
+
+  return star.transformations.map((t) => effects[t] || t).join('，');
 };
 
 const getEnergyValue = (palaceIndex: number): string => {
   const flow = props.transformationFlows[palaceIndex];
-  if (!flow) return '0';
+  if (!flow) {
+    return '0';
+  }
   return flow.energyScore.toString();
 };
 
-const getEnergyBarStyle = (palaceIndex: number): { width: string, backgroundColor: string } => {
+const getEnergyBarStyle = (
+  palaceIndex: number,
+): { width: string; backgroundColor: string } => {
   const flow = props.transformationFlows[palaceIndex];
-  if (!flow) return { width: '0%', backgroundColor: '#e9ecef' };
-  
+  if (!flow) {
+    return { width: '0%', backgroundColor: '#e9ecef' };
+  }
+
   // 能量分數範圍通常是 -10 到 +10
   const baseWidth = 50; // 基礎寬度為50%
   const score = flow.energyScore;
   const width = baseWidth + score * 5; // 每點能量增加或減少5%寬度
-  
+
   // 確保寬度在合理範圍內
   const clampedWidth = Math.max(5, Math.min(100, width));
-  
+
   // 根據能量值設置顏色
   let color = '#e9ecef'; // 默認灰色
   if (score > 0) {
@@ -385,17 +458,17 @@ const getEnergyBarStyle = (palaceIndex: number): { width: string, backgroundColo
   } else if (score < 0) {
     color = score <= -5 ? '#dc3545' : '#f5c6cb'; // 強負面為紅色，輕負面為粉紅
   }
-  
+
   return {
     width: `${clampedWidth}%`,
-    backgroundColor: color
+    backgroundColor: color,
   };
 };
 
-const getEnergyClass = (palaceIndex: number, layer: string = ''): string => {
+const getEnergyClass = (palaceIndex: number, layer = ''): string => {
   if (layer) {
     let energy = 0;
-    
+
     switch (layer) {
       case 'base':
         energy = getLayerEnergy(palaceIndex, 'baseEnergy');
@@ -412,36 +485,51 @@ const getEnergyClass = (palaceIndex: number, layer: string = ''): string => {
       default:
         energy = 0;
     }
-    
-    if (energy > 0) return 'positive-energy';
-    if (energy < 0) return 'negative-energy';
-    return 'neutral-energy';
-  } else {
-    const flow = props.transformationFlows[palaceIndex];
-    if (!flow) return 'neutral-energy';
-    
-    const score = flow.energyScore;
-    if (score > 0) return 'positive-energy';
-    if (score < 0) return 'negative-energy';
+
+    if (energy > 0) {
+      return 'positive-energy';
+    }
+    if (energy < 0) {
+      return 'negative-energy';
+    }
     return 'neutral-energy';
   }
+  const flow = props.transformationFlows[palaceIndex];
+  if (!flow) {
+    return 'neutral-energy';
+  }
+
+  const score = flow.energyScore;
+  if (score > 0) {
+    return 'positive-energy';
+  }
+  if (score < 0) {
+    return 'negative-energy';
+  }
+  return 'neutral-energy';
 };
 
 const getTransformedStarsInPalace = (palace: Palace): Star[] => {
-  return palace.stars.filter(star => star.transformations && star.transformations.length > 0);
+  return palace.stars.filter(
+    (star) => star.transformations && star.transformations.length > 0,
+  );
 };
 
 const getLayerEnergy = (palaceIndex: number, energyType: string): number => {
   const energy = props.multiLayerEnergies[palaceIndex];
-  if (!energy) return 0;
-  
-  return energy[energyType as keyof typeof energy] as number || 0;
+  if (!energy) {
+    return 0;
+  }
+
+  return (energy[energyType as keyof typeof energy] as number) || 0;
 };
 
 const getLayerInterpretation = (palaceIndex: number): string => {
   const energy = props.multiLayerEnergies[palaceIndex];
-  if (!energy) return '';
-  
+  if (!energy) {
+    return '';
+  }
+
   return energy.interpretation || '';
 };
 
@@ -449,16 +537,20 @@ const getLayerInterpretation = (palaceIndex: number): string => {
 const getMaxEnergyPalace = (): string => {
   let maxEnergy = -Infinity;
   let maxEnergyPalace = '';
-  
+
   // 遍歷所有宮位，找出能量最大的
   for (const palaceIndex in props.multiLayerEnergies) {
     const energy = props.multiLayerEnergies[palaceIndex];
-    if (energy && typeof energy.totalEnergy === 'number' && energy.totalEnergy > maxEnergy) {
+    if (
+      energy &&
+      typeof energy.totalEnergy === 'number' &&
+      energy.totalEnergy > maxEnergy
+    ) {
       maxEnergy = energy.totalEnergy;
       maxEnergyPalace = `${energy.palaceName} (${maxEnergy > 0 ? '+' : ''}${maxEnergy})`;
     }
   }
-  
+
   return maxEnergyPalace || '無顯著能量宮位';
 };
 
@@ -468,14 +560,14 @@ const getEnergySummary = (): string => {
   let negativeCount = 0;
   let totalCount = 0;
   let totalEnergy = 0;
-  
+
   // 計算各類能量宮位數量
   for (const palaceIndex in props.multiLayerEnergies) {
     const energy = props.multiLayerEnergies[palaceIndex];
     if (energy && typeof energy.totalEnergy === 'number') {
       totalCount++;
       totalEnergy += energy.totalEnergy;
-      
+
       if (energy.totalEnergy > 0) {
         positiveCount++;
       } else if (energy.totalEnergy < 0) {
@@ -483,21 +575,23 @@ const getEnergySummary = (): string => {
       }
     }
   }
-  
+
   // 根據能量分佈生成摘要
   if (totalCount === 0) {
     return '無法分析能量分佈';
   }
-  
-  const energyBalance = positiveCount > negativeCount 
-    ? '整體能量偏正向，有利於發展'
-    : (positiveCount < negativeCount 
-      ? '整體能量偏負向，需注意化解阻礙' 
-      : '正負能量平衡');
-  
-  const averageEnergy = totalCount > 0 ? (totalEnergy / totalCount).toFixed(1) : '0';
+
+  const energyBalance =
+    positiveCount > negativeCount
+      ? '整體能量偏正向，有利於發展'
+      : positiveCount < negativeCount
+        ? '整體能量偏負向，需注意化解阻礙'
+        : '正負能量平衡';
+
+  const averageEnergy =
+    totalCount > 0 ? (totalEnergy / totalCount).toFixed(1) : '0';
   const averageEnergyNumber = parseFloat(averageEnergy);
-  
+
   return `命盤中有 ${positiveCount} 個正向能量宮位，${negativeCount} 個負向能量宮位。${energyBalance}。平均能量值: ${averageEnergyNumber > 0 ? '+' : ''}${averageEnergy}。`;
 };
 
@@ -556,7 +650,8 @@ onUnmounted(() => {
   gap: 10px;
 }
 
-.toggle-button, .view-button {
+.toggle-button,
+.view-button {
   padding: 6px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -565,7 +660,8 @@ onUnmounted(() => {
   transition: all 0.3s;
 }
 
-.toggle-button:hover, .view-button:hover {
+.toggle-button:hover,
+.view-button:hover {
   background-color: #e9ecef;
   border-color: #ccc;
 }
@@ -765,7 +861,9 @@ onUnmounted(() => {
   background-color: #e9ecef;
   border-radius: 4px;
   margin-bottom: 5px;
-  transition: width 0.5s ease, background-color 0.5s ease;
+  transition:
+    width 0.5s ease,
+    background-color 0.5s ease;
 }
 
 .energy-value {
@@ -1057,7 +1155,7 @@ onUnmounted(() => {
 }
 
 .tooltip-content::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 100%;
   left: 50%;
@@ -1127,7 +1225,6 @@ onUnmounted(() => {
   margin-bottom: 5px;
 }
 
-
 /* 文字樣式 */
 .t-lu {
   color: #ffc107;
@@ -1151,22 +1248,26 @@ onUnmounted(() => {
 
 /* 動畫效果 */
 .animation-active .energy-bar {
-  animation: pulse 2s infinite, flowAnimation 3s ease-in-out infinite;
+  animation:
+    pulse 2s infinite,
+    flowAnimation 3s ease-in-out infinite;
   background-image: linear-gradient(
-    90deg, 
-    rgba(40, 167, 69, 0.7) 0%, 
-    rgba(23, 162, 184, 0.8) 50%, 
+    90deg,
+    rgba(40, 167, 69, 0.7) 0%,
+    rgba(23, 162, 184, 0.8) 50%,
     rgba(40, 167, 69, 0.7) 100%
   );
   background-size: 200% 100%;
 }
 
 .animation-active .negative-energy .energy-bar {
-  animation: pulse 2s infinite, flowAnimation 3s ease-in-out infinite;
+  animation:
+    pulse 2s infinite,
+    flowAnimation 3s ease-in-out infinite;
   background-image: linear-gradient(
-    90deg, 
-    rgba(220, 53, 69, 0.7) 0%, 
-    rgba(255, 128, 128, 0.8) 50%, 
+    90deg,
+    rgba(220, 53, 69, 0.7) 0%,
+    rgba(255, 128, 128, 0.8) 50%,
     rgba(220, 53, 69, 0.7) 100%
   );
   background-size: 200% 100%;
@@ -1198,7 +1299,9 @@ onUnmounted(() => {
 
 .animation-active .layer-palace {
   animation: elevate 3s ease-in-out infinite;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 @keyframes elevate {
@@ -1249,7 +1352,7 @@ onUnmounted(() => {
   }
 }
 
-  /* 響應式設計 */
+/* 響應式設計 */
 @media (max-width: 768px) {
   .display-header {
     flex-direction: column;
@@ -1257,26 +1360,29 @@ onUnmounted(() => {
     gap: 15px;
     padding: 12px;
   }
-  
+
   .display-header h3 {
     font-size: 1.2rem;
   }
-  
-  .table-header, .table-row {
+
+  .table-header,
+  .table-row {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .table-header .cell:nth-child(3),
   .table-header .cell:nth-child(4),
   .table-row .cell:nth-child(3),
   .table-row .cell:nth-child(4) {
     display: none;
   }
-  
-  .flows-container, .combinations-list, .layer-palaces {
+
+  .flows-container,
+  .combinations-list,
+  .layer-palaces {
     grid-template-columns: 1fr;
   }
-  
+
   .control-buttons {
     flex-direction: column;
   }
@@ -1311,7 +1417,7 @@ onUnmounted(() => {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .sync-status {
     margin-left: 0;
     justify-content: center;

@@ -37,7 +37,6 @@ interface DaYun {
   // Potentially getLiuNian() and getXiaoYun()
 }
 
-
 declare class Lunar {
   constructor(); // Or appropriate constructor signature if known
 
@@ -87,19 +86,33 @@ declare class Lunar {
   getEightChar(): EightChar; // Added
 
   // getYun is now on EightChar, removing from Lunar instance directly
-  // getYun(gender: 0 | 1, sect?: 1 | 2): YunInstance; 
+  // getYun(gender: 0 | 1, sect?: 1 | 2): YunInstance;
 
   toString(includeTime?: boolean): string;
   toFullString(): string;
 
   // Static-like factory methods (if Lunar is an object/namespace)
-  static fromYmdHms(year: number, month: number, day: number, hour: number, minute: number, second: number): Lunar;
+  static fromYmdHms(
+    year: number,
+    month: number,
+    day: number,
+    hour: number,
+    minute: number,
+    second: number,
+  ): Lunar;
   static fromDate(date: Date): Lunar;
 }
 
 declare class Solar {
-  constructor(year: number, month: number, day: number, hour?: number, minute?: number, second?: number);
-  
+  constructor(
+    year: number,
+    month: number,
+    day: number,
+    hour?: number,
+    minute?: number,
+    second?: number,
+  );
+
   getYear(): number;
   getMonth(): number;
   getDay(): number;
@@ -114,7 +127,14 @@ declare class Solar {
   toYmdHms(): string;
 
   // Static-like factory methods
-  static fromYmdHms(year: number, month: number, day: number, hour: number, minute: number, second: number): Solar;
+  static fromYmdHms(
+    year: number,
+    month: number,
+    day: number,
+    hour: number,
+    minute: number,
+    second: number,
+  ): Solar;
   static fromYmd(year: number, month: number, day: number): Solar;
   static fromDate(date: Date): Solar;
   static fromJulianDay(julianDay: number): Solar;
@@ -158,7 +178,12 @@ interface CalendarSolarDetail {
 }
 declare const calendar: {
   solar2lunar(year: number, month: number, day: number): CalendarLunarDetail;
-  lunar2solar(lunarYear: number, lunarMonth: number, lunarDay: number, isLeapMonth?: boolean): CalendarSolarDetail;
+  lunar2solar(
+    lunarYear: number,
+    lunarMonth: number,
+    lunarDay: number,
+    isLeapMonth?: boolean,
+  ): CalendarSolarDetail;
   toChinaMonth(month: number, isLeap?: boolean): string;
   toChinaDay(day: number): string;
 };
@@ -168,7 +193,7 @@ declare global {
   // Lunar might be an object with static methods, or a class.
   // Based on usage `Lunar.fromYmdHms` and `solar.getLunar()`, it seems `Lunar` is a namespace/object
   // and `solar.getLunar()` returns an instance-like object that has `getYun`.
-  const Lunar: typeof Lunar; 
+  const Lunar: typeof Lunar;
   const Solar: typeof Solar;
   const LunarMonth: typeof LunarMonth;
   // const Yun: typeof Yun; // Commented out as logs show it's undefined
@@ -184,7 +209,7 @@ declare global {
     // Other potential methods based on the library's capabilities
     getXunKong(): string; // 空亡
     getTenGods(): string[]; // 十神 (this might return an array or a more complex object)
-    
+
     // The crucial getYun method
     // gender: 0 for female (逆行 if yang year, 順行 if yin year by some conventions, or just female)
     // gender: 1 for male (順行 if yang year, 逆行 if yin year by some conventions, or just male)
@@ -199,11 +224,10 @@ declare global {
     // This is confusing. Let's assume the parameter is a number (0 or 1) and its meaning (gender or direction)
     // will be handled by the calling code in baziCalc.ts based on actual library behavior.
     // For typing, we'll allow 0 or 1.
-    getYun(genderOrDirection: 0 | 1, sect?: number): YunInstance; 
+    getYun(genderOrDirection: 0 | 1, sect?: number): YunInstance;
   }
   const EightChar: {
     // If EightChar can be instantiated or has static methods, declare here
     // For now, assume it's returned by lunar.getEightChar()
   };
-
 }

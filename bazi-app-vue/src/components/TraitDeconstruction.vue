@@ -5,11 +5,11 @@
       <h4 class="section-title">
         <span class="section-icon">🎭</span>
         內外特質分析
-        <button 
+        <button
           v-if="isDev"
-          @click="refreshTraitAnalysis"
           class="refresh-btn"
           title="重新計算特質分析"
+          @click="refreshTraitAnalysis"
         >
           🔄
         </button>
@@ -23,19 +23,22 @@
           <div class="trait-content">
             <div class="trait-source">基於八字分析</div>
             <ul class="trait-list">
-              <li v-for="(trait, index) in externalTraits" :key="`external-${index}`">
+              <li
+                v-for="(trait, index) in externalTraits"
+                :key="`external-${index}`"
+              >
                 {{ trait }}
               </li>
             </ul>
           </div>
         </div>
-        
+
         <div class="trait-divider">
-          <div class="divider-line"></div>
+          <div class="divider-line" />
           <div class="divider-icon">⚖️</div>
-          <div class="divider-line"></div>
+          <div class="divider-line" />
         </div>
-        
+
         <div class="trait-side internal-traits">
           <div class="trait-header">
             <h5>隱性特質</h5>
@@ -44,14 +47,17 @@
           <div class="trait-content">
             <div class="trait-source">基於紫微斗數分析</div>
             <ul class="trait-list">
-              <li v-for="(trait, index) in internalTraits" :key="`internal-${index}`">
+              <li
+                v-for="(trait, index) in internalTraits"
+                :key="`internal-${index}`"
+              >
                 {{ trait }}
               </li>
             </ul>
           </div>
         </div>
       </div>
-      
+
       <div class="synthesis-explanation">
         <div class="synthesis-icon">🔄</div>
         <div class="synthesis-text">
@@ -69,12 +75,14 @@
       </h4>
       <div class="lessons-container">
         <div class="lessons-introduction">
-          <p>以下是您一生中需要關注和修練的重要領域，這些並非缺陷，而是成長的機會：</p>
+          <p>
+            以下是您一生中需要關注和修練的重要領域，這些並非缺陷，而是成長的機會：
+          </p>
         </div>
-        
+
         <div class="lessons-grid">
-          <div 
-            v-for="(lesson, index) in lifeLessons" 
+          <div
+            v-for="(lesson, index) in lifeLessons"
             :key="`lesson-${index}`"
             class="lesson-card"
             :class="`lesson-priority-${lesson.priority}`"
@@ -85,22 +93,22 @@
               <div class="lesson-priority">
                 <span class="priority-label">重要度</span>
                 <div class="priority-indicators">
-                  <div 
-                    v-for="i in 5" 
+                  <div
+                    v-for="i in 5"
                     :key="i"
                     :class="['priority-dot', { active: i <= lesson.priority }]"
-                  ></div>
+                  />
                 </div>
               </div>
             </div>
-            
+
             <div class="lesson-content">
               <div class="lesson-description">{{ lesson.description }}</div>
               <div class="lesson-guidance">
                 <strong>修練方向：</strong>{{ lesson.guidance }}
               </div>
             </div>
-            
+
             <div class="lesson-source">
               <span class="source-label">來源：</span>
               <span class="source-detail">{{ lesson.source }}</span>
@@ -113,20 +121,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import type { PurpleStarChart, Palace, Star } from '@/types/astrologyTypes'
+import { computed, ref, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import type { PurpleStarChart, Palace, Star } from '@/types/astrologyTypes';
 
 // Props
 interface Props {
-  chartData: PurpleStarChart
+  chartData: PurpleStarChart;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 // Refs
 // Canvas 已替換為現代化能力條設計
-const updateKey = ref(0)
-const isDev = ref(import.meta.env.DEV)
+const updateKey = ref(0);
+const isDev = ref(import.meta.env.DEV);
 
 // 星曜屬性映射
 const starAttributes = {
@@ -141,293 +149,324 @@ const starAttributes = {
   // 理財能力相關星曜
   financial: ['武曲', '天府', '太陰', '祿存', '化祿'],
   // 人際關係相關星曜
-  social: ['太陽', '天同', '天梁', '左輔', '右弼', '天魁', '天鉞']
-}
+  social: ['太陽', '天同', '天梁', '左輔', '右弼', '天魁', '天鉞'],
+};
 
 // 分析外在特質（基於八字概念的推導）
 const externalTraits = computed(() => {
   // 強制更新響應性
-  const _ = updateKey.value
-  
-  const traits: string[] = []
-  
+  const _ = updateKey.value;
+
+  const traits: string[] = [];
+
   if (!props.chartData?.palaces) {
     console.log('TraitDeconstruction: 外在特質分析 - 沒有命盤宮位資料');
     return traits;
   }
-  
-  console.log('TraitDeconstruction: 外在特質分析 - 宮位數量:', props.chartData.palaces.length);
-  
+
+  console.log(
+    'TraitDeconstruction: 外在特質分析 - 宮位數量:',
+    props.chartData.palaces.length,
+  );
+
   // 基於命宮主星分析外在表現
-  const mingPalace = props.chartData.palaces.find(p => p.name === '命宮')
+  const mingPalace = props.chartData.palaces.find((p) => p.name === '命宮');
   if (mingPalace?.stars) {
-    const mainStars = mingPalace.stars.filter(star => star.type === 'main')
-    
-    mainStars.forEach(star => {
+    const mainStars = mingPalace.stars.filter((star) => star.type === 'main');
+
+    mainStars.forEach((star) => {
       switch (star.name) {
         case '紫微':
-          traits.push('天生具有領導風範，舉止優雅高貴')
-          break
+          traits.push('天生具有領導風範，舉止優雅高貴');
+          break;
         case '天機':
-          traits.push('思維敏捷，喜歡動腦思考問題')
-          break
+          traits.push('思維敏捷，喜歡動腦思考問題');
+          break;
         case '太陽':
-          traits.push('性格開朗，樂於助人，具有正義感')
-          break
+          traits.push('性格開朗，樂於助人，具有正義感');
+          break;
         case '武曲':
-          traits.push('做事果斷，執行力強，重視效率')
-          break
+          traits.push('做事果斷，執行力強，重視效率');
+          break;
         case '天同':
-          traits.push('溫和友善，容易親近，處事圓融')
-          break
+          traits.push('溫和友善，容易親近，處事圓融');
+          break;
         case '廉貞':
-          traits.push('個性鮮明，敢愛敢恨，有正義感')
-          break
+          traits.push('個性鮮明，敢愛敢恨，有正義感');
+          break;
         default:
-          traits.push('外在表現穩重，為人處事有條理')
+          traits.push('外在表現穩重，為人處事有條理');
       }
-    })
+    });
   }
-  
+
   // 確保至少有一些特質
   if (traits.length === 0) {
-    traits.push('外表沉穩內斂，給人可靠的印象')
-    traits.push('在社交場合中表現得體，善於察言觀色')
+    traits.push('外表沉穩內斂，給人可靠的印象');
+    traits.push('在社交場合中表現得體，善於察言觀色');
   }
-  
-  return traits.slice(0, 4) // 限制最多4個特質
-})
+
+  return traits.slice(0, 4); // 限制最多4個特質
+});
 
 // 分析內在特質（基於紫微斗數）
 const internalTraits = computed(() => {
   // 強制更新響應性
-  const _ = updateKey.value
-  
-  const traits: string[] = []
-  
+  const _ = updateKey.value;
+
+  const traits: string[] = [];
+
   if (!props.chartData?.palaces) {
     console.log('TraitDeconstruction: 內在特質分析 - 沒有命盤宮位資料');
     return traits;
   }
-  
-  console.log('TraitDeconstruction: 內在特質分析 - 宮位數量:', props.chartData.palaces.length);
-  
+
+  console.log(
+    'TraitDeconstruction: 內在特質分析 - 宮位數量:',
+    props.chartData.palaces.length,
+  );
+
   // 基於福德宮分析內在精神世界
-  const fudePalace = props.chartData.palaces.find(p => p.name === '福德宮')
+  const fudePalace = props.chartData.palaces.find((p) => p.name === '福德宮');
   if (fudePalace?.stars) {
-    const mainStars = fudePalace.stars.filter(star => star.type === 'main')
-    
-    mainStars.forEach(star => {
+    const mainStars = fudePalace.stars.filter((star) => star.type === 'main');
+
+    mainStars.forEach((star) => {
       switch (star.name) {
         case '紫微':
-          traits.push('內心高傲，對自己要求嚴格')
-          break
+          traits.push('內心高傲，對自己要求嚴格');
+          break;
         case '天機':
-          traits.push('內心細膩敏感，善於洞察人心')
-          break
+          traits.push('內心細膩敏感，善於洞察人心');
+          break;
         case '太陽':
-          traits.push('內心熱忱，有強烈的使命感')
-          break
+          traits.push('內心熱忱，有強烈的使命感');
+          break;
         case '武曲':
-          traits.push('內心堅毅，不輕易向困難低頭')
-          break
+          traits.push('內心堅毅，不輕易向困難低頭');
+          break;
         case '天同':
-          traits.push('內心純真，渴望和諧美好的生活')
-          break
+          traits.push('內心純真，渴望和諧美好的生活');
+          break;
         case '廉貞':
-          traits.push('內心複雜多變，情感豐富細膩')
-          break
+          traits.push('內心複雜多變，情感豐富細膩');
+          break;
         default:
-          traits.push('內心世界豐富，有深層的思考能力')
+          traits.push('內心世界豐富，有深層的思考能力');
       }
-    })
+    });
   }
-  
+
   // 分析疾厄宮了解內在壓力模式
-  const jiePalace = props.chartData.palaces.find(p => p.name === '疾厄宮')
+  const jiePalace = props.chartData.palaces.find((p) => p.name === '疾厄宮');
   if (jiePalace?.stars) {
-    const hasInauspiciousStars = jiePalace.stars.some(star => star.attribute === '凶')
+    const hasInauspiciousStars = jiePalace.stars.some(
+      (star) => star.attribute === '凶',
+    );
     if (hasInauspiciousStars) {
-      traits.push('內心容易感到壓力，需要學會放鬆')
+      traits.push('內心容易感到壓力，需要學會放鬆');
     }
   }
-  
+
   // 確保至少有一些特質
   if (traits.length === 0) {
-    traits.push('內心渴望安全感，重視情感的穩定')
-    traits.push('具有同理心，能夠理解他人的感受')
+    traits.push('內心渴望安全感，重視情感的穩定');
+    traits.push('具有同理心，能夠理解他人的感受');
   }
-  
-  return traits.slice(0, 4) // 限制最多4個特質
-})
+
+  return traits.slice(0, 4); // 限制最多4個特質
+});
 
 // 特質綜合說明
 const traitSynthesis = computed(() => {
-  const external = externalTraits.value.length > 0 ? '外在表現' : '表面特質'
-  const internal = internalTraits.value.length > 0 ? '內在本質' : '深層個性'
-  
-  return `您的${external}與${internal}形成了獨特的個性組合。在不同的環境和情境下，這兩種特質會交替顯現或相互影響。理解這種雙重性格有助於您更好地發揮優勢，並在人際交往中找到最適合的表達方式。建議在重要場合時發揮外在優勢，在私人時光中照顧內在需求。`
-})
+  const external = externalTraits.value.length > 0 ? '外在表現' : '表面特質';
+  const internal = internalTraits.value.length > 0 ? '內在本質' : '深層個性';
+
+  return `您的${external}與${internal}形成了獨特的個性組合。在不同的環境和情境下，這兩種特質會交替顯現或相互影響。理解這種雙重性格有助於您更好地發揮優勢，並在人際交往中找到最適合的表達方式。建議在重要場合時發揮外在優勢，在私人時光中照顧內在需求。`;
+});
 
 // 核心能力分析
 const coreAbilities = computed(() => {
   // 強制更新響應性
-  const _ = updateKey.value
-  
+  const _ = updateKey.value;
+
   const abilities = [
     { name: '領導力', value: 0, color: '#ff6b6b', key: 'leadership' },
     { name: '創造力', value: 0, color: '#4ecdc4', key: 'creativity' },
     { name: '溝通力', value: 0, color: '#45b7d1', key: 'communication' },
     { name: '學習能力', value: 0, color: '#96ceb4', key: 'learning' },
     { name: '理財能力', value: 0, color: '#feca57', key: 'financial' },
-    { name: '人際關係', value: 0, color: '#ff9ff3', key: 'social' }
-  ]
-  
+    { name: '人際關係', value: 0, color: '#ff9ff3', key: 'social' },
+  ];
+
   if (!props.chartData?.palaces) {
     // 沒有數據時給予基準分數
-    abilities.forEach(ability => {
-      ability.value = 4 + Math.floor(Math.random() * 3) // 4-6分基準
-    })
-    return abilities
+    abilities.forEach((ability) => {
+      ability.value = 4 + Math.floor(Math.random() * 3); // 4-6分基準
+    });
+    return abilities;
   }
-  
+
   // 計算各項能力值
-  abilities.forEach(ability => {
-    const relatedStars = starAttributes[ability.key as keyof typeof starAttributes] || []
-    let score = 0
-    let starCount = 0
-    
-    props.chartData.palaces.forEach(palace => {
-      palace.stars?.forEach(star => {
+  abilities.forEach((ability) => {
+    const relatedStars =
+      starAttributes[ability.key as keyof typeof starAttributes] || [];
+    let score = 0;
+    let starCount = 0;
+
+    props.chartData.palaces.forEach((palace) => {
+      palace.stars?.forEach((star) => {
         if (relatedStars.includes(star.name)) {
-          starCount++
+          starCount++;
           // 基礎分數：每顆相關星曜給2分
-          score += 2
-          
+          score += 2;
+
           // 亮度加成（更顯著的影響）
           if (star.brightness) {
-            const brightnessBonus = {
-              '廟': 4,
-              '旺': 3,
-              '得地': 2,
-              '利益': 1,
-              '平和': 0,
-              '不得地': -1,
-              '落陷': -2
-            }[star.brightness] || 0
-            score += brightnessBonus
+            const brightnessBonus =
+              {
+                廟: 4,
+                旺: 3,
+                得地: 2,
+                利益: 1,
+                平和: 0,
+                不得地: -1,
+                落陷: -2,
+              }[star.brightness] || 0;
+            score += brightnessBonus;
           }
-          
+
           // 四化加成（加強效果）
-          if (star.transformations?.includes('祿')) score += 2
-          if (star.transformations?.includes('權')) score += 2
-          if (star.transformations?.includes('科')) score += 1
-          if (star.transformations?.includes('忌')) score -= 2
-          
+          if (star.transformations?.includes('祿')) {
+            score += 2;
+          }
+          if (star.transformations?.includes('權')) {
+            score += 2;
+          }
+          if (star.transformations?.includes('科')) {
+            score += 1;
+          }
+          if (star.transformations?.includes('忌')) {
+            score -= 2;
+          }
+
           // 特殊宮位加成
-          if (palace.name === '命宮') score += 1 // 命宮星曜影響較大
-          if (palace.name === '官祿宮' && ability.key === 'leadership') score += 1
-          if (palace.name === '財帛宮' && ability.key === 'financial') score += 1
+          if (palace.name === '命宮') {
+            score += 1;
+          } // 命宮星曜影響較大
+          if (palace.name === '官祿宮' && ability.key === 'leadership') {
+            score += 1;
+          }
+          if (palace.name === '財帛宮' && ability.key === 'financial') {
+            score += 1;
+          }
         }
-      })
-    })
-    
+      });
+    });
+
     // 基準分數：即使沒有相關星曜也給予4分基準
-    let baseScore = 4
-    
+    let baseScore = 4;
+
     // 根據星曜數量調整基準
     if (starCount > 0) {
-      baseScore = Math.max(4, score)
+      baseScore = Math.max(4, score);
     } else {
       // 沒有直接相關星曜時，根據整體命盤給予差異化分數
-      baseScore = 4 + Math.floor(Math.random() * 3) // 4-6分隨機基準
+      baseScore = 4 + Math.floor(Math.random() * 3); // 4-6分隨機基準
     }
-    
+
     // 轉換為4-10分制（避免過低分數）
-    ability.value = Math.max(4, Math.min(10, Math.round(baseScore)))
-  })
-  
-  return abilities
-})
+    ability.value = Math.max(4, Math.min(10, Math.round(baseScore)));
+  });
+
+  return abilities;
+});
 
 // 頂級天賦（取前三名）
 const topTalents = computed(() => {
   return [...coreAbilities.value]
     .sort((a, b) => b.value - a.value)
     .slice(0, 3)
-    .map(ability => ({
+    .map((ability) => ({
       name: ability.name,
       value: ability.value,
-      level: ability.value >= 8 ? 'high' : ability.value >= 6 ? 'medium' : 'low'
-    }))
-})
+      level:
+        ability.value >= 8 ? 'high' : ability.value >= 6 ? 'medium' : 'low',
+    }));
+});
 
 // 潛能開發建議
 const potentialSuggestions = computed(() => {
-  const suggestions: string[] = []
-  const topAbility = topTalents.value[0]
-  
+  const suggestions: string[] = [];
+  const topAbility = topTalents.value[0];
+
   if (topAbility) {
     switch (topAbility.name) {
       case '領導力':
-        suggestions.push('可考慮擔任團隊領導角色，培養管理技能')
-        suggestions.push('參與公共事務或社區服務，發揮影響力')
-        break
+        suggestions.push('可考慮擔任團隊領導角色，培養管理技能');
+        suggestions.push('參與公共事務或社區服務，發揮影響力');
+        break;
       case '創造力':
-        suggestions.push('從事藝術創作或設計相關工作')
-        suggestions.push('培養多元興趣，刺激創意發想')
-        break
+        suggestions.push('從事藝術創作或設計相關工作');
+        suggestions.push('培養多元興趣，刺激創意發想');
+        break;
       case '溝通力':
-        suggestions.push('發展演講、寫作或媒體相關技能')
-        suggestions.push('建立個人品牌，分享專業知識')
-        break
+        suggestions.push('發展演講、寫作或媒體相關技能');
+        suggestions.push('建立個人品牌，分享專業知識');
+        break;
       case '學習能力':
-        suggestions.push('終身學習，持續更新知識結構')
-        suggestions.push('考慮從事教育或研究相關工作')
-        break
+        suggestions.push('終身學習，持續更新知識結構');
+        suggestions.push('考慮從事教育或研究相關工作');
+        break;
       case '理財能力':
-        suggestions.push('深入學習投資理財知識')
-        suggestions.push('考慮財務規劃或金融相關職業')
-        break
+        suggestions.push('深入學習投資理財知識');
+        suggestions.push('考慮財務規劃或金融相關職業');
+        break;
       case '人際關係':
-        suggestions.push('發展人脈網絡，建立良好關係')
-        suggestions.push('從事需要團隊合作的工作')
-        break
+        suggestions.push('發展人脈網絡，建立良好關係');
+        suggestions.push('從事需要團隊合作的工作');
+        break;
     }
   }
-  
+
   // 通用建議
-  suggestions.push('定期自我反思，了解個人成長需求')
-  suggestions.push('尋找能夠發揮天賦的發展機會')
-  
-  return suggestions
-})
+  suggestions.push('定期自我反思，了解個人成長需求');
+  suggestions.push('尋找能夠發揮天賦的發展機會');
+
+  return suggestions;
+});
 
 // 人生課題分析
 const lifeLessons = computed(() => {
   // 強制更新響應性
-  const _ = updateKey.value
-  
+  const _ = updateKey.value;
+
   const lessons: Array<{
-    title: string
-    description: string
-    guidance: string
-    source: string
-    priority: number
-    icon: string
-  }> = []
-  
-  if (!props.chartData?.palaces) return lessons
-  
+    title: string;
+    description: string;
+    guidance: string;
+    source: string;
+    priority: number;
+    icon: string;
+  }> = [];
+
+  if (!props.chartData?.palaces) {
+    return lessons;
+  }
+
   // 分析各宮位的挑戰
-  props.chartData.palaces.forEach(palace => {
-    const hasInauspiciousStars = palace.stars?.some(star => star.attribute === '凶')
-    const hasTransformToJi = palace.stars?.some(star => star.transformations?.includes('忌'))
-    const isEmptyPalace = !palace.stars?.some(star => star.type === 'main')
-    
+  props.chartData.palaces.forEach((palace) => {
+    const hasInauspiciousStars = palace.stars?.some(
+      (star) => star.attribute === '凶',
+    );
+    const hasTransformToJi = palace.stars?.some((star) =>
+      star.transformations?.includes('忌'),
+    );
+    const isEmptyPalace = !palace.stars?.some((star) => star.type === 'main');
+
     if (hasInauspiciousStars || hasTransformToJi || isEmptyPalace) {
-      let lesson: any = {}
-      
+      let lesson: any = {};
+
       switch (palace.name) {
         case '命宮':
           lesson = {
@@ -436,9 +475,9 @@ const lifeLessons = computed(() => {
             guidance: '通過冥想、自省或心理諮商來加深自我認識',
             source: `${palace.name}星曜配置`,
             priority: 5,
-            icon: '🔍'
-          }
-          break
+            icon: '🔍',
+          };
+          break;
         case '財帛宮':
           lesson = {
             title: '金錢觀念與理財',
@@ -446,9 +485,9 @@ const lifeLessons = computed(() => {
             guidance: '學習投資理財知識，培養延遲滿足的能力',
             source: `${palace.name}星曜配置`,
             priority: 4,
-            icon: '💰'
-          }
-          break
+            icon: '💰',
+          };
+          break;
         case '夫妻宮':
           lesson = {
             title: '情感關係與溝通',
@@ -456,9 +495,9 @@ const lifeLessons = computed(() => {
             guidance: '培養同理心，學習有效溝通技巧',
             source: `${palace.name}星曜配置`,
             priority: 4,
-            icon: '💝'
-          }
-          break
+            icon: '💝',
+          };
+          break;
         case '官祿宮':
           lesson = {
             title: '事業發展與成就',
@@ -466,9 +505,9 @@ const lifeLessons = computed(() => {
             guidance: '明確職業目標，持續提升專業能力',
             source: `${palace.name}星曜配置`,
             priority: 4,
-            icon: '🎯'
-          }
-          break
+            icon: '🎯',
+          };
+          break;
         case '交友宮':
           lesson = {
             title: '人際關係與社交',
@@ -476,9 +515,9 @@ const lifeLessons = computed(() => {
             guidance: '學習主動關懷他人，建立互惠的友誼',
             source: `${palace.name}星曜配置`,
             priority: 3,
-            icon: '🤝'
-          }
-          break
+            icon: '🤝',
+          };
+          break;
         default:
           lesson = {
             title: `${palace.name}領域修練`,
@@ -486,38 +525,44 @@ const lifeLessons = computed(() => {
             guidance: '保持謙虛學習的態度，尋求專業指導',
             source: `${palace.name}星曜配置`,
             priority: 2,
-            icon: '📚'
-          }
+            icon: '📚',
+          };
       }
-      
-      lessons.push(lesson)
+
+      lessons.push(lesson);
     }
-  })
-  
+  });
+
   // 按優先度排序，限制數量
-  return lessons.sort((a, b) => b.priority - a.priority).slice(0, 4)
-})
+  return lessons.sort((a, b) => b.priority - a.priority).slice(0, 4);
+});
 
 // 獲取能力圖標
 const getAbilityIcon = (abilityName: string) => {
   const iconMap: Record<string, string> = {
-    '領導力': '👑',
-    '創造力': '🎨',
-    '溝通力': '💬',
-    '學習能力': '📚',
-    '理財能力': '💰',
-    '人際關係': '🤝'
-  }
-  return iconMap[abilityName] || '⭐'
-}
+    領導力: '👑',
+    創造力: '🎨',
+    溝通力: '💬',
+    學習能力: '📚',
+    理財能力: '💰',
+    人際關係: '🤝',
+  };
+  return iconMap[abilityName] || '⭐';
+};
 
 // 獲取能力等級描述
 const getAbilityLevel = (value: number) => {
-  if (value >= 8) return '優秀'
-  if (value >= 6) return '良好'
-  if (value >= 4) return '普通'
-  return '待提升'
-}
+  if (value >= 8) {
+    return '優秀';
+  }
+  if (value >= 6) {
+    return '良好';
+  }
+  if (value >= 4) {
+    return '普通';
+  }
+  return '待提升';
+};
 
 // 顏色亮化函數
 const lightenColor = (color: string, amount: number) => {
@@ -528,99 +573,119 @@ const lightenColor = (color: string, amount: number) => {
     '#45b7d1': '#78c7e4',
     '#96ceb4': '#b8dcc6',
     '#feca57': '#fed887',
-    '#ff9ff3': '#ffb8f7'
-  }
-  return colorMap[color] || color
-}
+    '#ff9ff3': '#ffb8f7',
+  };
+  return colorMap[color] || color;
+};
 
 // 更新能力顯示（替換原雷達圖功能）
 const updateAbilitiesDisplay = () => {
   // 觸發響應式更新
-  updateKey.value++
-  console.log('能力顯示已更新')
-}
+  updateKey.value++;
+  console.log('能力顯示已更新');
+};
 
 // 監聽命盤資料變化
-watch(() => props.chartData, (newChartData, oldChartData) => {
-  console.log('TraitDeconstruction: 監聽到 chartData 變化');
-  console.log('新資料存在:', !!newChartData);
-  console.log('新資料宮位數:', newChartData?.palaces?.length || 0);
-  console.log('舊資料存在:', !!oldChartData);
-  console.log('舊資料宮位數:', oldChartData?.palaces?.length || 0);
-  
-  // 更寬鬆的更新條件
-  if (newChartData && newChartData.palaces && newChartData.palaces.length > 0) {
-    console.log('TraitDeconstruction: 資料有效，開始更新');
-    updateKey.value++;
-    nextTick(() => {
-      updateAbilitiesDisplay();
-      console.log('TraitDeconstruction: 雷達圖已重繪');
-    });
-  } else {
-    console.log('TraitDeconstruction: 資料無效，跳過更新');
-  }
-}, { deep: true, immediate: true })
+watch(
+  () => props.chartData,
+  (newChartData, oldChartData) => {
+    console.log('TraitDeconstruction: 監聽到 chartData 變化');
+    console.log('新資料存在:', !!newChartData);
+    console.log('新資料宮位數:', newChartData?.palaces?.length || 0);
+    console.log('舊資料存在:', !!oldChartData);
+    console.log('舊資料宮位數:', oldChartData?.palaces?.length || 0);
+
+    // 更寬鬆的更新條件
+    if (
+      newChartData &&
+      newChartData.palaces &&
+      newChartData.palaces.length > 0
+    ) {
+      console.log('TraitDeconstruction: 資料有效，開始更新');
+      updateKey.value++;
+      nextTick(() => {
+        updateAbilitiesDisplay();
+        console.log('TraitDeconstruction: 雷達圖已重繪');
+      });
+    } else {
+      console.log('TraitDeconstruction: 資料無效，跳過更新');
+    }
+  },
+  { deep: true, immediate: true },
+);
 
 // 監聽全域命盤更新事件
 const handleGlobalChartUpdate = (event: CustomEvent) => {
   console.log('TraitDeconstruction: 收到全域命盤更新事件', event.detail);
-  updateKey.value++ // 強制更新所有計算屬性
+  updateKey.value++; // 強制更新所有計算屬性
   nextTick(() => {
-    updateAbilitiesDisplay()
-  })
-}
+    updateAbilitiesDisplay();
+  });
+};
 
 // 添加全域事件監聽器
 if (typeof window !== 'undefined') {
-  window.addEventListener('purple-star-chart-updated', handleGlobalChartUpdate as EventListener);
-  window.addEventListener('purple-star-chart-force-updated', handleGlobalChartUpdate as EventListener);
+  window.addEventListener(
+    'purple-star-chart-updated',
+    handleGlobalChartUpdate as EventListener,
+  );
+  window.addEventListener(
+    'purple-star-chart-force-updated',
+    handleGlobalChartUpdate as EventListener,
+  );
 }
 
 // 監聽核心能力分析變化
-watch(() => coreAbilities.value, (newAbilities, oldAbilities) => {
-  if (JSON.stringify(newAbilities) !== JSON.stringify(oldAbilities)) {
-    console.log('TraitDeconstruction: 核心能力分析變化，重新繪製雷達圖');
-    nextTick(() => {
-      updateAbilitiesDisplay()
-    })
-  }
-}, { deep: true })
+watch(
+  () => coreAbilities.value,
+  (newAbilities, oldAbilities) => {
+    if (JSON.stringify(newAbilities) !== JSON.stringify(oldAbilities)) {
+      console.log('TraitDeconstruction: 核心能力分析變化，重新繪製雷達圖');
+      nextTick(() => {
+        updateAbilitiesDisplay();
+      });
+    }
+  },
+  { deep: true },
+);
 
 // 手動刷新特質分析
 const refreshTraitAnalysis = () => {
   console.log('TraitDeconstruction: 手動刷新特質分析');
-  updateKey.value++
+  updateKey.value++;
   nextTick(() => {
-    updateAbilitiesDisplay()
-  })
-  
+    updateAbilitiesDisplay();
+  });
+
   // 通知其他組件手動刷新事件
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('trait-analysis-refreshed', {
-      detail: { 
-        component: 'TraitDeconstruction',
-        timestamp: Date.now(),
-        source: 'manual-refresh'
-      }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('trait-analysis-refreshed', {
+        detail: {
+          component: 'TraitDeconstruction',
+          timestamp: Date.now(),
+          source: 'manual-refresh',
+        },
+      }),
+    );
   }
-}
+};
 
 // 手動刷新天賦分析
 const refreshTalentAnalysis = () => {
   console.log('TraitDeconstruction: 手動刷新天賦分析');
-  updateKey.value++
+  updateKey.value++;
   nextTick(() => {
-    updateAbilitiesDisplay()
-  })
-}
+    updateAbilitiesDisplay();
+  });
+};
 
 // 監聽窗口大小變化，重新繪製雷達圖
 const handleResize = () => {
   nextTick(() => {
-    updateAbilitiesDisplay()
-  })
-}
+    updateAbilitiesDisplay();
+  });
+};
 
 // 添加窗口大小變化監聽器
 if (typeof window !== 'undefined') {
@@ -637,7 +702,7 @@ const logCurrentDataStructure = () => {
   console.log('頂級天賦:', topTalents.value);
   console.log('人生課題:', lifeLessons.value);
   console.log('=====================================');
-}
+};
 
 // 在全局暴露調試函數（開發環境）
 if (typeof window !== 'undefined' && import.meta.env.DEV) {
@@ -650,36 +715,43 @@ onMounted(() => {
   console.log('TraitDeconstruction: 組件掛載，初始化雷達圖');
   console.log('掛載時 chartData:', props.chartData);
   console.log('掛載時 palaces 數量:', props.chartData?.palaces?.length || 0);
-  
+
   // 檢查資料內容
   if (props.chartData?.palaces) {
-    const mingPalace = props.chartData.palaces.find(p => p.name === '命宮');
+    const mingPalace = props.chartData.palaces.find((p) => p.name === '命宮');
     console.log('命宮資料:', mingPalace);
     console.log('命宮星曜:', mingPalace?.stars);
   }
-  
+
   nextTick(() => {
-    updateAbilitiesDisplay()
-  })
-})
+    updateAbilitiesDisplay();
+  });
+});
 
 // 組件卸載時清除事件監聽器
 onUnmounted(() => {
   if (typeof window !== 'undefined') {
-    window.removeEventListener('purple-star-chart-updated', handleGlobalChartUpdate as EventListener);
-    window.removeEventListener('purple-star-chart-force-updated', handleGlobalChartUpdate as EventListener);
+    window.removeEventListener(
+      'purple-star-chart-updated',
+      handleGlobalChartUpdate as EventListener,
+    );
+    window.removeEventListener(
+      'purple-star-chart-force-updated',
+      handleGlobalChartUpdate as EventListener,
+    );
     window.removeEventListener('resize', handleResize);
     console.log('TraitDeconstruction: 已清除全域事件監聽器');
   }
-})
+});
 </script>
 
 <style scoped>
 .trait-deconstruction {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafe 100%);
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 
-              0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   border: 1px solid rgba(102, 126, 234, 0.1);
   position: relative;
@@ -705,7 +777,11 @@ onUnmounted(() => {
   font-size: 1.4rem;
   font-weight: 700;
   padding: 24px 24px 16px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 254, 0.8) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(248, 250, 254, 0.8) 100%
+  );
   backdrop-filter: blur(10px);
   position: relative;
   border-bottom: 2px solid rgba(102, 126, 234, 0.1);
@@ -741,7 +817,11 @@ onUnmounted(() => {
 }
 
 .trait-side {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 254, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(248, 250, 254, 0.9) 100%
+  );
   border-radius: 16px;
   padding: 24px;
   min-height: 220px;
@@ -757,7 +837,11 @@ onUnmounted(() => {
 }
 
 .external-traits {
-  background: linear-gradient(135deg, rgba(33, 150, 243, 0.05) 0%, rgba(156, 39, 176, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(33, 150, 243, 0.05) 0%,
+    rgba(156, 39, 176, 0.05) 100%
+  );
   border-left: 4px solid #2196f3;
 }
 
@@ -773,7 +857,11 @@ onUnmounted(() => {
 }
 
 .internal-traits {
-  background: linear-gradient(135deg, rgba(156, 39, 176, 0.05) 0%, rgba(76, 175, 80, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(156, 39, 176, 0.05) 0%,
+    rgba(76, 175, 80, 0.05) 100%
+  );
   border-left: 4px solid #9c27b0;
 }
 
@@ -901,7 +989,11 @@ onUnmounted(() => {
 
 /* 新的能力顯示設計 */
 .abilities-display {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 254, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(248, 250, 254, 0.9) 100%
+  );
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -927,7 +1019,11 @@ onUnmounted(() => {
 }
 
 .ability-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 254, 0.95) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(248, 250, 254, 0.95) 100%
+  );
   border-radius: 12px;
   padding: 16px;
   border: 1px solid rgba(var(--ability-color), 0.2);
@@ -1017,13 +1113,22 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
   animation: shimmer 2s infinite;
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .ability-level {
@@ -1137,7 +1242,9 @@ onUnmounted(() => {
   border-radius: 12px;
   padding: 20px;
   border-left: 4px solid #6c757d;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .lesson-card:hover {
@@ -1257,17 +1364,17 @@ onUnmounted(() => {
   .talents-container {
     gap: 20px;
   }
-  
+
   .radar-chart canvas {
     width: 250px !important;
     height: 250px !important;
   }
-  
+
   .chart-legend {
     grid-template-columns: repeat(3, 1fr);
     gap: 6px;
   }
-  
+
   .legend-item {
     font-size: 0.85rem;
   }
@@ -1278,53 +1385,53 @@ onUnmounted(() => {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .trait-divider {
     flex-direction: row;
     padding: 16px 0;
   }
-  
+
   .divider-line {
     width: 60px;
     height: 2px;
   }
-  
+
   .talents-container {
     grid-template-columns: 1fr;
     gap: 24px;
   }
-  
+
   .radar-chart-container {
     order: 1;
   }
-  
+
   .talents-details {
     order: 2;
   }
-  
+
   .radar-chart {
     margin-bottom: 16px;
   }
-  
+
   .chart-legend {
     margin-bottom: 16px;
   }
-  
+
   .lessons-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .section-title {
     font-size: 1.2rem;
     padding: 16px 16px 0 16px;
   }
-  
+
   .duality-container,
   .talents-container,
   .lessons-container {
     padding: 0 16px;
   }
-  
+
   .synthesis-explanation {
     margin-left: 16px;
     margin-right: 16px;
@@ -1339,39 +1446,39 @@ onUnmounted(() => {
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .radar-chart canvas {
     width: 200px !important;
     height: 200px !important;
   }
-  
+
   .chart-legend {
     grid-template-columns: 1fr;
     gap: 4px;
   }
-  
+
   .legend-item {
     font-size: 0.8rem;
     justify-content: space-between;
   }
-  
+
   .talent-tags {
     justify-content: center;
   }
-  
+
   .talent-tag {
     font-size: 0.8rem;
     padding: 4px 10px;
   }
-  
+
   .talents-details {
     gap: 16px;
   }
-  
+
   .potential-list {
     padding-left: 16px;
   }
-  
+
   .potential-list li {
     font-size: 0.9rem;
     line-height: 1.5;

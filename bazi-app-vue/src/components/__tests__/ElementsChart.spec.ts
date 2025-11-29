@@ -1,61 +1,64 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { mount, VueWrapper } from '@vue/test-utils';
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import ElementsChart from '../ElementsChart.vue';
 import type { ElementsDistribution } from '../../utils/baziCalc';
 /// <reference types="vitest/globals" />
 // Import Chart and registerables. Chart will be mocked.
-import { Chart, registerables as actualRegisterables } from 'chart.js/auto'; 
+import { Chart, registerables as actualRegisterables } from 'chart.js/auto';
 
 vi.mock('chart.js/auto', async () => {
-  const actual = await vi.importActual<typeof import('chart.js/auto')>('chart.js/auto');
-  
+  const actual =
+    await vi.importActual<typeof import('chart.js/auto')>('chart.js/auto');
+
   // Define all mock functions *inside* the factory
   // These will be fresh for each test run due to how vi.mock works with factories.
   const instanceUpdateMockFn = vi.fn();
   const instanceDestroyMockFn = vi.fn();
   const staticRegisterMockFn = vi.fn();
 
-  const MockedChartConstructor = vi.fn().mockImplementation((canvas, config) => {
-    return {
-      data: config.data,
-      config: config,
-      update: instanceUpdateMockFn,
-      destroy: instanceDestroyMockFn,
-      canvas: canvas,
-    };
-  });
+  const MockedChartConstructor = vi
+    .fn()
+    .mockImplementation((canvas, config) => {
+      return {
+        data: config.data,
+        config,
+        update: instanceUpdateMockFn,
+        destroy: instanceDestroyMockFn,
+        canvas,
+      };
+    });
   (MockedChartConstructor as any).register = staticRegisterMockFn;
-  
+
   return {
-    ...actual, 
+    ...actual,
     Chart: MockedChartConstructor,
-    registerables: actual.registerables, 
+    registerables: actual.registerables,
   };
 });
 
-
 describe('ElementsChart.vue', () => {
   let wrapper: VueWrapper<any>;
-  
+
   const mockDistribution: ElementsDistribution = {
-    '木': 2,
-    '火': 3,
-    '土': 1,
-    '金': 4,
-    '水': 0,
+    木: 2,
+    火: 3,
+    土: 1,
+    金: 4,
+    水: 0,
   };
 
   const mountComponent = (propsData: any) => {
     return mount(ElementsChart, {
       props: propsData,
-      attachTo: document.body, 
+      attachTo: document.body,
     });
   };
 
   beforeEach(() => {
     // Clears all mocks (call history, implementations)
     // This will affect the mocks defined inside the vi.mock factory for each test run.
-    vi.clearAllMocks(); 
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -74,18 +77,20 @@ describe('ElementsChart.vue', () => {
     wrapper = mountComponent({ distribution: null });
     await wrapper.vm.$nextTick();
     // The imported Chart is the mocked constructor
-    expect(Chart).not.toHaveBeenCalled(); 
-    expect(wrapper.find('canvas').exists()).toBe(true); 
+    expect(Chart).not.toHaveBeenCalled();
+    expect(wrapper.find('canvas').exists()).toBe(true);
   });
-  
+
   it('creates a chart instance when distribution data is provided', async () => {
     wrapper = mountComponent({ distribution: mockDistribution });
-    await wrapper.vm.$nextTick(); 
+    await wrapper.vm.$nextTick();
     expect(Chart).toHaveBeenCalledTimes(1);
     const chartInstance = (Chart as vi.Mock).mock.results[0].value;
     expect(chartInstance).toBeDefined();
     expect(chartInstance.data.labels).toEqual(Object.keys(mockDistribution));
-    expect(chartInstance.data.datasets[0].data).toEqual(Object.values(mockDistribution));
+    expect(chartInstance.data.datasets[0].data).toEqual(
+      Object.values(mockDistribution),
+    );
     // Check if the static Chart.register (which is mocked) was called
     expect((Chart as any).register).toHaveBeenCalled();
   });
@@ -93,9 +98,9 @@ describe('ElementsChart.vue', () => {
   it('updates chart when distribution prop changes', async () => {
     wrapper = mountComponent({ distribution: mockDistribution });
     await wrapper.vm.$nextTick();
-    expect(Chart).toHaveBeenCalledTimes(1); 
+    expect(Chart).toHaveBeenCalledTimes(1);
     const chartInstance = (Chart as vi.Mock).mock.results[0].value;
-    
+
     // Clear calls from mount before testing update
     (Chart as vi.Mock).mockClear();
     if ((Chart as any).register && (Chart as any).register.mockClear) {
@@ -108,30 +113,40 @@ describe('ElementsChart.vue', () => {
     // Or, if we had access to instanceUpdateMockFn from the factory:
     // instanceUpdateMockFn.mockClear();
 
-
-    const newDistribution: ElementsDistribution = { '木': 5, '火': 1, '土': 2, '金': 3, '水': 4 };
+    const newDistribution: ElementsDistribution = {
+      木: 5,
+      火: 1,
+      土: 2,
+      金: 3,
+      水: 4,
+    };
     await wrapper.setProps({ distribution: newDistribution });
     await wrapper.vm.$nextTick();
 
-    expect(chartInstance.update).toHaveBeenCalledTimes(1); 
+    expect(chartInstance.update).toHaveBeenCalledTimes(1);
     expect(chartInstance.data.labels).toEqual(Object.keys(newDistribution));
-    expect(chartInstance.data.datasets[0].data).toEqual(Object.values(newDistribution));
+    expect(chartInstance.data.datasets[0].data).toEqual(
+      Object.values(newDistribution),
+    );
   });
 
   it('updates chart type when chartType prop changes', async () => {
-    wrapper = mountComponent({ distribution: mockDistribution, chartType: 'radar' });
+    wrapper = mountComponent({
+      distribution: mockDistribution,
+      chartType: 'radar',
+    });
     await wrapper.vm.$nextTick();
     expect(Chart).toHaveBeenCalledTimes(1);
     const chartInstance = (Chart as vi.Mock).mock.results[0].value;
     expect(chartInstance.config.type).toBe('radar');
-    
+
     // chartInstance.update refers to instanceUpdateMockFn from the factory scope
     chartInstance.update.mockClear(); // Clear calls from mount
 
     await wrapper.setProps({ chartType: 'bar' });
     await wrapper.vm.$nextTick();
-    
-    expect(chartInstance.update).toHaveBeenCalledTimes(1); 
+
+    expect(chartInstance.update).toHaveBeenCalledTimes(1);
     expect(chartInstance.config.type).toBe('bar');
   });
 
@@ -139,7 +154,7 @@ describe('ElementsChart.vue', () => {
     wrapper = mountComponent({ distribution: mockDistribution });
     await wrapper.vm.$nextTick();
     const chartInstance = (Chart as vi.Mock).mock.results[0].value;
-        
+
     wrapper.unmount();
     // chartInstance.destroy refers to instanceDestroyMockFn from the factory scope
     // Now that onUnmounted calls destroy, we expect it to be called.

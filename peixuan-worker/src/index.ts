@@ -1,3 +1,7 @@
+/**
+ * Peixuan Worker v1.0.1 (2025-11-30)
+ * Include annual fortune calculation modules
+ */
 import { ChartController } from './controllers/chartController';
 import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
 import { drizzle } from 'drizzle-orm/d1';

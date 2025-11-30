@@ -22,6 +22,7 @@
     }
   },
   "astrology": {
+    "unified": "統一分析",
     "purple_star": "紫微斗數",
     "bazi": "八字排盤",
     "purple_star_detail": {

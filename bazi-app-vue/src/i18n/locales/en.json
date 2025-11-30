@@ -25,6 +25,7 @@
     }
   },
   "astrology": {
+    "unified": "Unified Analysis",
     "purple_star": "Purple Star Astrology",
     "bazi": "Four Pillars of Destiny",
     "purple_star_detail": {

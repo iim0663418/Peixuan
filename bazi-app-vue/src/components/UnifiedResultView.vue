@@ -165,6 +165,7 @@ import AnnualInteraction from './AnnualInteraction.vue';
 import StarSymmetryDisplay from './StarSymmetryDisplay.vue';
 import TechnicalDetailsCard from './TechnicalDetailsCard.vue';
 import DeveloperCard from './DeveloperCard.vue';
+import { STEM_TO_ELEMENT, BRANCH_TO_ELEMENT, type HeavenlyStem, type EarthlyBranch } from '../types/baziTypes';
 
 interface Props {
   result: any;
@@ -200,10 +201,30 @@ const pillars = computed(() => ({
 const baziChartData = computed(() => {
   const fp = props.result.bazi.fourPillars;
   return {
-    yearPillar: { stem: fp.year.gan, branch: fp.year.zhi, stemElement: '?', branchElement: '?' },
-    monthPillar: { stem: fp.month.gan, branch: fp.month.zhi, stemElement: '?', branchElement: '?' },
-    dayPillar: { stem: fp.day.gan, branch: fp.day.zhi, stemElement: '?', branchElement: '?' },
-    hourPillar: { stem: fp.hour.gan, branch: fp.hour.zhi, stemElement: '?', branchElement: '?' },
+    yearPillar: {
+      stem: fp.year.gan as HeavenlyStem,
+      branch: fp.year.zhi as EarthlyBranch,
+      stemElement: STEM_TO_ELEMENT[fp.year.gan as HeavenlyStem],
+      branchElement: BRANCH_TO_ELEMENT[fp.year.zhi as EarthlyBranch],
+    },
+    monthPillar: {
+      stem: fp.month.gan as HeavenlyStem,
+      branch: fp.month.zhi as EarthlyBranch,
+      stemElement: STEM_TO_ELEMENT[fp.month.gan as HeavenlyStem],
+      branchElement: BRANCH_TO_ELEMENT[fp.month.zhi as EarthlyBranch],
+    },
+    dayPillar: {
+      stem: fp.day.gan as HeavenlyStem,
+      branch: fp.day.zhi as EarthlyBranch,
+      stemElement: STEM_TO_ELEMENT[fp.day.gan as HeavenlyStem],
+      branchElement: BRANCH_TO_ELEMENT[fp.day.zhi as EarthlyBranch],
+    },
+    hourPillar: {
+      stem: fp.hour.gan as HeavenlyStem,
+      branch: fp.hour.zhi as EarthlyBranch,
+      stemElement: STEM_TO_ELEMENT[fp.hour.gan as HeavenlyStem],
+      branchElement: BRANCH_TO_ELEMENT[fp.hour.zhi as EarthlyBranch],
+    },
   };
 });
 

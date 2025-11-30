@@ -2,6 +2,13 @@
   <div class="unified-result">
     <el-tabs v-model="activeTab" type="border-card">
       <el-tab-pane label="八字" name="bazi">
+        <!-- 傳統八字排盤 -->
+        <BaziChart
+          v-if="baziChartData"
+          :bazi="baziChartData"
+          :ten-gods="result.bazi.tenGods"
+        />
+
         <div class="section">
           <h4>四柱</h4>
           <el-row :gutter="16">
@@ -151,6 +158,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import BaziChart from './BaziChart.vue';
 import WuXingChart from './WuXingChart.vue';
 import FortuneTimeline from './FortuneTimeline.vue';
 import AnnualInteraction from './AnnualInteraction.vue';
@@ -187,6 +195,17 @@ const pillars = computed(() => ({
     zhi: props.result.bazi.fourPillars.hour.zhi,
   },
 }));
+
+// BaziChart 需要的資料格式
+const baziChartData = computed(() => {
+  const fp = props.result.bazi.fourPillars;
+  return {
+    yearPillar: { stem: fp.year.gan, branch: fp.year.zhi, stemElement: '?', branchElement: '?' },
+    monthPillar: { stem: fp.month.gan, branch: fp.month.zhi, stemElement: '?', branchElement: '?' },
+    dayPillar: { stem: fp.day.gan, branch: fp.day.zhi, stemElement: '?', branchElement: '?' },
+    hourPillar: { stem: fp.hour.gan, branch: fp.hour.zhi, stemElement: '?', branchElement: '?' },
+  };
+});
 
 const formatStarName = (key: string): string => {
   const nameMap: Record<string, string> = {

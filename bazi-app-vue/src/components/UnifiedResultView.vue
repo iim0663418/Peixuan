@@ -110,6 +110,10 @@
             </el-col>
           </el-row>
         </div>
+
+        <div v-if="result.ziwei.starSymmetry" class="section">
+          <StarSymmetryDisplay :star-symmetry="result.ziwei.starSymmetry" />
+        </div>
       </el-tab-pane>
 
       <el-tab-pane v-if="result.annualFortune" label="流年" name="annual">
@@ -142,6 +146,7 @@ import { ref, computed } from 'vue';
 import WuXingChart from './WuXingChart.vue';
 import FortuneTimeline from './FortuneTimeline.vue';
 import AnnualInteraction from './AnnualInteraction.vue';
+import StarSymmetryDisplay from './StarSymmetryDisplay.vue';
 
 interface Props {
   result: any;

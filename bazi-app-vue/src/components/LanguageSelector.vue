@@ -94,13 +94,14 @@ watch(locale, (newLocale) => {
   display: inline-block;
 }
 
+/* Design tokens applied - 2025-11-30 */
 .language-select {
   padding: 8px 12px;
   font-size: 0.9rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-medium);
   border-radius: 6px;
-  background-color: white;
-  color: #374151;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   cursor: pointer;
   transition:
     border-color 0.2s ease-in-out,
@@ -109,12 +110,12 @@ watch(locale, (newLocale) => {
 }
 
 .language-select:hover {
-  border-color: #9ca3af;
+  border-color: var(--border-dark);
 }
 
 .language-select:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--info);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -130,21 +131,5 @@ watch(locale, (newLocale) => {
   border: 0;
 }
 
-/* 深色模式支援 */
-@media (prefers-color-scheme: dark) {
-  .language-select {
-    background-color: #374151;
-    color: #f9fafb;
-    border-color: #4b5563;
-  }
-
-  .language-select:hover {
-    border-color: #6b7280;
-  }
-
-  .language-select:focus {
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
-  }
-}
+/* 深色模式已由 design-tokens.css 處理 */
 </style>

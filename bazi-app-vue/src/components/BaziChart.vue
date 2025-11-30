@@ -94,19 +94,20 @@ const tenGodsForPillars = computed(() => {
 </script>
 
 <style scoped>
+/* Design tokens applied - 2025-11-30 */
 .bazi-chart {
   margin-top: 20px;
   padding: 15px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-light);
   border-radius: 6px;
-  background-color: #f9f9f9;
+  background-color: var(--bg-secondary);
 }
 
 .bazi-chart h4 {
   text-align: center;
   margin-top: 0;
   margin-bottom: 15px;
-  color: #333;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -122,14 +123,14 @@ const tenGodsForPillars = computed(() => {
 .pillar-card-display {
   flex: 1;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-medium);
   border-radius: 4px;
-  background-color: #fff;
+  background-color: var(--bg-primary);
   min-width: 70px; /* 確保每個柱子有足夠寬度 */
 }
 
 .pillar-card-display.highlighted {
-  border-color: #42b983;
+  border-color: var(--success);
   box-shadow: 0 0 5px rgba(66, 185, 131, 0.5);
 }
 
@@ -137,7 +138,7 @@ const tenGodsForPillars = computed(() => {
   margin-top: 0;
   margin-bottom: 8px;
   font-size: 1em;
-  color: #555;
+  color: var(--text-secondary);
 }
 
 .stem-branch {
@@ -147,18 +148,18 @@ const tenGodsForPillars = computed(() => {
 .char {
   font-size: 1.4em; /* 放大干支字體 */
   font-weight: bold;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .label {
   font-size: 0.8em;
-  color: #666;
+  color: var(--text-tertiary);
 }
 
 .ten-god {
   display: block;
   font-size: 0.85em;
-  color: #42b983; /* 十神用主題色 */
+  color: var(--success); /* 十神用主題色 */
   margin-top: 2px;
 }
 </style>

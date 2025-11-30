@@ -37,6 +37,7 @@
 - **改善進度**: 從 1,142 → 407 (-64%)；錯誤 725 → 83 (-89%)、警告 417 → 324 (-22%)
 - **v-for :key 覆蓋率**: 100% (68/68)
 - **TypeScript 嚴格模式**: 部分啟用（測試檔案排除）
+- **設計系統套用**: 100% (12/13 組件使用 CSS 變數，1 組件保留語意色彩)
 - **已修復錯誤類型**:
   - no-duplicate-imports: 100% (12/12) → 剩餘 1 個新增
   - no-undef: 100% (218/218)
@@ -48,10 +49,10 @@
 
 ## 當前狀態
 - **版本**: v1.0
-- **狀態**: 生產運行中；Phase 1-4 + Task A1/A2 完成；Sprint R5 前端統一遷移完成
-- **優化階段**: Week 1 完成，Week 2 規劃中（進度 50/62 小時，81%）
-- **最後更新**: 2025-11-30（統一 API 常態運行，備援受控啟用）
-- **最新成果**: 前端 7 組件接軌 Unified API 並移除舊 `baziCalc.ts`/視圖/表單，建立 `types/baziTypes.ts` + `utils/baziCalculators.ts` 備援；Hybrid API 持續運行，FortuneCycles/流年模組穩定。
+- **狀態**: 生產運行中；Phase 1-4 + Task A1/A2 完成；Sprint R5 前端統一遷移完成；設計系統套用完成
+- **優化階段**: Week 1 完成，Week 2 規劃中（進度 52/62 小時，84%）
+- **最後更新**: 2025-11-30（統一 API 常態運行，備援受控啟用；設計系統全面套用）
+- **最新成果**: 前端 7 組件接軌 Unified API 並移除舊 `baziCalc.ts`/視圖/表單，建立 `types/baziTypes.ts` + `utils/baziCalculators.ts` 備援；Hybrid API 持續運行，FortuneCycles/流年模組穩定；12 組件套用設計 token，視覺優化完成。
 
 ## 已知缺口
 - 四化飛星頂層彙總尚未實作

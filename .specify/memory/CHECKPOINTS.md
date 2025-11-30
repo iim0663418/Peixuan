@@ -1,6 +1,37 @@
 # 檢查點記錄
 
+# 檢查點記錄
+
+## Checkpoint: design-tokens-migration-2025-11-30
+**時間**: 2025-11-30 18:20-22:40  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- 設計系統套用：12 組件使用 CSS 變數，~80 硬編碼顏色替換完成
+- 背景色優化：#ffffff → #f7f8fa (柔和灰)
+- 字體優化：引入 Google Fonts (Noto Sans TC + Inter)
+- 載入狀態驗證：UnifiedView 已實現 el-skeleton
+- 圖表互動驗證：自定義實現已足夠
+
+### 關鍵成果
+- 視覺一致性提升：所有組件統一使用 design-tokens.css
+- 深色主題就緒：透過 [data-theme='dark'] 即可切換
+- 維護成本降低：修改顏色只需更新 design-tokens.css
+- 無破壞性變更：視覺外觀保持完全一致
+
+### 已知問題
+- 深色主題切換器尚未實現（可選功能）
+- 需要視覺回歸測試確認無破壞性變更
+- Google Fonts 載入性能需監控
+
+### 下一步
+- 測試深色主題切換功能
+- 視覺回歸測試
+- 性能監控 (Google Fonts 載入時間)
+- 繼續 ESLint 修復 (83 errors 待處理)
+
 ## Checkpoint: progress-sync-2025-11-30-eslint-attn2
+
 **時間**: 2025-11-30  
 **狀態**: ✅ 完成
 

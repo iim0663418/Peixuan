@@ -63,11 +63,12 @@ const symmetries = computed(() => {
   padding: 16px;
 }
 
+/* Design tokens applied - 2025-11-30 */
 h4 {
   margin: 0 0 16px 0;
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
 }
 
 .symmetry-grid {
@@ -79,8 +80,8 @@ h4 {
 .symmetry-item {
   padding: 12px;
   border-radius: 4px;
-  border: 1px solid #dcdfe6;
-  background: #f5f7fa;
+  border: 1px solid var(--border-light);
+  background: var(--bg-secondary);
   transition: all 0.3s;
 }
 
@@ -90,11 +91,11 @@ h4 {
 }
 
 .symmetry-opposite {
-  border-left: 3px solid #409eff;
+  border-left: 3px solid var(--info);
 }
 
 .symmetry-pair {
-  border-left: 3px solid #67c23a;
+  border-left: 3px solid var(--success);
 }
 
 .star-pair {
@@ -113,18 +114,18 @@ h4 {
 }
 
 .star-name.primary {
-  background: #ecf5ff;
-  color: #409eff;
+  background: var(--info-lightest);
+  color: var(--info);
 }
 
 .star-name.secondary {
-  background: #f0f9ff;
-  color: #67c23a;
+  background: var(--success-lightest);
+  color: var(--success);
 }
 
 .symmetry-arrow {
   font-size: 18px;
-  color: #909399;
+  color: var(--text-tertiary);
   font-weight: bold;
 }
 
@@ -134,7 +135,7 @@ h4 {
   justify-content: center;
   gap: 8px;
   font-size: 14px;
-  color: #606266;
+  color: var(--text-secondary);
   margin-bottom: 4px;
 }
 
@@ -143,13 +144,13 @@ h4 {
 }
 
 .separator {
-  color: #dcdfe6;
+  color: var(--border-light);
 }
 
 .symmetry-type {
   text-align: center;
   font-size: 12px;
-  color: #909399;
+  color: var(--text-tertiary);
   font-weight: 500;
 }
 

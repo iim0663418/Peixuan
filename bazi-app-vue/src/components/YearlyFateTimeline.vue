@@ -140,11 +140,12 @@ defineExpose({
   padding: 15px;
 }
 
+/* Design tokens applied - 2025-11-30 */
 .yearly-fate-timeline h4 {
   text-align: center;
   margin-top: 0;
   margin-bottom: 20px;
-  color: #333;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -175,6 +176,6 @@ defineExpose({
   justify-content: space-between;
   width: 80%;
   font-size: 0.9em;
-  color: #666;
+  color: var(--text-tertiary);
 }
 </style>

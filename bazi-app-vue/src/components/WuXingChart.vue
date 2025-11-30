@@ -109,9 +109,10 @@ const getBarWidth = (score: number): string => {
 </script>
 
 <style scoped>
+/* Design tokens applied - 2025-11-30 */
 .wuxing-chart {
   padding: 16px;
-  background: #fff;
+  background: var(--bg-primary);
   border-radius: 8px;
 }
 
@@ -141,28 +142,28 @@ const getBarWidth = (score: number): string => {
 }
 
 .element-scores {
-  color: #606266;
+  color: var(--text-secondary);
   font-size: 13px;
 }
 
 .raw-score {
-  color: #909399;
+  color: var(--text-tertiary);
 }
 
 .separator {
   margin: 0 4px;
-  color: #dcdfe6;
+  color: var(--border-light);
 }
 
 .adjusted-score {
-  color: #303133;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .bar-track {
   position: relative;
   height: 32px;
-  background: #f5f7fa;
+  background: var(--bg-secondary);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -197,7 +198,7 @@ const getBarWidth = (score: number): string => {
   justify-content: center;
   gap: 16px;
   font-size: 12px;
-  color: #909399;
+  color: var(--text-tertiary);
 }
 
 .legend-item {
@@ -213,11 +214,11 @@ const getBarWidth = (score: number): string => {
 }
 
 .legend-dot.raw {
-  background: #d1d5db;
+  background: var(--border-dark);
   opacity: 0.5;
 }
 
 .legend-dot.adjusted {
-  background: #6b7280;
+  background: var(--text-secondary);
 }
 </style>

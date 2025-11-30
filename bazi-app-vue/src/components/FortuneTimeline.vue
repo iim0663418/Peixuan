@@ -104,9 +104,10 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
 </script>
 
 <style scoped>
+/* Design tokens applied - 2025-11-30 */
 .fortune-timeline {
   padding: 16px;
-  background: #fff;
+  background: var(--bg-primary);
   border-radius: 8px;
 }
 
@@ -133,16 +134,16 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
   flex: 1;
   min-width: 120px;
   padding: 12px;
-  background: #f5f7fa;
-  border: 2px solid #dcdfe6;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-light);
   border-radius: 8px;
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .dayun-segment:hover {
-  background: #ecf5ff;
-  border-color: #b3d8ff;
+  background: var(--info-lightest);
+  border-color: var(--info-lighter);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

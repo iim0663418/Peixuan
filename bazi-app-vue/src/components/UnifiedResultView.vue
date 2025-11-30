@@ -200,6 +200,7 @@ const formatStarName = (key: string): string => {
 </script>
 
 <style scoped>
+/* Design tokens applied - 2025-11-30 */
 .unified-result {
   width: 100%;
 }
@@ -210,7 +211,7 @@ const formatStarName = (key: string): string => {
 
 h4 {
   font-size: 16px;
-  color: #303133;
+  color: var(--text-primary);
   margin: 0 0 12px 0;
   font-weight: 600;
 }
@@ -237,14 +238,14 @@ h4 {
 
 .hidden-stems {
   padding: 12px;
-  background: #f5f7fa;
+  background: var(--bg-secondary);
   border-radius: 6px;
   text-align: center;
 }
 
 .branch-label {
   font-size: 12px;
-  color: #909399;
+  color: var(--text-tertiary);
   margin-bottom: 6px;
 }
 
@@ -256,35 +257,35 @@ h4 {
 }
 
 .stem-primary {
-  color: #303133;
+  color: var(--text-primary);
   font-weight: bold;
 }
 
 .stem-middle {
-  color: #606266;
+  color: var(--text-secondary);
 }
 
 .stem-residual {
-  color: #909399;
+  color: var(--text-tertiary);
 }
 
 .star-card {
   text-align: center;
   padding: 12px;
-  background: #fff;
-  border: 1px solid #dcdfe6;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
   border-radius: 6px;
 }
 
 .star-name {
   font-size: 14px;
-  color: #606266;
+  color: var(--text-secondary);
   margin-bottom: 4px;
 }
 
 .star-position {
   font-size: 18px;
   font-weight: bold;
-  color: #409eff;
+  color: var(--info);
 }
 </style>

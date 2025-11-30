@@ -104,9 +104,10 @@ const hasNoInteractions = computed(() => {
 </script>
 
 <style scoped>
+/* Design tokens applied - 2025-11-30 */
 .annual-interaction {
   padding: 16px;
-  background: #fff;
+  background: var(--bg-primary);
   border-radius: 8px;
 }
 
@@ -121,7 +122,7 @@ const hasNoInteractions = computed(() => {
 .interaction-section h5 {
   margin: 0 0 12px 0;
   font-size: 14px;
-  color: #606266;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 

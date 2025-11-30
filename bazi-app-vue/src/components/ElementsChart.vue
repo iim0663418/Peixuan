@@ -167,19 +167,20 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Design tokens applied - 2025-11-30 */
 .elements-chart-container {
   margin-top: 20px;
   padding: 15px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-light);
   border-radius: 6px;
-  background-color: #f9f9f9;
+  background-color: var(--bg-secondary);
 }
 
 .elements-chart-container h4 {
   text-align: center;
   margin-top: 0;
   margin-bottom: 15px;
-  color: #333;
+  color: var(--text-primary);
   font-weight: 600;
 }
 </style>

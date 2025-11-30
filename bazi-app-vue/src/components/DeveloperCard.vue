@@ -162,10 +162,11 @@ const copyJSON = async () => {
   padding: 16px;
 }
 
+/* Design tokens applied - 2025-11-30 */
 .step-description {
   margin: 0 0 8px 0;
   font-size: 14px;
-  color: #303133;
+  color: var(--text-primary);
 }
 
 .step-details {
@@ -175,10 +176,10 @@ const copyJSON = async () => {
 pre {
   margin: 0;
   padding: 8px;
-  background: #f5f7fa;
+  background: var(--bg-secondary);
   border-radius: 4px;
   font-size: 12px;
-  color: #606266;
+  color: var(--text-secondary);
   overflow-x: auto;
   max-height: 200px;
   overflow-y: auto;
@@ -191,11 +192,11 @@ pre {
 
 :deep(.el-collapse-item__header) {
   font-weight: 600;
-  color: #909399;
+  color: var(--text-tertiary);
 }
 
 :deep(.el-timeline-item__timestamp) {
   font-weight: 600;
-  color: #909399;
+  color: var(--text-tertiary);
 }
 </style>

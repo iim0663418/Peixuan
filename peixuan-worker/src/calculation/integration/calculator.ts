@@ -263,7 +263,14 @@ export class UnifiedCalculator {
 
     // Get solar info for month pillar
     const solar = Solar.fromDate(solarDate);
-    const solarLongitude = solar.getSolarLongitude();
+    const lunar = solar.getLunar();
+    
+    // Calculate solar longitude from month (approximate)
+    // Each month spans ~30 degrees, starting from 立春 (315°)
+    const month_num = solarDate.getMonth() + 1; // 1-12
+    const day_of_month = solarDate.getDate();
+    // Rough approximation: each month = 30°, adjust by day
+    const solarLongitude = ((month_num - 2) * 30 + 315 + (day_of_month - 1)) % 360;
 
     // Calculate four pillars
     const lichunTime = getLichunTime(solarDate.getFullYear());

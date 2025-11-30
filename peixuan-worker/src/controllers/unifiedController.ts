@@ -18,10 +18,14 @@ export class UnifiedController {
    * @throws Error if validation fails or calculation error occurs
    */
   async calculate(requestData: any): Promise<CalculationResult> {
+    console.log('[UnifiedController] Received request:', JSON.stringify(requestData));
+    
     try {
+      console.log('[UnifiedController] Step 1: Validating input...');
       // Step 1: Validate and parse input
       const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
       const solarDate = new Date(birthDateTime);
+      console.log('[UnifiedController] Parsed date:', solarDate.toISOString());
 
       if (isNaN(solarDate.getTime())) {
         throw new Error('Invalid birth date or time format');

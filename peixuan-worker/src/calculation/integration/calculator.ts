@@ -185,17 +185,24 @@ export class UnifiedCalculator {
    * @throws Error if validation fails or calculation error occurs
    */
   calculate(input: BirthInfo): CalculationResult {
+    console.log('[UnifiedCalculator] Starting calculation...');
+    
     // Step 1: Validate input
+    console.log('[UnifiedCalculator] Step 1: Validating input...');
     const validation = validateBirthInfo(input);
     if (!validation.valid) {
       throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
     }
 
     // Step 2: Calculate BaZi
+    console.log('[UnifiedCalculator] Step 2: Calculating BaZi...');
     const bazi = this.calculateBaZi(input);
+    console.log('[UnifiedCalculator] BaZi calculation complete');
 
     // Step 3: Calculate ZiWei
+    console.log('[UnifiedCalculator] Step 3: Calculating ZiWei...');
     const ziwei = this.calculateZiWei(input, bazi);
+    console.log('[UnifiedCalculator] ZiWei calculation complete');
 
     // Step 4: Calculate Annual Fortune (using current date as query date)
     const queryDate = new Date();

@@ -11391,12 +11391,21 @@ function getSolarTermTime(year, term) {
     throw new Error(`Invalid solar term: ${term}`);
   }
   const solar = Solar.fromYmdHms(year, 1, 1, 0, 0, 0);
-  const jieQiTable = solar.getJieQiTable();
-  const termDate = jieQiTable[term];
-  if (!termDate) {
+  const lunar = solar.getLunar();
+  const jieQiTable = lunar.getJieQiTable();
+  const termSolar = jieQiTable[term];
+  if (!termSolar) {
     throw new Error(`Solar term ${term} not found for year ${year}`);
   }
-  return termDate;
+  return new Date(
+    termSolar.getYear(),
+    termSolar.getMonth() - 1,
+    // Month is 1-based in Solar
+    termSolar.getDay(),
+    termSolar.getHour(),
+    termSolar.getMinute(),
+    termSolar.getSecond()
+  );
 }
 function getLichunTime(year) {
   return getSolarTermTime(year, "\u7ACB\u6625");
@@ -12469,12 +12478,18 @@ var init_calculator = __esm({
        * @throws Error if validation fails or calculation error occurs
        */
       calculate(input) {
+        console.log("[UnifiedCalculator] Starting calculation...");
+        console.log("[UnifiedCalculator] Step 1: Validating input...");
         const validation = validateBirthInfo(input);
         if (!validation.valid) {
           throw new Error(`Validation failed: ${validation.errors.join(", ")}`);
         }
+        console.log("[UnifiedCalculator] Step 2: Calculating BaZi...");
         const bazi = this.calculateBaZi(input);
+        console.log("[UnifiedCalculator] BaZi calculation complete");
+        console.log("[UnifiedCalculator] Step 3: Calculating ZiWei...");
         const ziwei = this.calculateZiWei(input, bazi);
+        console.log("[UnifiedCalculator] ZiWei calculation complete");
         const queryDate = /* @__PURE__ */ new Date();
         const annualPillar = getAnnualPillar(queryDate);
         const annualLifePalaceIndex = locateAnnualLifePalace(
@@ -31927,9 +31942,12 @@ var UnifiedController = class {
    * @throws Error if validation fails or calculation error occurs
    */
   async calculate(requestData) {
+    console.log("[UnifiedController] Received request:", JSON.stringify(requestData));
     try {
+      console.log("[UnifiedController] Step 1: Validating input...");
       const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
       const solarDate = new Date(birthDateTime);
+      console.log("[UnifiedController] Parsed date:", solarDate.toISOString());
       if (isNaN(solarDate.getTime())) {
         throw new Error("Invalid birth date or time format");
       }

@@ -43,18 +43,27 @@ export function getSolarTermTime(year: number, term: SolarTermName): Date {
 
   // Create a Solar object for January 1st of the given year
   const solar = Solar.fromYmdHms(year, 1, 1, 0, 0, 0);
+  
+  // Get lunar calendar and then the solar term table
+  const lunar = solar.getLunar();
+  const jieQiTable = lunar.getJieQiTable();
 
-  // Get the solar term table for the year
-  const jieQiTable = solar.getJieQiTable();
+  // Retrieve the solar term Solar object
+  const termSolar = jieQiTable[term];
 
-  // Retrieve the solar term date
-  const termDate = jieQiTable[term];
-
-  if (!termDate) {
+  if (!termSolar) {
     throw new Error(`Solar term ${term} not found for year ${year}`);
   }
 
-  return termDate;
+  // Convert Solar object to Date
+  return new Date(
+    termSolar.getYear(),
+    termSolar.getMonth() - 1, // Month is 1-based in Solar
+    termSolar.getDay(),
+    termSolar.getHour(),
+    termSolar.getMinute(),
+    termSolar.getSecond()
+  );
 }
 
 /**
@@ -69,13 +78,23 @@ export function getSolarTermTime(year: number, term: SolarTermName): Date {
  */
 export function getAllSolarTerms(year: number): Map<SolarTermName, Date> {
   const solar = Solar.fromYmdHms(year, 1, 1, 0, 0, 0);
-  const jieQiTable = solar.getJieQiTable();
+  const lunar = solar.getLunar();
+  const jieQiTable = lunar.getJieQiTable();
 
   const result = new Map<SolarTermName, Date>();
 
   for (const term of SOLAR_TERMS) {
-    const termDate = jieQiTable[term];
-    if (termDate) {
+    const termSolar = jieQiTable[term];
+    if (termSolar) {
+      // Convert Solar object to Date
+      const termDate = new Date(
+        termSolar.getYear(),
+        termSolar.getMonth() - 1,
+        termSolar.getDay(),
+        termSolar.getHour(),
+        termSolar.getMinute(),
+        termSolar.getSecond()
+      );
       result.set(term, termDate);
     }
   }

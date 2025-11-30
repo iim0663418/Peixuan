@@ -119,3 +119,32 @@
 - 監控 Cloudflare Workers 部署
 - 驗證生產環境功能
 - 規劃 ESLint Phase 4（no-unused-vars 清理）
+
+---
+
+## 🔧 修復：生產環境 API 500 錯誤 (2025-11-30 17:27)
+
+### 問題診斷
+- **錯誤**: POST /api/v1/calculate 返回 500 (Cloudflare Error 1101)
+- **根本原因**: Worker dist/ 未包含流年模組
+- **影響範圍**: 統一計算 API 完全無法使用
+
+### 修復方案
+- ✅ 添加版本註釋觸發 CI/CD 重新構建
+- ✅ 驗證本地構建包含所有模組
+- ✅ 推送 commit e50dd1f
+
+### 驗證步驟
+1. 本地構建測試: ✅ 包含 getAnnualPillar, locateAnnualLifePalace
+2. CI/CD 配置檢查: ✅ 正確
+3. wrangler.jsonc 配置: ✅ 正確
+
+### 部署狀態
+- **Commit**: e50dd1f
+- **CI/CD**: 🔄 執行中
+- **預計**: 2-3 分鐘完成
+
+### 下一步
+- 等待部署完成
+- 測試 /api/v1/calculate 端點
+- 驗證前端統一分析功能

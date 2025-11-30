@@ -31,22 +31,7 @@ export default defineConfig({
         scope: '/',
         start_url: '/',
         icons: [
-          {
-            src: 'logo192.png', // 假設圖示位於 public/logo192.png
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: 'logo512.png', // 假設圖示位於 public/logo512.png
-            sizes: '512x512',
-            type: 'image/png',
-          },
-          {
-            src: 'logo512.png', // 假設圖示位於 public/logo512.png, for maskable
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
+          // TODO: Add proper app icons to public/ directory
         ],
       },
     }),

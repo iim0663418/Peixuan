@@ -35,6 +35,11 @@ node_modules/
 tasks.json
 tasks/
 
+# Vue Language Server 生成文件
+**/*.vue.js
+**/*.vue.js.map
+**/*.vue.ts
+
 # 防止編譯產物污染版本控制
 *.js
 *.js.map
@@ -47,7 +52,3 @@ tasks/
 *.bak
 debug*.js
 test-*.js
-*.log 
-# Vue Language Server 生成文件
-**/*.vue.js
-**/*.vue.js.map

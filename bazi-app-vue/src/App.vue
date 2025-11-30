@@ -1,42 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted, provide, readonly, defineAsyncComponent } from 'vue';
+import { ref, onMounted, defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
 
 // 動態導入組件以提升效能
 const LanguageSelector = defineAsyncComponent(
   () => import('@/components/LanguageSelector.vue'),
 );
-// import GlobalDisplayModePanel from '@/components/GlobalDisplayModePanel.vue'; // 已簡化，使用各模組獨立分層控制
-
-// 模組類型定義
-type ModuleType = 'purpleStar' | 'bazi' | 'transformationStars' | 'integrated';
 
 const route = useRoute();
 const showMobileMenu = ref(false);
-
-// 簡化狀態管理 - 只保留基本狀態追蹤
-const activeModule = ref<ModuleType>('purpleStar');
-// 模組深度由各組件自行管理，不再需要全域狀態
-
-// 簡化方法：只追蹤當前模組
-const setActiveModule = (module: ModuleType) => {
-  activeModule.value = module;
-  console.log(`當前模組切換為: ${module}`);
-};
-
-// 簡化提供狀態 - 只提供模組追蹤
-provide('globalDisplayState', {
-  activeModule: readonly(activeModule),
-  setActiveModule,
-});
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value;
 };
 
-// 簡化初始化
 onMounted(() => {
-  console.log('應用初始化完成 - 使用獨立分層控制系統');
+  console.log('應用初始化完成');
 });
 </script>
 
@@ -54,25 +33,11 @@ onMounted(() => {
         <!-- 桌面版導航菜單 -->
         <div class="nav-menu desktop-menu">
           <router-link
-            to="/"
+            to="/unified"
             class="nav-link"
-            :class="{ active: route.name === 'home' }"
+            :class="{ active: route.path.startsWith('/unified') }"
           >
-            {{ $t('common.home') }}
-          </router-link>
-          <router-link
-            to="/purple-star"
-            class="nav-link"
-            :class="{ active: route.name === 'purple-star' }"
-          >
-            {{ $t('astrology.purple_star') }}
-          </router-link>
-          <router-link
-            to="/bazi"
-            class="nav-link"
-            :class="{ active: route.name === 'bazi' }"
-          >
-            {{ $t('astrology.bazi') }}
+            {{ $t('astrology.unified') }}
           </router-link>
         </div>
 
@@ -103,7 +68,7 @@ onMounted(() => {
           {{ $t('common.home') }}
         </router-link>
         <router-link
-          to="/purple-star"
+          to="/unified"
           class="mobile-nav-link"
           :class="{ active: route.name === 'purple-star' }"
           @click="showMobileMenu = false"
@@ -111,7 +76,7 @@ onMounted(() => {
           {{ $t('astrology.purple_star') }}
         </router-link>
         <router-link
-          to="/bazi"
+          to="/unified"
           class="mobile-nav-link"
           :class="{ active: route.name === 'bazi' }"
           @click="showMobileMenu = false"
@@ -135,10 +100,10 @@ onMounted(() => {
         <div class="footer-section">
           <h4>服務項目</h4>
           <div class="footer-links">
-            <router-link to="/purple-star">{{
+            <router-link to="/unified">{{
               $t('astrology.purple_star')
             }}</router-link>
-            <router-link to="/bazi">{{ $t('astrology.bazi') }}</router-link>
+            <router-link to="/unified">{{ $t('astrology.bazi') }}</router-link>
           </div>
         </div>
         <div class="footer-section">

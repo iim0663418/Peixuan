@@ -48,3 +48,6 @@ tasks/
 debug*.js
 test-*.js
 *.log 
+# Vue Language Server 生成文件
+**/*.vue.js
+**/*.vue.js.map

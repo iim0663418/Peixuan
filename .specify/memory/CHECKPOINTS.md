@@ -1,5 +1,102 @@
 # 檢查點記錄
 
+## Checkpoint: progress-sync-2025-11-30-r4
+**時間**: 2025-11-30  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- Sprint 4 Task 4.1: `getAnnualPillar`/`hasPassedLiChun` 完成，立春為界並採 year-4 mod 60 公式；整合 `getLichunTime`、`indexToGanZhi`。
+- Sprint 4 Task 4.2: `locateAnnualLifePalace` + `rotateAnnualPalaces` 完成，流年命宮定位後以模運算旋轉 12 宮意義，保留原地支/position；`createPalaceArray` 輔助生成標準盤。
+- Sprint 4 Task 4.3: 干支交互分析完成，`detectStemCombinations`（五合）、`detectBranchClashes`（六沖分級）、`detectHarmoniousCombinations`（三合/三會+可選大運）全覆蓋。
+
+### 關鍵成果
+- 年柱立春界計算涵蓋邊界/閏年/時區/歷史年份；公式與節氣查詢統一。
+- 流年命宮旋轉僅改 meaning 序列（命→兄弟→夫妻…父母），避免破壞地支排列。
+- 合沖害分析提供嚴重度分級（日支 HIGH、月支 MEDIUM、年/時 LOW）並支援大運參與。
+
+### 已知問題
+- 前端尚未接入流年模組輸出；`ziweiCalc.ts` 重複邏輯待清理，`baziCalc.ts` 仍被 7 處引用。
+- 四化飛星頂層彙總、流年太歲仍缺。
+
+### 下一步
+- 前端適配流年年柱/命宮/合沖害輸出並保持與 Legacy 資料一致。
+- 完成 Task B2 並行路由後，安排移除 `ziweiCalc.ts` 與舊 `baziCalc.ts`。
+- 研擬四化飛星彙總與流年太歲的實作計畫與測試。
+
+## Checkpoint: progress-sync-2025-11-30-r3
+**時間**: 2025-11-30  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- Sprint 3 Task 3.1: QiYun 起運模組完成（方向 XOR 判向、代謝日數公式、節氣/真太陽時支援）並覆蓋 70+ 測試。
+- Sprint 3 Task 3.2: DaYun 大運生成/偵測模組完成（60 甲子順逆行、10 年間隔、start 包含 end 排除）並覆蓋 50+ 測試。
+- FortuneCycles 整合進 UnifiedCalculator/BaZiResult，新增 `fortuneCycles` 結構與 `qiyunCalculation`、`dayunGeneration` 計算步驟。
+
+### 關鍵成果
+- FortuneCycles 成為統一輸出：`fortuneCycles` 內含 qiyunDate、direction、dayunList、currentDayun。
+- 計算流程保留起運/大運時間精度並自動偵測當前大運；metadata.methods 新增 MetabolicConversion、FortuneDirection。
+
+### 已知問題
+- Task B2 未完成，`baziCalc.ts` 仍被 7 個組件使用，暫不可移除。
+- 前端尚未適配 `fortuneCycles`/PurpleStarApiResponse；四化飛星彙總與流年太歲仍缺。
+
+### 下一步
+- 完成 Task B2（並行路由）後再移除舊 `baziCalc.ts`。
+- 前端接入新的 `fortuneCycles` 結構並同步 API 欄位。
+- 實作四化飛星頂層彙總與流年太歲。
+
+## Checkpoint: progress-sync-2025-11-30
+**時間**: 2025-11-30  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- Phase 1 Sprint 1: 真太陽時/儒略日/節氣、干支模運算、五行關係模組全數交付並通過完整矩陣測試
+- Sprint 2: 四柱排盤、藏干與十神模組完成，四柱/藏干/十神測試覆蓋（邊界、權重、10x10 矩陣）
+- Sprint 3: 命/身宮、五行局、紫微/天府/輔星定位模組完成，144/60/150+ 組合測試通過
+- Sprint 4: UnifiedCalculator + Validator 完成；PurpleStarApiResponse（core+palaces）上線並與 Hybrid 架構接合
+
+### 關鍵成果
+- 生產 Worker API 200 OK；Cloudflare Workers + D1 + Vue3 PWA 正常運行
+- API 格式分層：core 由 Unified 提供數學正確性，palaces 由 Legacy 提供完整星系
+- 測試覆蓋：WuXing/干支/四柱/藏干/十神/紫微/輔星矩陣與組合測試完整；UnifiedCalculator 端到端測試覆蓋閏月與極端經度
+
+### 已知問題
+- ⚠️ 代碼重複：前端 `ziweiCalc.ts` 未被引用，可低風險移除
+- ⚠️ 任務阻塞：Task B3（移除舊計算邏輯）需先完成 Task B2（UnifiedInputForm 路由整合），`baziCalc.ts` 仍被 7 個組件使用
+- ⚠️ 功能缺口：四化飛星頂層彙總、流年太歲計算仍缺；前端需適配 PurpleStarApiResponse Breaking Change
+
+### 下一步
+- 完成 Task B2：建立新舊並行路由，驗證後再移除舊邏輯
+- 移除 `ziweiCalc.ts`/`ziweiCalc.spec.ts`（低風險清理）
+- 實作四化飛星彙總與流年太歲；同步更新前端視圖以匹配新 API
+
+## Checkpoint: phase1-4-core-complete
+**時間**: 2025-11-30  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- Phase 1 Sprint 1: 真太陽時/儒略日/節氣 + 干支模運算 + 五行關係模組全數完測
+- Phase 2: 紫微斗數核心計算邏輯（681 行）穩定運行，API 200 OK
+- Sprint 3: 命/身宮定位、五行局、紫微/天府/輔星定位與對稱性測試覆蓋
+- Sprint 4: UnifiedCalculator + Validator + 端到端測試完成
+- Task A1/A2: CalculationResult 擴展 (steps/metadata/hiddenStems/tenGods/starSymmetry) + UnifiedController 與 `/api/v1/calculate`
+- Backend Hybrid 重構: Unified (core) + Legacy (palaces) 雙引擎並行，新增 `types/apiResponse.ts`
+
+### 關鍵成果
+- API: `/api/v1/purple-star/calculate`、`/api/v1/calculate` 上線
+- 測試: WuXing/干支/四柱/藏干/十神/紫微/輔星矩陣及組合測試全覆蓋；Validator + Calculator 端到端測試通過
+- 架構: Cloudflare Workers + D1 + Vue 3 PWA 持續運行
+
+### 已知問題
+- ⚠️ 代碼重複: 前端 `ziweiCalc.ts` 未使用
+- ⚠️ 功能缺口: 四化飛星頂層彙總、流年太歲計算尚未實作
+- ⚠️ 前端需適配 PurpleStarApiResponse (Breaking Change)
+
+### 下一步
+- Week 2: 移除 `ziweiCalc.ts` 或提取為共享套件
+- Phase 2: 補齊四化飛星、流年太歲
+- 前端調整以適配新 API 回應格式
+
 ## Checkpoint: phase2-complete-with-audit
 **時間**: 2025-11-29 23:18
 **狀態**: ✅ 完成
@@ -269,4 +366,3 @@
 - 配置 GitHub Secrets
 - 首次生產部署
 - 可選：KV 快取、錯誤處理、測試
-

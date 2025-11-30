@@ -2775,13 +2775,13 @@ var init_dist = __esm({
     _I18n = class {
       static updateArray(c) {
         const v = _I18n._ARRAYS[c];
-        const o = _I18n._OBJ_ARRAYS[c];
+        const o2 = _I18n._OBJ_ARRAYS[c];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
           const arr = v[k];
           for (let i = 0, j = arr.length; i < j; i++) {
-            o[k][i] = arr[i].replace(/{(.[^}]*)}/g, (_$0, $1) => {
+            o2[k][i] = arr[i].replace(/{(.[^}]*)}/g, (_$0, $1) => {
               return _I18n.getMessage($1);
             });
           }
@@ -2789,7 +2789,7 @@ var init_dist = __esm({
       }
       static updateStringDictionary(c) {
         const v = _I18n._DICT_STRING[c];
-        const o = _I18n._OBJ_STRING[c];
+        const o2 = _I18n._OBJ_STRING[c];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
@@ -2800,7 +2800,7 @@ var init_dist = __esm({
             const i = key.replace(/{(.[^}]*)}/g, (_$0, $1) => {
               return _I18n.getMessage($1);
             });
-            o[k][i] = dict[key].replace(/{(.[^}]*)}/g, (_$0, $1) => {
+            o2[k][i] = dict[key].replace(/{(.[^}]*)}/g, (_$0, $1) => {
               return _I18n.getMessage($1);
             });
           }
@@ -2808,7 +2808,7 @@ var init_dist = __esm({
       }
       static updateNumberDictionary(c) {
         const v = _I18n._DICT_NUMBER[c];
-        const o = _I18n._OBJ_NUMBER[c];
+        const o2 = _I18n._OBJ_NUMBER[c];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
@@ -2819,13 +2819,13 @@ var init_dist = __esm({
             const i = key.replace(/{(.[^}]*)}/g, (_$0, $1) => {
               return _I18n.getMessage($1);
             });
-            o[k][i] = dict[key];
+            o2[k][i] = dict[key];
           }
         }
       }
       static updateArrayDictionary(c) {
         const v = _I18n._DICT_ARRAY[c];
-        const o = _I18n._OBJ_ARRAY[c];
+        const o2 = _I18n._OBJ_ARRAY[c];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
@@ -2842,7 +2842,7 @@ var init_dist = __esm({
                 return _I18n.getMessage($1);
               });
             }
-            o[k][x2] = arr;
+            o2[k][x2] = arr;
           }
         }
       }
@@ -2899,12 +2899,12 @@ var init_dist = __esm({
       }
       static initArray(c) {
         const v = _I18n._ARRAYS[c];
-        const o = _I18n._OBJ_ARRAYS[c];
+        const o2 = _I18n._OBJ_ARRAYS[c];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
           v[k].length = 0;
-          const arr = o[k];
+          const arr = o2[k];
           for (let i = 0, j = arr.length; i < j; i++) {
             v[k].push(arr[i]);
           }
@@ -2912,11 +2912,11 @@ var init_dist = __esm({
       }
       static initArrayDictionary(c) {
         const v = _I18n._DICT_ARRAY[c];
-        const o = _I18n._OBJ_ARRAY[c];
+        const o2 = _I18n._OBJ_ARRAY[c];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
-          const dict = o[k];
+          const dict = o2[k];
           const subKeys = Object.keys(dict);
           for (let m = 0, n = subKeys.length; m < n; m++) {
             const key = subKeys[m];
@@ -2926,11 +2926,11 @@ var init_dist = __esm({
       }
       static initStringDictionary(c) {
         const v = _I18n._DICT_STRING[c];
-        const o = _I18n._OBJ_STRING[c];
+        const o2 = _I18n._OBJ_STRING[c];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
-          const dict = o[k];
+          const dict = o2[k];
           const subKeys = Object.keys(dict);
           for (let m = 0, n = subKeys.length; m < n; m++) {
             const key = subKeys[m];
@@ -2940,11 +2940,11 @@ var init_dist = __esm({
       }
       static initNumberDictionary(c) {
         const v = _I18n._DICT_NUMBER[c];
-        const o = _I18n._OBJ_NUMBER[c];
+        const o2 = _I18n._OBJ_NUMBER[c];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
-          const dict = o[k];
+          const dict = o2[k];
           const subKeys = Object.keys(dict);
           for (let m = 0, n = subKeys.length; m < n; m++) {
             const key = subKeys[m];
@@ -5344,8 +5344,8 @@ var init_dist = __esm({
     };
     _ShouXingUtil = class {
       static decode(s) {
-        const o = "0000000000";
-        const o2 = o + o;
+        const o2 = "0000000000";
+        const o22 = o2 + o2;
         s = s.replace(/J/g, "00");
         s = s.replace(/I/g, "000");
         s = s.replace(/H/g, "0000");
@@ -5370,30 +5370,30 @@ var init_dist = __esm({
         s = s.replace(/c/g, "00000001");
         s = s.replace(/b/g, "000000001");
         s = s.replace(/a/g, "0000000001");
-        s = s.replace(/A/g, o2 + o2 + o2);
-        s = s.replace(/B/g, o2 + o2 + o);
-        s = s.replace(/C/g, o2 + o2);
-        s = s.replace(/D/g, o2 + o);
-        s = s.replace(/E/g, o2);
-        s = s.replace(/F/g, o);
+        s = s.replace(/A/g, o22 + o22 + o22);
+        s = s.replace(/B/g, o22 + o22 + o2);
+        s = s.replace(/C/g, o22 + o22);
+        s = s.replace(/D/g, o22 + o2);
+        s = s.replace(/E/g, o22);
+        s = s.replace(/F/g, o2);
         return s;
       }
-      static nutationLon2(t) {
-        let a = -1.742 * t;
-        const t2 = t * t;
+      static nutationLon2(t2) {
+        let a = -1.742 * t2;
+        const t22 = t2 * t2;
         let dl = 0;
         for (let i = 0, j = _ShouXingUtil.NUT_B.length; i < j; i += 5) {
-          dl += (_ShouXingUtil.NUT_B[i + 3] + a) * Math.sin(_ShouXingUtil.NUT_B[i] + _ShouXingUtil.NUT_B[i + 1] * t + _ShouXingUtil.NUT_B[i + 2] * t2);
+          dl += (_ShouXingUtil.NUT_B[i + 3] + a) * Math.sin(_ShouXingUtil.NUT_B[i] + _ShouXingUtil.NUT_B[i + 1] * t2 + _ShouXingUtil.NUT_B[i + 2] * t22);
           a = 0;
         }
         return dl / 100 / _ShouXingUtil.SECOND_PER_RAD;
       }
-      static eLon(t, n) {
-        t /= 10;
+      static eLon(t2, n) {
+        t2 /= 10;
         let v = 0, tn = 1;
         const pn = 1;
         const m0 = _ShouXingUtil.XL0[pn + 1] - _ShouXingUtil.XL0[pn];
-        for (let i = 0; i < 6; i++, tn *= t) {
+        for (let i = 0; i < 6; i++, tn *= t2) {
           const n1 = Math.floor(_ShouXingUtil.XL0[pn + i]);
           const n2 = Math.floor(_ShouXingUtil.XL0[pn + 1 + i]);
           const n0 = n2 - n1;
@@ -5414,38 +5414,38 @@ var init_dist = __esm({
           }
           let c = 0;
           for (let j = n1; j < m; j += 3) {
-            c += _ShouXingUtil.XL0[j] * Math.cos(_ShouXingUtil.XL0[j + 1] + t * _ShouXingUtil.XL0[j + 2]);
+            c += _ShouXingUtil.XL0[j] * Math.cos(_ShouXingUtil.XL0[j + 1] + t2 * _ShouXingUtil.XL0[j + 2]);
           }
           v += c * tn;
         }
         v /= _ShouXingUtil.XL0[0];
-        const t2 = t * t;
-        v += (-0.0728 - 2.7702 * t - 1.1019 * t2 - 0.0996 * t2 * t) / _ShouXingUtil.SECOND_PER_RAD;
+        const t22 = t2 * t2;
+        v += (-0.0728 - 2.7702 * t2 - 1.1019 * t22 - 0.0996 * t22 * t2) / _ShouXingUtil.SECOND_PER_RAD;
         return v;
       }
-      static mLon(t, n) {
+      static mLon(t2, n) {
         const ob = _ShouXingUtil.XL1;
         const obl = ob[0].length;
         let tn = 1;
         let v = 0;
-        let t2 = t * t, t3 = t2 * t, t4 = t3 * t;
-        const t5 = t4 * t;
-        const tx = t - 10;
-        v += (3.81034409 + 8399.684730072 * t - 3319e-8 * t2 + 311e-10 * t3 - 2033e-13 * t4) * _ShouXingUtil.SECOND_PER_RAD;
-        v += 5028.792262 * t + 1.1124406 * t2 + 7699e-8 * t3 - 23479e-9 * t4 - 178e-10 * t5;
+        let t22 = t2 * t2, t3 = t22 * t2, t4 = t3 * t2;
+        const t5 = t4 * t2;
+        const tx = t2 - 10;
+        v += (3.81034409 + 8399.684730072 * t2 - 3319e-8 * t22 + 311e-10 * t3 - 2033e-13 * t4) * _ShouXingUtil.SECOND_PER_RAD;
+        v += 5028.792262 * t2 + 1.1124406 * t22 + 7699e-8 * t3 - 23479e-9 * t4 - 178e-10 * t5;
         if (tx > 0) {
           v += -0.866 + 1.43 * tx + 0.054 * tx * tx;
         }
-        t2 /= 1e4;
+        t22 /= 1e4;
         t3 /= 1e8;
         t4 /= 1e8;
         n *= 6;
         if (n < 0) {
           n = obl;
         }
-        for (let i = 0, x = ob.length; i < x; i++, tn *= t) {
-          const f = ob[i];
-          const l = f.length;
+        for (let i = 0, x = ob.length; i < x; i++, tn *= t2) {
+          const f2 = ob[i];
+          const l = f2.length;
           let m = Math.floor(n * l / obl + 0.5);
           if (i > 0) {
             m += 6;
@@ -5455,25 +5455,25 @@ var init_dist = __esm({
           }
           let c = 0;
           for (let j = 0; j < m; j += 6) {
-            c += f[j] * Math.cos(f[j + 1] + t * f[j + 2] + t2 * f[j + 3] + t3 * f[j + 4] + t4 * f[j + 5]);
+            c += f2[j] * Math.cos(f2[j + 1] + t2 * f2[j + 2] + t22 * f2[j + 3] + t3 * f2[j + 4] + t4 * f2[j + 5]);
           }
           v += c * tn;
         }
         v /= _ShouXingUtil.SECOND_PER_RAD;
         return v;
       }
-      static gxcSunLon(t) {
-        const t2 = t * t;
-        const v = -0.043126 + 628.301955 * t - 2732e-9 * t2;
-        const e = 0.016708634 - 42037e-9 * t - 1267e-10 * t2;
+      static gxcSunLon(t2) {
+        const t22 = t2 * t2;
+        const v = -0.043126 + 628.301955 * t2 - 2732e-9 * t22;
+        const e = 0.016708634 - 42037e-9 * t2 - 1267e-10 * t22;
         return -20.49552 * (1 + e * Math.cos(v)) / _ShouXingUtil.SECOND_PER_RAD;
       }
-      static ev(t) {
-        const f = 628.307585 * t;
-        return 628.332 + 21 * Math.sin(1.527 + f) + 0.44 * Math.sin(1.48 + f * 2) + 0.129 * Math.sin(5.82 + f) * t + 55e-5 * Math.sin(4.21 + f) * t * t;
+      static ev(t2) {
+        const f2 = 628.307585 * t2;
+        return 628.332 + 21 * Math.sin(1.527 + f2) + 0.44 * Math.sin(1.48 + f2 * 2) + 0.129 * Math.sin(5.82 + f2) * t2 + 55e-5 * Math.sin(4.21 + f2) * t2 * t2;
       }
-      static saLon(t, n) {
-        return _ShouXingUtil.eLon(t, n) + _ShouXingUtil.nutationLon2(t) + _ShouXingUtil.gxcSunLon(t) + Math.PI;
+      static saLon(t2, n) {
+        return _ShouXingUtil.eLon(t2, n) + _ShouXingUtil.nutationLon2(t2) + _ShouXingUtil.gxcSunLon(t2) + Math.PI;
       }
       static dtExt(y, jsd) {
         const dy = (y - 1820) / 100;
@@ -5501,84 +5501,84 @@ var init_dist = __esm({
         const t3 = t2 * t1;
         return _ShouXingUtil.DT_AT[i + 1] + _ShouXingUtil.DT_AT[i + 2] * t1 + _ShouXingUtil.DT_AT[i + 3] * t2 + _ShouXingUtil.DT_AT[i + 4] * t3;
       }
-      static dtT(t) {
-        return _ShouXingUtil.dtCalc(t / 365.2425 + 2e3) / _ShouXingUtil.SECOND_PER_DAY;
+      static dtT(t2) {
+        return _ShouXingUtil.dtCalc(t2 / 365.2425 + 2e3) / _ShouXingUtil.SECOND_PER_DAY;
       }
-      static mv(t) {
-        let v = 8399.71 - 914 * Math.sin(0.7848 + 8328.691425 * t + 1523e-7 * t * t);
-        v -= 179 * Math.sin(2.543 + 15542.7543 * t) + 160 * Math.sin(0.1874 + 7214.0629 * t) + 62 * Math.sin(3.14 + 16657.3828 * t) + 34 * Math.sin(4.827 + 16866.9323 * t) + 22 * Math.sin(4.9 + 23871.4457 * t) + 12 * Math.sin(2.59 + 14914.4523 * t) + 7 * Math.sin(0.23 + 6585.7609 * t) + 5 * Math.sin(0.9 + 25195.624 * t) + 5 * Math.sin(2.32 - 7700.3895 * t) + 5 * Math.sin(3.88 + 8956.9934 * t) + 5 * Math.sin(0.49 + 7771.3771 * t);
+      static mv(t2) {
+        let v = 8399.71 - 914 * Math.sin(0.7848 + 8328.691425 * t2 + 1523e-7 * t2 * t2);
+        v -= 179 * Math.sin(2.543 + 15542.7543 * t2) + 160 * Math.sin(0.1874 + 7214.0629 * t2) + 62 * Math.sin(3.14 + 16657.3828 * t2) + 34 * Math.sin(4.827 + 16866.9323 * t2) + 22 * Math.sin(4.9 + 23871.4457 * t2) + 12 * Math.sin(2.59 + 14914.4523 * t2) + 7 * Math.sin(0.23 + 6585.7609 * t2) + 5 * Math.sin(0.9 + 25195.624 * t2) + 5 * Math.sin(2.32 - 7700.3895 * t2) + 5 * Math.sin(3.88 + 8956.9934 * t2) + 5 * Math.sin(0.49 + 7771.3771 * t2);
         return v;
       }
       static saLonT(w) {
         let v = 628.3319653318;
-        let t = (w - 1.75347 - Math.PI) / v;
-        v = _ShouXingUtil.ev(t);
-        t += (w - _ShouXingUtil.saLon(t, 10)) / v;
-        v = _ShouXingUtil.ev(t);
-        t += (w - _ShouXingUtil.saLon(t, -1)) / v;
-        return t;
+        let t2 = (w - 1.75347 - Math.PI) / v;
+        v = _ShouXingUtil.ev(t2);
+        t2 += (w - _ShouXingUtil.saLon(t2, 10)) / v;
+        v = _ShouXingUtil.ev(t2);
+        t2 += (w - _ShouXingUtil.saLon(t2, -1)) / v;
+        return t2;
       }
-      static msaLon(t, mn, sn) {
-        return _ShouXingUtil.mLon(t, mn) + -34e-7 - (_ShouXingUtil.eLon(t, sn) + _ShouXingUtil.gxcSunLon(t) + Math.PI);
+      static msaLon(t2, mn, sn) {
+        return _ShouXingUtil.mLon(t2, mn) + -34e-7 - (_ShouXingUtil.eLon(t2, sn) + _ShouXingUtil.gxcSunLon(t2) + Math.PI);
       }
       static msaLonT(w) {
         let v = 7771.37714500204;
-        let t = (w + 1.08472) / v;
-        t += (w - _ShouXingUtil.msaLon(t, 3, 3)) / v;
-        v = _ShouXingUtil.mv(t) - _ShouXingUtil.ev(t);
-        t += (w - _ShouXingUtil.msaLon(t, 20, 10)) / v;
-        t += (w - _ShouXingUtil.msaLon(t, -1, 60)) / v;
-        return t;
+        let t2 = (w + 1.08472) / v;
+        t2 += (w - _ShouXingUtil.msaLon(t2, 3, 3)) / v;
+        v = _ShouXingUtil.mv(t2) - _ShouXingUtil.ev(t2);
+        t2 += (w - _ShouXingUtil.msaLon(t2, 20, 10)) / v;
+        t2 += (w - _ShouXingUtil.msaLon(t2, -1, 60)) / v;
+        return t2;
       }
       static saLonT2(w) {
         const v = 628.3319653318;
-        let t = (w - 1.75347 - Math.PI) / v;
-        t -= (5297e-9 * t * t + 0.0334166 * Math.cos(4.669257 + 628.307585 * t) + 2061e-7 * Math.cos(2.67823 + 628.307585 * t) * t) / v;
-        t += (w - _ShouXingUtil.eLon(t, 8) - Math.PI + (20.5 + 17.2 * Math.sin(2.1824 - 33.75705 * t)) / _ShouXingUtil.SECOND_PER_RAD) / v;
-        return t;
+        let t2 = (w - 1.75347 - Math.PI) / v;
+        t2 -= (5297e-9 * t2 * t2 + 0.0334166 * Math.cos(4.669257 + 628.307585 * t2) + 2061e-7 * Math.cos(2.67823 + 628.307585 * t2) * t2) / v;
+        t2 += (w - _ShouXingUtil.eLon(t2, 8) - Math.PI + (20.5 + 17.2 * Math.sin(2.1824 - 33.75705 * t2)) / _ShouXingUtil.SECOND_PER_RAD) / v;
+        return t2;
       }
       static msaLonT2(w) {
         let v = 7771.37714500204;
-        let t = (w + 1.08472) / v;
-        let t2 = t * t;
-        t -= (-3309e-8 * t2 + 0.10976 * Math.cos(0.784758 + 8328.6914246 * t + 152292e-9 * t2) + 0.02224 * Math.cos(0.1874 + 7214.0628654 * t - 21848e-8 * t2) - 0.03342 * Math.cos(4.669257 + 628.307585 * t)) / v;
-        t2 = t * t;
-        const l = _ShouXingUtil.mLon(t, 20) - (4.8950632 + 628.3319653318 * t + 5297e-9 * t2 + 0.0334166 * Math.cos(4.669257 + 628.307585 * t) + 2061e-7 * Math.cos(2.67823 + 628.307585 * t) * t + 349e-6 * Math.cos(4.6261 + 1256.61517 * t) - 20.5 / _ShouXingUtil.SECOND_PER_RAD);
-        v = 7771.38 - 914 * Math.sin(0.7848 + 8328.691425 * t + 1523e-7 * t2) - 179 * Math.sin(2.543 + 15542.7543 * t) - 160 * Math.sin(0.1874 + 7214.0629 * t);
-        t += (w - l) / v;
-        return t;
+        let t2 = (w + 1.08472) / v;
+        let t22 = t2 * t2;
+        t2 -= (-3309e-8 * t22 + 0.10976 * Math.cos(0.784758 + 8328.6914246 * t2 + 152292e-9 * t22) + 0.02224 * Math.cos(0.1874 + 7214.0628654 * t2 - 21848e-8 * t22) - 0.03342 * Math.cos(4.669257 + 628.307585 * t2)) / v;
+        t22 = t2 * t2;
+        const l = _ShouXingUtil.mLon(t2, 20) - (4.8950632 + 628.3319653318 * t2 + 5297e-9 * t22 + 0.0334166 * Math.cos(4.669257 + 628.307585 * t2) + 2061e-7 * Math.cos(2.67823 + 628.307585 * t2) * t2 + 349e-6 * Math.cos(4.6261 + 1256.61517 * t2) - 20.5 / _ShouXingUtil.SECOND_PER_RAD);
+        v = 7771.38 - 914 * Math.sin(0.7848 + 8328.691425 * t2 + 1523e-7 * t22) - 179 * Math.sin(2.543 + 15542.7543 * t2) - 160 * Math.sin(0.1874 + 7214.0629 * t2);
+        t2 += (w - l) / v;
+        return t2;
       }
       static qiHigh(w) {
-        let t = _ShouXingUtil.saLonT2(w) * 36525;
-        t = t - _ShouXingUtil.dtT(t) + _ShouXingUtil.ONE_THIRD;
-        const v = (t + 0.5) % 1 * _ShouXingUtil.SECOND_PER_DAY;
+        let t2 = _ShouXingUtil.saLonT2(w) * 36525;
+        t2 = t2 - _ShouXingUtil.dtT(t2) + _ShouXingUtil.ONE_THIRD;
+        const v = (t2 + 0.5) % 1 * _ShouXingUtil.SECOND_PER_DAY;
         if (v < 1200 || v > _ShouXingUtil.SECOND_PER_DAY - 1200) {
-          t = _ShouXingUtil.saLonT(w) * 36525 - _ShouXingUtil.dtT(t) + _ShouXingUtil.ONE_THIRD;
+          t2 = _ShouXingUtil.saLonT(w) * 36525 - _ShouXingUtil.dtT(t2) + _ShouXingUtil.ONE_THIRD;
         }
-        return t;
+        return t2;
       }
       static shuoHigh(w) {
-        let t = _ShouXingUtil.msaLonT2(w) * 36525;
-        t = t - _ShouXingUtil.dtT(t) + _ShouXingUtil.ONE_THIRD;
-        const v = (t + 0.5) % 1 * _ShouXingUtil.SECOND_PER_DAY;
+        let t2 = _ShouXingUtil.msaLonT2(w) * 36525;
+        t2 = t2 - _ShouXingUtil.dtT(t2) + _ShouXingUtil.ONE_THIRD;
+        const v = (t2 + 0.5) % 1 * _ShouXingUtil.SECOND_PER_DAY;
         if (v < 1800 || v > _ShouXingUtil.SECOND_PER_DAY - 1800) {
-          t = _ShouXingUtil.msaLonT(w) * 36525 - _ShouXingUtil.dtT(t) + _ShouXingUtil.ONE_THIRD;
+          t2 = _ShouXingUtil.msaLonT(w) * 36525 - _ShouXingUtil.dtT(t2) + _ShouXingUtil.ONE_THIRD;
         }
-        return t;
+        return t2;
       }
       static qiLow(w) {
         const v = 628.3319653318;
-        let t = (w - 4.895062166) / v;
-        t -= (53 * t * t + 334116 * Math.cos(4.67 + 628.307585 * t) + 2061 * Math.cos(2.678 + 628.3076 * t) * t) / v / 1e7;
-        const n = 4895062166e-2 + 6283319653318e-3 * t + 53 * t * t + 334166 * Math.cos(4.669257 + 628.307585 * t) + 3489 * Math.cos(4.6261 + 1256.61517 * t) + 2060.6 * Math.cos(2.67823 + 628.307585 * t) * t - 994 - 834 * Math.sin(2.1824 - 33.75705 * t);
-        t -= (n / 1e7 - w) / 628.332 + (32 * (t + 1.8) * (t + 1.8) - 20) / _ShouXingUtil.SECOND_PER_DAY / 36525;
-        return t * 36525 + _ShouXingUtil.ONE_THIRD;
+        let t2 = (w - 4.895062166) / v;
+        t2 -= (53 * t2 * t2 + 334116 * Math.cos(4.67 + 628.307585 * t2) + 2061 * Math.cos(2.678 + 628.3076 * t2) * t2) / v / 1e7;
+        const n = 4895062166e-2 + 6283319653318e-3 * t2 + 53 * t2 * t2 + 334166 * Math.cos(4.669257 + 628.307585 * t2) + 3489 * Math.cos(4.6261 + 1256.61517 * t2) + 2060.6 * Math.cos(2.67823 + 628.307585 * t2) * t2 - 994 - 834 * Math.sin(2.1824 - 33.75705 * t2);
+        t2 -= (n / 1e7 - w) / 628.332 + (32 * (t2 + 1.8) * (t2 + 1.8) - 20) / _ShouXingUtil.SECOND_PER_DAY / 36525;
+        return t2 * 36525 + _ShouXingUtil.ONE_THIRD;
       }
       static shuoLow(w) {
         const v = 7771.37714500204;
-        let t = (w + 1.08472) / v;
-        t -= (-331e-7 * t * t + 0.10976 * Math.cos(0.785 + 8328.6914 * t) + 0.02224 * Math.cos(0.187 + 7214.0629 * t) - 0.03342 * Math.cos(4.669 + 628.3076 * t)) / v + (32 * (t + 1.8) * (t + 1.8) - 20) / _ShouXingUtil.SECOND_PER_DAY / 36525;
-        return t * 36525 + _ShouXingUtil.ONE_THIRD;
+        let t2 = (w + 1.08472) / v;
+        t2 -= (-331e-7 * t2 * t2 + 0.10976 * Math.cos(0.785 + 8328.6914 * t2) + 0.02224 * Math.cos(0.187 + 7214.0629 * t2) - 0.03342 * Math.cos(4.669 + 628.3076 * t2)) / v + (32 * (t2 + 1.8) * (t2 + 1.8) - 20) / _ShouXingUtil.SECOND_PER_DAY / 36525;
+        return t2 * 36525 + _ShouXingUtil.ONE_THIRD;
       }
       static calcShuo(jd) {
         const size = _ShouXingUtil.SHUO_KB.length;
@@ -5651,8 +5651,8 @@ var init_dist = __esm({
         return d;
       }
       static qiAccurate(w) {
-        const t = _ShouXingUtil.saLonT(w) * 36525;
-        return t - _ShouXingUtil.dtT(t) + _ShouXingUtil.ONE_THIRD;
+        const t2 = _ShouXingUtil.saLonT(w) * 36525;
+        return t2 - _ShouXingUtil.dtT(t2) + _ShouXingUtil.ONE_THIRD;
       }
       static qiAccurate2(jd) {
         const d = Math.PI / 12;
@@ -9133,8 +9133,8 @@ var init_dist = __esm({
         const l = [];
         const fs = FotoUtil.OTHER_FESTIVAL[this.getMonth() + "-" + this.getDay()];
         if (fs) {
-          fs.forEach((f) => {
-            l.push(f);
+          fs.forEach((f2) => {
+            l.push(f2);
           });
         }
         return l;
@@ -9260,8 +9260,8 @@ var init_dist = __esm({
         const l = [];
         const fs = TaoUtil.FESTIVAL[this.getMonth() + "-" + this.getDay()];
         if (fs) {
-          fs.forEach((f2) => {
-            l.push(f2);
+          fs.forEach((f22) => {
+            l.push(f22);
           });
         }
         const jq = this._lunar.getJieQi();
@@ -9270,13 +9270,13 @@ var init_dist = __esm({
         } else if (I18n.getMessage("jq.xiaZhi") === jq) {
           l.push(new TaoFestival("\u7075\u5B9D\u5929\u5C0A\u5723\u8BDE"));
         }
-        let f = TaoUtil.BA_JIE[jq];
-        if (f) {
-          l.push(new TaoFestival(f));
+        let f2 = TaoUtil.BA_JIE[jq];
+        if (f2) {
+          l.push(new TaoFestival(f2));
         }
-        f = TaoUtil.BA_HUI[this._lunar.getDayInGanZhi()];
-        if (f) {
-          l.push(new TaoFestival(f));
+        f2 = TaoUtil.BA_HUI[this._lunar.getDayInGanZhi()];
+        if (f2) {
+          l.push(new TaoFestival(f2));
         }
         return l;
       }
@@ -9390,15 +9390,15 @@ var init_dist = __esm({
       static fromDate(date5) {
         return _Lunar.fromSolar(Solar.fromDate(date5));
       }
-      static _computeJieQi(o, ly) {
+      static _computeJieQi(o2, ly) {
         const julianDays = ly.getJieQiJulianDays();
         for (let i = 0, j = LunarUtil.JIE_QI_IN_USE.length; i < j; i++) {
           const key = LunarUtil.JIE_QI_IN_USE[i];
-          o.jieQiList.push(key);
-          o.jieQi[key] = Solar.fromJulianDay(julianDays[i]);
+          o2.jieQiList.push(key);
+          o2.jieQi[key] = Solar.fromJulianDay(julianDays[i]);
         }
       }
-      static _computeYear(o, solar, year) {
+      static _computeYear(o2, solar, year) {
         const offset = year - 4;
         let yearGanIndex = offset % 10;
         let yearZhiIndex = offset % 12;
@@ -9408,22 +9408,22 @@ var init_dist = __esm({
         if (yearZhiIndex < 0) {
           yearZhiIndex += 12;
         }
-        let g = yearGanIndex;
+        let g2 = yearGanIndex;
         let z = yearZhiIndex;
         let gExact = yearGanIndex;
         let zExact = yearZhiIndex;
         const solarYear = solar.getYear();
         const solarYmd = solar.toYmd();
         const solarYmdHms = solar.toYmdHms();
-        let liChun = o.jieQi[I18n.getMessage("jq.liChun")];
+        let liChun = o2.jieQi[I18n.getMessage("jq.liChun")];
         if (liChun.getYear() != solarYear) {
-          liChun = o.jieQi["LI_CHUN"];
+          liChun = o2.jieQi["LI_CHUN"];
         }
         const liChunYmd = liChun.toYmd();
         const liChunYmdHms = liChun.toYmdHms();
         if (year === solarYear) {
           if (solarYmd < liChunYmd) {
-            g--;
+            g2--;
             z--;
           }
           if (solarYmdHms < liChunYmdHms) {
@@ -9432,7 +9432,7 @@ var init_dist = __esm({
           }
         } else if (year < solarYear) {
           if (solarYmd >= liChunYmd) {
-            g++;
+            g2++;
             z++;
           }
           if (solarYmdHms >= liChunYmdHms) {
@@ -9440,14 +9440,14 @@ var init_dist = __esm({
             zExact++;
           }
         }
-        o.yearGanIndex = yearGanIndex;
-        o.yearZhiIndex = yearZhiIndex;
-        o.yearGanIndexByLiChun = (g < 0 ? g + 10 : g) % 10;
-        o.yearZhiIndexByLiChun = (z < 0 ? z + 12 : z) % 12;
-        o.yearGanIndexExact = (gExact < 0 ? gExact + 10 : gExact) % 10;
-        o.yearZhiIndexExact = (zExact < 0 ? zExact + 12 : zExact) % 12;
+        o2.yearGanIndex = yearGanIndex;
+        o2.yearZhiIndex = yearZhiIndex;
+        o2.yearGanIndexByLiChun = (g2 < 0 ? g2 + 10 : g2) % 10;
+        o2.yearZhiIndexByLiChun = (z < 0 ? z + 12 : z) % 12;
+        o2.yearGanIndexExact = (gExact < 0 ? gExact + 10 : gExact) % 10;
+        o2.yearZhiIndexExact = (zExact < 0 ? zExact + 12 : zExact) % 12;
       }
-      static _computeMonth(o, solar) {
+      static _computeMonth(o2, solar) {
         let start = null;
         let end = null;
         const ymd = solar.toYmd();
@@ -9455,7 +9455,7 @@ var init_dist = __esm({
         const size = LunarUtil.JIE_QI_IN_USE.length;
         let index = -3;
         for (let i = 0; i < size; i += 2) {
-          end = o.jieQi[LunarUtil.JIE_QI_IN_USE[i]];
+          end = o2.jieQi[LunarUtil.JIE_QI_IN_USE[i]];
           const symd = null == start ? ymd : start.toYmd();
           if (ymd >= symd && ymd < end.toYmd()) {
             break;
@@ -9463,13 +9463,13 @@ var init_dist = __esm({
           start = end;
           index++;
         }
-        let offset = ((o.yearGanIndexByLiChun + (index < 0 ? 1 : 0)) % 5 + 1) * 2 % 10;
-        o.monthGanIndex = ((index < 0 ? index + 10 : index) + offset) % 10;
-        o.monthZhiIndex = ((index < 0 ? index + 12 : index) + LunarUtil.BASE_MONTH_ZHI_INDEX) % 12;
+        let offset = ((o2.yearGanIndexByLiChun + (index < 0 ? 1 : 0)) % 5 + 1) * 2 % 10;
+        o2.monthGanIndex = ((index < 0 ? index + 10 : index) + offset) % 10;
+        o2.monthZhiIndex = ((index < 0 ? index + 12 : index) + LunarUtil.BASE_MONTH_ZHI_INDEX) % 12;
         start = null;
         index = -3;
         for (let i = 0; i < size; i += 2) {
-          end = o.jieQi[LunarUtil.JIE_QI_IN_USE[i]];
+          end = o2.jieQi[LunarUtil.JIE_QI_IN_USE[i]];
           const stime = null == start ? time3 : start.toYmdHms();
           if (time3 >= stime && time3 < end.toYmdHms()) {
             break;
@@ -9477,21 +9477,21 @@ var init_dist = __esm({
           start = end;
           index++;
         }
-        offset = ((o.yearGanIndexExact + (index < 0 ? 1 : 0)) % 5 + 1) * 2 % 10;
-        o.monthGanIndexExact = ((index < 0 ? index + 10 : index) + offset) % 10;
-        o.monthZhiIndexExact = ((index < 0 ? index + 12 : index) + LunarUtil.BASE_MONTH_ZHI_INDEX) % 12;
+        offset = ((o2.yearGanIndexExact + (index < 0 ? 1 : 0)) % 5 + 1) * 2 % 10;
+        o2.monthGanIndexExact = ((index < 0 ? index + 10 : index) + offset) % 10;
+        o2.monthZhiIndexExact = ((index < 0 ? index + 12 : index) + LunarUtil.BASE_MONTH_ZHI_INDEX) % 12;
       }
-      static _computeDay(o, solar, hour, minute) {
+      static _computeDay(o2, solar, hour, minute) {
         const noon = Solar.fromYmdHms(solar.getYear(), solar.getMonth(), solar.getDay(), 12, 0, 0);
         const offset = Math.floor(noon.getJulianDay()) - 11;
         const dayGanIndex = offset % 10;
         const dayZhiIndex = offset % 12;
-        o.dayGanIndex = dayGanIndex;
-        o.dayZhiIndex = dayZhiIndex;
+        o2.dayGanIndex = dayGanIndex;
+        o2.dayZhiIndex = dayZhiIndex;
         let dayGanExact = dayGanIndex;
         let dayZhiExact = dayZhiIndex;
-        o.dayGanIndexExact2 = dayGanExact;
-        o.dayZhiIndexExact2 = dayZhiExact;
+        o2.dayGanIndexExact2 = dayGanExact;
+        o2.dayZhiIndexExact2 = dayZhiExact;
         const hm = (hour < 10 ? "0" : "") + hour + ":" + (minute < 10 ? "0" : "") + minute;
         if (hm >= "23:00" && hm <= "23:59") {
           dayGanExact++;
@@ -9503,19 +9503,19 @@ var init_dist = __esm({
             dayZhiExact -= 12;
           }
         }
-        o.dayGanIndexExact = dayGanExact;
-        o.dayZhiIndexExact = dayZhiExact;
+        o2.dayGanIndexExact = dayGanExact;
+        o2.dayZhiIndexExact = dayZhiExact;
       }
-      static _computeTime(o, hour, minute) {
+      static _computeTime(o2, hour, minute) {
         const timeZhiIndex = LunarUtil.getTimeZhiIndex((hour < 10 ? "0" : "") + hour + ":" + (minute < 10 ? "0" : "") + minute);
-        o.timeZhiIndex = timeZhiIndex;
-        o.timeGanIndex = (o.dayGanIndexExact % 5 * 2 + timeZhiIndex) % 10;
+        o2.timeZhiIndex = timeZhiIndex;
+        o2.timeGanIndex = (o2.dayGanIndexExact % 5 * 2 + timeZhiIndex) % 10;
       }
-      static _computeWeek(o, solar) {
-        o.weekIndex = solar.getWeek();
+      static _computeWeek(o2, solar) {
+        o2.weekIndex = solar.getWeek();
       }
       static _compute(year, hour, minute, solar, ly) {
-        const o = {
+        const o2 = {
           timeGanIndex: 0,
           timeZhiIndex: 0,
           dayGanIndex: 0,
@@ -9538,13 +9538,13 @@ var init_dist = __esm({
           jieQi: {},
           jieQiList: []
         };
-        _Lunar._computeJieQi(o, ly);
-        _Lunar._computeYear(o, solar, year);
-        _Lunar._computeMonth(o, solar);
-        _Lunar._computeDay(o, solar, hour, minute);
-        _Lunar._computeTime(o, hour, minute);
-        _Lunar._computeWeek(o, solar);
-        return o;
+        _Lunar._computeJieQi(o2, ly);
+        _Lunar._computeYear(o2, solar, year);
+        _Lunar._computeMonth(o2, solar);
+        _Lunar._computeDay(o2, solar, hour, minute);
+        _Lunar._computeTime(o2, hour, minute);
+        _Lunar._computeWeek(o2, solar);
+        return o2;
       }
       constructor(year, month, day, hour, minute, second, solar, ly) {
         const info = _Lunar._compute(year, hour, minute, solar, ly);
@@ -10132,9 +10132,9 @@ var init_dist = __esm({
       }
       getFestivals() {
         const l = [];
-        const f = LunarUtil.FESTIVAL[this._month + "-" + this._day];
-        if (f) {
-          l.push(f);
+        const f2 = LunarUtil.FESTIVAL[this._month + "-" + this._day];
+        if (f2) {
+          l.push(f2);
         }
         if (Math.abs(this._month) == 12 && this._day >= 29 && this._year != this.next(1).getYear()) {
           l.push(I18n.getMessage("jr.chuXi"));
@@ -10145,8 +10145,8 @@ var init_dist = __esm({
         const l = [];
         const fs = LunarUtil.OTHER_FESTIVAL[this._month + "-" + this._day];
         if (fs) {
-          fs.forEach((f) => {
-            l.push(f);
+          fs.forEach((f2) => {
+            l.push(f2);
           });
         }
         let jq = this.getJieQiSolar(I18n.getMessage("jq.qingMing"));
@@ -10587,11 +10587,11 @@ var init_dist = __esm({
         s += " " + this.getTimeZhi() + "(" + this.getTimeShengXiao() + ")\u65F6";
         s += " \u7EB3\u97F3[" + this.getYearNaYin() + " " + this.getMonthNaYin() + " " + this.getDayNaYin() + " " + this.getTimeNaYin() + "]";
         s += " \u661F\u671F" + this.getWeekInChinese();
-        this.getFestivals().forEach((f) => {
-          s += " (" + f + ")";
+        this.getFestivals().forEach((f2) => {
+          s += " (" + f2 + ")";
         });
-        this.getOtherFestivals().forEach((f) => {
-          s += " (" + f + ")";
+        this.getOtherFestivals().forEach((f2) => {
+          s += " (" + f2 + ")";
         });
         const jq = this.getJieQi();
         if (jq.length > 0) {
@@ -10784,7 +10784,7 @@ var init_dist = __esm({
       }
       static fromJulianDay(julianDay) {
         let d = Math.floor(julianDay + 0.5);
-        let f = julianDay + 0.5 - d;
+        let f2 = julianDay + 0.5 - d;
         if (d >= 2299161) {
           const c = Math.floor((d - 186721625e-2) / 36524.25);
           d += 1 + c - Math.floor(c / 4);
@@ -10802,14 +10802,14 @@ var init_dist = __esm({
           month -= 1;
           year -= 4716;
         }
-        f *= 24;
-        let hour = Math.floor(f);
-        f -= hour;
-        f *= 60;
-        let minute = Math.floor(f);
-        f -= minute;
-        f *= 60;
-        let second = Math.round(f);
+        f2 *= 24;
+        let hour = Math.floor(f2);
+        f2 -= hour;
+        f2 *= 60;
+        let minute = Math.floor(f2);
+        f2 -= minute;
+        f2 *= 60;
+        let second = Math.round(f2);
         if (second > 59) {
           second -= 60;
           minute++;
@@ -10840,9 +10840,9 @@ var init_dist = __esm({
         }
         y++;
         m *= 2;
-        const h = LunarUtil.index(timeGanZhi.substring(1), LunarUtil.ZHI, -1) * 2;
-        let hours = [h];
-        if (0 == h && 2 == sect) {
+        const h2 = LunarUtil.index(timeGanZhi.substring(1), LunarUtil.ZHI, -1) * 2;
+        let hours = [h2];
+        if (0 == h2 && 2 == sect) {
           hours = [0, 23];
         }
         const startYear = baseYear - 1;
@@ -10944,20 +10944,20 @@ var init_dist = __esm({
       }
       getFestivals() {
         const l = [];
-        let f = SolarUtil.FESTIVAL[this._month + "-" + this._day];
-        if (f) {
-          l.push(f);
+        let f2 = SolarUtil.FESTIVAL[this._month + "-" + this._day];
+        if (f2) {
+          l.push(f2);
         }
         const weeks = Math.ceil(this._day / 7);
         const week = this.getWeek();
-        f = SolarUtil.WEEK_FESTIVAL[this._month + "-" + weeks + "-" + week];
-        if (f) {
-          l.push(f);
+        f2 = SolarUtil.WEEK_FESTIVAL[this._month + "-" + weeks + "-" + week];
+        if (f2) {
+          l.push(f2);
         }
         if (this._day + 7 > SolarUtil.getDaysOfMonth(this._year, this._month)) {
-          f = SolarUtil.WEEK_FESTIVAL[this._month + "-0-" + week];
-          if (f) {
-            l.push(f);
+          f2 = SolarUtil.WEEK_FESTIVAL[this._month + "-0-" + week];
+          if (f2) {
+            l.push(f2);
           }
         }
         return l;
@@ -10966,8 +10966,8 @@ var init_dist = __esm({
         const l = [];
         const fs = SolarUtil.OTHER_FESTIVAL[this._month + "-" + this._day];
         if (fs) {
-          fs.forEach((f) => {
-            l.push(f);
+          fs.forEach((f2) => {
+            l.push(f2);
           });
         }
         return l;
@@ -11063,8 +11063,8 @@ var init_dist = __esm({
         }
         s += " \u661F\u671F" + this.getWeekInChinese();
         const festivals = this.getFestivals();
-        festivals.forEach((f) => {
-          s += " (" + f + ")";
+        festivals.forEach((f2) => {
+          s += " (" + f2 + ")";
         });
         s += " " + this.getXingZuo() + "\u5EA7";
         return s;
@@ -11171,9 +11171,9 @@ var init_dist = __esm({
         }
       }
       nextHour(hours) {
-        const h = this._hour + hours;
-        const n = h < 0 ? -1 : 1;
-        let hour = Math.abs(h);
+        const h2 = this._hour + hours;
+        const n = h2 < 0 ? -1 : 1;
+        let hour = Math.abs(h2);
         let days = Math.floor(hour / 24) * n;
         hour = hour % 24 * n;
         if (hour < 0) {
@@ -11191,15 +11191,15 @@ var init_dist = __esm({
         let m = this._month;
         const d = this._day + ((this._second / 60 + this._minute) / 60 + this._hour) / 24;
         let n = 0;
-        let g = false;
+        let g2 = false;
         if (y * 372 + m * 31 + Math.floor(d) >= 588829) {
-          g = true;
+          g2 = true;
         }
         if (m <= 2) {
           m += 12;
           y--;
         }
-        if (g) {
+        if (g2) {
           n = Math.floor(y / 100);
           n = 2 - n + Math.floor(n / 4);
         }
@@ -11290,6 +11290,1458 @@ var init_dist = __esm({
     Solar = _Solar;
     Solar.J2000 = 2451545;
     I18n.init();
+  }
+});
+
+// src/calculation/integration/validator.ts
+function validateBirthInfo(input) {
+  const errors = [];
+  if (!input.solarDate) {
+    errors.push("solarDate is required");
+  } else if (!(input.solarDate instanceof Date)) {
+    errors.push("solarDate must be a Date object");
+  } else if (isNaN(input.solarDate.getTime())) {
+    errors.push("solarDate is invalid");
+  } else {
+    const year = input.solarDate.getFullYear();
+    if (year < 1900 || year > 2100) {
+      errors.push("solarDate year must be between 1900 and 2100");
+    }
+  }
+  if (input.longitude === void 0 || input.longitude === null) {
+    errors.push("longitude is required");
+  } else if (typeof input.longitude !== "number") {
+    errors.push("longitude must be a number");
+  } else if (isNaN(input.longitude)) {
+    errors.push("longitude is invalid");
+  } else if (input.longitude < -180 || input.longitude > 180) {
+    errors.push("longitude must be between -180 and 180 degrees");
+  }
+  if (!input.gender) {
+    errors.push("gender is required");
+  } else if (input.gender !== "male" && input.gender !== "female") {
+    errors.push('gender must be "male" or "female"');
+  }
+  if (input.isLeapMonth !== void 0 && typeof input.isLeapMonth !== "boolean") {
+    errors.push("isLeapMonth must be a boolean");
+  }
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+var init_validator = __esm({
+  "src/calculation/integration/validator.ts"() {
+    "use strict";
+  }
+});
+
+// src/calculation/core/time/trueSolarTime.ts
+function calculateEquationOfTime(date5) {
+  const year = date5.getFullYear();
+  const startOfYear = new Date(year, 0, 1);
+  const diff = date5.getTime() - startOfYear.getTime();
+  const dayOfYear = Math.floor(diff / (1e3 * 60 * 60 * 24)) + 1;
+  const B = 360 / 365 * (dayOfYear - 81);
+  const radB = B * Math.PI / 180;
+  const eot = B + 9.87 * Math.sin(2 * radB) - 7.53 * Math.cos(radB) - 1.5 * Math.sin(radB);
+  return eot / 60;
+}
+function calculateTrueSolarTime(clockTime, longitude, standardMeridian = 120) {
+  const longitudeCorrection = (longitude - standardMeridian) * 4;
+  const equationOfTime = calculateEquationOfTime(clockTime);
+  const totalCorrection = longitudeCorrection + equationOfTime;
+  const trueSolarTime = new Date(clockTime.getTime() + totalCorrection * 60 * 1e3);
+  return {
+    trueSolarTime,
+    longitudeCorrection,
+    equationOfTime,
+    totalCorrection
+  };
+}
+var init_trueSolarTime = __esm({
+  "src/calculation/core/time/trueSolarTime.ts"() {
+    "use strict";
+  }
+});
+
+// src/calculation/core/time/julianDay.ts
+function dateToJulianDay(date5) {
+  let year = date5.getFullYear();
+  let month = date5.getMonth() + 1;
+  const day = date5.getDate();
+  if (month <= 2) {
+    year -= 1;
+    month += 12;
+  }
+  const a = Math.floor(year / 100);
+  const b = 2 - a + Math.floor(a / 4);
+  const jd = Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + b - 1524.5;
+  return Math.floor(jd);
+}
+var init_julianDay = __esm({
+  "src/calculation/core/time/julianDay.ts"() {
+    "use strict";
+  }
+});
+
+// src/calculation/core/time/solarTerms.ts
+function getSolarTermTime(year, term) {
+  if (!SOLAR_TERMS.includes(term)) {
+    throw new Error(`Invalid solar term: ${term}`);
+  }
+  const solar = Solar.fromYmdHms(year, 1, 1, 0, 0, 0);
+  const jieQiTable = solar.getJieQiTable();
+  const termDate = jieQiTable[term];
+  if (!termDate) {
+    throw new Error(`Solar term ${term} not found for year ${year}`);
+  }
+  return termDate;
+}
+function getLichunTime(year) {
+  return getSolarTermTime(year, "\u7ACB\u6625");
+}
+var SOLAR_TERMS;
+var init_solarTerms = __esm({
+  "src/calculation/core/time/solarTerms.ts"() {
+    "use strict";
+    init_dist();
+    SOLAR_TERMS = [
+      "\u7ACB\u6625",
+      "\u96E8\u6C34",
+      "\u9A5A\u87C4",
+      "\u6625\u5206",
+      "\u6E05\u660E",
+      "\u7A40\u96E8",
+      "\u7ACB\u590F",
+      "\u5C0F\u6EFF",
+      "\u8292\u7A2E",
+      "\u590F\u81F3",
+      "\u5C0F\u6691",
+      "\u5927\u6691",
+      "\u7ACB\u79CB",
+      "\u8655\u6691",
+      "\u767D\u9732",
+      "\u79CB\u5206",
+      "\u5BD2\u9732",
+      "\u971C\u964D",
+      "\u7ACB\u51AC",
+      "\u5C0F\u96EA",
+      "\u5927\u96EA",
+      "\u51AC\u81F3",
+      "\u5C0F\u5BD2",
+      "\u5927\u5BD2"
+    ];
+  }
+});
+
+// src/calculation/core/time/index.ts
+var init_time = __esm({
+  "src/calculation/core/time/index.ts"() {
+    "use strict";
+    init_trueSolarTime();
+    init_julianDay();
+    init_solarTerms();
+  }
+});
+
+// src/calculation/core/ganZhi/conversion.ts
+function indexToGanZhi(index) {
+  const normalizedIndex = (index % 60 + 60) % 60;
+  const stemIndex = normalizedIndex % 10;
+  const branchIndex = normalizedIndex % 12;
+  return {
+    stem: HEAVENLY_STEMS[stemIndex],
+    branch: EARTHLY_BRANCHES[branchIndex]
+  };
+}
+function ganZhiToIndex(ganZhi) {
+  const stemIndex = HEAVENLY_STEMS.indexOf(ganZhi.stem);
+  const branchIndex = EARTHLY_BRANCHES.indexOf(ganZhi.branch);
+  if (stemIndex === -1 || branchIndex === -1) {
+    throw new Error(`Invalid GanZhi: ${ganZhi.stem}${ganZhi.branch}`);
+  }
+  for (let n = 0; n < 60; n++) {
+    if (n % 10 === stemIndex && n % 12 === branchIndex) {
+      return n;
+    }
+  }
+  throw new Error(`No valid index for GanZhi: ${ganZhi.stem}${ganZhi.branch}`);
+}
+var HEAVENLY_STEMS, EARTHLY_BRANCHES;
+var init_conversion = __esm({
+  "src/calculation/core/ganZhi/conversion.ts"() {
+    "use strict";
+    HEAVENLY_STEMS = [
+      "\u7532",
+      "\u4E59",
+      "\u4E19",
+      "\u4E01",
+      "\u620A",
+      "\u5DF1",
+      "\u5E9A",
+      "\u8F9B",
+      "\u58EC",
+      "\u7678"
+    ];
+    EARTHLY_BRANCHES = [
+      "\u5B50",
+      "\u4E11",
+      "\u5BC5",
+      "\u536F",
+      "\u8FB0",
+      "\u5DF3",
+      "\u5348",
+      "\u672A",
+      "\u7533",
+      "\u9149",
+      "\u620C",
+      "\u4EA5"
+    ];
+  }
+});
+
+// src/calculation/core/ganZhi/modulo.ts
+function stemModulo(value) {
+  return (value % 10 + 10) % 10;
+}
+var init_modulo = __esm({
+  "src/calculation/core/ganZhi/modulo.ts"() {
+    "use strict";
+  }
+});
+
+// src/calculation/core/ganZhi/index.ts
+var init_ganZhi = __esm({
+  "src/calculation/core/ganZhi/index.ts"() {
+    "use strict";
+    init_conversion();
+    init_modulo();
+  }
+});
+
+// src/calculation/bazi/fourPillars.ts
+function calculateYearPillar(solarDate, lichunTime) {
+  let year = solarDate.getFullYear();
+  if (solarDate < lichunTime) {
+    year -= 1;
+  }
+  const index = ((year - 3) % 60 + 60) % 60;
+  return indexToGanZhi(index);
+}
+function calculateMonthPillar(solarLongitude, yearStemIndex) {
+  const normalizedLongitude = (solarLongitude + 45) % 360;
+  const monthBranchOffset = Math.floor(normalizedLongitude / 30);
+  const branchIndex = (monthBranchOffset + 2) % 12;
+  const stemIndex = stemModulo(2 * yearStemIndex + 2);
+  let pillarIndex = 0;
+  for (let n = 0; n < 60; n++) {
+    if (n % 10 === stemIndex && n % 12 === branchIndex) {
+      pillarIndex = n;
+      break;
+    }
+  }
+  return indexToGanZhi(pillarIndex);
+}
+function calculateDayPillar(date5) {
+  const jdn = dateToJulianDay(date5);
+  const index = ((jdn - 10) % 60 + 60) % 60;
+  return indexToGanZhi(index);
+}
+function calculateHourPillar(trueSolarTime, dayStemIndex) {
+  const hour = trueSolarTime.getHours();
+  const minute = trueSolarTime.getMinutes();
+  const totalMinutes = hour * 60 + minute;
+  let branchIndex;
+  if (totalMinutes >= 23 * 60) {
+    branchIndex = 0;
+  } else {
+    branchIndex = Math.floor((totalMinutes + 60) / 120) % 12;
+  }
+  const stemIndex = stemModulo(2 * dayStemIndex);
+  let pillarIndex = 0;
+  for (let n = 0; n < 60; n++) {
+    if (n % 10 === stemIndex && n % 12 === branchIndex) {
+      pillarIndex = n;
+      break;
+    }
+  }
+  return indexToGanZhi(pillarIndex);
+}
+var init_fourPillars = __esm({
+  "src/calculation/bazi/fourPillars.ts"() {
+    "use strict";
+    init_ganZhi();
+    init_time();
+  }
+});
+
+// src/calculation/ziwei/palaces.ts
+function calculateLifePalace(lunarMonth, hourBranch, options) {
+  const adjustment = options?.leapMonthAdjustment ?? 0;
+  const adjustedMonth = lunarMonth + adjustment;
+  const position = ((adjustedMonth - hourBranch + 1 + 12) % 12 + 12) % 12;
+  return {
+    position,
+    branch: EARTHLY_BRANCHES2[position]
+  };
+}
+function calculateBodyPalace(lunarMonth, hourBranch) {
+  const position = ((lunarMonth + hourBranch - 1) % 12 + 12) % 12;
+  return {
+    position,
+    branch: EARTHLY_BRANCHES2[position]
+  };
+}
+var EARTHLY_BRANCHES2;
+var init_palaces = __esm({
+  "src/calculation/ziwei/palaces.ts"() {
+    "use strict";
+    EARTHLY_BRANCHES2 = [
+      "\u5B50",
+      "\u4E11",
+      "\u5BC5",
+      "\u536F",
+      "\u8FB0",
+      "\u5DF3",
+      "\u5348",
+      "\u672A",
+      "\u7533",
+      "\u9149",
+      "\u620C",
+      "\u4EA5"
+    ];
+  }
+});
+
+// src/calculation/ziwei/bureau.ts
+function calculateBureau(lifePalaceStem, lifePalaceBranch) {
+  if (!HEAVENLY_STEMS3.includes(lifePalaceStem)) {
+    throw new Error(`Invalid heavenly stem: ${lifePalaceStem}`);
+  }
+  if (!EARTHLY_BRANCHES3.includes(lifePalaceBranch)) {
+    throw new Error(`Invalid earthly branch: ${lifePalaceBranch}`);
+  }
+  const key = `${lifePalaceStem}${lifePalaceBranch}`;
+  const bureau = NAYIN_BUREAU_MAP[key];
+  if (!bureau) {
+    throw new Error(`Invalid Jiazi combination: ${key}`);
+  }
+  return bureau;
+}
+var HEAVENLY_STEMS3, EARTHLY_BRANCHES3, NAYIN_BUREAU_MAP;
+var init_bureau = __esm({
+  "src/calculation/ziwei/bureau.ts"() {
+    "use strict";
+    HEAVENLY_STEMS3 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+    EARTHLY_BRANCHES3 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
+    NAYIN_BUREAU_MAP = {
+      // 甲子、乙丑 海中金 (Metal) -> 4
+      "\u7532\u5B50": 4,
+      "\u4E59\u4E11": 4,
+      // 丙寅、丁卯 爐中火 (Fire) -> 6
+      "\u4E19\u5BC5": 6,
+      "\u4E01\u536F": 6,
+      // 戊辰、己巳 大林木 (Wood) -> 3
+      "\u620A\u8FB0": 3,
+      "\u5DF1\u5DF3": 3,
+      // 庚午、辛未 路旁土 (Earth) -> 5
+      "\u5E9A\u5348": 5,
+      "\u8F9B\u672A": 5,
+      // 壬申、癸酉 劍鋒金 (Metal) -> 4
+      "\u58EC\u7533": 4,
+      "\u7678\u9149": 4,
+      // 甲戌、乙亥 山頭火 (Fire) -> 6
+      "\u7532\u620C": 6,
+      "\u4E59\u4EA5": 6,
+      // 丙子、丁丑 澗下水 (Water) -> 2
+      "\u4E19\u5B50": 2,
+      "\u4E01\u4E11": 2,
+      // 戊寅、己卯 城頭土 (Earth) -> 5
+      "\u620A\u5BC5": 5,
+      "\u5DF1\u536F": 5,
+      // 庚辰、辛巳 白蠟金 (Metal) -> 4
+      "\u5E9A\u8FB0": 4,
+      "\u8F9B\u5DF3": 4,
+      // 壬午、癸未 楊柳木 (Wood) -> 3
+      "\u58EC\u5348": 3,
+      "\u7678\u672A": 3,
+      // 甲申、乙酉 泉中水 (Water) -> 2
+      "\u7532\u7533": 2,
+      "\u4E59\u9149": 2,
+      // 丙戌、丁亥 屋上土 (Earth) -> 5
+      "\u4E19\u620C": 5,
+      "\u4E01\u4EA5": 5,
+      // 戊子、己丑 霹靂火 (Fire) -> 6
+      "\u620A\u5B50": 6,
+      "\u5DF1\u4E11": 6,
+      // 庚寅、辛卯 松柏木 (Wood) -> 3
+      "\u5E9A\u5BC5": 3,
+      "\u8F9B\u536F": 3,
+      // 壬辰、癸巳 長流水 (Water) -> 2
+      "\u58EC\u8FB0": 2,
+      "\u7678\u5DF3": 2,
+      // 甲午、乙未 砂中金 (Metal) -> 4
+      "\u7532\u5348": 4,
+      "\u4E59\u672A": 4,
+      // 丙申、丁酉 山下火 (Fire) -> 6
+      "\u4E19\u7533": 6,
+      "\u4E01\u9149": 6,
+      // 戊戌、己亥 平地木 (Wood) -> 3
+      "\u620A\u620C": 3,
+      "\u5DF1\u4EA5": 3,
+      // 庚子、辛丑 壁上土 (Earth) -> 5
+      "\u5E9A\u5B50": 5,
+      "\u8F9B\u4E11": 5,
+      // 壬寅、癸卯 金箔金 (Metal) -> 4
+      "\u58EC\u5BC5": 4,
+      "\u7678\u536F": 4,
+      // 甲辰、乙巳 覆燈火 (Fire) -> 6
+      "\u7532\u8FB0": 6,
+      "\u4E59\u5DF3": 6,
+      // 丙午、丁未 天河水 (Water) -> 2
+      "\u4E19\u5348": 2,
+      "\u4E01\u672A": 2,
+      // 戊申、己酉 大驛土 (Earth) -> 5
+      "\u620A\u7533": 5,
+      "\u5DF1\u9149": 5,
+      // 庚戌、辛亥 釵釧金 (Metal) -> 4
+      "\u5E9A\u620C": 4,
+      "\u8F9B\u4EA5": 4,
+      // 壬子、癸丑 桑柘木 (Wood) -> 3
+      "\u58EC\u5B50": 3,
+      "\u7678\u4E11": 3,
+      // 甲寅、乙卯 大溪水 (Water) -> 2
+      "\u7532\u5BC5": 2,
+      "\u4E59\u536F": 2,
+      // 丙辰、丁巳 砂中土 (Earth) -> 5
+      "\u4E19\u8FB0": 5,
+      "\u4E01\u5DF3": 5,
+      // 戊午、己未 天上火 (Fire) -> 6
+      "\u620A\u5348": 6,
+      "\u5DF1\u672A": 6,
+      // 庚申、辛酉 石榴木 (Wood) -> 3
+      "\u5E9A\u7533": 3,
+      "\u8F9B\u9149": 3,
+      // 壬戌、癸亥 大海水 (Water) -> 2
+      "\u58EC\u620C": 2,
+      "\u7678\u4EA5": 2
+    };
+  }
+});
+
+// src/calculation/ziwei/stars/ziwei.ts
+function findZiWeiPosition(lunarDay, bureau) {
+  if (lunarDay < 1 || lunarDay > 30) {
+    throw new Error(`Invalid lunar day: ${lunarDay}. Must be 1-30.`);
+  }
+  if (![2, 3, 4, 5, 6].includes(bureau)) {
+    throw new Error(`Invalid bureau: ${bureau}. Must be 2, 3, 4, 5, or 6.`);
+  }
+  let pos;
+  if (lunarDay % bureau === 0) {
+    pos = lunarDay / bureau;
+  } else {
+    const remainder = lunarDay % bureau;
+    const toAdd = bureau - remainder;
+    const quotient = Math.floor((lunarDay + toAdd) / bureau);
+    if (toAdd % 2 === 1) {
+      pos = quotient - toAdd;
+    } else {
+      pos = quotient + toAdd;
+    }
+  }
+  let finalPos = (2 + pos - 1) % 12;
+  if (finalPos < 0) {
+    finalPos = finalPos + 12;
+  }
+  return finalPos;
+}
+var init_ziwei = __esm({
+  "src/calculation/ziwei/stars/ziwei.ts"() {
+    "use strict";
+  }
+});
+
+// src/calculation/ziwei/stars/tianfu.ts
+function findTianFuPosition(ziWeiPosition) {
+  if (ziWeiPosition < 0 || ziWeiPosition >= 12) {
+    throw new Error(`Invalid ZiWei position: ${ziWeiPosition}. Must be 0-11.`);
+  }
+  let tianfuPos = (4 - ziWeiPosition) % 12;
+  if (tianfuPos < 0) {
+    tianfuPos += 12;
+  }
+  return tianfuPos;
+}
+var init_tianfu = __esm({
+  "src/calculation/ziwei/stars/tianfu.ts"() {
+    "use strict";
+  }
+});
+
+// src/calculation/ziwei/stars/auxiliary.ts
+function findTimeStars(hourBranch) {
+  if (hourBranch < 0 || hourBranch >= 12) {
+    throw new Error(`Invalid hour branch: ${hourBranch}. Must be 0-11.`);
+  }
+  let wenChang = (10 - hourBranch) % 12;
+  if (wenChang < 0) wenChang += 12;
+  const wenQu = (4 + hourBranch) % 12;
+  return { wenChang, wenQu };
+}
+function findMonthStars(lunarMonth) {
+  if (lunarMonth < 1 || lunarMonth > 12) {
+    throw new Error(`Invalid lunar month: ${lunarMonth}. Must be 1-12.`);
+  }
+  const monthIndex = lunarMonth - 1;
+  const zuoFu = (4 + monthIndex) % 12;
+  let youBi = (10 - monthIndex) % 12;
+  if (youBi < 0) youBi += 12;
+  return { zuoFu, youBi };
+}
+var init_auxiliary = __esm({
+  "src/calculation/ziwei/stars/auxiliary.ts"() {
+    "use strict";
+  }
+});
+
+// src/calculation/core/wuXing/relations.ts
+function stemToWuXing(stem) {
+  const wuXing = STEM_WUXING_MAP[stem];
+  if (!wuXing) {
+    throw new Error(`Invalid stem: ${stem}`);
+  }
+  return wuXing;
+}
+var STEM_WUXING_MAP;
+var init_relations = __esm({
+  "src/calculation/core/wuXing/relations.ts"() {
+    "use strict";
+    STEM_WUXING_MAP = {
+      "\u7532": "Wood",
+      "\u4E59": "Wood",
+      "\u4E19": "Fire",
+      "\u4E01": "Fire",
+      "\u620A": "Earth",
+      "\u5DF1": "Earth",
+      "\u5E9A": "Metal",
+      "\u8F9B": "Metal",
+      "\u58EC": "Water",
+      "\u7678": "Water"
+    };
+  }
+});
+
+// src/calculation/bazi/hiddenStems.ts
+function getHiddenStems(branch) {
+  const hiddenStems = HIDDEN_STEMS_MAP[branch];
+  if (!hiddenStems) {
+    throw new Error(`Invalid earthly branch: ${branch}`);
+  }
+  return hiddenStems;
+}
+var HIDDEN_STEMS_MAP;
+var init_hiddenStems = __esm({
+  "src/calculation/bazi/hiddenStems.ts"() {
+    "use strict";
+    HIDDEN_STEMS_MAP = {
+      // 子 (Rat) - 癸 (Water)
+      \u5B50: [
+        { stem: "\u7678", weight: "primary", days: 30 }
+      ],
+      // 丑 (Ox) - 己癸辛
+      \u4E11: [
+        { stem: "\u5DF1", weight: "primary", days: 9 },
+        { stem: "\u7678", weight: "middle", days: 9 },
+        { stem: "\u8F9B", weight: "residual", days: 12 }
+      ],
+      // 寅 (Tiger) - 甲丙戊
+      \u5BC5: [
+        { stem: "\u7532", weight: "primary", days: 7 },
+        { stem: "\u4E19", weight: "middle", days: 7 },
+        { stem: "\u620A", weight: "residual", days: 16 }
+      ],
+      // 卯 (Rabbit) - 乙 (Wood)
+      \u536F: [
+        { stem: "\u4E59", weight: "primary", days: 30 }
+      ],
+      // 辰 (Dragon) - 戊乙癸
+      \u8FB0: [
+        { stem: "\u620A", weight: "primary", days: 9 },
+        { stem: "\u4E59", weight: "middle", days: 9 },
+        { stem: "\u7678", weight: "residual", days: 12 }
+      ],
+      // 巳 (Snake) - 丙庚戊
+      \u5DF3: [
+        { stem: "\u4E19", weight: "primary", days: 7 },
+        { stem: "\u5E9A", weight: "middle", days: 7 },
+        { stem: "\u620A", weight: "residual", days: 16 }
+      ],
+      // 午 (Horse) - 丁己 (Fire)
+      \u5348: [
+        { stem: "\u4E01", weight: "primary", days: 10 },
+        { stem: "\u5DF1", weight: "residual", days: 20 }
+      ],
+      // 未 (Goat) - 己丁乙
+      \u672A: [
+        { stem: "\u5DF1", weight: "primary", days: 9 },
+        { stem: "\u4E01", weight: "middle", days: 9 },
+        { stem: "\u4E59", weight: "residual", days: 12 }
+      ],
+      // 申 (Monkey) - 庚壬戊
+      \u7533: [
+        { stem: "\u5E9A", weight: "primary", days: 7 },
+        { stem: "\u58EC", weight: "middle", days: 7 },
+        { stem: "\u620A", weight: "residual", days: 16 }
+      ],
+      // 酉 (Rooster) - 辛 (Metal)
+      \u9149: [
+        { stem: "\u8F9B", weight: "primary", days: 30 }
+      ],
+      // 戌 (Dog) - 戊辛丁
+      \u620C: [
+        { stem: "\u620A", weight: "primary", days: 9 },
+        { stem: "\u8F9B", weight: "middle", days: 9 },
+        { stem: "\u4E01", weight: "residual", days: 12 }
+      ],
+      // 亥 (Pig) - 壬甲
+      \u4EA5: [
+        { stem: "\u58EC", weight: "primary", days: 7 },
+        { stem: "\u7532", weight: "residual", days: 23 }
+      ]
+    };
+  }
+});
+
+// src/calculation/wuXing/seasonality.ts
+function getSeasonFromBranch(monthBranch) {
+  const season = BRANCH_SEASON_MAP[monthBranch];
+  if (!season) {
+    throw new Error(`Invalid month branch: ${monthBranch}`);
+  }
+  return season;
+}
+function getSeasonalityCoefficient(element, season) {
+  return SEASONALITY_COEFFICIENT[season][element];
+}
+function applySeasonalityAdjustment(wuxingScores, monthBranch) {
+  const season = getSeasonFromBranch(monthBranch);
+  return {
+    Wood: wuxingScores.Wood * getSeasonalityCoefficient("Wood", season),
+    Fire: wuxingScores.Fire * getSeasonalityCoefficient("Fire", season),
+    Earth: wuxingScores.Earth * getSeasonalityCoefficient("Earth", season),
+    Metal: wuxingScores.Metal * getSeasonalityCoefficient("Metal", season),
+    Water: wuxingScores.Water * getSeasonalityCoefficient("Water", season)
+  };
+}
+var BRANCH_SEASON_MAP, SEASONALITY_COEFFICIENT;
+var init_seasonality = __esm({
+  "src/calculation/wuXing/seasonality.ts"() {
+    "use strict";
+    BRANCH_SEASON_MAP = {
+      "\u5BC5": "Spring",
+      "\u536F": "Spring",
+      "\u5DF3": "Summer",
+      "\u5348": "Summer",
+      "\u7533": "Autumn",
+      "\u9149": "Autumn",
+      "\u4EA5": "Winter",
+      "\u5B50": "Winter",
+      "\u8FB0": "Transitional",
+      "\u620C": "Transitional",
+      "\u4E11": "Transitional",
+      "\u672A": "Transitional"
+    };
+    SEASONALITY_COEFFICIENT = {
+      Spring: { Wood: 1.5, Fire: 1.3, Water: 1, Earth: 0.7, Metal: 0.5 },
+      Summer: { Fire: 1.5, Earth: 1.3, Wood: 1, Metal: 0.7, Water: 0.5 },
+      Autumn: { Metal: 1.5, Water: 1.3, Earth: 1, Wood: 0.7, Fire: 0.5 },
+      Winter: { Water: 1.5, Wood: 1.3, Metal: 1, Fire: 0.7, Earth: 0.5 },
+      Transitional: { Earth: 1.5, Metal: 1.3, Fire: 1, Water: 0.7, Wood: 0.5 }
+    };
+  }
+});
+
+// src/calculation/wuXing/distribution.ts
+function getTianganScores(stems) {
+  const scores = {
+    Wood: 0,
+    Fire: 0,
+    Earth: 0,
+    Metal: 0,
+    Water: 0
+  };
+  for (const stem of stems) {
+    const wuXing = stemToWuXing(stem);
+    scores[wuXing] += 1;
+  }
+  return scores;
+}
+function getHiddenStemScores(branches) {
+  const scores = {
+    Wood: 0,
+    Fire: 0,
+    Earth: 0,
+    Metal: 0,
+    Water: 0
+  };
+  for (const branch of branches) {
+    const hiddenStems = getHiddenStems(branch);
+    for (const hs of hiddenStems) {
+      const wuXing = stemToWuXing(hs.stem);
+      let weight = 0;
+      if (hs.weight === "primary") {
+        weight = hiddenStems.length === 1 ? 1 : 0.6;
+      } else if (hs.weight === "middle") {
+        weight = 0.3;
+      } else if (hs.weight === "residual") {
+        weight = 0.1;
+      }
+      scores[wuXing] += weight;
+    }
+  }
+  return scores;
+}
+function getTotalScores(tianganScores, hiddenStemScores, monthBranch) {
+  const rawScores = {
+    Wood: tianganScores.Wood + hiddenStemScores.Wood,
+    Fire: tianganScores.Fire + hiddenStemScores.Fire,
+    Earth: tianganScores.Earth + hiddenStemScores.Earth,
+    Metal: tianganScores.Metal + hiddenStemScores.Metal,
+    Water: tianganScores.Water + hiddenStemScores.Water
+  };
+  return applySeasonalityAdjustment(rawScores, monthBranch);
+}
+function calculateWuXingDistribution(fourPillars) {
+  const stems = [
+    fourPillars.year.stem,
+    fourPillars.month.stem,
+    fourPillars.day.stem,
+    fourPillars.hour.stem
+  ];
+  const branches = [
+    fourPillars.year.branch,
+    fourPillars.month.branch,
+    fourPillars.day.branch,
+    fourPillars.hour.branch
+  ];
+  const tianganScores = getTianganScores(stems);
+  const hiddenStemScores = getHiddenStemScores(branches);
+  const adjustedScores = getTotalScores(
+    tianganScores,
+    hiddenStemScores,
+    fourPillars.month.branch
+  );
+  let dominant = "Wood";
+  let deficient = "Wood";
+  let maxScore = adjustedScores.Wood;
+  let minScore = adjustedScores.Wood;
+  const elements = ["Fire", "Earth", "Metal", "Water"];
+  for (const element of elements) {
+    if (adjustedScores[element] > maxScore) {
+      maxScore = adjustedScores[element];
+      dominant = element;
+    }
+    if (adjustedScores[element] < minScore) {
+      minScore = adjustedScores[element];
+      deficient = element;
+    }
+  }
+  const values = Object.values(adjustedScores);
+  const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+  const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+  const stddev = Math.sqrt(variance);
+  const balance = mean > 0 ? Math.max(0, 1 - stddev / mean) : 0;
+  return {
+    raw: {
+      tiangan: tianganScores,
+      hiddenStems: hiddenStemScores
+    },
+    adjusted: adjustedScores,
+    dominant,
+    deficient,
+    balance
+  };
+}
+var init_distribution = __esm({
+  "src/calculation/wuXing/distribution.ts"() {
+    "use strict";
+    init_relations();
+    init_hiddenStems();
+    init_seasonality();
+  }
+});
+
+// src/calculation/fortune/qiyun.ts
+function determineFortuneDirection(yearStem, gender) {
+  const isYangStem = YANG_STEMS.includes(yearStem);
+  if (gender === "male" && isYangStem || gender === "female" && !isYangStem) {
+    return "forward";
+  }
+  return "backward";
+}
+function findNearestJie(birthDate, direction) {
+  const birthYear = birthDate.getFullYear();
+  const years = direction === "forward" ? [birthYear, birthYear + 1] : [birthYear - 1, birthYear];
+  const allJieDates = [];
+  for (const year of years) {
+    for (const jieTerm of JIE_TERMS) {
+      try {
+        const jieDate = getSolarTermTime(year, jieTerm);
+        allJieDates.push(jieDate);
+      } catch {
+        continue;
+      }
+    }
+  }
+  allJieDates.sort((a, b) => a.getTime() - b.getTime());
+  if (direction === "forward") {
+    const nextJie = allJieDates.find((jie) => jie > birthDate);
+    if (!nextJie) {
+      throw new Error("Cannot find next Jie solar term");
+    }
+    return nextJie;
+  } else {
+    const prevJie = allJieDates.reverse().find((jie) => jie < birthDate);
+    if (!prevJie) {
+      throw new Error("Cannot find previous Jie solar term");
+    }
+    return prevJie;
+  }
+}
+function calculateQiYunDate(birthDate, yearStem, gender, trueSolarTime) {
+  const direction = determineFortuneDirection(yearStem, gender);
+  const targetJie = findNearestJie(trueSolarTime, direction);
+  const diffMilliseconds = Math.abs(targetJie.getTime() - trueSolarTime.getTime());
+  const diffMinutes = diffMilliseconds / (1e3 * 60);
+  const metabolicDays = diffMinutes / 1440;
+  const totalRealDays = metabolicDays * 120;
+  const qiyunDate = new Date(birthDate);
+  qiyunDate.setDate(qiyunDate.getDate() + totalRealDays);
+  return qiyunDate;
+}
+var YANG_STEMS, JIE_TERMS;
+var init_qiyun = __esm({
+  "src/calculation/fortune/qiyun.ts"() {
+    "use strict";
+    init_solarTerms();
+    YANG_STEMS = ["\u7532", "\u4E19", "\u620A", "\u5E9A", "\u58EC"];
+    JIE_TERMS = SOLAR_TERMS.filter((_, index) => index % 2 === 0);
+  }
+});
+
+// src/calculation/fortune/dayun.ts
+function generateDaYunList(monthPillar, qiyunDate, direction, count = 10) {
+  const cycles = [];
+  let currentIndex = ganZhiToIndex(monthPillar);
+  for (let i = 0; i < count; i++) {
+    if (direction === "forward") {
+      currentIndex = (currentIndex + 1) % 60;
+    } else {
+      currentIndex = (currentIndex - 1 + 60) % 60;
+    }
+    const ganZhi = indexToGanZhi(currentIndex);
+    const startDate = new Date(qiyunDate);
+    startDate.setFullYear(startDate.getFullYear() + i * 10);
+    const endDate = new Date(startDate);
+    endDate.setFullYear(endDate.getFullYear() + 10);
+    const age = i * 10;
+    cycles.push({
+      stem: ganZhi.stem,
+      branch: ganZhi.branch,
+      startDate,
+      endDate,
+      age
+    });
+  }
+  return cycles;
+}
+function getCurrentDaYun(dayunList, queryDate) {
+  const queryTime = queryDate.getTime();
+  for (const dayun of dayunList) {
+    const startTime = dayun.startDate.getTime();
+    const endTime = dayun.endDate.getTime();
+    if (queryTime >= startTime && queryTime < endTime) {
+      return dayun;
+    }
+  }
+  return null;
+}
+var init_dayun = __esm({
+  "src/calculation/fortune/dayun.ts"() {
+    "use strict";
+    init_conversion();
+  }
+});
+
+// src/calculation/annual/liuchun.ts
+function getAnnualPillar(queryDate) {
+  const year = queryDate.getFullYear();
+  const lichunTime = getLichunTime(year);
+  const effectiveYear = queryDate < lichunTime ? year - 1 : year;
+  const yearIndex = ((effectiveYear - 4) % 60 + 60) % 60;
+  return indexToGanZhi(yearIndex);
+}
+var init_liuchun = __esm({
+  "src/calculation/annual/liuchun.ts"() {
+    "use strict";
+    init_solarTerms();
+    init_conversion();
+  }
+});
+
+// src/calculation/annual/palace.ts
+function locateAnnualLifePalace(annualBranch, ziweiPalaces) {
+  if (!annualBranch || annualBranch.length === 0) {
+    return -1;
+  }
+  if (!ziweiPalaces || ziweiPalaces.length !== 12) {
+    return -1;
+  }
+  if (!EARTHLY_BRANCHES4.includes(annualBranch)) {
+    return -1;
+  }
+  for (let i = 0; i < ziweiPalaces.length; i++) {
+    if (ziweiPalaces[i].branch === annualBranch) {
+      return i;
+    }
+  }
+  return -1;
+}
+var EARTHLY_BRANCHES4;
+var init_palace = __esm({
+  "src/calculation/annual/palace.ts"() {
+    "use strict";
+    EARTHLY_BRANCHES4 = [
+      "\u5B50",
+      "\u4E11",
+      "\u5BC5",
+      "\u536F",
+      "\u8FB0",
+      "\u5DF3",
+      "\u5348",
+      "\u672A",
+      "\u7533",
+      "\u9149",
+      "\u620C",
+      "\u4EA5"
+    ];
+  }
+});
+
+// src/calculation/annual/interaction.ts
+function detectStemCombinations(annualStem, fourPillars) {
+  const combinations = [];
+  const combination = STEM_COMBINATIONS[annualStem];
+  if (!combination) {
+    return combinations;
+  }
+  const pillars = [
+    { type: "year", stem: fourPillars.year.stem },
+    { type: "month", stem: fourPillars.month.stem },
+    { type: "day", stem: fourPillars.day.stem },
+    { type: "hour", stem: fourPillars.hour.stem }
+  ];
+  for (const pillar of pillars) {
+    if (pillar.stem === combination.partner) {
+      combinations.push({
+        pillar: pillar.type,
+        element: combination.element
+      });
+    }
+  }
+  return combinations;
+}
+function detectBranchClashes(annualBranch, fourPillars) {
+  const clashes = [];
+  const clashBranch = BRANCH_CLASHES[annualBranch];
+  if (!clashBranch) {
+    return clashes;
+  }
+  const pillars = [
+    { type: "year", branch: fourPillars.year.branch, severity: "low" },
+    { type: "month", branch: fourPillars.month.branch, severity: "medium" },
+    { type: "day", branch: fourPillars.day.branch, severity: "high" },
+    { type: "hour", branch: fourPillars.hour.branch, severity: "low" }
+  ];
+  for (const pillar of pillars) {
+    if (pillar.branch === clashBranch) {
+      clashes.push({
+        pillar: pillar.type,
+        severity: pillar.severity
+      });
+    }
+  }
+  return clashes;
+}
+function detectHarmoniousCombinations(annualBranch, fourPillars, dayunBranch) {
+  const combinations = [];
+  const branchSet = /* @__PURE__ */ new Set([
+    annualBranch,
+    fourPillars.year.branch,
+    fourPillars.month.branch,
+    fourPillars.day.branch,
+    fourPillars.hour.branch
+  ]);
+  if (dayunBranch) {
+    branchSet.add(dayunBranch);
+  }
+  for (const harmony of TRIPLE_HARMONY) {
+    const hasAll = harmony.branches.every((branch) => branchSet.has(branch));
+    if (hasAll) {
+      combinations.push({
+        type: "sanhe",
+        branches: [...harmony.branches],
+        element: harmony.element
+      });
+    }
+  }
+  for (const assembly of TRIPLE_ASSEMBLY) {
+    const hasAll = assembly.branches.every((branch) => branchSet.has(branch));
+    if (hasAll) {
+      combinations.push({
+        type: "sanhui",
+        branches: [...assembly.branches],
+        element: assembly.element
+      });
+    }
+  }
+  return combinations;
+}
+var STEM_COMBINATIONS, BRANCH_CLASHES, TRIPLE_HARMONY, TRIPLE_ASSEMBLY;
+var init_interaction = __esm({
+  "src/calculation/annual/interaction.ts"() {
+    "use strict";
+    STEM_COMBINATIONS = {
+      "\u7532": { partner: "\u5DF1", element: "Earth" },
+      "\u5DF1": { partner: "\u7532", element: "Earth" },
+      "\u4E59": { partner: "\u5E9A", element: "Metal" },
+      "\u5E9A": { partner: "\u4E59", element: "Metal" },
+      "\u4E19": { partner: "\u8F9B", element: "Water" },
+      "\u8F9B": { partner: "\u4E19", element: "Water" },
+      "\u4E01": { partner: "\u58EC", element: "Wood" },
+      "\u58EC": { partner: "\u4E01", element: "Wood" },
+      "\u620A": { partner: "\u7678", element: "Fire" },
+      "\u7678": { partner: "\u620A", element: "Fire" }
+    };
+    BRANCH_CLASHES = {
+      "\u5B50": "\u5348",
+      "\u5348": "\u5B50",
+      "\u4E11": "\u672A",
+      "\u672A": "\u4E11",
+      "\u5BC5": "\u7533",
+      "\u7533": "\u5BC5",
+      "\u536F": "\u9149",
+      "\u9149": "\u536F",
+      "\u8FB0": "\u620C",
+      "\u620C": "\u8FB0",
+      "\u5DF3": "\u4EA5",
+      "\u4EA5": "\u5DF3"
+    };
+    TRIPLE_HARMONY = [
+      { branches: ["\u7533", "\u5B50", "\u8FB0"], element: "Water" },
+      { branches: ["\u4EA5", "\u536F", "\u672A"], element: "Wood" },
+      { branches: ["\u5BC5", "\u5348", "\u620C"], element: "Fire" },
+      { branches: ["\u5DF3", "\u9149", "\u4E11"], element: "Metal" }
+    ];
+    TRIPLE_ASSEMBLY = [
+      { branches: ["\u5BC5", "\u536F", "\u8FB0"], element: "Wood" },
+      { branches: ["\u5DF3", "\u5348", "\u672A"], element: "Fire" },
+      { branches: ["\u7533", "\u9149", "\u620C"], element: "Metal" },
+      { branches: ["\u4EA5", "\u5B50", "\u4E11"], element: "Water" }
+    ];
+  }
+});
+
+// src/calculation/integration/calculator.ts
+function getHiddenStems2(branch) {
+  return HIDDEN_STEMS_MAP2[branch] || { primary: branch };
+}
+function calculateTenGod(dayStem, targetStem) {
+  const HEAVENLY_STEMS4 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+  const dayIndex = HEAVENLY_STEMS4.indexOf(dayStem);
+  const targetIndex = HEAVENLY_STEMS4.indexOf(targetStem);
+  if (dayIndex === -1 || targetIndex === -1) {
+    return "\u6BD4\u80A9";
+  }
+  const dayYinYang = dayIndex % 2;
+  const targetYinYang = targetIndex % 2;
+  const diff = (targetIndex - dayIndex + 10) % 10;
+  if (diff === 0) return "\u6BD4\u80A9";
+  if (diff === 1) return dayYinYang === targetYinYang ? "\u52AB\u8D22" : "\u6BD4\u80A9";
+  if (diff === 2) return dayYinYang === targetYinYang ? "\u98DF\u795E" : "\u4F24\u5B98";
+  if (diff === 3) return dayYinYang === targetYinYang ? "\u4F24\u5B98" : "\u98DF\u795E";
+  if (diff === 4) return dayYinYang === targetYinYang ? "\u504F\u8D22" : "\u6B63\u8D22";
+  if (diff === 5) return dayYinYang === targetYinYang ? "\u6B63\u8D22" : "\u504F\u8D22";
+  if (diff === 6) return dayYinYang === targetYinYang ? "\u4E03\u6740" : "\u6B63\u5B98";
+  if (diff === 7) return dayYinYang === targetYinYang ? "\u6B63\u5B98" : "\u4E03\u6740";
+  if (diff === 8) return dayYinYang === targetYinYang ? "\u504F\u5370" : "\u6B63\u5370";
+  if (diff === 9) return dayYinYang === targetYinYang ? "\u6B63\u5370" : "\u504F\u5370";
+  return "\u6BD4\u80A9";
+}
+function calculateStarSymmetry(ziWeiPos, tianFuPos, auxiliaryStars) {
+  const symmetry = [];
+  symmetry.push({
+    star: "\u7D2B\u5FAE",
+    position: ziWeiPos,
+    symmetryPair: "\u5929\u5E9C",
+    symmetryPosition: tianFuPos,
+    symmetryType: "opposite"
+  });
+  symmetry.push({
+    star: "\u5929\u5E9C",
+    position: tianFuPos,
+    symmetryPair: "\u7D2B\u5FAE",
+    symmetryPosition: ziWeiPos,
+    symmetryType: "opposite"
+  });
+  symmetry.push({
+    star: "\u6587\u660C",
+    position: auxiliaryStars.wenChang,
+    symmetryPair: "\u6587\u66F2",
+    symmetryPosition: auxiliaryStars.wenQu,
+    symmetryType: "pair"
+  });
+  symmetry.push({
+    star: "\u6587\u66F2",
+    position: auxiliaryStars.wenQu,
+    symmetryPair: "\u6587\u660C",
+    symmetryPosition: auxiliaryStars.wenChang,
+    symmetryType: "pair"
+  });
+  symmetry.push({
+    star: "\u5DE6\u8F85",
+    position: auxiliaryStars.zuoFu,
+    symmetryPair: "\u53F3\u5F3C",
+    symmetryPosition: auxiliaryStars.youBi,
+    symmetryType: "pair"
+  });
+  symmetry.push({
+    star: "\u53F3\u5F3C",
+    position: auxiliaryStars.youBi,
+    symmetryPair: "\u5DE6\u8F85",
+    symmetryPosition: auxiliaryStars.zuoFu,
+    symmetryType: "pair"
+  });
+  return symmetry;
+}
+var HIDDEN_STEMS_MAP2, UnifiedCalculator;
+var init_calculator = __esm({
+  "src/calculation/integration/calculator.ts"() {
+    "use strict";
+    init_dist();
+    init_validator();
+    init_time();
+    init_ganZhi();
+    init_fourPillars();
+    init_palaces();
+    init_bureau();
+    init_ziwei();
+    init_tianfu();
+    init_auxiliary();
+    init_distribution();
+    init_qiyun();
+    init_dayun();
+    init_liuchun();
+    init_palace();
+    init_interaction();
+    HIDDEN_STEMS_MAP2 = {
+      "\u5B50": { primary: "\u7678" },
+      "\u4E11": { primary: "\u5DF1", middle: "\u7678", residual: "\u8F9B" },
+      "\u5BC5": { primary: "\u7532", middle: "\u4E19", residual: "\u620A" },
+      "\u536F": { primary: "\u4E59" },
+      "\u8FB0": { primary: "\u620A", middle: "\u4E59", residual: "\u7678" },
+      "\u5DF3": { primary: "\u4E19", middle: "\u5E9A", residual: "\u620A" },
+      "\u5348": { primary: "\u4E01", middle: "\u5DF1" },
+      "\u672A": { primary: "\u5DF1", middle: "\u4E01", residual: "\u4E59" },
+      "\u7533": { primary: "\u5E9A", middle: "\u58EC", residual: "\u620A" },
+      "\u9149": { primary: "\u8F9B" },
+      "\u620C": { primary: "\u620A", middle: "\u8F9B", residual: "\u4E01" },
+      "\u4EA5": { primary: "\u58EC", middle: "\u7532" }
+    };
+    UnifiedCalculator = class {
+      /**
+       * Calculate complete BaZi and ZiWei chart
+       *
+       * @param input - Birth information
+       * @returns Complete calculation result
+       * @throws Error if validation fails or calculation error occurs
+       */
+      calculate(input) {
+        const validation = validateBirthInfo(input);
+        if (!validation.valid) {
+          throw new Error(`Validation failed: ${validation.errors.join(", ")}`);
+        }
+        const bazi = this.calculateBaZi(input);
+        const ziwei = this.calculateZiWei(input, bazi);
+        const queryDate = /* @__PURE__ */ new Date();
+        const annualPillar = getAnnualPillar(queryDate);
+        const annualLifePalaceIndex = locateAnnualLifePalace(
+          annualPillar.branch,
+          ziwei.palaces || []
+        );
+        const stemCombinations = detectStemCombinations(annualPillar.stem, bazi.fourPillars);
+        const branchClashes = detectBranchClashes(annualPillar.branch, bazi.fourPillars);
+        const harmoniousCombinations = detectHarmoniousCombinations(
+          annualPillar.branch,
+          bazi.fourPillars,
+          bazi.fortuneCycles.currentDayun?.branch
+        );
+        return {
+          input,
+          bazi,
+          ziwei,
+          annualFortune: {
+            annualPillar,
+            annualLifePalaceIndex,
+            interactions: {
+              stemCombinations,
+              branchClashes,
+              harmoniousCombinations
+            }
+          },
+          timestamp: /* @__PURE__ */ new Date()
+        };
+      }
+      /**
+       * Calculate BaZi (八字) components
+       *
+       * @param input - Birth information
+       * @returns BaZi calculation result
+       */
+      calculateBaZi(input) {
+        const { solarDate, longitude } = input;
+        const calculationSteps = [];
+        const trueSolarTimeResult = calculateTrueSolarTime(solarDate, longitude);
+        const trueSolarTime = trueSolarTimeResult.trueSolarTime;
+        calculationSteps.push({
+          step: "trueSolarTime",
+          input: { solarDate: solarDate.toISOString(), longitude },
+          output: trueSolarTime.toISOString(),
+          description: "Calculate true solar time based on longitude"
+        });
+        const julianDay = dateToJulianDay(solarDate);
+        calculationSteps.push({
+          step: "julianDay",
+          input: { solarDate: solarDate.toISOString() },
+          output: julianDay,
+          description: "Convert solar date to Julian day number"
+        });
+        const solar = Solar.fromDate(solarDate);
+        const solarLongitude = solar.getSolarLongitude();
+        const lichunTime = getLichunTime(solarDate.getFullYear());
+        const year = calculateYearPillar(solarDate, lichunTime);
+        const yearStemIndex = ganZhiToIndex(year) % 10;
+        calculationSteps.push({
+          step: "yearPillar",
+          input: { solarDate: solarDate.toISOString(), lichunTime: lichunTime.toISOString() },
+          output: year,
+          description: "Calculate year pillar using Lichun boundary"
+        });
+        const month = calculateMonthPillar(solarLongitude, yearStemIndex);
+        calculationSteps.push({
+          step: "monthPillar",
+          input: { solarLongitude, yearStemIndex },
+          output: month,
+          description: "Calculate month pillar using solar longitude"
+        });
+        const day = calculateDayPillar(solarDate);
+        const dayStemIndex = ganZhiToIndex(day) % 10;
+        calculationSteps.push({
+          step: "dayPillar",
+          input: { solarDate: solarDate.toISOString() },
+          output: day,
+          description: "Calculate day pillar using Julian day method"
+        });
+        const hour = calculateHourPillar(trueSolarTime, dayStemIndex);
+        calculationSteps.push({
+          step: "hourPillar",
+          input: { trueSolarTime: trueSolarTime.toISOString(), dayStemIndex },
+          output: hour,
+          description: "Calculate hour pillar using true solar time"
+        });
+        const HEAVENLY_STEMS4 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+        const EARTHLY_BRANCHES5 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
+        const yearBranch = EARTHLY_BRANCHES5[ganZhiToIndex(year) % 12];
+        const monthBranch = EARTHLY_BRANCHES5[ganZhiToIndex(month) % 12];
+        const dayBranch = EARTHLY_BRANCHES5[ganZhiToIndex(day) % 12];
+        const hourBranch = EARTHLY_BRANCHES5[ganZhiToIndex(hour) % 12];
+        const dayStem = HEAVENLY_STEMS4[dayStemIndex];
+        const hiddenStems = {
+          year: getHiddenStems2(yearBranch),
+          month: getHiddenStems2(monthBranch),
+          day: getHiddenStems2(dayBranch),
+          hour: getHiddenStems2(hourBranch)
+        };
+        const yearStem = HEAVENLY_STEMS4[yearStemIndex];
+        const monthStem = HEAVENLY_STEMS4[ganZhiToIndex(month) % 10];
+        const hourStem = HEAVENLY_STEMS4[ganZhiToIndex(hour) % 10];
+        const tenGods = {
+          year: calculateTenGod(dayStem, yearStem),
+          month: calculateTenGod(dayStem, monthStem),
+          hour: calculateTenGod(dayStem, hourStem)
+        };
+        const wuxingDistribution = calculateWuXingDistribution({
+          year: { stem: yearStem, branch: yearBranch },
+          month: { stem: monthStem, branch: monthBranch },
+          day: { stem: dayStem, branch: dayBranch },
+          hour: { stem: hourStem, branch: hourBranch }
+        });
+        calculationSteps.push({
+          step: "wuxingDistribution",
+          input: { fourPillars: { year, month, day, hour } },
+          output: wuxingDistribution,
+          description: "Calculate WuXing distribution with seasonality adjustment"
+        });
+        const direction = determineFortuneDirection(yearStem, input.gender);
+        const qiyunDate = calculateQiYunDate(solarDate, yearStem, input.gender, trueSolarTime);
+        calculationSteps.push({
+          step: "qiyunCalculation",
+          input: { birthDate: solarDate.toISOString(), yearStem, gender: input.gender, trueSolarTime: trueSolarTime.toISOString() },
+          output: { qiyunDate: qiyunDate.toISOString(), direction },
+          description: "Calculate QiYun date and fortune direction"
+        });
+        const dayunList = generateDaYunList(
+          { stem: monthStem, branch: monthBranch },
+          qiyunDate,
+          direction,
+          10
+        );
+        const currentDayun = getCurrentDaYun(dayunList, /* @__PURE__ */ new Date());
+        calculationSteps.push({
+          step: "dayunGeneration",
+          input: { monthPillar: month, qiyunDate: qiyunDate.toISOString(), direction, count: 10 },
+          output: { dayunList: dayunList.map((d) => ({ stem: d.stem, branch: d.branch, age: d.age })), currentDayun },
+          description: "Generate 10-year fortune cycles and identify current cycle"
+        });
+        const fortuneCycles = {
+          qiyunDate,
+          direction,
+          dayunList,
+          currentDayun
+        };
+        const metadata = {
+          algorithms: ["JulianDayMethod", "TrueSolarTimeCorrection", "LichunBoundary"],
+          references: ["\u6E0A\u6D77\u5B50\u5E73", "\u4E09\u547D\u901A\u4F1A", "\u6EF4\u5929\u9AD3"],
+          methods: ["FourPillarsCalculation", "HiddenStemsExtraction", "TenGodsMatrix", "SeasonalityAdjustment", "MetabolicConversion", "FortuneDirection"]
+        };
+        return {
+          fourPillars: {
+            year,
+            month,
+            day,
+            hour
+          },
+          trueSolarTime,
+          julianDay,
+          hiddenStems,
+          tenGods,
+          wuxingDistribution,
+          fortuneCycles,
+          calculationSteps,
+          metadata
+        };
+      }
+      /**
+       * Calculate ZiWei (紫微斗數) components
+       *
+       * @param input - Birth information
+       * @param bazi - BaZi calculation result (for hour branch)
+       * @returns ZiWei calculation result
+       */
+      calculateZiWei(input, bazi) {
+        const { solarDate, isLeapMonth } = input;
+        const calculationSteps = [];
+        const solar = Solar.fromDate(solarDate);
+        const lunar = solar.getLunar();
+        const lunarMonth = lunar.getMonth();
+        const lunarDay = lunar.getDay();
+        calculationSteps.push({
+          step: "lunarConversion",
+          input: { solarDate: solarDate.toISOString() },
+          output: { lunarMonth, lunarDay },
+          description: "Convert solar date to lunar calendar"
+        });
+        const hourBranch = ganZhiToIndex(bazi.fourPillars.hour) % 12;
+        const lifePalace = calculateLifePalace(
+          lunarMonth,
+          hourBranch,
+          { leapMonthAdjustment: isLeapMonth ? 1 : 0 }
+        );
+        calculationSteps.push({
+          step: "lifePalace",
+          input: { lunarMonth, hourBranch, isLeapMonth },
+          output: lifePalace,
+          description: "Calculate life palace (\u547D\u5BAB) position"
+        });
+        const bodyPalace = calculateBodyPalace(lunarMonth, hourBranch);
+        calculationSteps.push({
+          step: "bodyPalace",
+          input: { lunarMonth, hourBranch },
+          output: bodyPalace,
+          description: "Calculate body palace (\u8EAB\u5BAB) position"
+        });
+        const lifePalaceIndex = lifePalace.position;
+        const yearStemIndex = ganZhiToIndex(bazi.fourPillars.year) % 10;
+        const lifePalaceStemIndex = (2 * yearStemIndex + 2 + lifePalaceIndex) % 10;
+        const HEAVENLY_STEMS4 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+        const lifePalaceStem = HEAVENLY_STEMS4[lifePalaceStemIndex];
+        const bureau = calculateBureau(lifePalaceStem, lifePalace.branch);
+        calculationSteps.push({
+          step: "bureau",
+          input: { lifePalaceStem, lifePalaceBranch: lifePalace.branch },
+          output: bureau,
+          description: "Calculate five elements bureau (\u4E94\u884C\u5C40)"
+        });
+        const ziWeiPosition = findZiWeiPosition(lunarDay, bureau);
+        calculationSteps.push({
+          step: "ziWeiPosition",
+          input: { lunarDay, bureau },
+          output: ziWeiPosition,
+          description: "Calculate ZiWei star (\u7D2B\u5FAE\u661F) position"
+        });
+        const tianFuPosition = findTianFuPosition(ziWeiPosition);
+        calculationSteps.push({
+          step: "tianFuPosition",
+          input: { ziWeiPosition },
+          output: tianFuPosition,
+          description: "Calculate TianFu star (\u5929\u5E9C\u661F) position based on ZiWei"
+        });
+        const { wenChang, wenQu } = findTimeStars(hourBranch);
+        calculationSteps.push({
+          step: "timeStars",
+          input: { hourBranch },
+          output: { wenChang, wenQu },
+          description: "Calculate time-based auxiliary stars (\u6587\u660C/\u6587\u66F2)"
+        });
+        const { zuoFu, youBi } = findMonthStars(lunarMonth);
+        calculationSteps.push({
+          step: "monthStars",
+          input: { lunarMonth },
+          output: { zuoFu, youBi },
+          description: "Calculate month-based auxiliary stars (\u5DE6\u8F85/\u53F3\u5F3C)"
+        });
+        const auxiliaryStars = { wenChang, wenQu, zuoFu, youBi };
+        const starSymmetry = calculateStarSymmetry(ziWeiPosition, tianFuPosition, auxiliaryStars);
+        const metadata = {
+          algorithms: ["ZiWeiPositioning", "BureauCalculation", "PalacePositioning"],
+          references: ["\u7D2B\u5FAE\u6597\u6570\u5168\u4E66", "\u7D2B\u5FAE\u6597\u6570\u8BB2\u4E49", "\u9AA8\u9AD3\u8D4B"],
+          methods: ["LunarCalendar", "StarSymmetry", "AuxiliaryStarPlacement"]
+        };
+        return {
+          lifePalace,
+          bodyPalace,
+          bureau,
+          ziWeiPosition,
+          tianFuPosition,
+          auxiliaryStars,
+          starSymmetry,
+          calculationSteps,
+          metadata
+        };
+      }
+    };
   }
 });
 
@@ -11591,7 +13043,7 @@ var init_purpleStarCalculation = __esm({
           palaceIndex,
           transformations: []
         };
-        const palace = palaces.find((p) => p.index === palaceIndex);
+        const palace = palaces.find((p2) => p2.index === palaceIndex);
         if (palace) {
           palace.stars.push(star);
         } else {
@@ -11716,7 +13168,7 @@ var init_purpleStarCalculation = __esm({
             daXianPalaceOrderIndex = (currentMingPalaceRelativeIndex - palaceOrderOffset + 12) % 12;
           }
           const daXianPalace = palaces.find(
-            (p) => p.name === this.PALACE_NAMES_ORDERED[daXianPalaceOrderIndex]
+            (p2) => p2.name === this.PALACE_NAMES_ORDERED[daXianPalaceOrderIndex]
           );
           if (!daXianPalace) {
             console.error(
@@ -11765,7 +13217,7 @@ var init_purpleStarCalculation = __esm({
             currentPalaceZhiIndex = (startPalaceZhiIndex - (age - 1) + 12) % 12;
           }
           const xiaoXianPalace = palaces.find(
-            (p) => p.index === currentPalaceZhiIndex
+            (p2) => p2.index === currentPalaceZhiIndex
           );
           if (!xiaoXianPalace) {
             console.error(
@@ -11828,27 +13280,70 @@ var init_purpleStarController = __esm({
   "src/controllers/purpleStarController.ts"() {
     "use strict";
     init_purpleStarCalculation();
+    init_calculator();
     PurpleStarController = class {
       /**
-       * Calculate purple star chart from birth information
+       * Calculate purple star chart using hybrid architecture
+       *
+       * Architecture (Task 4.2-D1):
+       * - UnifiedCalculator: Core calculations (lifePalace, bodyPalace, bureau, star positions)
+       * - Legacy PurpleStarCalculator: Complete palace system with all stars
+       *
+       * This approach ensures mathematical correctness while maintaining comprehensive star data.
        */
       async calculate(requestData) {
-        const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
-        const solarDate = new Date(birthDateTime);
-        if (isNaN(solarDate.getTime())) {
-          throw new Error("Invalid birth date or time");
-        }
-        const birthInfo = {
-          solarDate,
-          gender: requestData.gender
-        };
-        const calculator = new purpleStarCalculation_default(birthInfo);
-        const chart = calculator.generateChart();
-        return {
-          data: {
-            chart
+        try {
+          const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
+          const solarDate = new Date(birthDateTime);
+          if (isNaN(solarDate.getTime())) {
+            throw new Error("Invalid birth date or time format");
           }
-        };
+          if (!requestData.gender || !["male", "female"].includes(requestData.gender)) {
+            throw new Error('Invalid gender: must be "male" or "female"');
+          }
+          const birthInfo = {
+            solarDate,
+            longitude: requestData.longitude || 121.5,
+            gender: requestData.gender,
+            isLeapMonth: requestData.isLeapMonth || false
+          };
+          const unifiedCalculator = new UnifiedCalculator();
+          const coreResult = unifiedCalculator.calculate(birthInfo);
+          const legacyCalculator = new purpleStarCalculation_default({
+            solarDate: birthInfo.solarDate,
+            gender: birthInfo.gender
+          });
+          const legacyChart = legacyCalculator.generateChart();
+          return {
+            data: {
+              chart: {
+                // Core data from UnifiedCalculator (validated)
+                core: {
+                  lifePalace: coreResult.ziwei.lifePalace,
+                  bodyPalace: coreResult.ziwei.bodyPalace,
+                  bureau: coreResult.ziwei.bureau,
+                  ziWeiPosition: coreResult.ziwei.ziWeiPosition,
+                  tianFuPosition: coreResult.ziwei.tianFuPosition
+                },
+                // Palace system from Legacy calculator
+                palaces: legacyChart.palaces,
+                // Legacy compatibility fields
+                mingPalaceIndex: coreResult.ziwei.lifePalace.position,
+                shenPalaceIndex: coreResult.ziwei.bodyPalace.position,
+                mingGan: legacyChart.mingGan,
+                fiveElementsBureau: legacyChart.fiveElementsBureau
+              }
+            }
+          };
+        } catch (error46) {
+          if (error46 instanceof Error) {
+            if (error46.message.startsWith("Validation failed:")) {
+              throw new Error(`Input validation error: ${error46.message.replace("Validation failed: ", "")}`);
+            }
+            throw error46;
+          }
+          throw new Error("Unknown error during purple star calculation");
+        }
       }
     };
   }
@@ -11895,11 +13390,11 @@ var DefaultLogger = class {
     this.writer = config2?.writer ?? new ConsoleLogWriter();
   }
   logQuery(query, params) {
-    const stringifiedParams = params.map((p) => {
+    const stringifiedParams = params.map((p2) => {
       try {
-        return JSON.stringify(p);
+        return JSON.stringify(p2);
       } catch {
-        return String(p);
+        return String(p2);
       }
     });
     const paramsStr = stringifiedParams.length ? ` -- params: [${stringifiedParams.join(", ")}]` : "";
@@ -12714,8 +14209,8 @@ var SQL = class _SQL {
       }
       if (Array.isArray(chunk)) {
         const result = [new StringChunk("(")];
-        for (const [i, p] of chunk.entries()) {
-          result.push(p);
+        for (const [i, p2] of chunk.entries()) {
+          result.push(p2);
           if (i < chunk.length - 1) {
             result.push(new StringChunk(", "));
           }
@@ -12972,20 +14467,20 @@ var Placeholder = class {
   }
 };
 function fillPlaceholders(params, values) {
-  return params.map((p) => {
-    if (is(p, Placeholder)) {
-      if (!(p.name in values)) {
-        throw new Error(`No value for placeholder "${p.name}" was provided`);
+  return params.map((p2) => {
+    if (is(p2, Placeholder)) {
+      if (!(p2.name in values)) {
+        throw new Error(`No value for placeholder "${p2.name}" was provided`);
       }
-      return values[p.name];
+      return values[p2.name];
     }
-    if (is(p, Param) && is(p.value, Placeholder)) {
-      if (!(p.value.name in values)) {
-        throw new Error(`No value for placeholder "${p.value.name}" was provided`);
+    if (is(p2, Param) && is(p2.value, Placeholder)) {
+      if (!(p2.value.name in values)) {
+        throw new Error(`No value for placeholder "${p2.value.name}" was provided`);
       }
-      return p.encoder.mapToDriverValue(values[p.value.name]);
+      return p2.encoder.mapToDriverValue(values[p2.value.name]);
     }
-    return p;
+    return p2;
   });
 }
 var IsDrizzleView = Symbol.for("drizzle:IsDrizzleView");
@@ -13479,7 +14974,7 @@ function createOne(sourceTable) {
       sourceTable,
       table,
       config2,
-      config2?.fields.reduce((res, f) => res && f.notNull, true) ?? false
+      config2?.fields.reduce((res, f2) => res && f2.notNull, true) ?? false
     );
   };
 }
@@ -14782,13 +16277,13 @@ var SQLiteDialect = class {
     setOperators
   }) {
     const fieldsList = fieldsFlat ?? orderSelectedFields(fields);
-    for (const f of fieldsList) {
-      if (is(f.field, Column) && getTableName(f.field.table) !== (is(table, Subquery) ? table._.alias : is(table, SQLiteViewBase) ? table[ViewBaseConfig].name : is(table, SQL) ? void 0 : getTableName(table)) && !((table2) => joins?.some(
+    for (const f2 of fieldsList) {
+      if (is(f2.field, Column) && getTableName(f2.field.table) !== (is(table, Subquery) ? table._.alias : is(table, SQLiteViewBase) ? table[ViewBaseConfig].name : is(table, SQL) ? void 0 : getTableName(table)) && !((table2) => joins?.some(
         ({ alias }) => alias === (table2[Table.Symbol.IsAlias] ? getTableName(table2) : table2[Table.Symbol.BaseName])
-      ))(f.field.table)) {
-        const tableName = getTableName(f.field.table);
+      ))(f2.field.table)) {
+        const tableName = getTableName(f2.field.table);
         throw new Error(
-          `Your "${f.path.join("->")}" field references a column "${tableName}"."${f.field.name}", but the table "${tableName}" is not part of the query! Did you forget to join it?`
+          `Your "${f2.path.join("->")}" field references a column "${tableName}"."${f2.field.name}", but the table "${tableName}" is not part of the query! Did you forget to join it?`
         );
       }
     }
@@ -18036,10 +19531,10 @@ var allowsEval = cached(() => {
     return false;
   }
 });
-function isPlainObject(o) {
-  if (isObject(o) === false)
+function isPlainObject(o2) {
+  if (isObject(o2) === false)
     return false;
-  const ctor = o.constructor;
+  const ctor = o2.constructor;
   if (ctor === void 0)
     return true;
   if (typeof ctor !== "function")
@@ -18052,12 +19547,12 @@ function isPlainObject(o) {
   }
   return true;
 }
-function shallowClone(o) {
-  if (isPlainObject(o))
-    return { ...o };
-  if (Array.isArray(o))
-    return [...o];
-  return o;
+function shallowClone(o2) {
+  if (isPlainObject(o2))
+    return { ...o2 };
+  if (Array.isArray(o2))
+    return [...o2];
+  return o2;
 }
 function numKeys(data) {
   let keyCount = 0;
@@ -18069,8 +19564,8 @@ function numKeys(data) {
   return keyCount;
 }
 var getParsedType = (data) => {
-  const t = typeof data;
-  switch (t) {
+  const t2 = typeof data;
+  switch (t2) {
     case "undefined":
       return "undefined";
     case "string":
@@ -18109,7 +19604,7 @@ var getParsedType = (data) => {
       }
       return "object";
     default:
-      throw new Error(`Unknown data type: ${t}`);
+      throw new Error(`Unknown data type: ${t2}`);
   }
 };
 var propertyKeyTypes = /* @__PURE__ */ new Set(["string", "number", "symbol"]);
@@ -19523,10 +21018,10 @@ var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   inst["~standard"] = {
     validate: (value) => {
       try {
-        const r = safeParse(inst, value);
-        return r.success ? { value: r.data } : { issues: r.error?.issues };
+        const r2 = safeParse(inst, value);
+        return r2.success ? { value: r2.data } : { issues: r2.error?.issues };
       } catch (_) {
-        return safeParseAsync(inst, value).then((r) => r.success ? { value: r.data } : { issues: r.error?.issues });
+        return safeParseAsync(inst, value).then((r2) => r2.success ? { value: r2.data } : { issues: r2.error?.issues });
       }
     },
     vendor: "zod",
@@ -20097,19 +21592,19 @@ function handleCatchall(proms, input, payload, ctx, def, inst) {
   const unrecognized = [];
   const keySet = def.keySet;
   const _catchall = def.catchall._zod;
-  const t = _catchall.def.type;
+  const t2 = _catchall.def.type;
   for (const key in input) {
     if (keySet.has(key))
       continue;
-    if (t === "never") {
+    if (t2 === "never") {
       unrecognized.push(key);
       continue;
     }
-    const r = _catchall.run({ value: input[key], issues: [] }, ctx);
-    if (r instanceof Promise) {
-      proms.push(r.then((r2) => handlePropertyResult(r2, payload, key, input)));
+    const r2 = _catchall.run({ value: input[key], issues: [] }, ctx);
+    if (r2 instanceof Promise) {
+      proms.push(r2.then((r3) => handlePropertyResult(r3, payload, key, input)));
     } else {
-      handlePropertyResult(r, payload, key, input);
+      handlePropertyResult(r2, payload, key, input);
     }
   }
   if (unrecognized.length) {
@@ -20175,11 +21670,11 @@ var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
     const shape = value.shape;
     for (const key of value.keys) {
       const el = shape[key];
-      const r = el._zod.run({ value: input[key], issues: [] }, ctx);
-      if (r instanceof Promise) {
-        proms.push(r.then((r2) => handlePropertyResult(r2, payload, key, input)));
+      const r2 = el._zod.run({ value: input[key], issues: [] }, ctx);
+      if (r2 instanceof Promise) {
+        proms.push(r2.then((r3) => handlePropertyResult(r3, payload, key, input)));
       } else {
-        handlePropertyResult(r, payload, key, input);
+        handlePropertyResult(r2, payload, key, input);
       }
     }
     if (!catchall) {
@@ -20271,7 +21766,7 @@ function handleUnionResults(results, final, inst, ctx) {
       return final;
     }
   }
-  const nonaborted = results.filter((r) => !aborted(r));
+  const nonaborted = results.filter((r2) => !aborted(r2));
   if (nonaborted.length === 1) {
     final.value = nonaborted[0].value;
     return nonaborted[0];
@@ -20286,18 +21781,18 @@ function handleUnionResults(results, final, inst, ctx) {
 }
 var $ZodUnion = /* @__PURE__ */ $constructor("$ZodUnion", (inst, def) => {
   $ZodType.init(inst, def);
-  defineLazy(inst._zod, "optin", () => def.options.some((o) => o._zod.optin === "optional") ? "optional" : void 0);
-  defineLazy(inst._zod, "optout", () => def.options.some((o) => o._zod.optout === "optional") ? "optional" : void 0);
+  defineLazy(inst._zod, "optin", () => def.options.some((o2) => o2._zod.optin === "optional") ? "optional" : void 0);
+  defineLazy(inst._zod, "optout", () => def.options.some((o2) => o2._zod.optout === "optional") ? "optional" : void 0);
   defineLazy(inst._zod, "values", () => {
-    if (def.options.every((o) => o._zod.values)) {
+    if (def.options.every((o2) => o2._zod.values)) {
       return new Set(def.options.flatMap((option) => Array.from(option._zod.values)));
     }
     return void 0;
   });
   defineLazy(inst._zod, "pattern", () => {
-    if (def.options.every((o) => o._zod.pattern)) {
-      const patterns = def.options.map((o) => o._zod.pattern);
-      return new RegExp(`^(${patterns.map((p) => cleanRegex(p.source)).join("|")})$`);
+    if (def.options.every((o2) => o2._zod.pattern)) {
+      const patterns = def.options.map((o2) => o2._zod.pattern);
+      return new RegExp(`^(${patterns.map((p2) => cleanRegex(p2.source)).join("|")})$`);
     }
     return void 0;
   });
@@ -20352,15 +21847,15 @@ var $ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("$ZodDiscriminatedUnio
   const disc = cached(() => {
     const opts = def.options;
     const map2 = /* @__PURE__ */ new Map();
-    for (const o of opts) {
-      const values = o._zod.propValues?.[def.discriminator];
+    for (const o2 of opts) {
+      const values = o2._zod.propValues?.[def.discriminator];
       if (!values || values.size === 0)
-        throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(o)}"`);
+        throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(o2)}"`);
       for (const v of values) {
         if (map2.has(v)) {
           throw new Error(`Duplicate discriminator value "${String(v)}"`);
         }
-        map2.set(v, o);
+        map2.set(v, o2);
       }
     }
     return map2;
@@ -20738,7 +22233,7 @@ var $ZodEnum = /* @__PURE__ */ $constructor("$ZodEnum", (inst, def) => {
   const values = getEnumValues(def.entries);
   const valuesSet = new Set(values);
   inst._zod.values = valuesSet;
-  inst._zod.pattern = new RegExp(`^(${values.filter((k) => propertyKeyTypes.has(typeof k)).map((o) => typeof o === "string" ? escapeRegex(o) : o.toString()).join("|")})$`);
+  inst._zod.pattern = new RegExp(`^(${values.filter((k) => propertyKeyTypes.has(typeof k)).map((o2) => typeof o2 === "string" ? escapeRegex(o2) : o2.toString()).join("|")})$`);
   inst._zod.parse = (payload, _ctx) => {
     const input = payload.value;
     if (valuesSet.has(input)) {
@@ -20760,7 +22255,7 @@ var $ZodLiteral = /* @__PURE__ */ $constructor("$ZodLiteral", (inst, def) => {
   }
   const values = new Set(def.values);
   inst._zod.values = values;
-  inst._zod.pattern = new RegExp(`^(${def.values.map((o) => typeof o === "string" ? escapeRegex(o) : o ? escapeRegex(o.toString()) : String(o)).join("|")})$`);
+  inst._zod.pattern = new RegExp(`^(${def.values.map((o2) => typeof o2 === "string" ? escapeRegex(o2) : o2 ? escapeRegex(o2.toString()) : String(o2)).join("|")})$`);
   inst._zod.parse = (payload, _ctx) => {
     const input = payload.value;
     if (values.has(input)) {
@@ -20832,7 +22327,7 @@ var $ZodOptional = /* @__PURE__ */ $constructor("$ZodOptional", (inst, def) => {
     if (def.innerType._zod.optin === "optional") {
       const result = def.innerType._zod.run(payload, ctx);
       if (result instanceof Promise)
-        return result.then((r) => handleOptionalResult(r, payload.value));
+        return result.then((r2) => handleOptionalResult(r2, payload.value));
       return handleOptionalResult(result, payload.value);
     }
     if (payload.value === void 0) {
@@ -21241,11 +22736,11 @@ var $ZodCustom = /* @__PURE__ */ $constructor("$ZodCustom", (inst, def) => {
   };
   inst._zod.check = (payload) => {
     const input = payload.value;
-    const r = def.fn(input);
-    if (r instanceof Promise) {
-      return r.then((r2) => handleRefineResult(r2, payload, input, inst));
+    const r2 = def.fn(input);
+    if (r2 instanceof Promise) {
+      return r2.then((r3) => handleRefineResult(r3, payload, input, inst));
     }
-    handleRefineResult(r, payload, input, inst);
+    handleRefineResult(r2, payload, input, inst);
     return;
   };
 });
@@ -21331,8 +22826,8 @@ var error = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "number";
       }
@@ -21348,7 +22843,7 @@ var error = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u0645\u062F\u062E\u0644",
@@ -21448,8 +22943,8 @@ var error2 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "number";
       }
@@ -21465,7 +22960,7 @@ var error2 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "input",
@@ -21607,8 +23102,8 @@ var error3 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "\u043B\u0456\u043A";
       }
@@ -21624,7 +23119,7 @@ var error3 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u0443\u0432\u043E\u0434",
@@ -21719,8 +23214,8 @@ function be_default() {
 
 // node_modules/zod/v4/locales/bg.js
 var parsedType = (data) => {
-  const t = typeof data;
-  switch (t) {
+  const t2 = typeof data;
+  switch (t2) {
     case "number": {
       return Number.isNaN(data) ? "NaN" : "\u0447\u0438\u0441\u043B\u043E";
     }
@@ -21736,7 +23231,7 @@ var parsedType = (data) => {
       }
     }
   }
-  return t;
+  return t2;
 };
 var error4 = () => {
   const Sizable = {
@@ -21858,8 +23353,8 @@ var error5 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "number";
       }
@@ -21875,7 +23370,7 @@ var error5 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "entrada",
@@ -21978,8 +23473,8 @@ var error6 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "\u010D\xEDslo";
       }
@@ -22013,7 +23508,7 @@ var error6 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "regul\xE1rn\xED v\xFDraz",
@@ -22126,8 +23621,8 @@ var error7 = () => {
     return TypeNames[type] ?? type;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "tal";
       }
@@ -22144,7 +23639,7 @@ var error7 = () => {
         return "objekt";
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "input",
@@ -22246,8 +23741,8 @@ var error8 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "Zahl";
       }
@@ -22263,7 +23758,7 @@ var error8 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "Eingabe",
@@ -22353,8 +23848,8 @@ function de_default() {
 
 // node_modules/zod/v4/locales/en.js
 var parsedType2 = (data) => {
-  const t = typeof data;
-  switch (t) {
+  const t2 = typeof data;
+  switch (t2) {
     case "number": {
       return Number.isNaN(data) ? "NaN" : "number";
     }
@@ -22370,7 +23865,7 @@ var parsedType2 = (data) => {
       }
     }
   }
-  return t;
+  return t2;
 };
 var error9 = () => {
   const Sizable = {
@@ -22472,8 +23967,8 @@ function en_default() {
 
 // node_modules/zod/v4/locales/eo.js
 var parsedType3 = (data) => {
-  const t = typeof data;
-  switch (t) {
+  const t2 = typeof data;
+  switch (t2) {
     case "number": {
       return Number.isNaN(data) ? "NaN" : "nombro";
     }
@@ -22489,7 +23984,7 @@ var parsedType3 = (data) => {
       }
     }
   }
-  return t;
+  return t2;
 };
 var error10 = () => {
   const Sizable = {
@@ -22628,8 +24123,8 @@ var error11 = () => {
     return TypeNames[type] ?? type;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "number";
       }
@@ -22646,7 +24141,7 @@ var error11 = () => {
         return "object";
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "entrada",
@@ -22749,8 +24244,8 @@ var error12 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "\u0639\u062F\u062F";
       }
@@ -22766,7 +24261,7 @@ var error12 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u0648\u0631\u0648\u062F\u06CC",
@@ -22876,8 +24371,8 @@ var error13 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "number";
       }
@@ -22893,7 +24388,7 @@ var error13 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "s\xE4\xE4nn\xF6llinen lauseke",
@@ -22995,8 +24490,8 @@ var error14 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "nombre";
       }
@@ -23012,7 +24507,7 @@ var error14 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "entr\xE9e",
@@ -23112,8 +24607,8 @@ var error15 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "number";
       }
@@ -23129,7 +24624,7 @@ var error15 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "entr\xE9e",
@@ -23248,16 +24743,16 @@ var error16 = () => {
     number: { unit: "", shortLabel: "\u05E7\u05D8\u05DF", longLabel: "\u05D2\u05D3\u05D5\u05DC" }
     // no unit
   };
-  const typeEntry = (t) => t ? TypeNames[t] : void 0;
-  const typeLabel = (t) => {
-    const e = typeEntry(t);
+  const typeEntry = (t2) => t2 ? TypeNames[t2] : void 0;
+  const typeLabel = (t2) => {
+    const e = typeEntry(t2);
     if (e)
       return e.label;
-    return t ?? TypeNames.unknown.label;
+    return t2 ?? TypeNames.unknown.label;
   };
-  const withDefinite = (t) => `\u05D4${typeLabel(t)}`;
-  const verbFor = (t) => {
-    const e = typeEntry(t);
+  const withDefinite = (t2) => `\u05D4${typeLabel(t2)}`;
+  const verbFor = (t2) => {
+    const e = typeEntry(t2);
     const gender = e?.gender ?? "m";
     return gender === "f" ? "\u05E6\u05E8\u05D9\u05DB\u05D4 \u05DC\u05D4\u05D9\u05D5\u05EA" : "\u05E6\u05E8\u05D9\u05DA \u05DC\u05D4\u05D9\u05D5\u05EA";
   };
@@ -23267,8 +24762,8 @@ var error16 = () => {
     return Sizable[origin] ?? null;
   };
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number":
         return Number.isNaN(data) ? "NaN" : "number";
       case "object": {
@@ -23282,7 +24777,7 @@ var error16 = () => {
         return "object";
       }
       default:
-        return t;
+        return t2;
     }
   };
   const Nouns = {
@@ -23438,8 +24933,8 @@ var error17 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "sz\xE1m";
       }
@@ -23455,7 +24950,7 @@ var error17 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "bemenet",
@@ -23556,8 +25051,8 @@ var error18 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "number";
       }
@@ -23573,7 +25068,7 @@ var error18 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "input",
@@ -23663,8 +25158,8 @@ function id_default() {
 
 // node_modules/zod/v4/locales/is.js
 var parsedType4 = (data) => {
-  const t = typeof data;
-  switch (t) {
+  const t2 = typeof data;
+  switch (t2) {
     case "number": {
       return Number.isNaN(data) ? "NaN" : "n\xFAmer";
     }
@@ -23680,7 +25175,7 @@ var parsedType4 = (data) => {
       }
     }
   }
-  return t;
+  return t2;
 };
 var error19 = () => {
   const Sizable = {
@@ -23791,8 +25286,8 @@ var error20 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "numero";
       }
@@ -23808,7 +25303,7 @@ var error20 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "input",
@@ -23909,8 +25404,8 @@ var error21 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "\u6570\u5024";
       }
@@ -23926,7 +25421,7 @@ var error21 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u5165\u529B\u5024",
@@ -24015,8 +25510,8 @@ function ja_default() {
 
 // node_modules/zod/v4/locales/ka.js
 var parsedType5 = (data) => {
-  const t = typeof data;
-  switch (t) {
+  const t2 = typeof data;
+  switch (t2) {
     case "number": {
       return Number.isNaN(data) ? "NaN" : "\u10E0\u10D8\u10EA\u10EE\u10D5\u10D8";
     }
@@ -24040,7 +25535,7 @@ var parsedType5 = (data) => {
     symbol: "symbol",
     function: "\u10E4\u10E3\u10DC\u10E5\u10EA\u10D8\u10D0"
   };
-  return typeMap[t] ?? t;
+  return typeMap[t2] ?? t2;
 };
 var error22 = () => {
   const Sizable = {
@@ -24151,8 +25646,8 @@ var error23 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "\u1798\u17B7\u1793\u1798\u17C2\u1793\u1787\u17B6\u179B\u17C1\u1781 (NaN)" : "\u179B\u17C1\u1781";
       }
@@ -24168,7 +25663,7 @@ var error23 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u1791\u17B7\u1793\u17D2\u1793\u1793\u17D0\u1799\u1794\u1789\u17D2\u1785\u17BC\u179B",
@@ -24274,8 +25769,8 @@ var error24 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "number";
       }
@@ -24291,7 +25786,7 @@ var error24 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\uC785\uB825",
@@ -24386,11 +25881,11 @@ function ko_default() {
 
 // node_modules/zod/v4/locales/lt.js
 var parsedType6 = (data) => {
-  const t = typeof data;
-  return parsedTypeFromType(t, data);
+  const t2 = typeof data;
+  return parsedTypeFromType(t2, data);
 };
-var parsedTypeFromType = (t, data = void 0) => {
-  switch (t) {
+var parsedTypeFromType = (t2, data = void 0) => {
+  switch (t2) {
     case "number": {
       return Number.isNaN(data) ? "NaN" : "skai\u010Dius";
     }
@@ -24430,7 +25925,7 @@ var parsedTypeFromType = (t, data = void 0) => {
       return "nulin\u0117 reik\u0161m\u0117";
     }
   }
-  return t;
+  return t2;
 };
 var capitalizeFirstCharacter = (text2) => {
   return text2.charAt(0).toUpperCase() + text2.slice(1);
@@ -24627,8 +26122,8 @@ var error26 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "\u0431\u0440\u043E\u0458";
       }
@@ -24644,7 +26139,7 @@ var error26 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u0432\u043D\u0435\u0441",
@@ -24746,8 +26241,8 @@ var error27 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "nombor";
       }
@@ -24763,7 +26258,7 @@ var error27 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "input",
@@ -24863,8 +26358,8 @@ var error28 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "getal";
       }
@@ -24880,7 +26375,7 @@ var error28 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "invoer",
@@ -24981,8 +26476,8 @@ var error29 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "tall";
       }
@@ -24998,7 +26493,7 @@ var error29 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "input",
@@ -25098,8 +26593,8 @@ var error30 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "numara";
       }
@@ -25115,7 +26610,7 @@ var error30 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "giren",
@@ -25216,8 +26711,8 @@ var error31 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "\u0639\u062F\u062F";
       }
@@ -25233,7 +26728,7 @@ var error31 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u0648\u0631\u0648\u062F\u064A",
@@ -25339,8 +26834,8 @@ var error32 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "liczba";
       }
@@ -25356,7 +26851,7 @@ var error32 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "wyra\u017Cenie",
@@ -25457,8 +26952,8 @@ var error33 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "n\xFAmero";
       }
@@ -25474,7 +26969,7 @@ var error33 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "padr\xE3o",
@@ -25617,8 +27112,8 @@ var error34 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "\u0447\u0438\u0441\u043B\u043E";
       }
@@ -25634,7 +27129,7 @@ var error34 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u0432\u0432\u043E\u0434",
@@ -25739,8 +27234,8 @@ var error35 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "\u0161tevilo";
       }
@@ -25756,7 +27251,7 @@ var error35 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "vnos",
@@ -25857,8 +27352,8 @@ var error36 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "antal";
       }
@@ -25874,7 +27369,7 @@ var error36 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "regulj\xE4rt uttryck",
@@ -25976,8 +27471,8 @@ var error37 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "\u0B8E\u0BA3\u0BCD \u0B85\u0BB2\u0BCD\u0BB2\u0BBE\u0BA4\u0BA4\u0BC1" : "\u0B8E\u0BA3\u0BCD";
       }
@@ -25993,7 +27488,7 @@ var error37 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u0B89\u0BB3\u0BCD\u0BB3\u0BC0\u0B9F\u0BC1",
@@ -26094,8 +27589,8 @@ var error38 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "\u0E44\u0E21\u0E48\u0E43\u0E0A\u0E48\u0E15\u0E31\u0E27\u0E40\u0E25\u0E02 (NaN)" : "\u0E15\u0E31\u0E27\u0E40\u0E25\u0E02";
       }
@@ -26111,7 +27606,7 @@ var error38 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E17\u0E35\u0E48\u0E1B\u0E49\u0E2D\u0E19",
@@ -26202,8 +27697,8 @@ function th_default() {
 
 // node_modules/zod/v4/locales/tr.js
 var parsedType7 = (data) => {
-  const t = typeof data;
-  switch (t) {
+  const t2 = typeof data;
+  switch (t2) {
     case "number": {
       return Number.isNaN(data) ? "NaN" : "number";
     }
@@ -26219,7 +27714,7 @@ var parsedType7 = (data) => {
       }
     }
   }
-  return t;
+  return t2;
 };
 var error39 = () => {
   const Sizable = {
@@ -26328,8 +27823,8 @@ var error40 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "\u0447\u0438\u0441\u043B\u043E";
       }
@@ -26345,7 +27840,7 @@ var error40 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u0432\u0445\u0456\u0434\u043D\u0456 \u0434\u0430\u043D\u0456",
@@ -26451,8 +27946,8 @@ var error41 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "\u0646\u0645\u0628\u0631";
       }
@@ -26468,7 +27963,7 @@ var error41 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u0627\u0646 \u067E\u0679",
@@ -26569,8 +28064,8 @@ var error42 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "s\u1ED1";
       }
@@ -26586,7 +28081,7 @@ var error42 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u0111\u1EA7u v\xE0o",
@@ -26686,8 +28181,8 @@ var error43 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "\u975E\u6570\u5B57(NaN)" : "\u6570\u5B57";
       }
@@ -26703,7 +28198,7 @@ var error43 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u8F93\u5165",
@@ -26803,8 +28298,8 @@ var error44 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "number";
       }
@@ -26820,7 +28315,7 @@ var error44 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u8F38\u5165",
@@ -26921,8 +28416,8 @@ var error45 = () => {
     return Sizable[origin] ?? null;
   }
   const parsedType8 = (data) => {
-    const t = typeof data;
-    switch (t) {
+    const t2 = typeof data;
+    switch (t2) {
       case "number": {
         return Number.isNaN(data) ? "NaN" : "n\u1ECD\u0301mb\xE0";
       }
@@ -26938,7 +28433,7 @@ var error45 = () => {
         }
       }
     }
-    return t;
+    return t2;
   };
   const Nouns = {
     regex: "\u1EB9\u0300r\u1ECD \xECb\xE1w\u1ECDl\xE9",
@@ -27059,12 +28554,12 @@ var $ZodRegistry = class {
     return this;
   }
   get(schema) {
-    const p = schema._zod.parent;
-    if (p) {
-      const pm = { ...this.get(p) ?? {} };
+    const p2 = schema._zod.parent;
+    if (p2) {
+      const pm = { ...this.get(p2) ?? {} };
       delete pm.id;
-      const f = { ...pm, ...this._map.get(schema) };
-      return Object.keys(f).length ? f : void 0;
+      const f2 = { ...pm, ...this._map.get(schema) };
+      return Object.keys(f2).length ? f2 : void 0;
     }
     return this._map.get(schema);
   }
@@ -30419,6 +31914,97 @@ var ChartController = class {
 
 // src/index.ts
 import { getAssetFromKV } from "@cloudflare/kv-asset-handler";
+
+// src/controllers/unifiedController.ts
+init_calculator();
+var UnifiedController = class {
+  /**
+   * Calculate complete astrological chart
+   *
+   * @param requestData - Request payload with birth information
+   * @returns Complete calculation result with all BaZi and ZiWei data
+   * @throws Error if validation fails or calculation error occurs
+   */
+  async calculate(requestData) {
+    try {
+      const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
+      const solarDate = new Date(birthDateTime);
+      if (isNaN(solarDate.getTime())) {
+        throw new Error("Invalid birth date or time format");
+      }
+      if (!requestData.gender || !["male", "female"].includes(requestData.gender)) {
+        throw new Error('Invalid gender: must be "male" or "female"');
+      }
+      const birthInfo = {
+        solarDate,
+        longitude: requestData.longitude || 121.5,
+        gender: requestData.gender,
+        isLeapMonth: requestData.isLeapMonth || false
+      };
+      const calculator = new UnifiedCalculator();
+      const result = calculator.calculate(birthInfo);
+      return result;
+    } catch (error46) {
+      if (error46 instanceof Error) {
+        if (error46.message.startsWith("Validation failed:")) {
+          throw new Error(`Input validation error: ${error46.message.replace("Validation failed: ", "")}`);
+        }
+        throw error46;
+      }
+      throw new Error("Unknown error during unified calculation");
+    }
+  }
+};
+
+// src/routes/unifiedRoutes.ts
+function createUnifiedRoutes(router) {
+  router.post("/api/v1/calculate", async (req) => {
+    try {
+      const controller = new UnifiedController();
+      const input = await req.json();
+      const result = await controller.calculate(input);
+      return Response.json(result);
+    } catch (error46) {
+      return Response.json({ error: error46.message }, { status: 400 });
+    }
+  });
+}
+
+// node_modules/itty-router/index.mjs
+var t = ({ base: e = "", routes: t2 = [], ...r2 } = {}) => ({ __proto__: new Proxy({}, { get: (r3, o2, a, s) => (r4, ...c) => t2.push([o2.toUpperCase?.(), RegExp(`^${(s = (e + r4).replace(/\/+(\/|$)/g, "$1")).replace(/(\/?\.?):(\w+)\+/g, "($1(?<$2>*))").replace(/(\/?\.?):(\w+)/g, "($1(?<$2>[^$1/]+?))").replace(/\./g, "\\.").replace(/(\/?)\*/g, "($1.*)?")}/*$`), c, s]) && a }), routes: t2, ...r2, async fetch(e2, ...o2) {
+  let a, s, c = new URL(e2.url), n = e2.query = { __proto__: null };
+  for (let [e3, t3] of c.searchParams) n[e3] = n[e3] ? [].concat(n[e3], t3) : t3;
+  e: try {
+    for (let t3 of r2.before || []) if (null != (a = await t3(e2.proxy ?? e2, ...o2))) break e;
+    t: for (let [r3, n2, l, i] of t2) if ((r3 == e2.method || "ALL" == r3) && (s = c.pathname.match(n2))) {
+      e2.params = s.groups || {}, e2.route = i;
+      for (let t3 of l) if (null != (a = await t3(e2.proxy ?? e2, ...o2))) break t;
+    }
+  } catch (t3) {
+    if (!r2.catch) throw t3;
+    a = await r2.catch(t3, e2.proxy ?? e2, ...o2);
+  }
+  try {
+    for (let t3 of r2.finally || []) a = await t3(a, e2.proxy ?? e2, ...o2) ?? a;
+  } catch (t3) {
+    if (!r2.catch) throw t3;
+    a = await r2.catch(t3, e2.proxy ?? e2, ...o2);
+  }
+  return a;
+} });
+var r = (e = "text/plain; charset=utf-8", t2) => (r2, o2 = {}) => {
+  if (void 0 === r2 || r2 instanceof Response) return r2;
+  const a = new Response(t2?.(r2) ?? r2, o2.url ? void 0 : o2);
+  return a.headers.set("content-type", e), a;
+};
+var o = r("application/json; charset=utf-8", JSON.stringify);
+var p = r("text/plain; charset=utf-8", String);
+var f = r("text/html");
+var u = r("image/jpeg");
+var h = r("image/png");
+var g = r("image/webp");
+
+// src/index.ts
 async function ensureAnonymousUser(db) {
   const orm = drizzle(db);
   const existing = await orm.select().from(users).where(eq(users.id, "anonymous")).get();
@@ -30439,6 +32025,12 @@ async function handleAPI(request, env) {
     return new Response(JSON.stringify({ status: "ok" }), {
       headers: { "Content-Type": "application/json" }
     });
+  }
+  const router = t();
+  createUnifiedRoutes(router);
+  const unifiedResponse = await router.handle(request, env);
+  if (unifiedResponse) {
+    return unifiedResponse;
   }
   await ensureAnonymousUser(env.DB);
   const controller = new ChartController(env.CACHE);

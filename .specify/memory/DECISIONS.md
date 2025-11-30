@@ -1,5 +1,78 @@
 # 決策記錄
 
+## 2025-11-30: Sprint 4 流年計算決策（Task 4.1-4.3）
+
+### 決策：年柱以立春為界並使用 year-4 mod 60 公式
+- **原因**: 八字年柱依節氣而非農曆新年，立春前屬前一年干支；數學基準應回到 4 CE=甲子。
+- **影響**: `getAnnualPillar` 調用 `getLichunTime` 判定邊界，`hasPassedLiChun` 精確到毫秒；歷史年份、閏年、時區都遵循同一基準。
+- **替代**: 以農曆新年或公曆 1/1 為界（放棄，會誤判立春前後的年柱）。
+
+### 決策：流年命宮採用“地支定位 + 意義旋轉”而非重排宮位
+- **原因**: 需保留原紫微盤地支與索引，僅旋轉 12 宮意義以對應流年命宮。
+- **影響**: `locateAnnualLifePalace` 先找地支索引，再用 `rotateAnnualPalaces` 以 (idx-base+12)%12 重排 meaning 序列（命→兄弟→夫妻…父母）；地支與 position 不變。
+- **替代**: 直接重排陣列或複製宮位資料（放棄，易破壞地支與索引對應）。
+
+### 決策：合沖害分析遵循五合/六沖/三合三會標準映射並分級
+- **原因**: 需一致化干支交互規則並突出日支/月支沖擊嚴重度。
+- **影響**: `detectStemCombinations` 使用固定五合表；`detectBranchClashes` 以日支 HIGH、月支 MEDIUM、年/時 LOW 分級；`detectHarmoniousCombinations` 支援三合/三會並可選大運參與。
+- **替代**: 不分嚴重度或僅回傳布林（放棄，失去解釋力）。
+
+## 2025-11-30: FortuneCycles 起運/大運與整合
+
+### 決策：起運方向與代謝日數公式採用 XOR + 120 日轉換
+- **原因**: 八字規則要求男陽/女陰順行、男陰/女陽逆行；節氣差需轉換為 120 倍實際天數
+- **影響**: `determineFortuneDirection` 以性別+年干 XOR 判向；`calculateQiYunDate` 用 Diff_Minutes/1440×120 計算；支援真太陽時計算
+- **替代**: 使用固定方向或忽略節氣差（放棄，結果失真）
+
+### 決策：大運生成與當前週期偵測採用 60 甲子模運算
+- **原因**: 大運需依月柱循環 60 甲子並保持時間精度
+- **影響**: `generateDaYunList` 順/逆行以模運算 ((index±1)+60)%60；每運 10 年並保留原始時分秒；`getCurrentDaYun` 採 start 包含、end 排除邏輯
+- **替代**: 以單純數組截斷或不保留時間元件（放棄，會在邊界失準）
+
+### 決策：FortuneCycles 納入 UnifiedCalculator 與 BaZiResult
+- **原因**: 起運/大運需成為統一輸出與前端契約
+- **影響**: BaZiResult 新增 `fortuneCycles` (qiyunDate/direction/dayunList/currentDayun)；calculateBaZi 新增 `qiyunCalculation`、`dayunGeneration` 記錄並更新 metadata.methods
+- **替代**: 提供獨立 API 或僅在前端計算（放棄，會造成雙維護與資料不一致）
+
+## 2025-11-30: Sprint B 阻塞與 API 格式鎖定
+
+### 決策：Task B3（移除舊計算邏輯）暫停
+- **原因**: `baziCalc.ts` 仍被 7 個組件使用，新路由尚未接入 UnifiedInputForm (Task B2 未完成)
+- **影響**: 保留舊計算器以維持現網功能；先做 B2 並行切換，再刪除舊邏輯
+- **後續**: 建立新舊並行路由，完成功能驗證後再移除舊系統
+
+### 決策：PurpleStarApiResponse 作為前端唯一契約
+- **原因**: Hybrid 架構輸出 core+palaces 分層資料，新欄位需前端適配
+- **影響**: 舊視圖需更新取數；Breaking Change 標記並安排前端改造
+- **替代**: 保留舊格式同步輸出（放棄，增加雙維護成本）
+
+### 決策：立即清除未被引用的紫微前端重複檔
+- **原因**: `ziweiCalc.ts`/`ziweiCalc.spec.ts` 僅供測試，與後端重複
+- **影響**: 標記為低風險清理項，Week 2 執行；減少維護負擔
+- **後續**: 刪除後更新文檔與測試指引
+
+## 2025-11-30: Phase 1-4 完成與統一控制器上線
+
+### 決策：UnifiedCalculator 作為單一真相來源
+- **原因**: 核心演算法已在 UnifiedCalculator 完整覆蓋 (八字/紫微)
+- **影響**: 所有新 API (含 `/api/v1/calculate`) 直接返回 CalculationResult，不經格式轉換
+- **替代方案**: 繼續使用 Legacy 計算結果作為主輸出（放棄，數學驗證弱）
+
+### 決策：Hybrid 架構保留 Legacy palaces
+- **原因**: Legacy Calculator 提供完整星系宮位資料，便於前端過渡
+- **影響**: PurpleStarController 以 Unified (core) + Legacy (palaces) 雙引擎並行，API 回應格式定義於 `types/apiResponse.ts`
+- **兼容**: 保留 mingGan、fiveElementsBureau、palaces 等舊欄位以減少破壞性
+
+### 決策：前端紫微重複邏輯延後移除
+- **原因**: `ziweiCalc.ts` 未被引用但體積大，移除需安排時間
+- **影響**: 短期內維持重複邏輯，Phase 2 專項清理
+- **後續**: Week 2 計劃移除或改為共享套件
+
+### 決策：保留未實作功能為顯式缺口
+- **原因**: 四化飛星頂層彙總、流年太歲從未落地，避免假陽性
+- **影響**: API 不返回相關欄位，文件註記為 TODO
+- **後續**: Phase 2 規劃實作
+
 ## 2025-11-29: Phase 2 紫微斗數計算實現
 
 ### 決策：複用前端計算邏輯
@@ -144,4 +217,3 @@
 - **原因**: 類型安全、D1 原生支援
 - **優點**: 零運行時開銷
 - **替代方案**: Kysely (更靈活但學習曲線)
-

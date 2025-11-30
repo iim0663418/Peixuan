@@ -3,6 +3,8 @@ import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
 import { drizzle } from 'drizzle-orm/d1';
 import { users } from './db/schema';
 import { eq } from 'drizzle-orm';
+import { createUnifiedRoutes } from './routes/unifiedRoutes';
+import { Router } from 'itty-router';
 
 export interface Env {
 	DB: D1Database;
@@ -36,6 +38,16 @@ async function handleAPI(request: Request, env: Env): Promise<Response> {
 		return new Response(JSON.stringify({ status: 'ok' }), {
 			headers: { 'Content-Type': 'application/json' }
 		});
+	}
+
+	// Register unified routes
+	const router = Router();
+	createUnifiedRoutes(router);
+
+	// Try unified routes first
+	const unifiedResponse = await router.handle(request, env);
+	if (unifiedResponse) {
+		return unifiedResponse;
 	}
 
 	// 確保 anonymous 用戶存在

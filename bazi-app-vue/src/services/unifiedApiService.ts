@@ -204,7 +204,7 @@ class UnifiedApiService {
       // Type assertion needed because axios types expect ApiResponse but backend returns CalculationResult
       const backendResult = response.data as unknown as any;
 
-      // Adapt backend format (stem/branch) to frontend format (gan/zhi)
+      // Adapt backend format to frontend format
       const result: CalculationResult = {
         ...backendResult,
         bazi: {
@@ -214,6 +214,19 @@ class UnifiedApiService {
             month: { gan: backendResult.bazi.fourPillars.month.stem, zhi: backendResult.bazi.fourPillars.month.branch },
             day: { gan: backendResult.bazi.fourPillars.day.stem, zhi: backendResult.bazi.fourPillars.day.branch },
             hour: { gan: backendResult.bazi.fourPillars.hour.stem, zhi: backendResult.bazi.fourPillars.hour.branch },
+          },
+        },
+        ziwei: {
+          ...backendResult.ziwei,
+          lifePalace: {
+            name: backendResult.ziwei.lifePalace.branch,
+            position: backendResult.ziwei.lifePalace.position,
+            index: backendResult.ziwei.lifePalace.position, // Alias for compatibility
+          },
+          bodyPalace: {
+            name: backendResult.ziwei.bodyPalace.branch,
+            position: backendResult.ziwei.bodyPalace.position,
+            index: backendResult.ziwei.bodyPalace.position, // Alias for compatibility
           },
         },
       };

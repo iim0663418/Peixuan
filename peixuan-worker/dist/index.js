@@ -11393,7 +11393,8 @@ function getSolarTermTime(year, term) {
   const solar = Solar.fromYmdHms(year, 1, 1, 0, 0, 0);
   const lunar = solar.getLunar();
   const jieQiTable = lunar.getJieQiTable();
-  const termSolar = jieQiTable[term];
+  const simplifiedTerm = TERM_MAPPING[term] || term;
+  const termSolar = jieQiTable[simplifiedTerm] || jieQiTable[term];
   if (!termSolar) {
     throw new Error(`Solar term ${term} not found for year ${year}`);
   }
@@ -11410,7 +11411,7 @@ function getSolarTermTime(year, term) {
 function getLichunTime(year) {
   return getSolarTermTime(year, "\u7ACB\u6625");
 }
-var SOLAR_TERMS;
+var SOLAR_TERMS, TERM_MAPPING;
 var init_solarTerms = __esm({
   "src/calculation/core/time/solarTerms.ts"() {
     "use strict";
@@ -11441,6 +11442,16 @@ var init_solarTerms = __esm({
       "\u5C0F\u5BD2",
       "\u5927\u5BD2"
     ];
+    TERM_MAPPING = {
+      "\u9A5A\u87C4": "\u60CA\u86F0",
+      "\u7A40\u96E8": "\u8C37\u96E8",
+      "\u5C0F\u6EFF": "\u5C0F\u6EE1",
+      "\u8292\u7A2E": "\u8292\u79CD",
+      "\u8655\u6691": "\u5904\u6691",
+      "\u971C\u964D": "\u971C\u964D",
+      "\u5927\u96EA": "\u5927\u96EA"
+      // Others are the same in both traditional and simplified
+    };
   }
 });
 
@@ -12756,6 +12767,63 @@ var init_calculator = __esm({
           calculationSteps,
           metadata
         };
+      }
+    };
+  }
+});
+
+// src/controllers/unifiedController.ts
+var unifiedController_exports = {};
+__export(unifiedController_exports, {
+  UnifiedController: () => UnifiedController
+});
+var UnifiedController;
+var init_unifiedController = __esm({
+  "src/controllers/unifiedController.ts"() {
+    "use strict";
+    init_calculator();
+    UnifiedController = class {
+      /**
+       * Calculate complete astrological chart
+       *
+       * @param requestData - Request payload with birth information
+       * @returns Complete calculation result with all BaZi and ZiWei data
+       * @throws Error if validation fails or calculation error occurs
+       */
+      async calculate(requestData) {
+        console.log("[UnifiedController] START");
+        try {
+          console.log("[UnifiedController] Parsing input...");
+          const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
+          const solarDate = new Date(birthDateTime);
+          console.log("[UnifiedController] Date parsed:", solarDate.toISOString());
+          if (isNaN(solarDate.getTime())) {
+            throw new Error("Invalid birth date or time format");
+          }
+          if (!requestData.gender || !["male", "female"].includes(requestData.gender)) {
+            throw new Error('Invalid gender: must be "male" or "female"');
+          }
+          console.log("[UnifiedController] Creating BirthInfo...");
+          const birthInfo = {
+            solarDate,
+            longitude: requestData.longitude || 121.5,
+            gender: requestData.gender,
+            isLeapMonth: requestData.isLeapMonth || false
+          };
+          console.log("[UnifiedController] Calling UnifiedCalculator...");
+          const calculator = new UnifiedCalculator();
+          const result = calculator.calculate(birthInfo);
+          console.log("[UnifiedController] Calculation complete");
+          return result;
+        } catch (error46) {
+          if (error46 instanceof Error) {
+            if (error46.message.startsWith("Validation failed:")) {
+              throw new Error(`Input validation error: ${error46.message.replace("Validation failed: ", "")}`);
+            }
+            throw error46;
+          }
+          throw new Error("Unknown error during unified calculation");
+        }
       }
     };
   }
@@ -31931,59 +31999,23 @@ var ChartController = class {
 // src/index.ts
 import { getAssetFromKV } from "@cloudflare/kv-asset-handler";
 
-// src/controllers/unifiedController.ts
-init_calculator();
-var UnifiedController = class {
-  /**
-   * Calculate complete astrological chart
-   *
-   * @param requestData - Request payload with birth information
-   * @returns Complete calculation result with all BaZi and ZiWei data
-   * @throws Error if validation fails or calculation error occurs
-   */
-  async calculate(requestData) {
-    console.log("[UnifiedController] Received request:", JSON.stringify(requestData));
-    try {
-      console.log("[UnifiedController] Step 1: Validating input...");
-      const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
-      const solarDate = new Date(birthDateTime);
-      console.log("[UnifiedController] Parsed date:", solarDate.toISOString());
-      if (isNaN(solarDate.getTime())) {
-        throw new Error("Invalid birth date or time format");
-      }
-      if (!requestData.gender || !["male", "female"].includes(requestData.gender)) {
-        throw new Error('Invalid gender: must be "male" or "female"');
-      }
-      const birthInfo = {
-        solarDate,
-        longitude: requestData.longitude || 121.5,
-        gender: requestData.gender,
-        isLeapMonth: requestData.isLeapMonth || false
-      };
-      const calculator = new UnifiedCalculator();
-      const result = calculator.calculate(birthInfo);
-      return result;
-    } catch (error46) {
-      if (error46 instanceof Error) {
-        if (error46.message.startsWith("Validation failed:")) {
-          throw new Error(`Input validation error: ${error46.message.replace("Validation failed: ", "")}`);
-        }
-        throw error46;
-      }
-      throw new Error("Unknown error during unified calculation");
-    }
-  }
-};
-
 // src/routes/unifiedRoutes.ts
+init_unifiedController();
 function createUnifiedRoutes(router) {
   router.post("/api/v1/calculate", async (req) => {
+    console.log("[Route] POST /api/v1/calculate received");
     try {
+      console.log("[Route] Creating controller...");
       const controller = new UnifiedController();
+      console.log("[Route] Parsing JSON...");
       const input = await req.json();
+      console.log("[Route] Input:", JSON.stringify(input));
+      console.log("[Route] Calling controller.calculate...");
       const result = await controller.calculate(input);
+      console.log("[Route] Returning response...");
       return Response.json(result);
     } catch (error46) {
+      console.error("[Route] Error:", error46.message);
       return Response.json({ error: error46.message }, { status: 400 });
     }
   });
@@ -32045,13 +32077,39 @@ async function handleAPI(request, env) {
       headers: { "Content-Type": "application/json" }
     });
   }
+  if (path === "/api/v1/calculate" && method === "POST") {
+    console.log("[handleAPI] Handling /api/v1/calculate");
+    try {
+      const { UnifiedController: UnifiedController2 } = await Promise.resolve().then(() => (init_unifiedController(), unifiedController_exports));
+      const controller2 = new UnifiedController2();
+      const input = await request.json();
+      console.log("[handleAPI] Input:", JSON.stringify(input));
+      const result = await controller2.calculate(input);
+      console.log("[handleAPI] Calculation complete");
+      return new Response(JSON.stringify(result), {
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (error46) {
+      console.error("[handleAPI] Error:", error46.message);
+      return new Response(JSON.stringify({ error: error46.message }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+  }
   const router = t();
   createUnifiedRoutes(router);
-  const unifiedResponse = await router.handle(request, env);
-  if (unifiedResponse) {
-    return unifiedResponse;
+  try {
+    const unifiedResponse = await router.handle(request, env);
+    if (unifiedResponse) {
+      return unifiedResponse;
+    }
+  } catch (error46) {
+    console.error("[handleAPI] Router error:", error46);
   }
-  await ensureAnonymousUser(env.DB);
+  if (!path.startsWith("/api/v1/calculate")) {
+    await ensureAnonymousUser(env.DB);
+  }
   const controller = new ChartController(env.CACHE);
   if (path === "/api/charts" && method === "GET") {
     const userId = "anonymous";

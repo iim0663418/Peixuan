@@ -44,18 +44,49 @@ async function handleAPI(request: Request, env: Env): Promise<Response> {
 		});
 	}
 
+	// Handle /api/v1/calculate directly (bypass router)
+	if (path === '/api/v1/calculate' && method === 'POST') {
+		console.log('[handleAPI] Handling /api/v1/calculate');
+		try {
+			const { UnifiedController } = await import('./controllers/unifiedController');
+			const controller = new UnifiedController();
+			const input = await request.json();
+			console.log('[handleAPI] Input:', JSON.stringify(input));
+			
+			const result = await controller.calculate(input);
+			console.log('[handleAPI] Calculation complete');
+			
+			return new Response(JSON.stringify(result), {
+				headers: { 'Content-Type': 'application/json' }
+			});
+		} catch (error: any) {
+			console.error('[handleAPI] Error:', error.message);
+			return new Response(JSON.stringify({ error: error.message }), {
+				status: 400,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
+	}
+
 	// Register unified routes
 	const router = Router();
 	createUnifiedRoutes(router);
 
 	// Try unified routes first
-	const unifiedResponse = await router.handle(request, env);
-	if (unifiedResponse) {
-		return unifiedResponse;
+	try {
+		const unifiedResponse = await router.handle(request, env);
+		if (unifiedResponse) {
+			return unifiedResponse;
+		}
+	} catch (error) {
+		console.error('[handleAPI] Router error:', error);
+		// Continue to other routes
 	}
 
-	// 確保 anonymous 用戶存在
-	await ensureAnonymousUser(env.DB);
+	// 確保 anonymous 用戶存在 (only for non-unified routes)
+	if (!path.startsWith('/api/v1/calculate')) {
+		await ensureAnonymousUser(env.DB);
+	}
 
 	const controller = new ChartController(env.CACHE);
 

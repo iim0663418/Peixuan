@@ -22,6 +22,20 @@ export const SOLAR_TERMS = [
 export type SolarTermName = typeof SOLAR_TERMS[number];
 
 /**
+ * Mapping from traditional Chinese to simplified Chinese (used by lunar-typescript)
+ */
+const TERM_MAPPING: Record<string, string> = {
+  '驚蟄': '惊蛰',
+  '穀雨': '谷雨',
+  '小滿': '小满',
+  '芒種': '芒种',
+  '處暑': '处暑',
+  '霜降': '霜降',
+  '大雪': '大雪',
+  // Others are the same in both traditional and simplified
+};
+
+/**
  * Get the time of a specific solar term for a given year
  *
  * Uses lunar-typescript's Solar.fromYmdHms() and getJieQiTable() to
@@ -48,8 +62,9 @@ export function getSolarTermTime(year: number, term: SolarTermName): Date {
   const lunar = solar.getLunar();
   const jieQiTable = lunar.getJieQiTable();
 
-  // Retrieve the solar term Solar object
-  const termSolar = jieQiTable[term];
+  // Try to find the term (use mapping if needed)
+  const simplifiedTerm = TERM_MAPPING[term] || term;
+  const termSolar = jieQiTable[simplifiedTerm] || jieQiTable[term];
 
   if (!termSolar) {
     throw new Error(`Solar term ${term} not found for year ${year}`);
@@ -84,7 +99,9 @@ export function getAllSolarTerms(year: number): Map<SolarTermName, Date> {
   const result = new Map<SolarTermName, Date>();
 
   for (const term of SOLAR_TERMS) {
-    const termSolar = jieQiTable[term];
+    const simplifiedTerm = TERM_MAPPING[term] || term;
+    const termSolar = jieQiTable[simplifiedTerm] || jieQiTable[term];
+    
     if (termSolar) {
       // Convert Solar object to Date
       const termDate = new Date(

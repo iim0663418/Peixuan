@@ -26,13 +26,22 @@ export function createUnifiedRoutes(router: Router) {
    * }
    */
   router.post('/api/v1/calculate', async (req: any) => {
+    console.log('[Route] POST /api/v1/calculate received');
     try {
+      console.log('[Route] Creating controller...');
       const controller = new UnifiedController();
+      
+      console.log('[Route] Parsing JSON...');
       const input = await req.json();
+      console.log('[Route] Input:', JSON.stringify(input));
+      
+      console.log('[Route] Calling controller.calculate...');
       const result = await controller.calculate(input);
-
+      
+      console.log('[Route] Returning response...');
       return Response.json(result);
     } catch (error: any) {
+      console.error('[Route] Error:', error.message);
       return Response.json({ error: error.message }, { status: 400 });
     }
   });

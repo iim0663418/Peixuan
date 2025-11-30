@@ -85,10 +85,10 @@ const tenGodsForPillars = computed(() => {
     };
   }
   return {
-    yearPillar: props.tenGods.yearStemGod,
-    monthPillar: props.tenGods.monthStemGod,
-    dayPillar: props.tenGods.dayStemGod, // 這裡顯示的是日干對日干的十神，即比肩/劫財
-    hourPillar: props.tenGods.hourStemGod,
+    yearPillar: props.tenGods.yearPillar,
+    monthPillar: props.tenGods.monthPillar,
+    dayPillar: props.tenGods.dayPillar, // 這裡顯示的是日干對日干的十神，即比肩/劫財
+    hourPillar: props.tenGods.hourPillar,
   };
 });
 </script>

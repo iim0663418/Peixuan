@@ -6,7 +6,32 @@
 
 ---
 
-## ✅ 已完成：ESLint 修復 Phase 2-3 (Task A)
+## 🔄 進行中：TypeScript 構建錯誤修復 (Task A 方案)
+
+### 診斷結果 (2025-11-30 16:35)
+- **根本原因**: 前端構建失敗導致 CI/CD 無法部署新版本
+- **初始錯誤**: 28 個 TypeScript 類型錯誤
+- **當前錯誤**: 3 個 (89% 改善)
+
+### 已修復問題
+1. ✅ baziCalculators.ts: yearStemGod → yearPillar (屬性名稱錯誤)
+2. ✅ UserInputForm.vue: 添加 FiveElement 類型導入
+3. ✅ UserInputForm.vue: stem/branch 類型斷言 (as HeavenlyStem/EarthlyBranch)
+4. ✅ UserInputForm.vue: stemElement/branchElement 類型斷言 (as FiveElement)
+5. ✅ 批量修復所有組件的 yearStemGod → yearPillar 引用
+
+### 剩餘問題 (3 個)
+1. UnifiedResultView.vue:42 - 類型轉換錯誤
+2. UnifiedResultView.vue:107 - 參數類型錯誤
+3. UserInputForm.vue:833 - isLeapMonth 類型不匹配
+
+### 阻塞問題
+- PostCSS 配置錯誤：正則表達式語法問題
+- 可能是 Node.js 版本或依賴問題
+
+### 建議方案
+**方案 B (暫時)**: 修改 GitHub Actions 使用 build:skip-check
+**方案 A (繼續)**: 修復剩餘 3 個錯誤 + PostCSS 問題
 
 ### 最終結果 (2025-11-30 16:05)
 - **修復問題**: 735 (64% 改善)

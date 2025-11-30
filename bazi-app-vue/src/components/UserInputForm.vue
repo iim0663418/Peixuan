@@ -297,16 +297,16 @@
       <h4>主要十神分析</h4>
       <div class="ten-gods-grid">
         <div class="god-item">
-          <strong>年柱天干:</strong> {{ parsedTenGodsResult.yearStemGod }}
+          <strong>年柱天干:</strong> {{ parsedTenGodsResult.yearPillar }}
         </div>
         <div class="god-item">
-          <strong>月柱天干:</strong> {{ parsedTenGodsResult.monthStemGod }}
+          <strong>月柱天干:</strong> {{ parsedTenGodsResult.monthPillar }}
         </div>
         <div class="god-item">
-          <strong>日柱天干:</strong> {{ parsedTenGodsResult.dayStemGod }}
+          <strong>日柱天干:</strong> {{ parsedTenGodsResult.dayPillar }}
         </div>
         <div class="god-item">
-          <strong>時柱天干:</strong> {{ parsedTenGodsResult.hourStemGod }}
+          <strong>時柱天干:</strong> {{ parsedTenGodsResult.hourPillar }}
         </div>
       </div>
     </div>
@@ -369,6 +369,7 @@ import {
   type StartLuckInfo,
   type HeavenlyStem,
   type EarthlyBranch,
+  type FiveElement,
 } from '../types/baziTypes';
 import {
   TenGodsCalculator,
@@ -390,28 +391,28 @@ import YearlyFateTimeline, {
 const adaptApiBaZiToLegacyFormat = (apiBazi: ApiBaZiResult): BaziResult => {
   return {
     yearPillar: {
-      stem: apiBazi.fourPillars.year.gan,
-      branch: apiBazi.fourPillars.year.zhi,
-      stemElement: '', // Will be calculated if needed
-      branchElement: '',
+      stem: apiBazi.fourPillars.year.gan as HeavenlyStem,
+      branch: apiBazi.fourPillars.year.zhi as EarthlyBranch,
+      stemElement: '' as FiveElement, // Will be calculated if needed
+      branchElement: '' as FiveElement,
     },
     monthPillar: {
-      stem: apiBazi.fourPillars.month.gan,
-      branch: apiBazi.fourPillars.month.zhi,
-      stemElement: '',
-      branchElement: '',
+      stem: apiBazi.fourPillars.month.gan as HeavenlyStem,
+      branch: apiBazi.fourPillars.month.zhi as EarthlyBranch,
+      stemElement: '' as FiveElement,
+      branchElement: '' as FiveElement,
     },
     dayPillar: {
-      stem: apiBazi.fourPillars.day.gan,
-      branch: apiBazi.fourPillars.day.zhi,
-      stemElement: '',
-      branchElement: '',
+      stem: apiBazi.fourPillars.day.gan as HeavenlyStem,
+      branch: apiBazi.fourPillars.day.zhi as EarthlyBranch,
+      stemElement: '' as FiveElement,
+      branchElement: '' as FiveElement,
     },
     hourPillar: {
-      stem: apiBazi.fourPillars.hour.gan,
-      branch: apiBazi.fourPillars.hour.zhi,
-      stemElement: '',
-      branchElement: '',
+      stem: apiBazi.fourPillars.hour.gan as HeavenlyStem,
+      branch: apiBazi.fourPillars.hour.zhi as EarthlyBranch,
+      stemElement: '' as FiveElement,
+      branchElement: '' as FiveElement,
     },
   };
 };
@@ -826,7 +827,7 @@ watch(
             birthTime: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`,
             gender: gender as 'male' | 'female',
             longitude: 121.5, // Default Taiwan longitude
-            isLeapMonth: isLeap || false,
+            isLeapMonth: Boolean(isLeap),
           };
 
           const apiResponse = await unifiedApiService.calculate(apiRequest);

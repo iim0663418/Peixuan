@@ -39,7 +39,7 @@
             >
               <div class="hidden-stems">
                 <div class="branch-label">
-                  {{ pillars[key as keyof typeof pillars].label }}
+                  {{ pillars[key as unknown as keyof typeof pillars].label }}
                 </div>
                 <div class="stem-list">
                   <span class="stem-primary">{{ stems.primary }}</span>
@@ -104,7 +104,7 @@
               :span="6"
             >
               <div class="star-card">
-                <div class="star-name">{{ formatStarName(star) }}</div>
+                <div class="star-name">{{ formatStarName(String(star)) }}</div>
                 <div class="star-position">{{ pos }}宮</div>
               </div>
             </el-col>

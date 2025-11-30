@@ -338,17 +338,17 @@ const getTenGod = (pillarIndex: number): string => {
     return '';
   }
 
-  const godKeys = ['yearStemGod', 'monthStemGod', 'dayStemGod', 'hourStemGod'];
+  const godKeys = ['yearPillar', 'monthPillar', 'dayPillar', 'hourPillar'];
   const key = godKeys[pillarIndex] as keyof TenGodsPillars;
   return props.tenGods[key] || '';
 };
 
 const getPillarName = (pillar: string): string => {
   const mapping: Record<string, string> = {
-    yearStemGod: t('baziChart.yearPillar'),
-    monthStemGod: t('baziChart.monthPillar'),
-    dayStemGod: t('baziChart.dayPillar'),
-    hourStemGod: t('baziChart.hourPillar'),
+    yearPillar: t('baziChart.yearPillar'),
+    monthPillar: t('baziChart.monthPillar'),
+    dayPillar: t('baziChart.dayPillar'),
+    hourPillar: t('baziChart.hourPillar'),
   };
   return mapping[pillar] || pillar;
 };

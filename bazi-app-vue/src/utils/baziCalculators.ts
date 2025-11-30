@@ -100,16 +100,16 @@ export class TenGodsCalculator {
   public static getMainStemTenGods(baziResult: BaziResult): TenGodsPillars {
     const dayMaster = baziResult.dayPillar.stem;
     return {
-      yearStemGod: this.getTenGodRelation(
+      yearPillar: this.getTenGodRelation(
         dayMaster,
         baziResult.yearPillar.stem,
       ),
-      monthStemGod: this.getTenGodRelation(
+      monthPillar: this.getTenGodRelation(
         dayMaster,
         baziResult.monthPillar.stem,
       ),
-      dayStemGod: this.getTenGodRelation(dayMaster, baziResult.dayPillar.stem),
-      hourStemGod: this.getTenGodRelation(
+      dayPillar: this.getTenGodRelation(dayMaster, baziResult.dayPillar.stem),
+      hourPillar: this.getTenGodRelation(
         dayMaster,
         baziResult.hourPillar.stem,
       ),

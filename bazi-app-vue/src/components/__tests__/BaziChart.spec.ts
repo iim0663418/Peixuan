@@ -39,10 +39,10 @@ describe('BaziChart.vue', () => {
 
   // Corrected TenGods based on Day Master 戊
   const correctedMockTenGodsResult: TenGodsPillars = {
-    yearStemGod: '七殺' as TenGod, // 甲 (wood) vs 戊 (earth) -> Wood controls Earth (Yang vs Yang) -> 七殺
-    monthStemGod: '偏印' as TenGod, // 丙 (fire) vs 戊 (earth) -> Fire produces Earth (Yang vs Yang) -> 偏印
-    dayStemGod: '比肩' as TenGod, // 戊 (earth) vs 戊 (earth) -> Same element, same polarity -> 比肩
-    hourStemGod: '食神' as TenGod, // 庚 (metal) vs 戊 (earth) -> Earth produces Metal (Yang vs Yang) -> 食神
+    yearPillar: '七殺' as TenGod, // 甲 (wood) vs 戊 (earth) -> Wood controls Earth (Yang vs Yang) -> 七殺
+    monthPillar: '偏印' as TenGod, // 丙 (fire) vs 戊 (earth) -> Fire produces Earth (Yang vs Yang) -> 偏印
+    dayPillar: '比肩' as TenGod, // 戊 (earth) vs 戊 (earth) -> Same element, same polarity -> 比肩
+    hourPillar: '食神' as TenGod, // 庚 (metal) vs 戊 (earth) -> Earth produces Metal (Yang vs Yang) -> 食神
   };
 
   const mountComponent = (propsData: any) => {
@@ -106,16 +106,16 @@ describe('BaziChart.vue', () => {
     });
     const pillarElements = wrapper.findAll('.pillar-card-display');
     expect(pillarElements[0].find('.ten-god').text()).toBe(
-      correctedMockTenGodsResult.hourStemGod,
+      correctedMockTenGodsResult.hourPillar,
     );
     expect(pillarElements[1].find('.ten-god').text()).toBe(
-      correctedMockTenGodsResult.dayStemGod,
+      correctedMockTenGodsResult.dayPillar,
     );
     expect(pillarElements[2].find('.ten-god').text()).toBe(
-      correctedMockTenGodsResult.monthStemGod,
+      correctedMockTenGodsResult.monthPillar,
     );
     expect(pillarElements[3].find('.ten-god').text()).toBe(
-      correctedMockTenGodsResult.yearStemGod,
+      correctedMockTenGodsResult.yearPillar,
     );
   });
 

@@ -141,6 +141,10 @@
       <el-tab-pane label="技術細節" name="technical">
         <TechnicalDetailsCard :result="result" />
       </el-tab-pane>
+
+      <el-tab-pane label="開發者" name="developer">
+        <DeveloperCard :result="result" />
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -152,6 +156,7 @@ import FortuneTimeline from './FortuneTimeline.vue';
 import AnnualInteraction from './AnnualInteraction.vue';
 import StarSymmetryDisplay from './StarSymmetryDisplay.vue';
 import TechnicalDetailsCard from './TechnicalDetailsCard.vue';
+import DeveloperCard from './DeveloperCard.vue';
 
 interface Props {
   result: any;

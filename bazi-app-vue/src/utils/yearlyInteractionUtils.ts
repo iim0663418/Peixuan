@@ -7,7 +7,7 @@ import {
   type HeavenlyStem,
   type EarthlyBranch,
   type BaziResult,
-} from './baziCalc';
+} from '../types/baziTypes';
 
 // 地支關係介面
 export interface BranchRelation {

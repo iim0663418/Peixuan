@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import ElementsChart from '../ElementsChart.vue';
-import type { ElementsDistribution } from '../../utils/baziCalc';
+import type { ElementsDistribution } from '../../types/baziTypes';
 /// <reference types="vitest/globals" />
 // Import Chart and registerables. Chart will be mocked.
 import { Chart, registerables as actualRegisterables } from 'chart.js/auto';

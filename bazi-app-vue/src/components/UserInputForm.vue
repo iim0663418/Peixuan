@@ -358,19 +358,20 @@
 
 <script setup lang="ts">
 import { reactive, onMounted, onUnmounted, ref, watch, computed } from 'vue';
+import unifiedApiService, { type CalculationResult, type BaZiResult as ApiBaZiResult } from '../services/unifiedApiService';
 import {
-  BaziCalculator,
   type BaziResult,
-  type UserInputData as BaziInputData,
-  TenGodsCalculator,
   type TenGodsPillars,
-  FiveElementsAnalyzer,
   type ElementsDistribution,
-  FortuneCycleCalculator,
   type StartLuckInfo,
   type HeavenlyStem,
   type EarthlyBranch,
-} from '../utils/baziCalc';
+} from '../types/baziTypes';
+import {
+  TenGodsCalculator,
+  FiveElementsAnalyzer,
+  FortuneCycleCalculator,
+} from '../utils/baziCalculators';
 import {
   YearlyInteractionAnalyzer,
   type YearlyInteractionResult,
@@ -381,6 +382,36 @@ import ElementsChart from './ElementsChart.vue';
 import YearlyFateTimeline, {
   type YearlyFateInfo,
 } from './YearlyFateTimeline.vue';
+
+// Adapter function: Convert new API response to old BaziResult format
+const adaptApiBaZiToLegacyFormat = (apiBazi: ApiBaZiResult): BaziResult => {
+  return {
+    yearPillar: {
+      stem: apiBazi.fourPillars.year.gan,
+      branch: apiBazi.fourPillars.year.zhi,
+      stemElement: '', // Will be calculated if needed
+      branchElement: '',
+    },
+    monthPillar: {
+      stem: apiBazi.fourPillars.month.gan,
+      branch: apiBazi.fourPillars.month.zhi,
+      stemElement: '',
+      branchElement: '',
+    },
+    dayPillar: {
+      stem: apiBazi.fourPillars.day.gan,
+      branch: apiBazi.fourPillars.day.zhi,
+      stemElement: '',
+      branchElement: '',
+    },
+    hourPillar: {
+      stem: apiBazi.fourPillars.hour.gan,
+      branch: apiBazi.fourPillars.hour.zhi,
+      stemElement: '',
+      branchElement: '',
+    },
+  };
+};
 
 // Window 介面已在 global.d.ts 中定義，這裡不需要重複聲明
 
@@ -785,80 +816,102 @@ watch(
         activeCalendarLib.value.startsWith('lunarJS') &&
         solarForBazi
       ) {
-        const baziInput: BaziInputData = { solarDate: solarForBazi };
-        const calculatedBazi = BaziCalculator.calculateBazi(baziInput);
-        if (calculatedBazi && currentLunarDateForLuck) {
-          // 驗證農曆轉換結果的完整性
-          const lunarValidation = FrontendValidator.validateLunarConversion({
-            year: currentLunarDateForLuck.getYear(),
-            month: currentLunarDateForLuck.getMonth(),
-            day: currentLunarDateForLuck.getDay(),
-            yearGan: currentLunarDateForLuck.getYearGan(),
-            yearZhi: currentLunarDateForLuck.getYearZhi(),
-            monthGan: currentLunarDateForLuck.getMonthGan(),
-            monthZhi: currentLunarDateForLuck.getMonthZhi(),
-            dayGan: currentLunarDateForLuck.getDayGan(),
-            dayZhi: currentLunarDateForLuck.getDayZhi(),
-            timeGan: currentLunarDateForLuck.getTimeGan(),
-            timeZhi: currentLunarDateForLuck.getTimeZhi(),
-          });
+        // 使用統一後端 API 進行計算
+        try {
+          const apiRequest = {
+            birthDate: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+            birthTime: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`,
+            gender: gender as 'male' | 'female',
+            longitude: 121.5, // Default Taiwan longitude
+            isLeapMonth: isLeap || false,
+          };
 
-          if (!lunarValidation.isValid) {
-            conversionDisplayResult.value = `農曆轉換驗證失敗：${lunarValidation.errors.join('、')}`;
-            parsedBaziResult.value = null;
-            return;
+          const apiResponse = await unifiedApiService.calculate(apiRequest);
+
+          if (!apiResponse || !apiResponse.bazi) {
+            throw new Error('統一計算 API 回應格式錯誤');
           }
 
-          parsedBaziResult.value = calculatedBazi;
-          baziDisplayResult.value = JSON.stringify(calculatedBazi, null, 2);
-          const calculatedTenGods =
-            TenGodsCalculator.getMainStemTenGods(calculatedBazi);
-          parsedTenGodsResult.value = calculatedTenGods;
-          tenGodsDisplayResult.value = JSON.stringify(
-            calculatedTenGods,
-            null,
-            2,
-          );
-          const calculatedElements =
-            FiveElementsAnalyzer.calculateElementsDistribution(calculatedBazi);
-          parsedElementsDistributionResult.value = calculatedElements;
-          elementsDistributionDisplayResult.value = JSON.stringify(
-            calculatedElements,
-            null,
-            2,
-          );
-          if (isCalendarLibFullyAvailable.value) {
-            const genderForCalc = gender === 'male' ? 0 : 1;
-            const calculatedStartLuck =
-              FortuneCycleCalculator.calculateStartLuck(
-                currentLunarDateForLuck,
-                genderForCalc,
-              );
-            if (calculatedStartLuck) {
-              parsedStartLuckResult.value = calculatedStartLuck;
-              startLuckDisplayResult.value = JSON.stringify(
-                calculatedStartLuck,
-                null,
-                2,
-              );
+          const calculatedBazi = adaptApiBaZiToLegacyFormat(apiResponse.bazi);
+
+          if (calculatedBazi && currentLunarDateForLuck) {
+            // 驗證農曆轉換結果的完整性
+            const lunarValidation = FrontendValidator.validateLunarConversion({
+              year: currentLunarDateForLuck.getYear(),
+              month: currentLunarDateForLuck.getMonth(),
+              day: currentLunarDateForLuck.getDay(),
+              yearGan: currentLunarDateForLuck.getYearGan(),
+              yearZhi: currentLunarDateForLuck.getYearZhi(),
+              monthGan: currentLunarDateForLuck.getMonthGan(),
+              monthZhi: currentLunarDateForLuck.getMonthZhi(),
+              dayGan: currentLunarDateForLuck.getDayGan(),
+              dayZhi: currentLunarDateForLuck.getDayZhi(),
+              timeGan: currentLunarDateForLuck.getTimeGan(),
+              timeZhi: currentLunarDateForLuck.getTimeZhi(),
+            });
+
+            if (!lunarValidation.isValid) {
+              conversionDisplayResult.value = `農曆轉換驗證失敗：${lunarValidation.errors.join('、')}`;
+              parsedBaziResult.value = null;
+              return;
+            }
+
+            parsedBaziResult.value = calculatedBazi;
+            baziDisplayResult.value = JSON.stringify(calculatedBazi, null, 2);
+            const calculatedTenGods =
+              TenGodsCalculator.getMainStemTenGods(calculatedBazi);
+            parsedTenGodsResult.value = calculatedTenGods;
+            tenGodsDisplayResult.value = JSON.stringify(
+              calculatedTenGods,
+              null,
+              2,
+            );
+            const calculatedElements =
+              FiveElementsAnalyzer.calculateElementsDistribution(calculatedBazi);
+            parsedElementsDistributionResult.value = calculatedElements;
+            elementsDistributionDisplayResult.value = JSON.stringify(
+              calculatedElements,
+              null,
+              2,
+            );
+            if (isCalendarLibFullyAvailable.value) {
+              const genderForCalc = gender === 'male' ? 0 : 1;
+              const calculatedStartLuck =
+                FortuneCycleCalculator.calculateStartLuck(
+                  currentLunarDateForLuck,
+                  genderForCalc,
+                );
+              if (calculatedStartLuck) {
+                parsedStartLuckResult.value = calculatedStartLuck;
+                startLuckDisplayResult.value = JSON.stringify(
+                  calculatedStartLuck,
+                  null,
+                  2,
+                );
+              } else {
+                parsedStartLuckResult.value = { error: '起運資訊計算失敗。' };
+                startLuckDisplayResult.value = JSON.stringify(
+                  { error: '起運資訊計算失敗。' },
+                  null,
+                  2,
+                );
+              }
             } else {
-              parsedStartLuckResult.value = { error: '起運資訊計算失敗。' };
-              startLuckDisplayResult.value = JSON.stringify(
-                { error: '起運資訊計算失敗。' },
-                null,
-                2,
-              );
+              parsedStartLuckResult.value = {
+                error: calendarLibLoadErrorText.value,
+              };
             }
           } else {
-            parsedStartLuckResult.value = {
-              error: calendarLibLoadErrorText.value,
-            };
+            parsedBaziResult.value = null;
+            baziDisplayResult.value = '八字計算失敗 (API)。';
+            parsedStartLuckResult.value = null;
+            startLuckDisplayResult.value = '';
           }
-        } else {
+        } catch (apiError) {
+          console.error('統一計算 API 錯誤:', apiError);
+          conversionDisplayResult.value = `計算失敗: ${apiError instanceof Error ? apiError.message : '未知錯誤'}`;
           parsedBaziResult.value = null;
-          baziDisplayResult.value = '八字排盤失敗 (lunarJS)。';
-          parsedStartLuckResult.value = null;
-          startLuckDisplayResult.value = '';
+          return;
         }
       }
     } catch (e) {

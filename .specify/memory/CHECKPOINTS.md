@@ -1,5 +1,48 @@
 # 檢查點記錄
 
+## Checkpoint: progress-sync-2025-11-30-r5-attn1
+**時間**: 2025-11-30  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- 盤點 Sprint R5 後狀態：7 組件全面改用 `unifiedApiService.calculate()`，UnifiedView/UnifiedResultView 成為首頁與結果分頁，舊 baziCalc.ts/遺留視圖表單已清除並以 `types/baziTypes.ts`+`utils/baziCalculators.ts` 作備援。
+- 核實生產 Worker（Cloudflare Workers + D1 + Vue 3 PWA）持續 200 OK；核心 API `/api/v1/calculate`、`/api/v1/purple-star/calculate`、`/api/charts`、`/api/analyses`、`/health` 正常。
+- 更新 fallback 策略：前端常態僅走統一 API，Worker 故障時才啟用本地備援計算器以同一契約輸出。
+
+### 關鍵成果
+- 統一計算輸出含 `wuxingDistribution`、`fortuneCycles`、`annualFortune`；進度 50/62h (81%)。
+- 雙維護風險顯著降低，備援路徑保留但受控啟用。
+
+### 已知問題
+- 四化飛星頂層彙總、流年太歲仍未實作。
+- ESLint 93 errors / 374 warnings（95 可自動修復）；UnifiedView/UnifiedResultView 尚缺測試。
+
+### 下一步
+- 先修復 ESLint 與補齊新路由/組件測試，再推進四化飛星/流年太歲實作與文件。
+- 監控 Worker 健康並驗證 fallback 切換流程。
+
+## Checkpoint: progress-sync-2025-11-30-r5
+**時間**: 2025-11-30  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- Sprint R5: 前端 7 組件改接 `unifiedApiService.calculate()` 並新增 `adaptApiBaZiToLegacyFormat` 確保舊格式兼容。
+- 建立 `types/baziTypes.ts`、`utils/baziCalculators.ts` 作為類型與備援計算器；保留本地 fallback 通路。
+- 清理遺留：移除 `baziCalc.ts`、4 個視圖、2 個表單、1 測試；路由統一為 Unified 首頁/結果分頁。
+
+### 關鍵成果
+- 前端計算邏輯完全遷移至後端 Unified API，避免雙維護；生產 Worker 仍 200 OK。
+- 類型與備援路徑更新，減少舊檔誤用風險。
+
+### 已知問題
+- 四化飛星頂層彙總與流年太歲仍未實作。
+- ESLint 93 errors / 374 warnings（95 可自動修復）；未新增前端測試覆蓋新路由。
+
+### 下一步
+- 補齊四化飛星與流年太歲實作與文件。
+- 修復 ESLint 錯誤並撰寫前端測試覆蓋 UnifiedView/UnifiedResultView。
+- 監控 fallback 計算器與後端 API 可用性，完善故障切換策略。
+
 ## Checkpoint: progress-sync-2025-11-30-r4
 **時間**: 2025-11-30  
 **狀態**: ✅ 完成

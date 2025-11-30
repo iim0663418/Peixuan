@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, type PropType } from 'vue';
-import { type HeavenlyStem, type EarthlyBranch } from '../utils/baziCalc';
+import { type HeavenlyStem, type EarthlyBranch } from '../types/baziTypes';
 
 // Solar 來自全局 window 物件（lunar.min.js）
 

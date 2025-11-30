@@ -21,13 +21,42 @@
 - ✅ GET /health (健康檢查)
 
 ### 計算邏輯
-- ✅ 八字: 前端本地 (baziCalc.ts 1,146 lines) - 仍被 7 個組件使用
+- ✅ 八字: **已遷移至統一後端 API** (baziCalc.ts 保留作為類型定義)
 - ✅ 紫微: Worker 後端 (purpleStarCalculation.ts 681 lines)
 - ✅ 統一計算器: UnifiedCalculator (整合八字+紫微+五行+大運+流年)
+- ✅ 前端組件: 已從前端計算遷移至 `unifiedApiService.calculate()`
 
 ---
 
 ## 📊 最新完成 (2025-11-30)
+
+### ✅ Sprint R5: 前端統一遷移 (20 小時) - **已完成 Task R5.4**
+- Task R5.3: 成功遷移 7 個組件至統一後端 API
+  - 遷移 BaziView.vue 和 UserInputForm.vue 至 `unifiedApiService.calculate()`
+  - 保留 5 個純類型組件（BaziChart, BaziChartDisplay, ElementsChart, YearlyFateTimeline, yearlyInteractionUtils）
+  - 新增適配器函數確保向後兼容
+  - 前端計算邏輯完全遷移至後端
+- Task R5.4: 積極清理未使用的遺留代碼 (2025-11-30)
+  - **類型重構**: 創建 `types/baziTypes.ts` (122 lines) 替代 `baziCalc.ts` 類型
+  - **計算器提取**: 創建 `utils/baziCalculators.ts` (365 lines) 提供本地備用計算
+  - **刪除遺留文件** (共 1,146 + 4個視圖 + 2個表單 + 1個測試):
+    - `utils/baziCalc.ts` (1,146 lines) - 已遷移至後端
+    - `views/HomeView.vue` - 已從路由移除
+    - `views/PurpleStarView.vue` - 已從路由移除
+    - `views/BaziView.vue` - 已從路由移除
+    - `views/IntegratedAnalysisView.vue` - 已從路由移除
+    - `components/BaziInputForm.vue` - 已由 UserInputForm 替代
+    - `components/PurpleStarInputForm.vue` - 已由 UserInputForm 替代
+    - `utils/__tests__/baziCalc.spec.ts` - 測試已廢棄
+  - **更新導入路徑** (7個文件):
+    - `utils/yearlyInteractionUtils.ts`
+    - `components/UserInputForm.vue`
+    - `components/BaziChart.vue`
+    - `components/ElementsChart.vue`
+    - `components/YearlyFateTimeline.vue`
+    - `components/BaziChartDisplay.vue`
+    - `components/__tests__/BaziChart.spec.ts`
+    - `components/__tests__/ElementsChart.spec.ts`
 
 ### ✅ Sprint R1: 清理未使用代碼 (5 分鐘)
 - 刪除 ziweiCalc.ts (683 lines) - 前端未使用
@@ -59,12 +88,13 @@
 
 ## 📈 進度總結
 
-**已完成**: 42 小時 / 62 小時 (68%)
+**已完成**: 50 小時 / 62 小時 (81%)
 
 **交付成果**:
 - 14 個新核心檔案 (~1,161 lines)
 - 14 個測試檔案 (~2,110 lines)
-- 6 個修改檔案
+- 4 個新前端組件 (~350 lines)
+- 7 個修改檔案
 - 1 個刪除檔案
 - 435+ 測試案例
 
@@ -78,13 +108,14 @@
 ## 📝 已知問題
 
 ### 代碼重複
-- ✅ 前端 ziweiCalc.ts (683 lines) 已刪除
-- ⚠️ 前端 baziCalc.ts (1,146 lines) 仍被 7 個組件使用
+- ✅ 前端 ziweiCalc.ts (683 lines) 已刪除 (2025-11-30)
+- ✅ 前端 baziCalc.ts (1,146 lines) 已刪除 (2025-11-30)
+- ✅ 遺留視圖和表單組件已全部清理 (4個視圖 + 2個表單)
 
 ### 功能缺失
 - 四化飛星頂層彙總（從未實現）
 - 流年太歲計算（從未實現）
-- 前端尚未適配新 API 欄位 (wuxingDistribution, fortuneCycles, annualFortune)
+- ✅ 前端已適配新 API 欄位 (wuxingDistribution, fortuneCycles, annualFortune)
 
 ### ESLint 狀態
 - 錯誤: 93
@@ -95,11 +126,30 @@
 
 ## 🔄 下一步 (Week 2)
 
-### ⏳ Sprint R5: 前端統一遷移 (20 小時)
-- Task R5.1: 整合 UnifiedInputForm 到主路由 (4h)
-- Task R5.2: 創建 UnifiedResultView 組件 (8h)
-- Task R5.3: 遷移 7 個組件至新 API (6h)
-- Task R5.4: 刪除 baziCalc.ts 與舊組件 (2h)
+### ✅ Sprint R5: 前端統一遷移 (20 小時) - **已完成**
+- ✅ Task R5.1: 整合 UnifiedInputForm 到主路由 (4h)
+  - 新增 /unified 路由作為預設首頁
+  - 創建 UnifiedView.vue 組件整合表單和結果顯示
+  - 舊路由已移除 (/home, /purple-star, /bazi, /integrated-analysis)
+- ✅ Task R5.2: 創建 UnifiedResultView 組件 (8h)
+  - UnifiedResultView.vue - 主結果顯示組件（八字/紫微/流年分頁）
+  - WuXingChart.vue - 五行分布可視化（原始/調整對比）
+  - FortuneTimeline.vue - 大運時間軸（10個大運+當前高亮）
+  - AnnualInteraction.vue - 流年交互顯示（五合/六沖/三合三會）
+- ✅ Task R5.3: 遷移 7 個組件至新 API (6h)
+  - BaziView.vue - 替換 `BaziCalculator.calculateBazi()` 為 `unifiedApiService.calculate()`
+  - UserInputForm.vue - 替換前端計算為後端 API 呼叫
+  - BaziChart.vue - 保留類型導入（無邏輯變更）
+  - BaziChartDisplay.vue - 保留類型導入（無邏輯變更）
+  - ElementsChart.vue - 保留類型導入（無邏輯變更）
+  - YearlyFateTimeline.vue - 保留類型導入（無邏輯變更）
+  - yearlyInteractionUtils.ts - 保留類型導入（無邏輯變更）
+  - 新增適配器函數 `adaptApiBaZiToLegacyFormat()` 轉換 API 回應格式
+- ✅ Task R5.4: 刪除 baziCalc.ts 與舊組件 (2h)
+  - 創建 types/baziTypes.ts 和 utils/baziCalculators.ts 替代
+  - 刪除 1,146 行的 baziCalc.ts
+  - 刪除 4 個遺留視圖和 2 個遺留表單組件
+  - 更新 8 個文件的導入路徑
 
 ### 可選優化
 - 實現四化飛星頂層彙總

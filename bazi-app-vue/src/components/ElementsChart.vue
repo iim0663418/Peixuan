@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, type PropType, onUnmounted } from 'vue';
 import { Chart, registerables } from 'chart.js/auto';
-import type { ElementsDistribution } from '../utils/baziCalc';
+import type { ElementsDistribution } from '../types/baziTypes';
 
 Chart.register(...registerables);
 

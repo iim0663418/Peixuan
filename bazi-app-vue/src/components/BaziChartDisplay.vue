@@ -187,7 +187,7 @@ import type {
   ElementsDistribution,
   StartLuckInfo,
   Pillar,
-} from '../utils/baziCalc';
+} from '../types/baziTypes';
 
 const { t } = useI18n();
 

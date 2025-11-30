@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount, type VueWrapper } from '@vue/test-utils';
 import BaziChart from '../BaziChart.vue';
 // Import TenGod for type safety (it's exported as TenGod in baziCalc.ts)
-import type { BaziResult, TenGodsPillars, TenGod } from '../../utils/baziCalc';
+import type { BaziResult, TenGodsPillars, TenGod } from '../../types/baziTypes';
 
 // Define PillarKey locally as it's used in the component and tests
 type PillarKey = 'hourPillar' | 'dayPillar' | 'monthPillar' | 'yearPillar';

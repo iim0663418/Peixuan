@@ -32,8 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, computed, type PropType } from 'vue';
-import type { BaziResult, TenGodsPillars, Pillar } from '../types/baziTypes';
+import { computed, type PropType } from 'vue';
+import type { BaziResult, TenGodsPillars } from '../types/baziTypes';
 
 type PillarKey = 'hourPillar' | 'dayPillar' | 'monthPillar' | 'yearPillar';
 

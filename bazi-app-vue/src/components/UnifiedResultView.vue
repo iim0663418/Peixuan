@@ -90,15 +90,9 @@
                 result.ziwei.bodyPalace.position
               }}宮)
             </el-descriptions-item>
-            <el-descriptions-item label="五行局"
-              >{{ result.ziwei.bureau }}局</el-descriptions-item
-            >
-            <el-descriptions-item label="紫微星"
-              >{{ result.ziwei.ziWeiPosition }}宮</el-descriptions-item
-            >
-            <el-descriptions-item label="天府星"
-              >{{ result.ziwei.tianFuPosition }}宮</el-descriptions-item
-            >
+            <el-descriptions-item label="五行局">{{ result.ziwei.bureau }}局</el-descriptions-item>
+            <el-descriptions-item label="紫微星">{{ result.ziwei.ziWeiPosition }}宮</el-descriptions-item>
+            <el-descriptions-item label="天府星">{{ result.ziwei.tianFuPosition }}宮</el-descriptions-item>
           </el-descriptions>
         </div>
 
@@ -124,6 +118,12 @@
       </el-tab-pane>
 
       <el-tab-pane v-if="result.annualFortune" label="流年" name="annual">
+        <!-- 太歲分析卡片 -->
+        <TaiSuiCard
+          v-if="result.annualFortune.taiSuiAnalysis"
+          :tai-sui-analysis="result.annualFortune.taiSuiAnalysis"
+        />
+
         <div class="section">
           <h4>流年資訊</h4>
           <el-descriptions :column="2" border size="small">
@@ -165,7 +165,13 @@ import AnnualInteraction from './AnnualInteraction.vue';
 import StarSymmetryDisplay from './StarSymmetryDisplay.vue';
 import TechnicalDetailsCard from './TechnicalDetailsCard.vue';
 import DeveloperCard from './DeveloperCard.vue';
-import { STEM_TO_ELEMENT, BRANCH_TO_ELEMENT, type HeavenlyStem, type EarthlyBranch } from '../types/baziTypes';
+import TaiSuiCard from './TaiSuiCard.vue';
+import {
+  STEM_TO_ELEMENT,
+  BRANCH_TO_ELEMENT,
+  type HeavenlyStem,
+  type EarthlyBranch,
+} from '../types/baziTypes';
 
 interface Props {
   result: any;

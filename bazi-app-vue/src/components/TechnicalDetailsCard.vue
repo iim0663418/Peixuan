@@ -104,8 +104,12 @@ const formatDateTime = (dateStr: string) => {
 };
 
 const formatJSON = (obj: any) => {
-  if (typeof obj === 'string') return obj;
-  if (typeof obj === 'number') return obj.toString();
+  if (typeof obj === 'string') {
+    return obj;
+  }
+  if (typeof obj === 'number') {
+    return obj.toString();
+  }
   return JSON.stringify(obj, null, 2);
 };
 </script>

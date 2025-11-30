@@ -227,6 +227,30 @@ export interface CalculationResult {
       /** Harmonious combinations (三合/三會) */
       harmoniousCombinations: HarmoniousCombination[];
     };
+
+    /** Tai Sui analysis (太歲分析) */
+    taiSuiAnalysis?: {
+      /** 值太歲 (same branch as natal year) */
+      zhi: boolean;
+      /** 沖太歲 (six clashes) */
+      chong: boolean;
+      /** 刑太歲 (three punishments) */
+      xing: {
+        hasXing: boolean;
+        xingType?: 'san_xing' | 'zi_xing' | 'wu_en_xing';
+        description?: string;
+      };
+      /** 破太歲 (six destructions) */
+      po: boolean;
+      /** 害太歲 (six harms) */
+      hai: boolean;
+      /** Overall severity */
+      severity: 'none' | 'low' | 'medium' | 'high' | 'critical';
+      /** Types of Tai Sui violations */
+      types: string[];
+      /** Recommendations */
+      recommendations: string[];
+    };
   };
 
   /** Calculation timestamp */

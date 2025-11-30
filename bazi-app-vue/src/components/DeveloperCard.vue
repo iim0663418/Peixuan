@@ -106,8 +106,8 @@
         <el-button
           size="small"
           type="primary"
-          @click="copyJSON"
           style="margin-bottom: 8px"
+          @click="copyJSON"
         >
           複製 JSON
         </el-button>
@@ -142,8 +142,12 @@ const formatDateTime = (dateStr: string) => {
 };
 
 const formatJSON = (obj: any) => {
-  if (typeof obj === 'string') return obj;
-  if (typeof obj === 'number') return obj.toString();
+  if (typeof obj === 'string') {
+    return obj;
+  }
+  if (typeof obj === 'number') {
+    return obj.toString();
+  }
   return JSON.stringify(obj, null, 2);
 };
 

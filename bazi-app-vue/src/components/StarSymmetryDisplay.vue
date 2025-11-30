@@ -51,7 +51,9 @@ const symmetries = computed(() => {
   const seen = new Set<string>();
   return props.starSymmetry.filter((sym) => {
     const key = [sym.star, sym.symmetryPair].sort().join('-');
-    if (seen.has(key)) return false;
+    if (seen.has(key)) {
+      return false;
+    }
     seen.add(key);
     return true;
   });

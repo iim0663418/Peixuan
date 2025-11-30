@@ -12374,6 +12374,195 @@ var init_interaction = __esm({
   }
 });
 
+// src/services/annual/taiSuiDetection.ts
+function detectZhiTaiSui(annualBranch, natalBranch) {
+  return annualBranch === natalBranch;
+}
+function detectChongTaiSui(annualBranch, natalBranch) {
+  return CHONG_RELATIONS[annualBranch] === natalBranch;
+}
+function detectXingTaiSui(annualBranch, natalBranches) {
+  for (const group of SAN_XING_GROUPS) {
+    if (group.includes(annualBranch)) {
+      const hasOtherInGroup = natalBranches.some(
+        (b) => group.includes(b) && b !== annualBranch
+      );
+      if (hasOtherInGroup) {
+        return {
+          hasXing: true,
+          xingType: "san_xing",
+          description: `\u4E09\u5211\uFF1A${group.join("\u3001")}`
+        };
+      }
+    }
+  }
+  if (ZI_XING_BRANCHES.includes(annualBranch)) {
+    if (natalBranches.includes(annualBranch)) {
+      return {
+        hasXing: true,
+        xingType: "zi_xing",
+        description: `\u81EA\u5211\uFF1A${annualBranch}`
+      };
+    }
+  }
+  if (annualBranch === WU_EN_XING[0] && natalBranches.includes(WU_EN_XING[1])) {
+    return {
+      hasXing: true,
+      xingType: "wu_en_xing",
+      description: "\u7121\u6069\u4E4B\u5211\uFF1A\u5B50\u536F"
+    };
+  }
+  if (annualBranch === WU_EN_XING[1] && natalBranches.includes(WU_EN_XING[0])) {
+    return {
+      hasXing: true,
+      xingType: "wu_en_xing",
+      description: "\u7121\u6069\u4E4B\u5211\uFF1A\u5B50\u536F"
+    };
+  }
+  return { hasXing: false };
+}
+function detectPoTaiSui(annualBranch, natalBranch) {
+  return PO_RELATIONS[annualBranch] === natalBranch;
+}
+function detectHaiTaiSui(annualBranch, natalBranch) {
+  return HAI_RELATIONS[annualBranch] === natalBranch;
+}
+var CHONG_RELATIONS, SAN_XING_GROUPS, ZI_XING_BRANCHES, WU_EN_XING, PO_RELATIONS, HAI_RELATIONS;
+var init_taiSuiDetection = __esm({
+  "src/services/annual/taiSuiDetection.ts"() {
+    "use strict";
+    CHONG_RELATIONS = {
+      "\u5B50": "\u5348",
+      "\u5348": "\u5B50",
+      "\u4E11": "\u672A",
+      "\u672A": "\u4E11",
+      "\u5BC5": "\u7533",
+      "\u7533": "\u5BC5",
+      "\u536F": "\u9149",
+      "\u9149": "\u536F",
+      "\u8FB0": "\u620C",
+      "\u620C": "\u8FB0",
+      "\u5DF3": "\u4EA5",
+      "\u4EA5": "\u5DF3"
+    };
+    SAN_XING_GROUPS = [
+      ["\u5BC5", "\u5DF3", "\u7533"],
+      ["\u4E11", "\u620C", "\u672A"]
+    ];
+    ZI_XING_BRANCHES = ["\u8FB0", "\u5348", "\u9149", "\u4EA5"];
+    WU_EN_XING = ["\u5B50", "\u536F"];
+    PO_RELATIONS = {
+      "\u5B50": "\u9149",
+      "\u9149": "\u5B50",
+      "\u4E11": "\u8FB0",
+      "\u8FB0": "\u4E11",
+      "\u5BC5": "\u4EA5",
+      "\u4EA5": "\u5BC5",
+      "\u536F": "\u5348",
+      "\u5348": "\u536F",
+      "\u5DF3": "\u7533",
+      "\u7533": "\u5DF3",
+      "\u672A": "\u620C",
+      "\u620C": "\u672A"
+    };
+    HAI_RELATIONS = {
+      "\u5B50": "\u672A",
+      "\u672A": "\u5B50",
+      "\u4E11": "\u5348",
+      "\u5348": "\u4E11",
+      "\u5BC5": "\u5DF3",
+      "\u5DF3": "\u5BC5",
+      "\u536F": "\u8FB0",
+      "\u8FB0": "\u536F",
+      "\u7533": "\u4EA5",
+      "\u4EA5": "\u7533",
+      "\u9149": "\u620C",
+      "\u620C": "\u9149"
+    };
+  }
+});
+
+// src/services/annual/taiSuiAnalysis.ts
+function analyzeTaiSui(annualPillar, natalChart) {
+  const annualBranch = annualPillar.branch;
+  const natalBranches = [
+    natalChart.year.branch,
+    natalChart.month.branch,
+    natalChart.day.branch,
+    natalChart.hour.branch
+  ];
+  const zhi = detectZhiTaiSui(annualBranch, natalChart.year.branch);
+  const chong = detectChongTaiSui(annualBranch, natalChart.year.branch);
+  const xing = detectXingTaiSui(annualBranch, natalBranches);
+  const po = detectPoTaiSui(annualBranch, natalChart.year.branch);
+  const hai = detectHaiTaiSui(annualBranch, natalChart.year.branch);
+  const types = [];
+  if (zhi) types.push("\u503C\u592A\u6B72");
+  if (chong) types.push("\u6C96\u592A\u6B72");
+  if (xing.hasXing) types.push(`\u5211\u592A\u6B72\uFF08${xing.description}\uFF09`);
+  if (po) types.push("\u7834\u592A\u6B72");
+  if (hai) types.push("\u5BB3\u592A\u6B72");
+  const severity = calculateSeverity(zhi, chong, xing.hasXing, po, hai);
+  const recommendations = generateRecommendations(severity, types);
+  return {
+    zhi,
+    chong,
+    xing,
+    po,
+    hai,
+    severity,
+    types,
+    recommendations
+  };
+}
+function calculateSeverity(zhi, chong, xing, po, hai) {
+  let score = 0;
+  if (zhi) score += 3;
+  if (chong) score += 3;
+  if (xing) score += 2;
+  if (po) score += 1;
+  if (hai) score += 1;
+  if (score === 0) return "none";
+  if (score <= 2) return "low";
+  if (score <= 4) return "medium";
+  if (score <= 6) return "high";
+  return "critical";
+}
+function generateRecommendations(severity, types) {
+  const recommendations = [];
+  if (severity === "none") {
+    recommendations.push("\u672C\u5E74\u5EA6\u7121\u72AF\u592A\u6B72\uFF0C\u904B\u52E2\u5E73\u7A69");
+    return recommendations;
+  }
+  recommendations.push("\u5EFA\u8B70\u5E74\u521D\u5B89\u592A\u6B72\uFF0C\u7948\u6C42\u5E73\u5B89\u9806\u9042");
+  if (types.some((t2) => t2.includes("\u503C\u592A\u6B72"))) {
+    recommendations.push("\u672C\u547D\u5E74\u5B9C\u4F4E\u8ABF\u884C\u4E8B\uFF0C\u907F\u514D\u91CD\u5927\u8B8A\u52D5");
+  }
+  if (types.some((t2) => t2.includes("\u6C96\u592A\u6B72"))) {
+    recommendations.push("\u6CE8\u610F\u4EBA\u969B\u95DC\u4FC2\uFF0C\u907F\u514D\u885D\u7A81\u722D\u57F7");
+  }
+  if (types.some((t2) => t2.includes("\u5211\u592A\u6B72"))) {
+    recommendations.push("\u6CE8\u610F\u6CD5\u5F8B\u6587\u66F8\uFF0C\u8B39\u614E\u8655\u7406\u5408\u7D04\u4E8B\u5B9C");
+  }
+  if (types.some((t2) => t2.includes("\u7834\u592A\u6B72"))) {
+    recommendations.push("\u8CA1\u52D9\u4FDD\u5B88\u70BA\u5B9C\uFF0C\u907F\u514D\u6295\u6A5F\u5192\u96AA");
+  }
+  if (types.some((t2) => t2.includes("\u5BB3\u592A\u6B72"))) {
+    recommendations.push("\u9632\u7BC4\u5C0F\u4EBA\u6697\u5BB3\uFF0C\u8B39\u8A00\u614E\u884C");
+  }
+  if (severity === "high" || severity === "critical") {
+    recommendations.push("\u5EFA\u8B70\u914D\u6234\u8B77\u8EAB\u7B26\u6216\u5409\u7965\u7269");
+    recommendations.push("\u53EF\u8003\u616E\u6350\u8840\u3001\u6D17\u7259\u7B49\u300C\u898B\u8840\u300D\u5316\u89E3");
+  }
+  return recommendations;
+}
+var init_taiSuiAnalysis = __esm({
+  "src/services/annual/taiSuiAnalysis.ts"() {
+    "use strict";
+    init_taiSuiDetection();
+  }
+});
+
 // src/calculation/integration/calculator.ts
 function getHiddenStems2(branch) {
   return HIDDEN_STEMS_MAP2[branch] || { primary: branch };
@@ -12466,6 +12655,7 @@ var init_calculator = __esm({
     init_liuchun();
     init_palace();
     init_interaction();
+    init_taiSuiAnalysis();
     HIDDEN_STEMS_MAP2 = {
       "\u5B50": { primary: "\u7678" },
       "\u4E11": { primary: "\u5DF1", middle: "\u7678", residual: "\u8F9B" },
@@ -12508,6 +12698,7 @@ var init_calculator = __esm({
           bazi.fourPillars,
           bazi.fortuneCycles.currentDayun?.branch
         );
+        const taiSuiAnalysis = analyzeTaiSui(annualPillar, bazi.fourPillars);
         return {
           input,
           bazi,
@@ -12519,7 +12710,8 @@ var init_calculator = __esm({
               stemCombinations,
               branchClashes,
               harmoniousCombinations
-            }
+            },
+            taiSuiAnalysis
           },
           timestamp: /* @__PURE__ */ new Date()
         };

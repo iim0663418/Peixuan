@@ -41,6 +41,7 @@ import {
   detectBranchClashes,
   detectHarmoniousCombinations,
 } from '../annual/interaction';
+import { analyzeTaiSui } from '../../services/annual/taiSuiAnalysis';
 
 /**
  * Hidden stems mapping for earthly branches
@@ -214,6 +215,9 @@ export class UnifiedCalculator {
       bazi.fortuneCycles.currentDayun?.branch
     );
 
+    // Analyze Tai Sui (太歲分析)
+    const taiSuiAnalysis = analyzeTaiSui(annualPillar, bazi.fourPillars);
+
     // Step 5: Return unified result
     return {
       input,
@@ -227,6 +231,7 @@ export class UnifiedCalculator {
           branchClashes,
           harmoniousCombinations,
         },
+        taiSuiAnalysis,
       },
       timestamp: new Date()
     };

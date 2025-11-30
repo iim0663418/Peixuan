@@ -2,6 +2,26 @@
 
 # 檢查點記錄
 
+## Checkpoint: progress-2025-11-30-2332-attn
+**時間**: 2025-11-30 23:32  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- Worker 測試修復：`test/index.spec.ts` 對齊 `/health`，`wrangler.jsonc` 設 `compatibility_date=2025-09-06` 並啟用 `nodejs_compat`，恢復標準 vitest 配置；33 單元測試全綠。
+- 階段切換：進入 Week 2 技術債務清理，進度 52.5/62 小時 (85%)；生產 Workers + 統一 API 持續 200 OK。
+
+### 關鍵成果
+- workerd 啟動與測試鏈路穩定，移除 `node:vm` 缺失與過時期望的阻塞。
+- ESLint 留存 83 errors / 324 warnings（95 可自動修復），已明確收尾重點。
+
+### 已知問題
+- 待辦：`no-unused-vars`/`vue/html-closing-bracket-newline` 清理、補齊測試覆蓋 (3-4h)。
+- 功能缺口：四化飛星頂層彙總、流年太歲未實作，標記為後續迭代。
+
+### 下一步
+- 先完成 ESLint 收尾（預估 2-3h），再補測試與缺失功能。
+- 保持 fallback 僅於 Worker 故障時啟用，避免雙維護。
+
 ## Checkpoint: design-tokens-migration-2025-11-30
 **時間**: 2025-11-30 18:20-22:40  
 **狀態**: ✅ 完成

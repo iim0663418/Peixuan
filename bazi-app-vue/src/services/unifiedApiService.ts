@@ -210,10 +210,22 @@ class UnifiedApiService {
         bazi: {
           ...backendResult.bazi,
           fourPillars: {
-            year: { gan: backendResult.bazi.fourPillars.year.stem, zhi: backendResult.bazi.fourPillars.year.branch },
-            month: { gan: backendResult.bazi.fourPillars.month.stem, zhi: backendResult.bazi.fourPillars.month.branch },
-            day: { gan: backendResult.bazi.fourPillars.day.stem, zhi: backendResult.bazi.fourPillars.day.branch },
-            hour: { gan: backendResult.bazi.fourPillars.hour.stem, zhi: backendResult.bazi.fourPillars.hour.branch },
+            year: {
+              gan: backendResult.bazi.fourPillars.year.stem,
+              zhi: backendResult.bazi.fourPillars.year.branch,
+            },
+            month: {
+              gan: backendResult.bazi.fourPillars.month.stem,
+              zhi: backendResult.bazi.fourPillars.month.branch,
+            },
+            day: {
+              gan: backendResult.bazi.fourPillars.day.stem,
+              zhi: backendResult.bazi.fourPillars.day.branch,
+            },
+            hour: {
+              gan: backendResult.bazi.fourPillars.hour.stem,
+              zhi: backendResult.bazi.fourPillars.hour.branch,
+            },
           },
         },
         ziwei: {

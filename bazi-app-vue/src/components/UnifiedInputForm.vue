@@ -124,7 +124,11 @@
           </el-select>
         </el-col>
       </el-row>
-      <el-text type="warning" size="small" style="margin-top: 5px; display: block">
+      <el-text
+        type="warning"
+        size="small"
+        style="margin-top: 5px; display: block"
+      >
         ⚠️ 經度為必填項目，用於精確計算
       </el-text>
     </el-form-item>
@@ -447,7 +451,9 @@ const formRules = {
       validator: (_rule: any, _value: any, callback: any) => {
         // 驗證經度（必填）
         if (formData.longitude === null || formData.longitude === undefined) {
-          callback(new Error('請輸入出生地經度（可選擇城市或輸入地址自動填入）'));
+          callback(
+            new Error('請輸入出生地經度（可選擇城市或輸入地址自動填入）'),
+          );
           return;
         }
         if (formData.longitude < -180 || formData.longitude > 180) {

@@ -1,8 +1,12 @@
 <template>
   <div class="fortune-timeline">
     <div class="qiyun-info">
-      <el-tag type="info">起運日期: {{ formatDate(fortuneCycles.qiyunDate) }}</el-tag>
-      <el-tag :type="fortuneCycles.direction === 'forward' ? 'success' : 'warning'">
+      <el-tag type="info"
+        >起運日期: {{ formatDate(fortuneCycles.qiyunDate) }}</el-tag
+      >
+      <el-tag
+        :type="fortuneCycles.direction === 'forward' ? 'success' : 'warning'"
+      >
         {{ fortuneCycles.direction === 'forward' ? '順行' : '逆行' }}
       </el-tag>
     </div>
@@ -16,7 +20,9 @@
           :class="{ current: isCurrentDayun(dayun) }"
         >
           <div class="dayun-header">
-            <span class="dayun-age">{{ dayun.startAge }}-{{ dayun.endAge }}歲</span>
+            <span class="dayun-age"
+              >{{ dayun.startAge }}-{{ dayun.endAge }}歲</span
+            >
             <span class="dayun-ganzhi">{{ dayun.stem }}{{ dayun.branch }}</span>
           </div>
           <div class="dayun-period">
@@ -30,10 +36,13 @@
       <h5>當前大運</h5>
       <el-descriptions :column="2" border size="small">
         <el-descriptions-item label="干支">
-          {{ fortuneCycles.currentDayun.stem }}{{ fortuneCycles.currentDayun.branch }}
+          {{ fortuneCycles.currentDayun.stem
+          }}{{ fortuneCycles.currentDayun.branch }}
         </el-descriptions-item>
         <el-descriptions-item label="年齡">
-          {{ fortuneCycles.currentDayun.startAge }}-{{ fortuneCycles.currentDayun.endAge }}歲
+          {{ fortuneCycles.currentDayun.startAge }}-{{
+            fortuneCycles.currentDayun.endAge
+          }}歲
         </el-descriptions-item>
         <el-descriptions-item label="起始">
           {{ formatDate(fortuneCycles.currentDayun.startDate) }}
@@ -72,7 +81,11 @@ const props = defineProps<Props>();
 
 const formatDate = (date: Date | string): string => {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  return d.toLocaleDateString('zh-TW', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
 };
 
 const formatYear = (date: Date | string): string => {

@@ -22,7 +22,7 @@ import {
 // 響應式斷點檢測
 const isMobile = useMediaQuery('(max-width: 767px)');
 const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
-// eslint-disable-next-line no-unused-vars
+
 const _isDesktop = useMediaQuery('(min-width: 1024px)');
 
 // 全局狀態
@@ -361,7 +361,7 @@ export function useDataAdapter() {
   ): LayeredIntegratedAnalysis => {
     const now = new Date();
     const analysisData = originalData.data?.integratedAnalysis || {};
-    // eslint-disable-next-line no-unused-vars
+
     const _analysisInfo = originalData.data?.analysisInfo || {};
 
     // 計算資料完整度

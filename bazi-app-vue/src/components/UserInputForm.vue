@@ -358,7 +358,10 @@
 
 <script setup lang="ts">
 import { reactive, onMounted, onUnmounted, ref, watch, computed } from 'vue';
-import unifiedApiService, { type CalculationResult, type BaZiResult as ApiBaZiResult } from '../services/unifiedApiService';
+import unifiedApiService, {
+  type CalculationResult,
+  type BaZiResult as ApiBaZiResult,
+} from '../services/unifiedApiService';
 import {
   type BaziResult,
   type TenGodsPillars,
@@ -867,7 +870,9 @@ watch(
               2,
             );
             const calculatedElements =
-              FiveElementsAnalyzer.calculateElementsDistribution(calculatedBazi);
+              FiveElementsAnalyzer.calculateElementsDistribution(
+                calculatedBazi,
+              );
             parsedElementsDistributionResult.value = calculatedElements;
             elementsDistributionDisplayResult.value = JSON.stringify(
               calculatedElements,
@@ -911,7 +916,6 @@ watch(
           console.error('統一計算 API 錯誤:', apiError);
           conversionDisplayResult.value = `計算失敗: ${apiError instanceof Error ? apiError.message : '未知錯誤'}`;
           parsedBaziResult.value = null;
-          return;
         }
       }
     } catch (e) {

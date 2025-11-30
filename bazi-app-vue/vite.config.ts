@@ -1,9 +1,9 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { VitePWA } from 'vite-plugin-pwa'
-import { fileURLToPath, URL } from 'node:url' // 修改導入
-import { visualizer } from 'rollup-plugin-visualizer' // 添加套件分析工具
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import { VitePWA } from 'vite-plugin-pwa';
+import { fileURLToPath, URL } from 'node:url'; // 修改導入
+import { visualizer } from 'rollup-plugin-visualizer'; // 添加套件分析工具
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -13,13 +13,13 @@ export default defineConfig({
       open: true,
       gzipSize: true,
       brotliSize: true,
-      filename: 'dist/stats.html'
+      filename: 'dist/stats.html',
     }),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}'],
       },
       manifest: {
         name: '佩璇命理智能分析平台',
@@ -34,26 +34,26 @@ export default defineConfig({
           {
             src: 'logo192.png', // 假設圖示位於 public/logo192.png
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'logo512.png', // 假設圖示位於 public/logo512.png
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'logo512.png', // 假設圖示位於 public/logo512.png, for maskable
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'maskable'
-          }
-        ]
-      }
-    })
+            purpose: 'maskable',
+          },
+        ],
+      },
+    }),
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   server: {
@@ -61,9 +61,9 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
-        secure: false
-      }
-    }
+        secure: false,
+      },
+    },
   },
   test: {
     globals: true,
@@ -80,8 +80,8 @@ export default defineConfig({
         'src/main.ts',
         'src/vite-env.d.ts',
         'src/i18n/locales/**',
-        '**/*.d.ts'
-      ]
-    }
+        '**/*.d.ts',
+      ],
+    },
   },
-})
+});

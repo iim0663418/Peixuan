@@ -1,6 +1,9 @@
 <template>
   <div class="annual-interaction">
-    <div v-if="interactions.stemCombinations.length > 0" class="interaction-section">
+    <div
+      v-if="interactions.stemCombinations.length > 0"
+      class="interaction-section"
+    >
       <h5>天干五合</h5>
       <div class="interaction-list">
         <el-tag
@@ -15,7 +18,10 @@
       </div>
     </div>
 
-    <div v-if="interactions.branchClashes.length > 0" class="interaction-section">
+    <div
+      v-if="interactions.branchClashes.length > 0"
+      class="interaction-section"
+    >
       <h5>地支六沖</h5>
       <div class="interaction-list">
         <el-tag
@@ -30,7 +36,10 @@
       </div>
     </div>
 
-    <div v-if="interactions.harmoniousCombinations.length > 0" class="interaction-section">
+    <div
+      v-if="interactions.harmoniousCombinations.length > 0"
+      class="interaction-section"
+    >
       <h5>三合 / 三會</h5>
       <div class="interaction-list">
         <el-tag
@@ -40,7 +49,9 @@
           effect="plain"
           size="large"
         >
-          {{ harmony.branches.join(' + ') }} → {{ harmony.result }} ({{ harmony.type }})
+          {{ harmony.branches.join(' + ') }} → {{ harmony.result }} ({{
+            harmony.type
+          }})
         </el-tag>
       </div>
     </div>

@@ -5,7 +5,7 @@
         <div class="section">
           <h4>四柱</h4>
           <el-row :gutter="16">
-            <el-col :span="6" v-for="(pillar, key) in pillars" :key="key">
+            <el-col v-for="(pillar, key) in pillars" :key="key" :span="6">
               <div class="pillar-card">
                 <div class="pillar-label">{{ pillar.label }}</div>
                 <div class="pillar-value">{{ pillar.gan }}{{ pillar.zhi }}</div>
@@ -17,22 +17,38 @@
         <div class="section">
           <h4>十神</h4>
           <el-descriptions :column="3" border size="small">
-            <el-descriptions-item label="年干">{{ result.bazi.tenGods.year }}</el-descriptions-item>
-            <el-descriptions-item label="月干">{{ result.bazi.tenGods.month }}</el-descriptions-item>
-            <el-descriptions-item label="時干">{{ result.bazi.tenGods.hour }}</el-descriptions-item>
+            <el-descriptions-item label="年干">{{
+              result.bazi.tenGods.year
+            }}</el-descriptions-item>
+            <el-descriptions-item label="月干">{{
+              result.bazi.tenGods.month
+            }}</el-descriptions-item>
+            <el-descriptions-item label="時干">{{
+              result.bazi.tenGods.hour
+            }}</el-descriptions-item>
           </el-descriptions>
         </div>
 
         <div class="section">
           <h4>藏干</h4>
           <el-row :gutter="16">
-            <el-col :span="6" v-for="(stems, key) in result.bazi.hiddenStems" :key="key">
+            <el-col
+              v-for="(stems, key) in result.bazi.hiddenStems"
+              :key="key"
+              :span="6"
+            >
               <div class="hidden-stems">
-                <div class="branch-label">{{ pillars[key as keyof typeof pillars].label }}</div>
+                <div class="branch-label">
+                  {{ pillars[key as keyof typeof pillars].label }}
+                </div>
                 <div class="stem-list">
                   <span class="stem-primary">{{ stems.primary }}</span>
-                  <span v-if="stems.middle" class="stem-middle">{{ stems.middle }}</span>
-                  <span v-if="stems.residual" class="stem-residual">{{ stems.residual }}</span>
+                  <span v-if="stems.middle" class="stem-middle">{{
+                    stems.middle
+                  }}</span>
+                  <span v-if="stems.residual" class="stem-residual">{{
+                    stems.residual
+                  }}</span>
                 </div>
               </div>
             </el-col>
@@ -46,7 +62,10 @@
 
         <div class="section">
           <h4>大運</h4>
-          <FortuneTimeline :fortune-cycles="result.bazi.fortuneCycles" :birth-date="result.input.solarDate" />
+          <FortuneTimeline
+            :fortune-cycles="result.bazi.fortuneCycles"
+            :birth-date="result.input.solarDate"
+          />
         </div>
       </el-tab-pane>
 
@@ -55,21 +74,35 @@
           <h4>基本資訊</h4>
           <el-descriptions :column="2" border size="small">
             <el-descriptions-item label="命宮">
-              {{ result.ziwei.lifePalace.name }} ({{ result.ziwei.lifePalace.position }}宮)
+              {{ result.ziwei.lifePalace.name }} ({{
+                result.ziwei.lifePalace.position
+              }}宮)
             </el-descriptions-item>
             <el-descriptions-item label="身宮">
-              {{ result.ziwei.bodyPalace.name }} ({{ result.ziwei.bodyPalace.position }}宮)
+              {{ result.ziwei.bodyPalace.name }} ({{
+                result.ziwei.bodyPalace.position
+              }}宮)
             </el-descriptions-item>
-            <el-descriptions-item label="五行局">{{ result.ziwei.bureau }}局</el-descriptions-item>
-            <el-descriptions-item label="紫微星">{{ result.ziwei.ziWeiPosition }}宮</el-descriptions-item>
-            <el-descriptions-item label="天府星">{{ result.ziwei.tianFuPosition }}宮</el-descriptions-item>
+            <el-descriptions-item label="五行局"
+              >{{ result.ziwei.bureau }}局</el-descriptions-item
+            >
+            <el-descriptions-item label="紫微星"
+              >{{ result.ziwei.ziWeiPosition }}宮</el-descriptions-item
+            >
+            <el-descriptions-item label="天府星"
+              >{{ result.ziwei.tianFuPosition }}宮</el-descriptions-item
+            >
           </el-descriptions>
         </div>
 
         <div class="section">
           <h4>輔星位置</h4>
           <el-row :gutter="16">
-            <el-col :span="6" v-for="(pos, star) in result.ziwei.auxiliaryStars" :key="star">
+            <el-col
+              v-for="(pos, star) in result.ziwei.auxiliaryStars"
+              :key="star"
+              :span="6"
+            >
               <div class="star-card">
                 <div class="star-name">{{ formatStarName(star) }}</div>
                 <div class="star-position">{{ pos }}宮</div>
@@ -79,12 +112,13 @@
         </div>
       </el-tab-pane>
 
-      <el-tab-pane label="流年" name="annual" v-if="result.annualFortune">
+      <el-tab-pane v-if="result.annualFortune" label="流年" name="annual">
         <div class="section">
           <h4>流年資訊</h4>
           <el-descriptions :column="2" border size="small">
             <el-descriptions-item label="流年干支">
-              {{ result.annualFortune.annualPillar.stem }}{{ result.annualFortune.annualPillar.branch }}
+              {{ result.annualFortune.annualPillar.stem
+              }}{{ result.annualFortune.annualPillar.branch }}
             </el-descriptions-item>
             <el-descriptions-item label="流年命宮">
               {{ result.annualFortune.annualLifePalaceIndex }}宮
@@ -94,7 +128,9 @@
 
         <div class="section">
           <h4>干支交互</h4>
-          <AnnualInteraction :interactions="result.annualFortune.interactions" />
+          <AnnualInteraction
+            :interactions="result.annualFortune.interactions"
+          />
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -115,10 +151,26 @@ const props = defineProps<Props>();
 const activeTab = ref('bazi');
 
 const pillars = computed(() => ({
-  year: { label: '年柱', gan: props.result.bazi.fourPillars.year.gan, zhi: props.result.bazi.fourPillars.year.zhi },
-  month: { label: '月柱', gan: props.result.bazi.fourPillars.month.gan, zhi: props.result.bazi.fourPillars.month.zhi },
-  day: { label: '日柱', gan: props.result.bazi.fourPillars.day.gan, zhi: props.result.bazi.fourPillars.day.zhi },
-  hour: { label: '時柱', gan: props.result.bazi.fourPillars.hour.gan, zhi: props.result.bazi.fourPillars.hour.zhi },
+  year: {
+    label: '年柱',
+    gan: props.result.bazi.fourPillars.year.gan,
+    zhi: props.result.bazi.fourPillars.year.zhi,
+  },
+  month: {
+    label: '月柱',
+    gan: props.result.bazi.fourPillars.month.gan,
+    zhi: props.result.bazi.fourPillars.month.zhi,
+  },
+  day: {
+    label: '日柱',
+    gan: props.result.bazi.fourPillars.day.gan,
+    zhi: props.result.bazi.fourPillars.day.zhi,
+  },
+  hour: {
+    label: '時柱',
+    gan: props.result.bazi.fourPillars.hour.gan,
+    zhi: props.result.bazi.fourPillars.hour.zhi,
+  },
 }));
 
 const formatStarName = (key: string): string => {

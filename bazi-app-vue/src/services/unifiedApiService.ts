@@ -6,11 +6,11 @@ const BASE_URL = '/api/v1';
  * Request payload for unified calculation
  */
 export interface UnifiedCalculateRequest {
-  birthDate: string;      // Format: YYYY-MM-DD
-  birthTime: string;      // Format: HH:mm
+  birthDate: string; // Format: YYYY-MM-DD
+  birthTime: string; // Format: HH:mm
   gender: 'male' | 'female';
-  longitude?: number;     // Default: 121.5 (Taiwan)
-  isLeapMonth?: boolean;  // Default: false
+  longitude?: number; // Default: 121.5 (Taiwan)
+  isLeapMonth?: boolean; // Default: false
 }
 
 /**
@@ -33,7 +33,17 @@ export interface HiddenStems {
 /**
  * Ten Gods relationship type
  */
-export type TenGod = '比肩' | '劫财' | '食神' | '伤官' | '偏财' | '正财' | '七杀' | '正官' | '偏印' | '正印';
+export type TenGod =
+  | '比肩'
+  | '劫财'
+  | '食神'
+  | '伤官'
+  | '偏财'
+  | '正财'
+  | '七杀'
+  | '正官'
+  | '偏印'
+  | '正印';
 
 /**
  * BaZi calculation result
@@ -166,7 +176,9 @@ class UnifiedApiService {
    * @returns Complete calculation result with BaZi and ZiWei data
    * @throws Error with user-friendly message if calculation fails
    */
-  async calculate(birthInfo: UnifiedCalculateRequest): Promise<CalculationResult> {
+  async calculate(
+    birthInfo: UnifiedCalculateRequest,
+  ): Promise<CalculationResult> {
     try {
       // Check cache first
       const cacheKey = this.generateCacheKey(birthInfo);
@@ -180,7 +192,7 @@ class UnifiedApiService {
 
       const response = await axios.post<ApiResponse<CalculationResult>>(
         `${BASE_URL}/calculate`,
-        birthInfo
+        birthInfo,
       );
 
       // Validate response structure
@@ -189,7 +201,8 @@ class UnifiedApiService {
       }
 
       if (!response.data.success || !response.data.data) {
-        const errorMsg = response.data.error || response.data.message || '計算失敗';
+        const errorMsg =
+          response.data.error || response.data.message || '計算失敗';
         throw new Error(errorMsg);
       }
 
@@ -200,22 +213,27 @@ class UnifiedApiService {
 
       console.log('統一計算成功完成');
       return result;
-
     } catch (error: any) {
       console.error('統一計算API錯誤:', error);
 
       // Handle different error types with user-friendly messages
       if (error?.response) {
-        const status = error.response.status;
-        const data = error.response.data;
+        const { status } = error.response;
+        const { data } = error.response;
 
         switch (status) {
           case 400:
-            throw new Error(`輸入驗證錯誤: ${data?.error || data?.message || '請檢查出生日期時間格式'}`);
+            throw new Error(
+              `輸入驗證錯誤: ${data?.error || data?.message || '請檢查出生日期時間格式'}`,
+            );
           case 500:
-            throw new Error(`伺服器計算錯誤: ${data?.error || data?.message || '請稍後再試'}`);
+            throw new Error(
+              `伺服器計算錯誤: ${data?.error || data?.message || '請稍後再試'}`,
+            );
           default:
-            throw new Error(`請求失敗 (${status}): ${data?.error || data?.message || '未知錯誤'}`);
+            throw new Error(
+              `請求失敗 (${status}): ${data?.error || data?.message || '未知錯誤'}`,
+            );
         }
       } else if (error?.request) {
         throw new Error('無法連接到伺服器，請檢查網路連接');
@@ -231,7 +249,13 @@ class UnifiedApiService {
    * Generate cache key from birth info
    */
   private generateCacheKey(birthInfo: UnifiedCalculateRequest): string {
-    const { birthDate, birthTime, gender, longitude = 121.5, isLeapMonth = false } = birthInfo;
+    const {
+      birthDate,
+      birthTime,
+      gender,
+      longitude = 121.5,
+      isLeapMonth = false,
+    } = birthInfo;
     return `${birthDate}_${birthTime}_${gender}_${longitude}_${isLeapMonth}`;
   }
 
@@ -240,7 +264,9 @@ class UnifiedApiService {
    */
   private getFromCache(key: string): CalculationResult | null {
     const entry = this.cache.get(key);
-    if (!entry) return null;
+    if (!entry) {
+      return null;
+    }
 
     const now = Date.now();
     if (now - entry.timestamp > this.CACHE_TTL) {
@@ -257,7 +283,7 @@ class UnifiedApiService {
   private setCache(key: string, data: CalculationResult): void {
     this.cache.set(key, {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     // Simple cache size management: keep only last 50 entries

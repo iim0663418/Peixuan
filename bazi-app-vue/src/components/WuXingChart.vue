@@ -3,7 +3,9 @@
     <div class="chart-container">
       <div v-for="element in elements" :key="element.name" class="element-bar">
         <div class="element-info">
-          <span class="element-name" :style="{ color: element.color }">{{ element.name }}</span>
+          <span class="element-name" :style="{ color: element.color }">{{
+            element.name
+          }}</span>
           <span class="element-scores">
             <span class="raw-score">{{ element.raw }}</span>
             <span class="separator">/</span>
@@ -13,11 +15,18 @@
         <div class="bar-track">
           <div
             class="bar-fill raw"
-            :style="{ width: getBarWidth(element.raw), backgroundColor: element.color, opacity: 0.3 }"
+            :style="{
+              width: getBarWidth(element.raw),
+              backgroundColor: element.color,
+              opacity: 0.3,
+            }"
           />
           <div
             class="bar-fill adjusted"
-            :style="{ width: getBarWidth(element.adjusted), backgroundColor: element.color }"
+            :style="{
+              width: getBarWidth(element.adjusted),
+              backgroundColor: element.color,
+            }"
           />
         </div>
       </div>
@@ -37,11 +46,11 @@
 
     <div class="legend">
       <span class="legend-item">
-        <span class="legend-dot raw"></span>
+        <span class="legend-dot raw" />
         原始得分
       </span>
       <span class="legend-item">
-        <span class="legend-dot adjusted"></span>
+        <span class="legend-dot adjusted" />
         月令調整後
       </span>
     </div>
@@ -75,10 +84,13 @@ const ELEMENT_COLORS: Record<string, string> = {
 
 const elements = computed(() => {
   const elementNames = ['木', '火', '土', '金', '水'];
-  return elementNames.map(name => ({
+  return elementNames.map((name) => ({
     name,
     raw: props.distribution.raw[name as keyof typeof props.distribution.raw],
-    adjusted: props.distribution.adjusted[name as keyof typeof props.distribution.adjusted],
+    adjusted:
+      props.distribution.adjusted[
+        name as keyof typeof props.distribution.adjusted
+      ],
     color: ELEMENT_COLORS[name],
   }));
 });

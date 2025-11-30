@@ -5,7 +5,7 @@
  * Reference: IMPLEMENTATION_PLAN_PHASE1.md Task 4.1
  */
 
-import { Solar, Lunar } from 'lunar-typescript';
+import { Solar, Lunar, ShouXingUtil } from 'lunar-typescript';
 import {
   BirthInfo,
   CalculationResult,
@@ -263,14 +263,10 @@ export class UnifiedCalculator {
 
     // Get solar info for month pillar
     const solar = Solar.fromDate(solarDate);
-    const lunar = solar.getLunar();
     
-    // Calculate solar longitude from month (approximate)
-    // Each month spans ~30 degrees, starting from 立春 (315°)
-    const month_num = solarDate.getMonth() + 1; // 1-12
-    const day_of_month = solarDate.getDate();
-    // Rough approximation: each month = 30°, adjust by day
-    const solarLongitude = ((month_num - 2) * 30 + 315 + (day_of_month - 1)) % 360;
+    // Calculate solar longitude using ShouXingUtil
+    const julianDayForSolar = solar.getJulianDay();
+    const solarLongitude = ShouXingUtil.gxcSunLon(julianDayForSolar);
 
     // Calculate four pillars
     const lichunTime = getLichunTime(solarDate.getFullYear());

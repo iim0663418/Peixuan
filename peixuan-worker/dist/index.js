@@ -12529,10 +12529,8 @@ var init_calculator = __esm({
           description: "Convert solar date to Julian day number"
         });
         const solar = Solar.fromDate(solarDate);
-        const lunar = solar.getLunar();
-        const month_num = solarDate.getMonth() + 1;
-        const day_of_month = solarDate.getDate();
-        const solarLongitude = ((month_num - 2) * 30 + 315 + (day_of_month - 1)) % 360;
+        const julianDayForSolar = solar.getJulianDay();
+        const solarLongitude = ShouXingUtil.gxcSunLon(julianDayForSolar);
         const lichunTime = getLichunTime(solarDate.getFullYear());
         const year = calculateYearPillar(solarDate, lichunTime);
         const yearStemIndex = ganZhiToIndex(year) % 10;

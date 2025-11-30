@@ -1,5 +1,26 @@
 # 檢查點記錄
 
+## Checkpoint: progress-sync-2025-11-30-eslint-attn2
+**時間**: 2025-11-30  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- ESLint Phase 2-3 統計：1,142 → 407 (-64%)，錯誤 725 → 83 (-89%)，警告 417 → 324 (-22%)；`no-undef`、`no-var`、`eqeqeq` 全數清零。
+- 配置優化：新增瀏覽器/Vue/Lunar 全域，排除 VLS 生成檔與 public/**，移除 layeredReading.js 編譯產物。
+- prettier 剩 21 項保留後置；維持生產 Worker + 統一 API 正常，進度 50/62h (81%)。
+
+### 關鍵成果
+- Lint 噪音大幅下降，關鍵語意型規則（undef/eqeqeq/no-var）已全部消除，便於聚焦手動修復。
+- 設定排除清單防止產物拉高指標，持續保持可量測的 407 基線。
+
+### 已知問題
+- 剩餘 83 errors：`no-unused-vars` 144 需手動清理；`vue/html-closing-bracket-newline` 54；`max-lines`/`complexity`/`max-depth` 延後重構。
+- 警告 324，其中 `@typescript-eslint/no-explicit-any` 108 延後至 Week 2；格式/風格問題待後續批次。
+
+### 下一步
+- Phase 4 聚焦 `no-unused-vars`（估 30-45 分鐘），避免 eslint-disable 粉飾；之後再處理格式化與樣式規則。
+- Week 2 排程 TypeScript any 優化與高複雜度檔案重構，並補齊 UnifiedView/UnifiedResultView 測試。
+
 ## Checkpoint: progress-sync-2025-11-30-r5-attn1
 **時間**: 2025-11-30  
 **狀態**: ✅ 完成

@@ -200,13 +200,9 @@ class UnifiedApiService {
         throw new Error('伺服器回應格式錯誤');
       }
 
-      if (!response.data.success || !response.data.data) {
-        const errorMsg =
-          response.data.error || response.data.message || '計算失敗';
-        throw new Error(errorMsg);
-      }
-
-      const result = response.data.data;
+      // Backend returns the calculation result directly (not wrapped in success/data)
+      // Type assertion needed because axios types expect ApiResponse but backend returns CalculationResult
+      const result = response.data as unknown as CalculationResult;
 
       // Store in cache
       this.setCache(cacheKey, result);

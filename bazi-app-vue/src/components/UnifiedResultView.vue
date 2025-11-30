@@ -137,6 +137,10 @@
           />
         </div>
       </el-tab-pane>
+
+      <el-tab-pane label="技術細節" name="technical">
+        <TechnicalDetailsCard :result="result" />
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -147,6 +151,7 @@ import WuXingChart from './WuXingChart.vue';
 import FortuneTimeline from './FortuneTimeline.vue';
 import AnnualInteraction from './AnnualInteraction.vue';
 import StarSymmetryDisplay from './StarSymmetryDisplay.vue';
+import TechnicalDetailsCard from './TechnicalDetailsCard.vue';
 
 interface Props {
   result: any;

@@ -8,7 +8,7 @@ import { drizzle } from 'drizzle-orm/d1';
 import { users } from './db/schema';
 import { eq } from 'drizzle-orm';
 import { createUnifiedRoutes } from './routes/unifiedRoutes';
-import { Router } from 'itty-router';
+import { AutoRouter } from 'itty-router';
 
 export interface Env {
 	DB: D1Database;
@@ -44,38 +44,14 @@ async function handleAPI(request: Request, env: Env): Promise<Response> {
 		});
 	}
 
-	// Handle /api/v1/calculate directly (bypass router)
-	if (path === '/api/v1/calculate' && method === 'POST') {
-		console.log('[handleAPI] Handling /api/v1/calculate');
-		try {
-			const { UnifiedController } = await import('./controllers/unifiedController');
-			const controller = new UnifiedController();
-			const input = await request.json();
-			console.log('[handleAPI] Input:', JSON.stringify(input));
-			
-			const result = await controller.calculate(input);
-			console.log('[handleAPI] Calculation complete');
-			
-			return new Response(JSON.stringify(result), {
-				headers: { 'Content-Type': 'application/json' }
-			});
-		} catch (error: any) {
-			console.error('[handleAPI] Error:', error.message);
-			return new Response(JSON.stringify({ error: error.message }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' }
-			});
-		}
-	}
-
-	// Register unified routes
-	const router = Router();
+	// Register unified routes with AutoRouter
+	const router = AutoRouter();
 	createUnifiedRoutes(router);
 
-	// Try unified routes first
+	// Try unified routes first using fetch() instead of handle()
 	try {
-		const unifiedResponse = await router.handle(request, env);
-		if (unifiedResponse) {
+		const unifiedResponse = await router.fetch(request, env);
+		if (unifiedResponse && unifiedResponse.status !== 404) {
 			return unifiedResponse;
 		}
 	} catch (error) {
@@ -84,9 +60,7 @@ async function handleAPI(request: Request, env: Env): Promise<Response> {
 	}
 
 	// 確保 anonymous 用戶存在 (only for non-unified routes)
-	if (!path.startsWith('/api/v1/calculate')) {
-		await ensureAnonymousUser(env.DB);
-	}
+	await ensureAnonymousUser(env.DB);
 
 	const controller = new ChartController(env.CACHE);
 

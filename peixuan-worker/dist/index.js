@@ -292,11 +292,11 @@ var init_dist = __esm({
         }
         let solar = Solar.fromYmd(this._year, this._month, this._day);
         if (separateMonth) {
-          let n = weeks;
+          let n2 = weeks;
           let week = _SolarWeek.fromYmd(this._year, this._month, this._day, start);
           let month = this._month;
-          const plus = n > 0;
-          while (0 !== n) {
+          const plus = n2 > 0;
+          while (0 !== n2) {
             solar = solar.next(plus ? 7 : -7);
             week = _SolarWeek.fromYmd(solar.getYear(), solar.getMonth(), solar.getDay(), start);
             let weekMonth = week.getMonth();
@@ -323,7 +323,7 @@ var init_dist = __esm({
               }
               month = weekMonth;
             }
-            n -= plus ? 1 : -1;
+            n2 -= plus ? 1 : -1;
           }
           return week;
         } else {
@@ -401,8 +401,8 @@ var init_dist = __esm({
       static getJiaZiIndex(ganZhi) {
         return _LunarUtil.index(ganZhi, _LunarUtil.JIA_ZI, 0);
       }
-      static hex(n) {
-        let hex3 = n.toString(16);
+      static hex(n2) {
+        let hex3 = n2.toString(16);
         if (hex3.length < 2) {
           hex3 = "0" + hex3;
         }
@@ -491,9 +491,9 @@ var init_dist = __esm({
         if (matcher) {
           const data = matcher[1];
           for (let i = 0, j = data.length; i < j; i += 2) {
-            const n = parseInt(data.substring(i, i + 2), 16);
-            if (n < 60) {
-              l.push(_LunarUtil.SHEN_SHA[n + 1]);
+            const n2 = parseInt(data.substring(i, i + 2), 16);
+            if (n2 < 60) {
+              l.push(_LunarUtil.SHEN_SHA[n2 + 1]);
             }
           }
         }
@@ -516,9 +516,9 @@ var init_dist = __esm({
         if (matcher) {
           const data = matcher[1];
           for (let i = 0, j = data.length; i < j; i += 2) {
-            const n = parseInt(data.substring(i, i + 2), 16);
-            if (n >= 60) {
-              l.push(_LunarUtil.SHEN_SHA[n + 1]);
+            const n2 = parseInt(data.substring(i, i + 2), 16);
+            if (n2 >= 60) {
+              l.push(_LunarUtil.SHEN_SHA[n2 + 1]);
             }
           }
         }
@@ -582,13 +582,13 @@ var init_dist = __esm({
       static getXunKong(ganZhi) {
         return _LunarUtil.XUN_KONG[_LunarUtil.getXunIndex(ganZhi)];
       }
-      static find(s, arr) {
+      static find(s2, arr) {
         for (let i = 0, j = arr.length; i < j; i++) {
           const v = arr[i];
           if (v.length < 1) {
             continue;
           }
-          if (s.indexOf(v) > -1) {
+          if (s2.indexOf(v) > -1) {
             return {
               index: i,
               value: v
@@ -1965,8 +1965,8 @@ var init_dist = __esm({
         this._work = work;
         this._target = _Holiday._ymd(target);
       }
-      static _ymd(s) {
-        return s.indexOf("-") < 0 ? s.substring(0, 4) + "-" + s.substring(4, 6) + "-" + s.substring(6) : s;
+      static _ymd(s2) {
+        return s2.indexOf("-") < 0 ? s2.substring(0, 4) + "-" + s2.substring(4, 6) + "-" + s2.substring(6) : s2;
       }
       getDay() {
         return this._day;
@@ -1997,8 +1997,8 @@ var init_dist = __esm({
       }
     };
     _HolidayUtil = class {
-      static _padding(n) {
-        return (n < 10 ? "0" : "") + n;
+      static _padding(n2) {
+        return (n2 < 10 ? "0" : "") + n2;
       }
       static _findForward(key) {
         const start = _HolidayUtil._DATA_IN_USE.indexOf(key);
@@ -2006,9 +2006,9 @@ var init_dist = __esm({
           return null;
         }
         let right = _HolidayUtil._DATA_IN_USE.substring(start);
-        const n = right.length % _HolidayUtil._SIZE;
-        if (n > 0) {
-          right = right.substring(n);
+        const n2 = right.length % _HolidayUtil._SIZE;
+        if (n2 > 0) {
+          right = right.substring(n2);
         }
         while (0 !== right.indexOf(key) && right.length >= _HolidayUtil._SIZE) {
           right = right.substring(_HolidayUtil._SIZE);
@@ -2023,9 +2023,9 @@ var init_dist = __esm({
         const keySize = key.length;
         let left = _HolidayUtil._DATA_IN_USE.substring(0, start + keySize);
         let size = left.length;
-        const n = size % _HolidayUtil._SIZE;
-        if (n > 0) {
-          left = left.substring(0, size - n);
+        const n2 = size % _HolidayUtil._SIZE;
+        if (n2 > 0) {
+          left = left.substring(0, size - n2);
         }
         size = left.length;
         while (size - keySize !== left.lastIndexOf(key) && size >= _HolidayUtil._SIZE) {
@@ -2034,45 +2034,45 @@ var init_dist = __esm({
         }
         return left;
       }
-      static _buildHolidayForward(s) {
-        const day = s.substring(0, 8);
-        const name = _HolidayUtil._NAMES_IN_USE[s.charCodeAt(8) - _HolidayUtil._ZERO];
-        const work = s.charCodeAt(9) === _HolidayUtil._ZERO;
-        const target = s.substring(10, 18);
+      static _buildHolidayForward(s2) {
+        const day = s2.substring(0, 8);
+        const name = _HolidayUtil._NAMES_IN_USE[s2.charCodeAt(8) - _HolidayUtil._ZERO];
+        const work = s2.charCodeAt(9) === _HolidayUtil._ZERO;
+        const target = s2.substring(10, 18);
         return new Holiday(day, name, work, target);
       }
-      static _buildHolidayBackward(s) {
-        const size = s.length;
-        const day = s.substring(size - 18, size - 10);
-        const name = _HolidayUtil._NAMES_IN_USE[s.charCodeAt(size - 10) - _HolidayUtil._ZERO];
-        const work = s.charCodeAt(size - 9) === _HolidayUtil._ZERO;
-        const target = s.substring(size - 8);
+      static _buildHolidayBackward(s2) {
+        const size = s2.length;
+        const day = s2.substring(size - 18, size - 10);
+        const name = _HolidayUtil._NAMES_IN_USE[s2.charCodeAt(size - 10) - _HolidayUtil._ZERO];
+        const work = s2.charCodeAt(size - 9) === _HolidayUtil._ZERO;
+        const target = s2.substring(size - 8);
         return new Holiday(day, name, work, target);
       }
       static _findHolidaysForward(key) {
         const l = [];
-        let s = _HolidayUtil._findForward(key);
-        if (null == s) {
+        let s2 = _HolidayUtil._findForward(key);
+        if (null == s2) {
           return l;
         }
-        while (0 === s.indexOf(key)) {
-          l.push(_HolidayUtil._buildHolidayForward(s));
-          s = s.substring(_HolidayUtil._SIZE);
+        while (0 === s2.indexOf(key)) {
+          l.push(_HolidayUtil._buildHolidayForward(s2));
+          s2 = s2.substring(_HolidayUtil._SIZE);
         }
         return l;
       }
       static _findHolidaysBackward(key) {
         const l = [];
-        let s = _HolidayUtil._findBackward(key);
-        if (null == s) {
+        let s2 = _HolidayUtil._findBackward(key);
+        if (null == s2) {
           return l;
         }
-        let size = s.length;
+        let size = s2.length;
         const keySize = key.length;
-        while (size - keySize === s.lastIndexOf(key)) {
-          l.push(_HolidayUtil._buildHolidayBackward(s));
-          s = s.substring(0, size - _HolidayUtil._SIZE);
-          size = s.length;
+        while (size - keySize === s2.lastIndexOf(key)) {
+          l.push(_HolidayUtil._buildHolidayBackward(s2));
+          s2 = s2.substring(0, size - _HolidayUtil._SIZE);
+          size = s2.length;
         }
         l.reverse();
         return l;
@@ -2131,16 +2131,16 @@ var init_dist = __esm({
           _HolidayUtil._DATA_IN_USE += append.join("");
         }
       }
-      static fix(a, b) {
+      static fix(a2, b) {
         if (!b) {
-          if (Array.isArray(a)) {
-            _HolidayUtil._fixNames(a);
+          if (Array.isArray(a2)) {
+            _HolidayUtil._fixNames(a2);
           } else {
-            _HolidayUtil._fixData(a);
+            _HolidayUtil._fixData(a2);
           }
         } else {
-          if (Array.isArray(a)) {
-            _HolidayUtil._fixNames(a);
+          if (Array.isArray(a2)) {
+            _HolidayUtil._fixNames(a2);
           }
           _HolidayUtil._fixData(b);
         }
@@ -2773,9 +2773,9 @@ var init_dist = __esm({
       "{s.purple}"
     ];
     _I18n = class {
-      static updateArray(c) {
-        const v = _I18n._ARRAYS[c];
-        const o2 = _I18n._OBJ_ARRAYS[c];
+      static updateArray(c2) {
+        const v = _I18n._ARRAYS[c2];
+        const o2 = _I18n._OBJ_ARRAYS[c2];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
@@ -2787,15 +2787,15 @@ var init_dist = __esm({
           }
         }
       }
-      static updateStringDictionary(c) {
-        const v = _I18n._DICT_STRING[c];
-        const o2 = _I18n._OBJ_STRING[c];
+      static updateStringDictionary(c2) {
+        const v = _I18n._DICT_STRING[c2];
+        const o2 = _I18n._OBJ_STRING[c2];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
           const dict = v[k];
           const subKeys = Object.keys(dict);
-          for (let m = 0, n = subKeys.length; m < n; m++) {
+          for (let m = 0, n2 = subKeys.length; m < n2; m++) {
             const key = subKeys[m];
             const i = key.replace(/{(.[^}]*)}/g, (_$0, $1) => {
               return _I18n.getMessage($1);
@@ -2806,15 +2806,15 @@ var init_dist = __esm({
           }
         }
       }
-      static updateNumberDictionary(c) {
-        const v = _I18n._DICT_NUMBER[c];
-        const o2 = _I18n._OBJ_NUMBER[c];
+      static updateNumberDictionary(c2) {
+        const v = _I18n._DICT_NUMBER[c2];
+        const o2 = _I18n._OBJ_NUMBER[c2];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
           const dict = v[k];
           const subKeys = Object.keys(dict);
-          for (let m = 0, n = subKeys.length; m < n; m++) {
+          for (let m = 0, n2 = subKeys.length; m < n2; m++) {
             const key = subKeys[m];
             const i = key.replace(/{(.[^}]*)}/g, (_$0, $1) => {
               return _I18n.getMessage($1);
@@ -2823,15 +2823,15 @@ var init_dist = __esm({
           }
         }
       }
-      static updateArrayDictionary(c) {
-        const v = _I18n._DICT_ARRAY[c];
-        const o2 = _I18n._OBJ_ARRAY[c];
+      static updateArrayDictionary(c2) {
+        const v = _I18n._DICT_ARRAY[c2];
+        const o2 = _I18n._OBJ_ARRAY[c2];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
           const dict = v[k];
           const subKeys = Object.keys(dict);
-          for (let m = 0, n = subKeys.length; m < n; m++) {
+          for (let m = 0, n2 = subKeys.length; m < n2; m++) {
             const key = subKeys[m];
             const x2 = key.replace(/{(.[^}]*)}/g, (_$0, $1) => {
               return _I18n.getMessage($1);
@@ -2879,14 +2879,14 @@ var init_dist = __esm({
         _I18n.update();
       }
       static getMessage(key) {
-        let s = _I18n._MESSAGES[_I18n._LANG][key];
-        if (void 0 == s) {
-          s = _I18n._MESSAGES[_I18n._DEFAULT_LANG][key];
+        let s2 = _I18n._MESSAGES[_I18n._LANG][key];
+        if (void 0 == s2) {
+          s2 = _I18n._MESSAGES[_I18n._DEFAULT_LANG][key];
         }
-        if (void 0 == s) {
-          s = key;
+        if (void 0 == s2) {
+          s2 = key;
         }
-        return s;
+        return s2;
       }
       static setLanguage(lang) {
         if (_I18n._MESSAGES[lang]) {
@@ -2897,9 +2897,9 @@ var init_dist = __esm({
       static getLanguage() {
         return _I18n._LANG;
       }
-      static initArray(c) {
-        const v = _I18n._ARRAYS[c];
-        const o2 = _I18n._OBJ_ARRAYS[c];
+      static initArray(c2) {
+        const v = _I18n._ARRAYS[c2];
+        const o2 = _I18n._OBJ_ARRAYS[c2];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
@@ -2910,43 +2910,43 @@ var init_dist = __esm({
           }
         }
       }
-      static initArrayDictionary(c) {
-        const v = _I18n._DICT_ARRAY[c];
-        const o2 = _I18n._OBJ_ARRAY[c];
+      static initArrayDictionary(c2) {
+        const v = _I18n._DICT_ARRAY[c2];
+        const o2 = _I18n._OBJ_ARRAY[c2];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
           const dict = o2[k];
           const subKeys = Object.keys(dict);
-          for (let m = 0, n = subKeys.length; m < n; m++) {
+          for (let m = 0, n2 = subKeys.length; m < n2; m++) {
             const key = subKeys[m];
             v[k][key] = dict[key];
           }
         }
       }
-      static initStringDictionary(c) {
-        const v = _I18n._DICT_STRING[c];
-        const o2 = _I18n._OBJ_STRING[c];
+      static initStringDictionary(c2) {
+        const v = _I18n._DICT_STRING[c2];
+        const o2 = _I18n._OBJ_STRING[c2];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
           const dict = o2[k];
           const subKeys = Object.keys(dict);
-          for (let m = 0, n = subKeys.length; m < n; m++) {
+          for (let m = 0, n2 = subKeys.length; m < n2; m++) {
             const key = subKeys[m];
             v[k][key] = dict[key];
           }
         }
       }
-      static initNumberDictionary(c) {
-        const v = _I18n._DICT_NUMBER[c];
-        const o2 = _I18n._OBJ_NUMBER[c];
+      static initNumberDictionary(c2) {
+        const v = _I18n._DICT_NUMBER[c2];
+        const o2 = _I18n._OBJ_NUMBER[c2];
         const keys = Object.keys(v);
         for (let x = 0, y = keys.length; x < y; x++) {
           const k = keys[x];
           const dict = o2[k];
           const subKeys = Object.keys(dict);
-          for (let m = 0, n = subKeys.length; m < n; m++) {
+          for (let m = 0, n2 = subKeys.length; m < n2; m++) {
             const key = subKeys[m];
             v[k][key] = dict[key];
           }
@@ -4629,22 +4629,22 @@ var init_dist = __esm({
       getXunKong() {
         return LunarUtil.getXunKong(this.getGanZhi());
       }
-      getLiuNian(n = 10) {
+      getLiuNian(n2 = 10) {
         if (this._index < 1) {
-          n = this._endYear - this._startYear + 1;
+          n2 = this._endYear - this._startYear + 1;
         }
         const l = [];
-        for (let i = 0; i < n; i++) {
+        for (let i = 0; i < n2; i++) {
           l.push(new LiuNian(this, i));
         }
         return l;
       }
-      getXiaoYun(n = 10) {
+      getXiaoYun(n2 = 10) {
         if (this._index < 1) {
-          n = this._endYear - this._startYear + 1;
+          n2 = this._endYear - this._startYear + 1;
         }
         const l = [];
-        for (let i = 0; i < n; i++) {
+        for (let i = 0; i < n2; i++) {
           l.push(new XiaoYun(this, i, this._yun.isForward()));
         }
         return l;
@@ -4722,9 +4722,9 @@ var init_dist = __esm({
         solar = solar.next(this._startDay);
         return solar.nextHour(this._startHour);
       }
-      getDaYun(n = 10) {
+      getDaYun(n2 = 10) {
         const l = [];
-        for (let i = 0; i < n; i++) {
+        for (let i = 0; i < n2; i++) {
           l.push(new DaYun(this, i));
         }
         return l;
@@ -5085,36 +5085,36 @@ var init_dist = __esm({
         return this.getNumber() + this.getColor() + this.getWuXing() + this.getNameInBeiDou();
       }
       toFullString() {
-        let s = this.getNumber();
-        s += this.getColor();
-        s += this.getWuXing();
-        s += " ";
-        s += this.getPosition();
-        s += "(";
-        s += this.getPositionDesc();
-        s += ") ";
-        s += this.getNameInBeiDou();
-        s += " \u7384\u7A7A[";
-        s += this.getNameInXuanKong();
-        s += " ";
-        s += this.getLuckInXuanKong();
-        s += "] \u5947\u95E8[";
-        s += this.getNameInQiMen();
-        s += " ";
-        s += this.getLuckInQiMen();
+        let s2 = this.getNumber();
+        s2 += this.getColor();
+        s2 += this.getWuXing();
+        s2 += " ";
+        s2 += this.getPosition();
+        s2 += "(";
+        s2 += this.getPositionDesc();
+        s2 += ") ";
+        s2 += this.getNameInBeiDou();
+        s2 += " \u7384\u7A7A[";
+        s2 += this.getNameInXuanKong();
+        s2 += " ";
+        s2 += this.getLuckInXuanKong();
+        s2 += "] \u5947\u95E8[";
+        s2 += this.getNameInQiMen();
+        s2 += " ";
+        s2 += this.getLuckInQiMen();
         if (this.getBaMenInQiMen().length > 0) {
-          s += " ";
-          s += this.getBaMenInQiMen();
-          s += "\u95E8";
+          s2 += " ";
+          s2 += this.getBaMenInQiMen();
+          s2 += "\u95E8";
         }
-        s += " ";
-        s += this.getYinYangInQiMen();
-        s += "] \u592A\u4E59[";
-        s += this.getNameInTaiYi();
-        s += " ";
-        s += this.getTypeInTaiYi();
-        s += "]";
-        return s;
+        s2 += " ";
+        s2 += this.getYinYangInQiMen();
+        s2 += "] \u592A\u4E59[";
+        s2 += this.getNameInTaiYi();
+        s2 += " ";
+        s2 += this.getTypeInTaiYi();
+        s2 += "]";
+        return s2;
       }
     };
     NineStar = _NineStar;
@@ -5275,27 +5275,27 @@ var init_dist = __esm({
         const index = LunarYear.fromYear(this._year).getZhiIndex() % 3;
         const m = Math.abs(this._month);
         const monthZhiIndex = (13 + m) % 12;
-        let n = 27 - index * 3;
+        let n2 = 27 - index * 3;
         if (monthZhiIndex < LunarUtil.BASE_MONTH_ZHI_INDEX) {
-          n -= 3;
+          n2 -= 3;
         }
-        const offset = (n - monthZhiIndex) % 9;
+        const offset = (n2 - monthZhiIndex) % 9;
         return NineStar.fromIndex(offset);
       }
       toString() {
         return `${this.getYear()}\u5E74${this.isLeap() ? "\u95F0" : ""}${LunarUtil.MONTH[Math.abs(this.getMonth())]}\u6708(${this.getDayCount()})\u5929`;
       }
-      next(n) {
-        if (0 == n) {
+      next(n2) {
+        if (0 == n2) {
           return _LunarMonth.fromYm(this._year, this._month);
         } else {
-          let rest = Math.abs(n);
+          let rest = Math.abs(n2);
           let ny = this._year;
           let iy = ny;
           let im = this._month;
           let index = 0;
           let months = LunarYear.fromYear(ny).getMonths();
-          if (n > 0) {
+          if (n2 > 0) {
             while (true) {
               const size = months.length;
               for (let i = 0; i < size; i++) {
@@ -5343,87 +5343,87 @@ var init_dist = __esm({
       }
     };
     _ShouXingUtil = class {
-      static decode(s) {
+      static decode(s2) {
         const o2 = "0000000000";
         const o22 = o2 + o2;
-        s = s.replace(/J/g, "00");
-        s = s.replace(/I/g, "000");
-        s = s.replace(/H/g, "0000");
-        s = s.replace(/G/g, "00000");
-        s = s.replace(/t/g, "02");
-        s = s.replace(/s/g, "002");
-        s = s.replace(/r/g, "0002");
-        s = s.replace(/q/g, "00002");
-        s = s.replace(/p/g, "000002");
-        s = s.replace(/o/g, "0000002");
-        s = s.replace(/n/g, "00000002");
-        s = s.replace(/m/g, "000000002");
-        s = s.replace(/l/g, "0000000002");
-        s = s.replace(/k/g, "01");
-        s = s.replace(/j/g, "0101");
-        s = s.replace(/i/g, "001");
-        s = s.replace(/h/g, "001001");
-        s = s.replace(/g/g, "0001");
-        s = s.replace(/f/g, "00001");
-        s = s.replace(/e/g, "000001");
-        s = s.replace(/d/g, "0000001");
-        s = s.replace(/c/g, "00000001");
-        s = s.replace(/b/g, "000000001");
-        s = s.replace(/a/g, "0000000001");
-        s = s.replace(/A/g, o22 + o22 + o22);
-        s = s.replace(/B/g, o22 + o22 + o2);
-        s = s.replace(/C/g, o22 + o22);
-        s = s.replace(/D/g, o22 + o2);
-        s = s.replace(/E/g, o22);
-        s = s.replace(/F/g, o2);
-        return s;
+        s2 = s2.replace(/J/g, "00");
+        s2 = s2.replace(/I/g, "000");
+        s2 = s2.replace(/H/g, "0000");
+        s2 = s2.replace(/G/g, "00000");
+        s2 = s2.replace(/t/g, "02");
+        s2 = s2.replace(/s/g, "002");
+        s2 = s2.replace(/r/g, "0002");
+        s2 = s2.replace(/q/g, "00002");
+        s2 = s2.replace(/p/g, "000002");
+        s2 = s2.replace(/o/g, "0000002");
+        s2 = s2.replace(/n/g, "00000002");
+        s2 = s2.replace(/m/g, "000000002");
+        s2 = s2.replace(/l/g, "0000000002");
+        s2 = s2.replace(/k/g, "01");
+        s2 = s2.replace(/j/g, "0101");
+        s2 = s2.replace(/i/g, "001");
+        s2 = s2.replace(/h/g, "001001");
+        s2 = s2.replace(/g/g, "0001");
+        s2 = s2.replace(/f/g, "00001");
+        s2 = s2.replace(/e/g, "000001");
+        s2 = s2.replace(/d/g, "0000001");
+        s2 = s2.replace(/c/g, "00000001");
+        s2 = s2.replace(/b/g, "000000001");
+        s2 = s2.replace(/a/g, "0000000001");
+        s2 = s2.replace(/A/g, o22 + o22 + o22);
+        s2 = s2.replace(/B/g, o22 + o22 + o2);
+        s2 = s2.replace(/C/g, o22 + o22);
+        s2 = s2.replace(/D/g, o22 + o2);
+        s2 = s2.replace(/E/g, o22);
+        s2 = s2.replace(/F/g, o2);
+        return s2;
       }
       static nutationLon2(t2) {
-        let a = -1.742 * t2;
+        let a2 = -1.742 * t2;
         const t22 = t2 * t2;
         let dl = 0;
         for (let i = 0, j = _ShouXingUtil.NUT_B.length; i < j; i += 5) {
-          dl += (_ShouXingUtil.NUT_B[i + 3] + a) * Math.sin(_ShouXingUtil.NUT_B[i] + _ShouXingUtil.NUT_B[i + 1] * t2 + _ShouXingUtil.NUT_B[i + 2] * t22);
-          a = 0;
+          dl += (_ShouXingUtil.NUT_B[i + 3] + a2) * Math.sin(_ShouXingUtil.NUT_B[i] + _ShouXingUtil.NUT_B[i + 1] * t2 + _ShouXingUtil.NUT_B[i + 2] * t22);
+          a2 = 0;
         }
         return dl / 100 / _ShouXingUtil.SECOND_PER_RAD;
       }
-      static eLon(t2, n) {
+      static eLon(t2, n2) {
         t2 /= 10;
         let v = 0, tn = 1;
         const pn = 1;
         const m0 = _ShouXingUtil.XL0[pn + 1] - _ShouXingUtil.XL0[pn];
         for (let i = 0; i < 6; i++, tn *= t2) {
           const n1 = Math.floor(_ShouXingUtil.XL0[pn + i]);
-          const n2 = Math.floor(_ShouXingUtil.XL0[pn + 1 + i]);
-          const n0 = n2 - n1;
+          const n22 = Math.floor(_ShouXingUtil.XL0[pn + 1 + i]);
+          const n0 = n22 - n1;
           if (n0 == 0) {
             continue;
           }
           let m = 0;
-          if (n < 0) {
-            m = n2;
+          if (n2 < 0) {
+            m = n22;
           } else {
-            m = Math.floor(3 * n * n0 / m0 + 0.5 + n1);
+            m = Math.floor(3 * n2 * n0 / m0 + 0.5 + n1);
             if (i != 0) {
               m += 3;
             }
-            if (m > n2) {
-              m = n2;
+            if (m > n22) {
+              m = n22;
             }
           }
-          let c = 0;
+          let c2 = 0;
           for (let j = n1; j < m; j += 3) {
-            c += _ShouXingUtil.XL0[j] * Math.cos(_ShouXingUtil.XL0[j + 1] + t2 * _ShouXingUtil.XL0[j + 2]);
+            c2 += _ShouXingUtil.XL0[j] * Math.cos(_ShouXingUtil.XL0[j + 1] + t2 * _ShouXingUtil.XL0[j + 2]);
           }
-          v += c * tn;
+          v += c2 * tn;
         }
         v /= _ShouXingUtil.XL0[0];
         const t22 = t2 * t2;
         v += (-0.0728 - 2.7702 * t2 - 1.1019 * t22 - 0.0996 * t22 * t2) / _ShouXingUtil.SECOND_PER_RAD;
         return v;
       }
-      static mLon(t2, n) {
+      static mLon(t2, n2) {
         const ob = _ShouXingUtil.XL1;
         const obl = ob[0].length;
         let tn = 1;
@@ -5439,25 +5439,25 @@ var init_dist = __esm({
         t22 /= 1e4;
         t3 /= 1e8;
         t4 /= 1e8;
-        n *= 6;
-        if (n < 0) {
-          n = obl;
+        n2 *= 6;
+        if (n2 < 0) {
+          n2 = obl;
         }
         for (let i = 0, x = ob.length; i < x; i++, tn *= t2) {
           const f2 = ob[i];
           const l = f2.length;
-          let m = Math.floor(n * l / obl + 0.5);
+          let m = Math.floor(n2 * l / obl + 0.5);
           if (i > 0) {
             m += 6;
           }
           if (m >= l) {
             m = l;
           }
-          let c = 0;
+          let c2 = 0;
           for (let j = 0; j < m; j += 6) {
-            c += f2[j] * Math.cos(f2[j + 1] + t2 * f2[j + 2] + t22 * f2[j + 3] + t3 * f2[j + 4] + t4 * f2[j + 5]);
+            c2 += f2[j] * Math.cos(f2[j + 1] + t2 * f2[j + 2] + t22 * f2[j + 3] + t3 * f2[j + 4] + t4 * f2[j + 5]);
           }
-          v += c * tn;
+          v += c2 * tn;
         }
         v /= _ShouXingUtil.SECOND_PER_RAD;
         return v;
@@ -5472,8 +5472,8 @@ var init_dist = __esm({
         const f2 = 628.307585 * t2;
         return 628.332 + 21 * Math.sin(1.527 + f2) + 0.44 * Math.sin(1.48 + f2 * 2) + 0.129 * Math.sin(5.82 + f2) * t2 + 55e-5 * Math.sin(4.21 + f2) * t2 * t2;
       }
-      static saLon(t2, n) {
-        return _ShouXingUtil.eLon(t2, n) + _ShouXingUtil.nutationLon2(t2) + _ShouXingUtil.gxcSunLon(t2) + Math.PI;
+      static saLon(t2, n2) {
+        return _ShouXingUtil.eLon(t2, n2) + _ShouXingUtil.nutationLon2(t2) + _ShouXingUtil.gxcSunLon(t2) + Math.PI;
       }
       static dtExt(y, jsd) {
         const dy = (y - 1820) / 100;
@@ -5570,8 +5570,8 @@ var init_dist = __esm({
         const v = 628.3319653318;
         let t2 = (w - 4.895062166) / v;
         t2 -= (53 * t2 * t2 + 334116 * Math.cos(4.67 + 628.307585 * t2) + 2061 * Math.cos(2.678 + 628.3076 * t2) * t2) / v / 1e7;
-        const n = 4895062166e-2 + 6283319653318e-3 * t2 + 53 * t2 * t2 + 334166 * Math.cos(4.669257 + 628.307585 * t2) + 3489 * Math.cos(4.6261 + 1256.61517 * t2) + 2060.6 * Math.cos(2.67823 + 628.307585 * t2) * t2 - 994 - 834 * Math.sin(2.1824 - 33.75705 * t2);
-        t2 -= (n / 1e7 - w) / 628.332 + (32 * (t2 + 1.8) * (t2 + 1.8) - 20) / _ShouXingUtil.SECOND_PER_DAY / 36525;
+        const n2 = 4895062166e-2 + 6283319653318e-3 * t2 + 53 * t2 * t2 + 334166 * Math.cos(4.669257 + 628.307585 * t2) + 3489 * Math.cos(4.6261 + 1256.61517 * t2) + 2060.6 * Math.cos(2.67823 + 628.307585 * t2) * t2 - 994 - 834 * Math.sin(2.1824 - 33.75705 * t2);
+        t2 -= (n2 / 1e7 - w) / 628.332 + (32 * (t2 + 1.8) * (t2 + 1.8) - 20) / _ShouXingUtil.SECOND_PER_DAY / 36525;
         return t2 * 36525 + _ShouXingUtil.ONE_THIRD;
       }
       static shuoLow(w) {
@@ -5606,10 +5606,10 @@ var init_dist = __esm({
         } else if (jd >= f2 && jd < f3) {
           d = Math.floor(_ShouXingUtil.shuoLow(Math.floor((jd + pc - 2451551) / 29.5306) * Math.PI * 2) + 0.5);
           const from = Math.floor((jd - f2) / 29.5306);
-          const n = _ShouXingUtil.SB.substring(from, from + 1);
-          if ("1" == n) {
+          const n2 = _ShouXingUtil.SB.substring(from, from + 1);
+          if ("1" == n2) {
             d += 1;
-          } else if ("2" == n) {
+          } else if ("2" == n2) {
             d -= 1;
           }
         }
@@ -5641,10 +5641,10 @@ var init_dist = __esm({
         } else if (jd >= f2 && jd < f3) {
           d = Math.floor(_ShouXingUtil.qiLow(Math.floor((jd + pc - 2451259) / 365.2422 * 24) * Math.PI / 12) + 0.5);
           const from = Math.floor((jd - f2) / 365.2422 * 24);
-          const n = _ShouXingUtil.QB.substring(from, from + 1);
-          if ("1" == n) {
+          const n2 = _ShouXingUtil.QB.substring(from, from + 1);
+          if ("1" == n2) {
             d += 1;
-          } else if ("2" == n) {
+          } else if ("2" == n2) {
             d -= 1;
           }
         }
@@ -5657,14 +5657,14 @@ var init_dist = __esm({
       static qiAccurate2(jd) {
         const d = Math.PI / 12;
         const w = Math.floor((jd + 293) / 365.2422 * 24) * d;
-        const a = _ShouXingUtil.qiAccurate(w);
-        if (a - jd > 5) {
+        const a2 = _ShouXingUtil.qiAccurate(w);
+        if (a2 - jd > 5) {
           return _ShouXingUtil.qiAccurate(w - d);
         }
-        if (a - jd < -5) {
+        if (a2 - jd < -5) {
           return _ShouXingUtil.qiAccurate(w + d);
         }
-        return a;
+        return a2;
       }
     };
     ShouXingUtil = _ShouXingUtil;
@@ -8764,14 +8764,14 @@ var init_dist = __esm({
         return this._jieQiJulianDays;
       }
       getDayCount() {
-        let n = 0;
+        let n2 = 0;
         for (let i = 0, j = this._months.length; i < j; i++) {
           const m = this._months[i];
           if (m.getYear() == this._year) {
-            n += m.getDayCount();
+            n2 += m.getDayCount();
           }
         }
-        return n;
+        return n2;
       }
       getMonths() {
         return this._months;
@@ -8925,8 +8925,8 @@ var init_dist = __esm({
       getPositionTaiSuiDesc() {
         return LunarUtil.POSITION_DESC[this.getPositionTaiSui()];
       }
-      next(n) {
-        return _LunarYear.fromYear(this._year + n);
+      next(n2) {
+        return _LunarYear.fromYear(this._year + n2);
       }
     };
     LunarYear = _LunarYear;
@@ -9112,12 +9112,12 @@ var init_dist = __esm({
       }
       getYearInChinese() {
         const y = this.getYear() + "";
-        let s = "";
+        let s2 = "";
         const zero = "0".charCodeAt(0);
         for (let i = 0, j = y.length; i < j; i++) {
-          s += LunarUtil.NUMBER[y.charCodeAt(i) - zero];
+          s2 += LunarUtil.NUMBER[y.charCodeAt(i) - zero];
         }
-        return s;
+        return s2;
       }
       getMonthInChinese() {
         return this._lunar.getMonthInChinese();
@@ -9206,12 +9206,12 @@ var init_dist = __esm({
         return this.getYearInChinese() + "\u5E74" + this.getMonthInChinese() + "\u6708" + this.getDayInChinese();
       }
       toFullString() {
-        let s = this.toString();
+        let s2 = this.toString();
         const festivals = this.getFestivals();
         for (let i = 0, j = festivals.length; i < j; i++) {
-          s += " (" + festivals[i] + ")";
+          s2 += " (" + festivals[i] + ")";
         }
-        return s;
+        return s2;
       }
     };
     Foto = _Foto;
@@ -9243,12 +9243,12 @@ var init_dist = __esm({
       }
       getYearInChinese() {
         const y = this.getYear() + "";
-        let s = "";
+        let s2 = "";
         const zero = "0".charCodeAt(0);
         for (let i = 0, j = y.length; i < j; i++) {
-          s += LunarUtil.NUMBER[y.charCodeAt(i) - zero];
+          s2 += LunarUtil.NUMBER[y.charCodeAt(i) - zero];
         }
-        return s;
+        return s2;
       }
       getMonthInChinese() {
         return this._lunar.getMonthInChinese();
@@ -9764,13 +9764,13 @@ var init_dist = __esm({
       }
       getYearInChinese() {
         const y = this._year + "";
-        let s = "";
+        let s2 = "";
         const zero = "0".charCodeAt(0);
         for (let i = 0, j = y.length; i < j; i++) {
-          const n = y.charCodeAt(i);
-          s += LunarUtil.NUMBER[n - zero];
+          const n2 = y.charCodeAt(i);
+          s2 += LunarUtil.NUMBER[n2 - zero];
         }
-        return s;
+        return s2;
       }
       getMonthInChinese() {
         return (this._month < 0 ? "\u95F0" : "") + LunarUtil.MONTH[Math.abs(this._month)];
@@ -10337,11 +10337,11 @@ var init_dist = __esm({
             monthZhiIndex = this._monthZhiIndexExact;
             break;
         }
-        let n = 27 - yearZhiIndex % 3 * 3;
+        let n2 = 27 - yearZhiIndex % 3 * 3;
         if (monthZhiIndex < LunarUtil.BASE_MONTH_ZHI_INDEX) {
-          n -= 3;
+          n2 -= 3;
         }
-        return NineStar.fromIndex((n - monthZhiIndex) % 9);
+        return NineStar.fromIndex((n2 - monthZhiIndex) % 9);
       }
       getJieQiSolar(name) {
         this.checkLang();
@@ -10580,34 +10580,34 @@ var init_dist = __esm({
         return this.getYearInChinese() + "\u5E74" + this.getMonthInChinese() + "\u6708" + this.getDayInChinese();
       }
       toFullString() {
-        let s = this.toString();
-        s += " " + this.getYearInGanZhi() + "(" + this.getYearShengXiao() + ")\u5E74";
-        s += " " + this.getMonthInGanZhi() + "(" + this.getMonthShengXiao() + ")\u6708";
-        s += " " + this.getDayInGanZhi() + "(" + this.getDayShengXiao() + ")\u65E5";
-        s += " " + this.getTimeZhi() + "(" + this.getTimeShengXiao() + ")\u65F6";
-        s += " \u7EB3\u97F3[" + this.getYearNaYin() + " " + this.getMonthNaYin() + " " + this.getDayNaYin() + " " + this.getTimeNaYin() + "]";
-        s += " \u661F\u671F" + this.getWeekInChinese();
+        let s2 = this.toString();
+        s2 += " " + this.getYearInGanZhi() + "(" + this.getYearShengXiao() + ")\u5E74";
+        s2 += " " + this.getMonthInGanZhi() + "(" + this.getMonthShengXiao() + ")\u6708";
+        s2 += " " + this.getDayInGanZhi() + "(" + this.getDayShengXiao() + ")\u65E5";
+        s2 += " " + this.getTimeZhi() + "(" + this.getTimeShengXiao() + ")\u65F6";
+        s2 += " \u7EB3\u97F3[" + this.getYearNaYin() + " " + this.getMonthNaYin() + " " + this.getDayNaYin() + " " + this.getTimeNaYin() + "]";
+        s2 += " \u661F\u671F" + this.getWeekInChinese();
         this.getFestivals().forEach((f2) => {
-          s += " (" + f2 + ")";
+          s2 += " (" + f2 + ")";
         });
         this.getOtherFestivals().forEach((f2) => {
-          s += " (" + f2 + ")";
+          s2 += " (" + f2 + ")";
         });
         const jq = this.getJieQi();
         if (jq.length > 0) {
-          s += " [" + jq + "]";
+          s2 += " [" + jq + "]";
         }
-        s += " " + this.getGong() + "\u65B9" + this.getShou();
-        s += " \u661F\u5BBF[" + this.getXiu() + this.getZheng() + this.getAnimal() + "](" + this.getXiuLuck() + ")";
-        s += " \u5F6D\u7956\u767E\u5FCC[" + this.getPengZuGan() + " " + this.getPengZuZhi() + "]";
-        s += " \u559C\u795E\u65B9\u4F4D[" + this.getDayPositionXi() + "](" + this.getDayPositionXiDesc() + ")";
-        s += " \u9633\u8D35\u795E\u65B9\u4F4D[" + this.getDayPositionYangGui() + "](" + this.getDayPositionYangGuiDesc() + ")";
-        s += " \u9634\u8D35\u795E\u65B9\u4F4D[" + this.getDayPositionYinGui() + "](" + this.getDayPositionYinGuiDesc() + ")";
-        s += " \u798F\u795E\u65B9\u4F4D[" + this.getDayPositionFu() + "](" + this.getDayPositionFuDesc() + ")";
-        s += " \u8D22\u795E\u65B9\u4F4D[" + this.getDayPositionCai() + "](" + this.getDayPositionCaiDesc() + ")";
-        s += " \u51B2[" + this.getDayChongDesc() + "]";
-        s += " \u715E[" + this.getDaySha() + "]";
-        return s;
+        s2 += " " + this.getGong() + "\u65B9" + this.getShou();
+        s2 += " \u661F\u5BBF[" + this.getXiu() + this.getZheng() + this.getAnimal() + "](" + this.getXiuLuck() + ")";
+        s2 += " \u5F6D\u7956\u767E\u5FCC[" + this.getPengZuGan() + " " + this.getPengZuZhi() + "]";
+        s2 += " \u559C\u795E\u65B9\u4F4D[" + this.getDayPositionXi() + "](" + this.getDayPositionXiDesc() + ")";
+        s2 += " \u9633\u8D35\u795E\u65B9\u4F4D[" + this.getDayPositionYangGui() + "](" + this.getDayPositionYangGuiDesc() + ")";
+        s2 += " \u9634\u8D35\u795E\u65B9\u4F4D[" + this.getDayPositionYinGui() + "](" + this.getDayPositionYinGuiDesc() + ")";
+        s2 += " \u798F\u795E\u65B9\u4F4D[" + this.getDayPositionFu() + "](" + this.getDayPositionFuDesc() + ")";
+        s2 += " \u8D22\u795E\u65B9\u4F4D[" + this.getDayPositionCai() + "](" + this.getDayPositionCaiDesc() + ")";
+        s2 += " \u51B2[" + this.getDayChongDesc() + "]";
+        s2 += " \u715E[" + this.getDaySha() + "]";
+        return s2;
       }
       getShuJiu() {
         const currentDay = Solar.fromYmd(this._solar.getYear(), this._solar.getMonth(), this._solar.getDay());
@@ -10729,10 +10729,10 @@ var init_dist = __esm({
         return this._month;
       }
       next(months) {
-        const n = months < 0 ? -1 : 1;
+        const n2 = months < 0 ? -1 : 1;
         let m = Math.abs(months);
-        let y = this._year + Math.floor(m / 12) * n;
-        m = this._month + m % 12 * n;
+        let y = this._year + Math.floor(m / 12) * n2;
+        m = this._month + m % 12 * n2;
         if (m > 12) {
           m -= 12;
           y++;
@@ -10786,8 +10786,8 @@ var init_dist = __esm({
         let d = Math.floor(julianDay + 0.5);
         let f2 = julianDay + 0.5 - d;
         if (d >= 2299161) {
-          const c = Math.floor((d - 186721625e-2) / 36524.25);
-          d += 1 + c - Math.floor(c / 4);
+          const c2 = Math.floor((d - 186721625e-2) / 36524.25);
+          d += 1 + c2 - Math.floor(c2 / 4);
         }
         d += 1524;
         let year = Math.floor((d - 122.1) / 365.25);
@@ -10863,12 +10863,12 @@ var init_dist = __esm({
               }
               hours.forEach((hour) => {
                 let mi = 0;
-                let s = 0;
+                let s2 = 0;
                 if (d == 0 && hour === solarTime.getHour()) {
                   mi = solarTime.getMinute();
-                  s = solarTime.getSecond();
+                  s2 = solarTime.getSecond();
                 }
-                let solar = _Solar.fromYmdHms(solarTime.getYear(), solarTime.getMonth(), solarTime.getDay(), hour, mi, s);
+                let solar = _Solar.fromYmdHms(solarTime.getYear(), solarTime.getMonth(), solarTime.getDay(), hour, mi, s2);
                 if (d === 30) {
                   solar = solar.nextHour(-1);
                 }
@@ -11057,17 +11057,17 @@ var init_dist = __esm({
         return this.toYmd();
       }
       toFullString() {
-        let s = this.toYmdHms();
+        let s2 = this.toYmdHms();
         if (this.isLeapYear()) {
-          s += " \u95F0\u5E74";
+          s2 += " \u95F0\u5E74";
         }
-        s += " \u661F\u671F" + this.getWeekInChinese();
+        s2 += " \u661F\u671F" + this.getWeekInChinese();
         const festivals = this.getFestivals();
         festivals.forEach((f2) => {
-          s += " (" + f2 + ")";
+          s2 += " (" + f2 + ")";
         });
-        s += " " + this.getXingZuo() + "\u5EA7";
-        return s;
+        s2 += " " + this.getXingZuo() + "\u5EA7";
+        return s2;
       }
       nextYear(years) {
         const y = this._year + years;
@@ -11172,10 +11172,10 @@ var init_dist = __esm({
       }
       nextHour(hours) {
         const h2 = this._hour + hours;
-        const n = h2 < 0 ? -1 : 1;
+        const n2 = h2 < 0 ? -1 : 1;
         let hour = Math.abs(h2);
-        let days = Math.floor(hour / 24) * n;
-        hour = hour % 24 * n;
+        let days = Math.floor(hour / 24) * n2;
+        hour = hour % 24 * n2;
         if (hour < 0) {
           hour += 24;
           days--;
@@ -11190,7 +11190,7 @@ var init_dist = __esm({
         let y = this._year;
         let m = this._month;
         const d = this._day + ((this._second / 60 + this._minute) / 60 + this._hour) / 24;
-        let n = 0;
+        let n2 = 0;
         let g2 = false;
         if (y * 372 + m * 31 + Math.floor(d) >= 588829) {
           g2 = true;
@@ -11200,10 +11200,10 @@ var init_dist = __esm({
           y--;
         }
         if (g2) {
-          n = Math.floor(y / 100);
-          n = 2 - n + Math.floor(n / 4);
+          n2 = Math.floor(y / 100);
+          n2 = 2 - n2 + Math.floor(n2 / 4);
         }
-        return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + n - 1524.5;
+        return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + n2 - 1524.5;
       }
       isBefore(solar) {
         if (this._year > solar.getYear()) {
@@ -11374,8 +11374,8 @@ function dateToJulianDay(date5) {
     year -= 1;
     month += 12;
   }
-  const a = Math.floor(year / 100);
-  const b = 2 - a + Math.floor(a / 4);
+  const a2 = Math.floor(year / 100);
+  const b = 2 - a2 + Math.floor(a2 / 4);
   const jd = Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + b - 1524.5;
   return Math.floor(jd);
 }
@@ -11481,9 +11481,9 @@ function ganZhiToIndex(ganZhi) {
   if (stemIndex === -1 || branchIndex === -1) {
     throw new Error(`Invalid GanZhi: ${ganZhi.stem}${ganZhi.branch}`);
   }
-  for (let n = 0; n < 60; n++) {
-    if (n % 10 === stemIndex && n % 12 === branchIndex) {
-      return n;
+  for (let n2 = 0; n2 < 60; n2++) {
+    if (n2 % 10 === stemIndex && n2 % 12 === branchIndex) {
+      return n2;
     }
   }
   throw new Error(`No valid index for GanZhi: ${ganZhi.stem}${ganZhi.branch}`);
@@ -11555,9 +11555,9 @@ function calculateMonthPillar(solarLongitude, yearStemIndex) {
   const branchIndex = (monthBranchOffset + 2) % 12;
   const stemIndex = stemModulo(2 * yearStemIndex + 2);
   let pillarIndex = 0;
-  for (let n = 0; n < 60; n++) {
-    if (n % 10 === stemIndex && n % 12 === branchIndex) {
-      pillarIndex = n;
+  for (let n2 = 0; n2 < 60; n2++) {
+    if (n2 % 10 === stemIndex && n2 % 12 === branchIndex) {
+      pillarIndex = n2;
       break;
     }
   }
@@ -11580,9 +11580,9 @@ function calculateHourPillar(trueSolarTime, dayStemIndex) {
   }
   const stemIndex = stemModulo(2 * dayStemIndex);
   let pillarIndex = 0;
-  for (let n = 0; n < 60; n++) {
-    if (n % 10 === stemIndex && n % 12 === branchIndex) {
-      pillarIndex = n;
+  for (let n2 = 0; n2 < 60; n2++) {
+    if (n2 % 10 === stemIndex && n2 % 12 === branchIndex) {
+      pillarIndex = n2;
       break;
     }
   }
@@ -12115,7 +12115,7 @@ function findNearestJie(birthDate, direction) {
       }
     }
   }
-  allJieDates.sort((a, b) => a.getTime() - b.getTime());
+  allJieDates.sort((a2, b) => a2.getTime() - b.getTime());
   if (direction === "forward") {
     const nextJie = allJieDates.find((jie) => jie > birthDate);
     if (!nextJie) {
@@ -12489,18 +12489,12 @@ var init_calculator = __esm({
        * @throws Error if validation fails or calculation error occurs
        */
       calculate(input) {
-        console.log("[UnifiedCalculator] Starting calculation...");
-        console.log("[UnifiedCalculator] Step 1: Validating input...");
         const validation = validateBirthInfo(input);
         if (!validation.valid) {
           throw new Error(`Validation failed: ${validation.errors.join(", ")}`);
         }
-        console.log("[UnifiedCalculator] Step 2: Calculating BaZi...");
         const bazi = this.calculateBaZi(input);
-        console.log("[UnifiedCalculator] BaZi calculation complete");
-        console.log("[UnifiedCalculator] Step 3: Calculating ZiWei...");
         const ziwei = this.calculateZiWei(input, bazi);
-        console.log("[UnifiedCalculator] ZiWei calculation complete");
         const queryDate = /* @__PURE__ */ new Date();
         const annualPillar = getAnnualPillar(queryDate);
         const annualLifePalaceIndex = locateAnnualLifePalace(
@@ -12772,63 +12766,6 @@ var init_calculator = __esm({
   }
 });
 
-// src/controllers/unifiedController.ts
-var unifiedController_exports = {};
-__export(unifiedController_exports, {
-  UnifiedController: () => UnifiedController
-});
-var UnifiedController;
-var init_unifiedController = __esm({
-  "src/controllers/unifiedController.ts"() {
-    "use strict";
-    init_calculator();
-    UnifiedController = class {
-      /**
-       * Calculate complete astrological chart
-       *
-       * @param requestData - Request payload with birth information
-       * @returns Complete calculation result with all BaZi and ZiWei data
-       * @throws Error if validation fails or calculation error occurs
-       */
-      async calculate(requestData) {
-        console.log("[UnifiedController] START");
-        try {
-          console.log("[UnifiedController] Parsing input...");
-          const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
-          const solarDate = new Date(birthDateTime);
-          console.log("[UnifiedController] Date parsed:", solarDate.toISOString());
-          if (isNaN(solarDate.getTime())) {
-            throw new Error("Invalid birth date or time format");
-          }
-          if (!requestData.gender || !["male", "female"].includes(requestData.gender)) {
-            throw new Error('Invalid gender: must be "male" or "female"');
-          }
-          console.log("[UnifiedController] Creating BirthInfo...");
-          const birthInfo = {
-            solarDate,
-            longitude: requestData.longitude || 121.5,
-            gender: requestData.gender,
-            isLeapMonth: requestData.isLeapMonth || false
-          };
-          console.log("[UnifiedController] Calling UnifiedCalculator...");
-          const calculator = new UnifiedCalculator();
-          const result = calculator.calculate(birthInfo);
-          console.log("[UnifiedController] Calculation complete");
-          return result;
-        } catch (error46) {
-          if (error46 instanceof Error) {
-            if (error46.message.startsWith("Validation failed:")) {
-              throw new Error(`Input validation error: ${error46.message.replace("Validation failed: ", "")}`);
-            }
-            throw error46;
-          }
-          throw new Error("Unknown error during unified calculation");
-        }
-      }
-    };
-  }
-});
-
 // src/services/purpleStarCalculation.ts
 var PurpleStarCalculator, purpleStarCalculation_default;
 var init_purpleStarCalculation = __esm({
@@ -13091,15 +13028,15 @@ var init_purpleStarCalculation = __esm({
         }
         let quotient = Math.floor(lunarDay / bureauNum);
         const remainder = lunarDay % bureauNum;
-        let n = 0;
+        let n2 = 0;
         if (remainder !== 0) {
-          n = bureauNum - remainder;
-          quotient = Math.floor((lunarDay + n) / bureauNum);
+          n2 = bureauNum - remainder;
+          quotient = Math.floor((lunarDay + n2) / bureauNum);
         }
         const YIN_PALACE_STD_INDEX = 2;
         let ziweiPalaceStdIndex = (YIN_PALACE_STD_INDEX + quotient - 1 + 12) % 12;
-        if (n !== 0) {
-          if (n % 2 === 1) {
+        if (n2 !== 0) {
+          if (n2 % 2 === 1) {
             ziweiPalaceStdIndex = (ziweiPalaceStdIndex - 1 + 12) % 12;
           } else {
             ziweiPalaceStdIndex = (ziweiPalaceStdIndex + 1) % 12;
@@ -14077,11 +14014,11 @@ var PgArray = class _PgArray extends PgColumn {
     return value.map((v) => this.baseColumn.mapFromDriverValue(v));
   }
   mapToDriverValue(value, isNestedArray = false) {
-    const a = value.map(
+    const a2 = value.map(
       (v) => v === null ? null : is(this.baseColumn, _PgArray) ? this.baseColumn.mapToDriverValue(v, true) : this.baseColumn.mapToDriverValue(v)
     );
-    if (isNestedArray) return a;
-    return makePgArray(a);
+    if (isNestedArray) return a2;
+    return makePgArray(a2);
   }
 };
 
@@ -14711,10 +14648,10 @@ function getViewSelectedFields(view) {
 function getTableLikeName(table) {
   return is(table, Subquery) ? table._.alias : is(table, View) ? table[ViewBaseConfig].name : is(table, SQL) ? void 0 : table[Table.Symbol.IsAlias] ? table[Table.Symbol.Name] : table[Table.Symbol.BaseName];
 }
-function getColumnNameAndConfig(a, b) {
+function getColumnNameAndConfig(a2, b) {
   return {
-    name: typeof a === "string" && a.length > 0 ? a : "",
-    config: typeof a === "object" ? a : b
+    name: typeof a2 === "string" && a2.length > 0 ? a2 : "",
+    config: typeof a2 === "object" ? a2 : b
   };
 }
 var textDecoder = typeof TextDecoder === "undefined" ? null : new TextDecoder();
@@ -14784,7 +14721,7 @@ var ne = (left, right) => {
 };
 function and(...unfilteredConditions) {
   const conditions = unfilteredConditions.filter(
-    (c) => c !== void 0
+    (c2) => c2 !== void 0
   );
   if (conditions.length === 0) {
     return void 0;
@@ -14800,7 +14737,7 @@ function and(...unfilteredConditions) {
 }
 function or(...unfilteredConditions) {
   const conditions = unfilteredConditions.filter(
-    (c) => c !== void 0
+    (c2) => c2 !== void 0
   );
   if (conditions.length === 0) {
     return void 0;
@@ -15246,17 +15183,17 @@ function mapColumnsInAliasedSQLToAlias(query, alias) {
   return new SQL.Aliased(mapColumnsInSQLToAlias(query.sql, alias), query.fieldAlias);
 }
 function mapColumnsInSQLToAlias(query, alias) {
-  return sql.join(query.queryChunks.map((c) => {
-    if (is(c, Column)) {
-      return aliasedTableColumn(c, alias);
+  return sql.join(query.queryChunks.map((c2) => {
+    if (is(c2, Column)) {
+      return aliasedTableColumn(c2, alias);
     }
-    if (is(c, SQL)) {
-      return mapColumnsInSQLToAlias(c, alias);
+    if (is(c2, SQL)) {
+      return mapColumnsInSQLToAlias(c2, alias);
     }
-    if (is(c, SQL.Aliased)) {
-      return mapColumnsInAliasedSQLToAlias(c, alias);
+    if (is(c2, SQL.Aliased)) {
+      return mapColumnsInAliasedSQLToAlias(c2, alias);
     }
-    return c;
+    return c2;
   }));
 }
 
@@ -15580,8 +15517,8 @@ var SQLiteBlobBuffer = class extends SQLiteColumn {
     return "blob";
   }
 };
-function blob(a, b) {
-  const { name, config: config2 } = getColumnNameAndConfig(a, b);
+function blob(a2, b) {
+  const { name, config: config2 } = getColumnNameAndConfig(a2, b);
   if (config2?.mode === "json") {
     return new SQLiteBlobJsonBuilder(name);
   }
@@ -15629,8 +15566,8 @@ var SQLiteCustomColumn = class extends SQLiteColumn {
   }
 };
 function customType(customTypeParams) {
-  return (a, b) => {
-    const { name, config: config2 } = getColumnNameAndConfig(a, b);
+  return (a2, b) => {
+    const { name, config: config2 } = getColumnNameAndConfig(a2, b);
     return new SQLiteCustomColumnBuilder(
       name,
       config2,
@@ -15737,8 +15674,8 @@ var SQLiteBoolean = class extends SQLiteBaseInteger {
     return value ? 1 : 0;
   }
 };
-function integer(a, b) {
-  const { name, config: config2 } = getColumnNameAndConfig(a, b);
+function integer(a2, b) {
+  const { name, config: config2 } = getColumnNameAndConfig(a2, b);
   if (config2?.mode === "timestamp" || config2?.mode === "timestamp_ms") {
     return new SQLiteTimestampBuilder(name, config2.mode);
   }
@@ -15817,8 +15754,8 @@ var SQLiteNumericBigInt = class extends SQLiteColumn {
     return "numeric";
   }
 };
-function numeric(a, b) {
-  const { name, config: config2 } = getColumnNameAndConfig(a, b);
+function numeric(a2, b) {
+  const { name, config: config2 } = getColumnNameAndConfig(a2, b);
   const mode = config2?.mode;
   return mode === "number" ? new SQLiteNumericNumberBuilder(name) : mode === "bigint" ? new SQLiteNumericBigIntBuilder(name) : new SQLiteNumericBuilder(name);
 }
@@ -15896,8 +15833,8 @@ var SQLiteTextJson = class extends SQLiteColumn {
     return JSON.stringify(value);
   }
 };
-function text(a, b = {}) {
-  const { name, config: config2 } = getColumnNameAndConfig(a, b);
+function text(a2, b = {}) {
+  const { name, config: config2 } = getColumnNameAndConfig(a2, b);
   if (config2.mode === "json") {
     return new SQLiteTextJsonBuilder(name);
   }
@@ -16253,11 +16190,11 @@ var SQLiteDialect = class {
         if (isSingleTable) {
           chunk.push(
             new SQL(
-              query.queryChunks.map((c) => {
-                if (is(c, Column)) {
-                  return sql.identifier(this.casing.getColumnCasing(c));
+              query.queryChunks.map((c2) => {
+                if (is(c2, Column)) {
+                  return sql.identifier(this.casing.getColumnCasing(c2));
                 }
-                return c;
+                return c2;
               })
             )
           );
@@ -16550,7 +16487,7 @@ var SQLiteDialect = class {
           }
         }
         if (selectedColumns.length > 0) {
-          selectedColumns = isIncludeMode ? selectedColumns.filter((c) => config2.columns?.[c] === true) : Object.keys(tableConfig.columns).filter((key) => !selectedColumns.includes(key));
+          selectedColumns = isIncludeMode ? selectedColumns.filter((c2) => config2.columns?.[c2] === true) : Object.keys(tableConfig.columns).filter((key) => !selectedColumns.includes(key));
         }
       } else {
         selectedColumns = Object.keys(tableConfig.columns);
@@ -19848,10 +19785,10 @@ function safeExtend(schema, shape) {
   };
   return clone(schema, def);
 }
-function merge(a, b) {
-  const def = mergeDefs(a._zod.def, {
+function merge(a2, b) {
+  const def = mergeDefs(a2._zod.def, {
     get shape() {
-      const _shape = { ...a._zod.def.shape, ...b._zod.def.shape };
+      const _shape = { ...a2._zod.def.shape, ...b._zod.def.shape };
       assignProp(this, "shape", _shape);
       return _shape;
     },
@@ -19861,7 +19798,7 @@ function merge(a, b) {
     checks: []
     // delete existing checks
   });
-  return clone(a, def);
+  return clone(a2, def);
 }
 function partial(Class2, schema, mask) {
   const def = mergeDefs(schema._zod.def, {
@@ -20163,7 +20100,7 @@ function toDotPath(_path) {
 }
 function prettifyError(error46) {
   const lines = [];
-  const issues = [...error46.issues].sort((a, b) => (a.path ?? []).length - (b.path ?? []).length);
+  const issues = [...error46.issues].sort((a2, b) => (a2.path ?? []).length - (b.path ?? []).length);
   for (const issue2 of issues) {
     lines.push(`\u2716 ${issue2.message}`);
     if (issue2.path?.length)
@@ -21350,7 +21287,7 @@ var $ZodBase64 = /* @__PURE__ */ $constructor("$ZodBase64", (inst, def) => {
 function isValidBase64URL(data) {
   if (!base64url.test(data))
     return false;
-  const base643 = data.replace(/[-_]/g, (c) => c === "-" ? "+" : "/");
+  const base643 = data.replace(/[-_]/g, (c2) => c2 === "-" ? "+" : "/");
   const padded = base643.padEnd(Math.ceil(base643.length / 4) * 4, "=");
   return isValidBase64(padded);
 }
@@ -21989,19 +21926,19 @@ var $ZodIntersection = /* @__PURE__ */ $constructor("$ZodIntersection", (inst, d
     return handleIntersectionResults(payload, left, right);
   };
 });
-function mergeValues(a, b) {
-  if (a === b) {
-    return { valid: true, data: a };
+function mergeValues(a2, b) {
+  if (a2 === b) {
+    return { valid: true, data: a2 };
   }
-  if (a instanceof Date && b instanceof Date && +a === +b) {
-    return { valid: true, data: a };
+  if (a2 instanceof Date && b instanceof Date && +a2 === +b) {
+    return { valid: true, data: a2 };
   }
-  if (isPlainObject(a) && isPlainObject(b)) {
+  if (isPlainObject(a2) && isPlainObject(b)) {
     const bKeys = Object.keys(b);
-    const sharedKeys = Object.keys(a).filter((key) => bKeys.indexOf(key) !== -1);
-    const newObj = { ...a, ...b };
+    const sharedKeys = Object.keys(a2).filter((key) => bKeys.indexOf(key) !== -1);
+    const newObj = { ...a2, ...b };
     for (const key of sharedKeys) {
-      const sharedValue = mergeValues(a[key], b[key]);
+      const sharedValue = mergeValues(a2[key], b[key]);
       if (!sharedValue.valid) {
         return {
           valid: false,
@@ -22012,13 +21949,13 @@ function mergeValues(a, b) {
     }
     return { valid: true, data: newObj };
   }
-  if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length) {
+  if (Array.isArray(a2) && Array.isArray(b)) {
+    if (a2.length !== b.length) {
       return { valid: false, mergeErrorPath: [] };
     }
     const newArray = [];
-    for (let index = 0; index < a.length; index++) {
-      const itemA = a[index];
+    for (let index = 0; index < a2.length; index++) {
+      const itemA = a2[index];
       const itemB = b[index];
       const sharedValue = mergeValues(itemA, itemB);
       if (!sharedValue.valid) {
@@ -29818,7 +29755,7 @@ var JSONSchemaGenerator = class {
           }
           case "intersection": {
             const json2 = _json;
-            const a = this.process(def.left, {
+            const a2 = this.process(def.left, {
               ...params,
               path: [...params.path, "allOf", 0]
             });
@@ -29828,7 +29765,7 @@ var JSONSchemaGenerator = class {
             });
             const isSimpleIntersection = (val) => "allOf" in val && Object.keys(val).length === 1;
             const allOf = [
-              ...isSimpleIntersection(a) ? a.allOf : [a],
+              ...isSimpleIntersection(a2) ? a2.allOf : [a2],
               ...isSimpleIntersection(b) ? b.allOf : [b]
             ];
             json2.allOf = allOf;
@@ -30899,9 +30836,9 @@ var ZodDate = /* @__PURE__ */ $constructor("ZodDate", (inst, def) => {
   ZodType.init(inst, def);
   inst.min = (value, params) => inst.check(_gte(value, params));
   inst.max = (value, params) => inst.check(_lte(value, params));
-  const c = inst._zod.bag;
-  inst.minDate = c.minimum ? new Date(c.minimum) : null;
-  inst.maxDate = c.maximum ? new Date(c.maximum) : null;
+  const c2 = inst._zod.bag;
+  inst.minDate = c2.minimum ? new Date(c2.minimum) : null;
+  inst.maxDate = c2.maximum ? new Date(c2.maximum) : null;
 });
 function date3(params) {
   return _date(ZodDate, params);
@@ -31999,56 +31936,97 @@ var ChartController = class {
 // src/index.ts
 import { getAssetFromKV } from "@cloudflare/kv-asset-handler";
 
+// src/controllers/unifiedController.ts
+init_calculator();
+var UnifiedController = class {
+  /**
+   * Calculate complete astrological chart
+   *
+   * @param requestData - Request payload with birth information
+   * @returns Complete calculation result with all BaZi and ZiWei data
+   * @throws Error if validation fails or calculation error occurs
+   */
+  async calculate(requestData) {
+    try {
+      const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
+      const solarDate = new Date(birthDateTime);
+      if (isNaN(solarDate.getTime())) {
+        throw new Error("Invalid birth date or time format");
+      }
+      if (!requestData.gender || !["male", "female"].includes(requestData.gender)) {
+        throw new Error('Invalid gender: must be "male" or "female"');
+      }
+      const birthInfo = {
+        solarDate,
+        longitude: requestData.longitude || 121.5,
+        gender: requestData.gender,
+        isLeapMonth: requestData.isLeapMonth || false
+      };
+      const calculator = new UnifiedCalculator();
+      const result = calculator.calculate(birthInfo);
+      return result;
+    } catch (error46) {
+      if (error46 instanceof Error) {
+        if (error46.message.startsWith("Validation failed:")) {
+          throw new Error(`Input validation error: ${error46.message.replace("Validation failed: ", "")}`);
+        }
+        throw error46;
+      }
+      throw new Error("Unknown error during unified calculation");
+    }
+  }
+};
+
 // src/routes/unifiedRoutes.ts
-init_unifiedController();
 function createUnifiedRoutes(router) {
   router.post("/api/v1/calculate", async (req) => {
-    console.log("[Route] POST /api/v1/calculate received");
-    try {
-      console.log("[Route] Creating controller...");
-      const controller = new UnifiedController();
-      console.log("[Route] Parsing JSON...");
-      const input = await req.json();
-      console.log("[Route] Input:", JSON.stringify(input));
-      console.log("[Route] Calling controller.calculate...");
-      const result = await controller.calculate(input);
-      console.log("[Route] Returning response...");
-      return Response.json(result);
-    } catch (error46) {
-      console.error("[Route] Error:", error46.message);
-      return Response.json({ error: error46.message }, { status: 400 });
-    }
+    const controller = new UnifiedController();
+    const input = await req.json();
+    const result = await controller.calculate(input);
+    return result;
   });
 }
 
 // node_modules/itty-router/index.mjs
-var t = ({ base: e = "", routes: t2 = [], ...r2 } = {}) => ({ __proto__: new Proxy({}, { get: (r3, o2, a, s) => (r4, ...c) => t2.push([o2.toUpperCase?.(), RegExp(`^${(s = (e + r4).replace(/\/+(\/|$)/g, "$1")).replace(/(\/?\.?):(\w+)\+/g, "($1(?<$2>*))").replace(/(\/?\.?):(\w+)/g, "($1(?<$2>[^$1/]+?))").replace(/\./g, "\\.").replace(/(\/?)\*/g, "($1.*)?")}/*$`), c, s]) && a }), routes: t2, ...r2, async fetch(e2, ...o2) {
-  let a, s, c = new URL(e2.url), n = e2.query = { __proto__: null };
-  for (let [e3, t3] of c.searchParams) n[e3] = n[e3] ? [].concat(n[e3], t3) : t3;
+var t = ({ base: e = "", routes: t2 = [], ...r2 } = {}) => ({ __proto__: new Proxy({}, { get: (r3, o2, a2, s2) => (r4, ...c2) => t2.push([o2.toUpperCase?.(), RegExp(`^${(s2 = (e + r4).replace(/\/+(\/|$)/g, "$1")).replace(/(\/?\.?):(\w+)\+/g, "($1(?<$2>*))").replace(/(\/?\.?):(\w+)/g, "($1(?<$2>[^$1/]+?))").replace(/\./g, "\\.").replace(/(\/?)\*/g, "($1.*)?")}/*$`), c2, s2]) && a2 }), routes: t2, ...r2, async fetch(e2, ...o2) {
+  let a2, s2, c2 = new URL(e2.url), n2 = e2.query = { __proto__: null };
+  for (let [e3, t3] of c2.searchParams) n2[e3] = n2[e3] ? [].concat(n2[e3], t3) : t3;
   e: try {
-    for (let t3 of r2.before || []) if (null != (a = await t3(e2.proxy ?? e2, ...o2))) break e;
-    t: for (let [r3, n2, l, i] of t2) if ((r3 == e2.method || "ALL" == r3) && (s = c.pathname.match(n2))) {
-      e2.params = s.groups || {}, e2.route = i;
-      for (let t3 of l) if (null != (a = await t3(e2.proxy ?? e2, ...o2))) break t;
+    for (let t3 of r2.before || []) if (null != (a2 = await t3(e2.proxy ?? e2, ...o2))) break e;
+    t: for (let [r3, n3, l, i] of t2) if ((r3 == e2.method || "ALL" == r3) && (s2 = c2.pathname.match(n3))) {
+      e2.params = s2.groups || {}, e2.route = i;
+      for (let t3 of l) if (null != (a2 = await t3(e2.proxy ?? e2, ...o2))) break t;
     }
   } catch (t3) {
     if (!r2.catch) throw t3;
-    a = await r2.catch(t3, e2.proxy ?? e2, ...o2);
+    a2 = await r2.catch(t3, e2.proxy ?? e2, ...o2);
   }
   try {
-    for (let t3 of r2.finally || []) a = await t3(a, e2.proxy ?? e2, ...o2) ?? a;
+    for (let t3 of r2.finally || []) a2 = await t3(a2, e2.proxy ?? e2, ...o2) ?? a2;
   } catch (t3) {
     if (!r2.catch) throw t3;
-    a = await r2.catch(t3, e2.proxy ?? e2, ...o2);
+    a2 = await r2.catch(t3, e2.proxy ?? e2, ...o2);
   }
-  return a;
+  return a2;
 } });
 var r = (e = "text/plain; charset=utf-8", t2) => (r2, o2 = {}) => {
   if (void 0 === r2 || r2 instanceof Response) return r2;
-  const a = new Response(t2?.(r2) ?? r2, o2.url ? void 0 : o2);
-  return a.headers.set("content-type", e), a;
+  const a2 = new Response(t2?.(r2) ?? r2, o2.url ? void 0 : o2);
+  return a2.headers.set("content-type", e), a2;
 };
 var o = r("application/json; charset=utf-8", JSON.stringify);
+var a = (e) => ({ 400: "Bad Request", 401: "Unauthorized", 403: "Forbidden", 404: "Not Found", 500: "Internal Server Error" })[e] || "Unknown Error";
+var s = (e = 500, t2) => {
+  if (e instanceof Error) {
+    const { message: r2, ...o2 } = e;
+    e = e.status || 500, t2 = { error: r2 || a(e), ...o2 };
+  }
+  return t2 = { status: e, ..."object" == typeof t2 ? t2 : { error: t2 || a(e) } }, o(t2, { status: e });
+};
+var c = (e) => {
+  e.proxy = new Proxy(e.proxy ?? e, { get: (t2, r2) => t2[r2]?.bind?.(e) ?? t2[r2] ?? t2?.params?.[r2] });
+};
+var n = ({ format: e = o, missing: r2 = (() => s(404)), finally: a2 = [], before: n2 = [], ...l } = {}) => t({ before: [c, ...n2], catch: s, finally: [(e2, ...t2) => e2 ?? r2(...t2), e, ...a2], ...l });
 var p = r("text/plain; charset=utf-8", String);
 var f = r("text/html");
 var u = r("image/jpeg");
@@ -32077,39 +32055,17 @@ async function handleAPI(request, env) {
       headers: { "Content-Type": "application/json" }
     });
   }
-  if (path === "/api/v1/calculate" && method === "POST") {
-    console.log("[handleAPI] Handling /api/v1/calculate");
-    try {
-      const { UnifiedController: UnifiedController2 } = await Promise.resolve().then(() => (init_unifiedController(), unifiedController_exports));
-      const controller2 = new UnifiedController2();
-      const input = await request.json();
-      console.log("[handleAPI] Input:", JSON.stringify(input));
-      const result = await controller2.calculate(input);
-      console.log("[handleAPI] Calculation complete");
-      return new Response(JSON.stringify(result), {
-        headers: { "Content-Type": "application/json" }
-      });
-    } catch (error46) {
-      console.error("[handleAPI] Error:", error46.message);
-      return new Response(JSON.stringify({ error: error46.message }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-  }
-  const router = t();
+  const router = n();
   createUnifiedRoutes(router);
   try {
-    const unifiedResponse = await router.handle(request, env);
-    if (unifiedResponse) {
+    const unifiedResponse = await router.fetch(request, env);
+    if (unifiedResponse && unifiedResponse.status !== 404) {
       return unifiedResponse;
     }
   } catch (error46) {
     console.error("[handleAPI] Router error:", error46);
   }
-  if (!path.startsWith("/api/v1/calculate")) {
-    await ensureAnonymousUser(env.DB);
-  }
+  await ensureAnonymousUser(env.DB);
   const controller = new ChartController(env.CACHE);
   if (path === "/api/charts" && method === "GET") {
     const userId = "anonymous";

@@ -18,14 +18,10 @@ export class UnifiedController {
    * @throws Error if validation fails or calculation error occurs
    */
   async calculate(requestData: any): Promise<CalculationResult> {
-    console.log('[UnifiedController] START');
-    
     try {
-      console.log('[UnifiedController] Parsing input...');
       // Step 1: Validate and parse input
       const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
       const solarDate = new Date(birthDateTime);
-      console.log('[UnifiedController] Date parsed:', solarDate.toISOString());
 
       if (isNaN(solarDate.getTime())) {
         throw new Error('Invalid birth date or time format');
@@ -35,7 +31,6 @@ export class UnifiedController {
         throw new Error('Invalid gender: must be "male" or "female"');
       }
 
-      console.log('[UnifiedController] Creating BirthInfo...');
       // Step 2: Prepare birth info
       const birthInfo: BirthInfo = {
         solarDate,
@@ -44,12 +39,10 @@ export class UnifiedController {
         isLeapMonth: requestData.isLeapMonth || false
       };
 
-      console.log('[UnifiedController] Calling UnifiedCalculator...');
       // Step 3: Calculate using UnifiedCalculator
       const calculator = new UnifiedCalculator();
       const result = calculator.calculate(birthInfo);
-      
-      console.log('[UnifiedController] Calculation complete');
+
       // Step 4: Return complete result
       return result;
     } catch (error) {

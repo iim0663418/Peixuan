@@ -139,7 +139,7 @@ export function calculateDayPillar(date: Date): GanZhi {
 /**
  * Calculate Hour Pillar (時柱) using 五鼠遁日法
  *
- * Formula: idx = (2 × dayStem + 0) mod 10
+ * Formula: hourStem = (2 × dayStem + hourBranch) mod 10
  * Hour boundaries are based on true solar time, not clock time.
  *
  * Hour branch mapping (12 double-hours):
@@ -152,8 +152,8 @@ export function calculateDayPillar(date: Date): GanZhi {
  * @returns Hour pillar GanZhi
  *
  * @example
- * const hourPillar = calculateHourPillar(new Date(2024, 0, 1, 14, 30), 0); // 甲日 14:30 (未時)
- * // Returns: 辛未 (using 五鼠遁日法: (2*0 + 0) mod 10 = 0 → 甲, hour 14:30 → 未時)
+ * const hourPillar = calculateHourPillar(new Date(1992, 8, 10, 5, 56), 5); // 己日 05:56 (卯時)
+ * // Returns: 丁卯 (using 五鼠遁日法: (2*5 + 3) mod 10 = 3 → 丁)
  */
 export function calculateHourPillar(trueSolarTime: Date, dayStemIndex: number): GanZhi {
   const hour = trueSolarTime.getHours();
@@ -171,9 +171,9 @@ export function calculateHourPillar(trueSolarTime: Date, dayStemIndex: number): 
     branchIndex = Math.floor((totalMinutes + 60) / 120) % 12;
   }
 
-  // 五鼠遁日法: Calculate hour stem from day stem
-  // Formula: idx = (2 × dayStem + 0) mod 10
-  const stemIndex = stemModulo(2 * dayStemIndex);
+  // 五鼠遁日法: Calculate hour stem from day stem and hour branch
+  // Formula: idx = (2 × dayStem + hourBranch) mod 10
+  const stemIndex = stemModulo(2 * dayStemIndex + branchIndex);
 
   // Combine stem and branch into 60 Jiazi index
   let pillarIndex = 0;

@@ -11659,7 +11659,7 @@ function calculateHourPillar(trueSolarTime, dayStemIndex) {
   } else {
     branchIndex = Math.floor((totalMinutes + 60) / 120) % 12;
   }
-  const stemIndex = stemModulo(2 * dayStemIndex);
+  const stemIndex = stemModulo(2 * dayStemIndex + branchIndex);
   let pillarIndex = 0;
   for (let n2 = 0; n2 < 60; n2++) {
     if (n2 % 10 === stemIndex && n2 % 12 === branchIndex) {

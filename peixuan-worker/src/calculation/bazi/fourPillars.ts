@@ -43,8 +43,9 @@ export function calculateYearPillar(solarDate: Date, lichunTime: Date): GanZhi {
     year -= 1;
   }
 
-  // Formula: I_year = (Y - 3) mod 60
-  const index = ((year - 3) % 60 + 60) % 60;
+  // Formula: I_year = (Y - 4) mod 60
+  // Reference: 1984 = 甲子 (index 0), so (1984 - 4) mod 60 = 0
+  const index = ((year - 4) % 60 + 60) % 60;
 
   return indexToGanZhi(index);
 }

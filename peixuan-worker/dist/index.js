@@ -11546,7 +11546,7 @@ function calculateYearPillar(solarDate, lichunTime) {
   if (solarDate < lichunTime) {
     year -= 1;
   }
-  const index = ((year - 3) % 60 + 60) % 60;
+  const index = ((year - 4) % 60 + 60) % 60;
   return indexToGanZhi(index);
 }
 function calculateMonthPillar(solarLongitude, yearStemIndex) {

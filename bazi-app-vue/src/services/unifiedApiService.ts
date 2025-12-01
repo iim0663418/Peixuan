@@ -204,6 +204,9 @@ class UnifiedApiService {
       // Type assertion needed because axios types expect ApiResponse but backend returns CalculationResult
       const backendResult = response.data as unknown as any;
 
+      // Debug: Log wuxingDistribution structure
+      console.log('Backend wuxingDistribution:', backendResult.bazi?.wuxingDistribution);
+
       // Adapt backend format to frontend format
       const result: CalculationResult = {
         ...backendResult,
@@ -246,6 +249,22 @@ class UnifiedApiService {
             deficient: backendResult.bazi.wuxingDistribution.deficient,
             balance: backendResult.bazi.wuxingDistribution.balance,
           } : undefined,
+          // Debug: Log adapted wuxingDistribution
+          ...(backendResult.bazi.wuxingDistribution && console.log('Adapted wuxingDistribution:', {
+            raw: {
+              木: (backendResult.bazi.wuxingDistribution.raw.tiangan['木'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['木'] || 0),
+              火: (backendResult.bazi.wuxingDistribution.raw.tiangan['火'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['火'] || 0),
+              土: (backendResult.bazi.wuxingDistribution.raw.tiangan['土'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['土'] || 0),
+              金: (backendResult.bazi.wuxingDistribution.raw.tiangan['金'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['金'] || 0),
+              水: (backendResult.bazi.wuxingDistribution.raw.tiangan['水'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['水'] || 0),
+            },
+            adjusted: backendResult.bazi.wuxingDistribution.adjusted,
+          })),
           // Parse Date strings in fortuneCycles
           fortuneCycles: backendResult.bazi.fortuneCycles ? {
             ...backendResult.bazi.fortuneCycles,

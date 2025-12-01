@@ -8,7 +8,7 @@
 
 ## 📊 專案總進度
 
-**已完成**: 56.5/62 小時 (91%)
+**已完成**: 57/62 小時 (92%)
 - ✅ Sprint R1-R5 全部完成
 - ✅ 統一 API 穩定運行
 - ✅ 前端遷移完成
@@ -19,6 +19,7 @@
 - ✅ ESLint 錯誤全部修復
 - ✅ 後端整合完整性達成 100%
 - ✅ 流年命宮 -1 修復
+- ✅ 十神計算修復
 
 **進行中**:
 - (無)
@@ -88,3 +89,23 @@
 - `CHECKPOINTS.md` - 檢查點記錄
 - `DECISIONS.md` - 決策記錄
 - `constitution.md` - 專案特性
+
+
+## ✅ 修復十神與流年命宮問題 (2025-12-01 12:05 完成)
+
+### 問題發現
+**來源**: API 回應分析
+- **問題 1**: tenGods 計算錯誤（甲木顯示「偏財」應為「正官」）
+- **問題 2**: annualLifePalaceIndex 返回 -1（酉命宮無法找到巳的位置）
+
+### 根因分析
+1. **tenGods**: calculator.ts 使用本地錯誤函數（索引差值法），未使用正確的 bazi/tenGods.ts（五行生剋法）
+2. **annualLifePalace**: createPalaceArrayFromLifePalace 的 offset 計算錯誤
+
+### 修復內容
+- ✅ Task 1: 移除本地 calculateTenGod（-31 行），改用 bazi/tenGods.ts 模組
+- ✅ Task 2: 修正 offset 公式為 `(lifePalaceBranchIndex + (i - lifePalacePosition) + 12) % 12`
+- ✅ Task 3: 驗證通過（己土 vs 甲木=正官，酉命宮可找到巳）
+
+**實際時間**: 0.5h
+**優先級**: HIGH（影響核心計算正確性）

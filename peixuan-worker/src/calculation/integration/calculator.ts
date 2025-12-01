@@ -26,6 +26,7 @@ import {
   calculateDayPillar,
   calculateHourPillar
 } from '../bazi/fourPillars';
+import { calculateTenGod } from '../bazi/tenGods';
 import { calculateLifePalace, calculateBodyPalace } from '../ziwei/palaces';
 import { calculateBureau } from '../ziwei/bureau';
 import { findZiWeiPosition } from '../ziwei/stars/ziwei';
@@ -67,38 +68,6 @@ const HIDDEN_STEMS_MAP: Record<string, HiddenStems> = {
  */
 function getHiddenStems(branch: string): HiddenStems {
   return HIDDEN_STEMS_MAP[branch] || { primary: branch };
-}
-
-/**
- * Calculate Ten God relationship between two heavenly stems
- * Reference: Traditional 十神推算法
- */
-function calculateTenGod(dayStem: string, targetStem: string): TenGod {
-  const HEAVENLY_STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-  const dayIndex = HEAVENLY_STEMS.indexOf(dayStem);
-  const targetIndex = HEAVENLY_STEMS.indexOf(targetStem);
-
-  if (dayIndex === -1 || targetIndex === -1) {
-    return '比肩'; // Default fallback
-  }
-
-  const dayYinYang = dayIndex % 2; // 0=yang, 1=yin
-  const targetYinYang = targetIndex % 2;
-  const diff = (targetIndex - dayIndex + 10) % 10;
-
-  // Ten Gods calculation based on difference and yin-yang
-  if (diff === 0) return '比肩';
-  if (diff === 1) return dayYinYang === targetYinYang ? '劫财' : '比肩';
-  if (diff === 2) return dayYinYang === targetYinYang ? '食神' : '伤官';
-  if (diff === 3) return dayYinYang === targetYinYang ? '伤官' : '食神';
-  if (diff === 4) return dayYinYang === targetYinYang ? '偏财' : '正财';
-  if (diff === 5) return dayYinYang === targetYinYang ? '正财' : '偏财';
-  if (diff === 6) return dayYinYang === targetYinYang ? '七杀' : '正官';
-  if (diff === 7) return dayYinYang === targetYinYang ? '正官' : '七杀';
-  if (diff === 8) return dayYinYang === targetYinYang ? '偏印' : '正印';
-  if (diff === 9) return dayYinYang === targetYinYang ? '正印' : '偏印';
-
-  return '比肩'; // Fallback
 }
 
 /**
@@ -186,13 +155,12 @@ function createPalaceArrayFromLifePalace(
     return [];
   }
 
-  // Calculate offset: how many positions to shift to align life palace
-  const offset = lifePalaceBranchIndex - lifePalacePosition;
-
-  // Generate 12 palaces
+  // Generate 12 palaces by rotating EARTHLY_BRANCHES to align with positions
+  // At lifePalacePosition, we should have lifePalaceBranch
   const palaces: Palace[] = [];
   for (let i = 0; i < 12; i++) {
-    const branchIndex = (offset + i + 12) % 12;
+    // Calculate branch index: start from life palace branch, advance by (position - lifePalacePosition)
+    const branchIndex = (lifePalaceBranchIndex + (i - lifePalacePosition) + 12) % 12;
     palaces.push({
       position: i,
       branch: EARTHLY_BRANCHES[branchIndex]

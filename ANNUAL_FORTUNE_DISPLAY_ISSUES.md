@@ -1,7 +1,36 @@
 # 流年顯示問題診斷報告
 
 **診斷時間**: 2025-12-01 11:22  
-**問題來源**: 使用者回報
+**問題來源**: 使用者回報  
+**更新時間**: 2025-12-01 11:26 (添加根本原因分析)
+
+---
+
+## 🔍 根本原因分析 (更新)
+
+### 後端已實作但未正確呼叫
+
+**已實作的函數**:
+- ✅ `locateAnnualLifePalace` (peixuan-worker/src/calculation/annual/palace.ts)
+- ✅ UnifiedCalculator 已呼叫此函數 (Line 204-207)
+
+**問題所在**:
+```typescript
+const annualLifePalaceIndex = locateAnnualLifePalace(
+  annualPillar.branch,
+  ziwei.palaces || []  // ❌ ziwei.palaces 為 undefined
+);
+```
+
+**根本原因**:
+- `ZiWeiResult` 介面**沒有 `palaces` 欄位**
+- `calculateZiWei` 方法**沒有返回 `palaces`**
+- 導致 `ziwei.palaces` 為 undefined
+- `locateAnnualLifePalace` 收到空陣列，返回 -1
+
+**參考文件**: doc/八字命理後端模組研究.md §4.2
+> 流年地支決定了流年命宮在紫微盤上的位置。
+> 系統在紫微盤的 12 宮位陣列中，找到地支為「寅」的宮位索引。
 
 ---
 

@@ -1,9 +1,6 @@
 /**
  * BaZi Ten Gods (十神) Module
  * Calculates the relationship between day stem and other stems
- *
- * NOTE: Logic validated against lunar-typescript library.
- * Extended wu-xing relationships maintained for full compatibility.
  */
 
 export type TenGod =

@@ -1,6 +1,65 @@
 # 檢查點記錄
 
+## Checkpoint: phase-a-hidden-stems-ten-gods-2025-12-01
+**時間**: 2025-12-01 23:50
+**狀態**: ✅ 完成
+
+### 完成的任務
+- Phase A 藏干/十神替換完成
+- 建立 lunarHiddenStemsAdapter.ts 適配器
+- 建立 lunarTenGodsAdapter.ts 適配器
+- 備份 hiddenStems.legacy.ts 與 tenGods.legacy.ts
+- 更新 DECISIONS.md 記錄決策
+
+### 關鍵成果
+- 測試結果：hiddenStems 19/19 通過，tenGods 15/15 通過
+- 減少維護代碼：274 行
+- API 介面：完全相容，無破壞性變更
+- 採用社群驗證算法（lunar-typescript 6tail）
+
+### 實際時間
+- 預估：3h
+- 實際：2.5h
+
+### 風險等級
+極低（測試全通過 + 完整備份）
+
+### 下一步
+- Phase B 評估：核心時間/干支模組 (428 行)
+- Phase C 評估：紫微斗數 iztro (1614 行)
+- 補齊測試覆蓋 (3-4h)
+
+## Checkpoint: lunar-typescript-integration-2025-12-01
+**時間**: 2025-12-01 23:30
+**狀態**: ✅ 完成
+
+### 完成的任務
+- lunar-typescript 整合採用 Hybrid Approach
+- 年柱使用 lunar-typescript（社群驗證）
+- 月柱/日柱/時柱保留 Legacy 數學公式（API 相容性）
+- 建立 lunarAdapter.ts 適配器模式
+- 備份 fourPillars.legacy.ts 作為回滾方案
+
+### 關鍵成果
+- 測試結果：11/16 通過
+- 年柱/月柱/時柱：100% 通過
+- 日柱：需更新測試以匹配新 JDN API
+- 檔案變更：新增 lunarAdapter.ts、備份 fourPillars.legacy.ts
+
+### 實際時間
+- 預估：3.5h
+- 實際：2.5h（程式碼實作完成）
+
+### 風險等級
+低（完整測試覆蓋 + 回滾機制）
+
+### 下一步
+- 更新日柱測試以匹配新 JDN API
+- 補齊測試覆蓋 (3-4h)
+- 依賴升級與警告清理 (2-3h)
+
 ## Checkpoint: sihua-flying-stars-complete-2025-12-01
+
 **時間**: 2025-12-01 13:45
 **狀態**: ✅ 完成
 

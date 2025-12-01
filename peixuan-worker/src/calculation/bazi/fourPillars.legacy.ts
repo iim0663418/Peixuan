@@ -1,15 +1,14 @@
 /**
  * Four Pillars (四柱) Calculation Module
  *
- * Refactored to use lunar-typescript library for community-validated algorithms.
- * Maintains existing API for backward compatibility.
+ * Implements the core BaZi calculation for Year, Month, Day, and Hour pillars.
+ * Based on mathematical formulas from 命理計算邏輯數學化研究.md §2.
  *
  * Reference: IMPLEMENTATION_PLAN_PHASE1.md Task 2.1
- * Decision: 2025-12-01 採用 lunar-typescript 替換自實作四柱算法
  */
 
-import { GanZhi, indexToGanZhi, HEAVENLY_STEMS, EARTHLY_BRANCHES, stemModulo } from '../core/ganZhi';
-import { getFourPillarsFromLunar } from './lunarAdapter';
+import { GanZhi, indexToGanZhi, HEAVENLY_STEMS, stemModulo } from '../core/ganZhi';
+import { dateToJulianDay, getLichunTime } from '../core/time';
 
 /**
  * Four Pillars result
@@ -24,41 +23,31 @@ export interface FourPillars {
 /**
  * Calculate Year Pillar (年柱)
  *
- * Uses lunar-typescript for calculation. The year pillar changes at 立春 (Start of Spring).
+ * Formula: I_year = (Y - 3) mod 60
+ * The year pillar changes at 立春 (Start of Spring), not at Chinese New Year.
  *
  * @param solarDate - Birth date in solar calendar
- * @param lichunTime - 立春 time for the birth year (maintained for API compatibility)
+ * @param lichunTime - 立春 time for the birth year (if before 立春, use previous year)
  * @returns Year pillar GanZhi
+ *
+ * @example
+ * const lichun = getLichunTime(2024);
+ * const yearPillar = calculateYearPillar(new Date(2024, 5, 15), lichun);
+ * // Returns: 甲辰 (index 40)
  */
 export function calculateYearPillar(solarDate: Date, lichunTime: Date): GanZhi {
-  const fourPillars = getFourPillarsFromLunar({ solarDate });
-  return fourPillars.year;
-}
+  let year = solarDate.getFullYear();
 
-/**
- * Convert solar longitude to month branch index
- *
- * Solar longitude ranges for each month (starting from 寅月):
- * - 寅: 315° ~ 345° (index 2)
- * - 卯: 345° ~ 15° (index 3)
- * - 辰: 15° ~ 45° (index 4)
- * - ...and so on
- *
- * @param solarLongitude - Solar longitude in degrees [0-360)
- * @returns Month branch index [0-11]
- */
-function solarLongitudeToMonthBranch(solarLongitude: number): number {
-  // Normalize to [0, 360)
-  const normalized = ((solarLongitude % 360) + 360) % 360;
+  // If birth is before 立春, use previous year
+  if (solarDate < lichunTime) {
+    year -= 1;
+  }
 
-  // Solar longitude 315° is the start of 寅月 (index 2)
-  // Each month spans 30° of solar longitude
-  // Offset by 315° to align 寅月 with index 0, then add 2
-  const offset = (normalized + 45) % 360; // Shift by 45° so that 315° → 0°
-  const monthFromYin = Math.floor(offset / 30); // 0-11, where 0 = 寅
-  const branchIndex = (monthFromYin + 2) % 12; // Convert to actual branch index
+  // Formula: I_year = (Y - 4) mod 60
+  // Reference: 1984 = 甲子 (index 0), so (1984 - 4) mod 60 = 0
+  const index = ((year - 4) % 60 + 60) % 60;
 
-  return branchIndex;
+  return indexToGanZhi(index);
 }
 
 /**
@@ -67,27 +56,24 @@ function solarLongitudeToMonthBranch(solarLongitude: number): number {
  * Formula: idx = (2 × yearStem + 2) mod 10
  * The month pillar changes at the monthly solar term (節氣), not at the start of lunar month.
  *
- * @param solarLongitude - Solar longitude in degrees [0-360), or month branch index [0-11] for legacy compatibility
+ * @param monthBranchIndex - Month branch index (0-11, where 0=子, 1=丑, 2=寅, ...)
  * @param yearStemIndex - Index of year stem [0-9]
  * @returns Month pillar GanZhi
  *
  * @example
- * const monthPillar = calculateMonthPillar(330, 0); // 甲年, 330° (寅月)
+ * const monthPillar = calculateMonthPillar(2, 0); // 甲年寅月
  * // Returns: 丙寅 (using 五虎遁年法: (2*0 + 2) mod 10 = 2 → 丙)
  */
-export function calculateMonthPillar(solarLongitude: number, yearStemIndex: number): GanZhi {
-  // Convert solar longitude to month branch index
-  const monthBranchIndex = solarLongitudeToMonthBranch(solarLongitude);
-
+export function calculateMonthPillar(monthBranchIndex: number, yearStemIndex: number): GanZhi {
   // 五虎遁年法: Calculate month stem from year stem
   // Step 1: Get the stem for 寅月 (Yin month, index 2)
   // Formula: yinStem = (2 × yearStem + 2) mod 10
   const yinStem = stemModulo(2 * yearStemIndex + 2);
-
+  
   // Step 2: Calculate offset from 寅月 to target month
   // 寅=2, so offset = (monthBranchIndex - 2 + 12) % 12
   const offset = (monthBranchIndex - 2 + 12) % 12;
-
+  
   // Step 3: Calculate month stem
   const stemIndex = stemModulo(yinStem + offset);
 
@@ -112,15 +98,45 @@ export function calculateMonthPillar(solarLongitude: number, yearStemIndex: numb
  * Reference anchor: 1992-08-16 00:00 (甲子日) has JDN = 2448851
  * Verification: (2448851 - 2448851) mod 60 = 0 → 甲子 ✓
  *
- * @param jdn - Julian Day Number
+ * @param date - Birth date and time (local time)
  * @returns Day pillar GanZhi
  *
  * @example
- * const jdn = dateToJulianDay(new Date(1992, 8, 10, 5, 56)); // Sep 10, 1992 05:56
- * const dayPillar = calculateDayPillar(jdn);
+ * const dayPillar = calculateDayPillar(new Date(1992, 8, 10, 5, 56)); // Sep 10, 1992 05:56
  * // Returns: 己丑 (JDN 2448876 → (2448876 - 2448851) mod 60 = 25 → 己丑)
  */
-export function calculateDayPillar(jdn: number): GanZhi {
+export function calculateDayPillar(date: Date): GanZhi {
+  // Adjust for 子時 boundary: if time >= 23:00, count as next day
+  let year = date.getFullYear();
+  let month = date.getMonth();
+  let day = date.getDate();
+  
+  if (date.getHours() >= 23) {
+    day += 1;
+    // Handle month/year overflow
+    const tempDate = new Date(year, month, day);
+    year = tempDate.getFullYear();
+    month = tempDate.getMonth();
+    day = tempDate.getDate();
+  }
+  
+  // Calculate JDN for the date (using year, month, day directly)
+  let jdnYear = year;
+  let jdnMonth = month + 1; // Convert to 1-based
+  
+  if (jdnMonth <= 2) {
+    jdnYear -= 1;
+    jdnMonth += 12;
+  }
+  
+  const a = Math.floor(jdnYear / 100);
+  const b = 2 - a + Math.floor(a / 4);
+  const jd = Math.floor(365.25 * (jdnYear + 4716)) +
+             Math.floor(30.6001 * (jdnMonth + 1)) +
+             day + b - 1524.5;
+  // JDN is defined from noon, so add 0.5 to get the date's JDN
+  const jdn = Math.floor(jd + 0.5);
+
   // Formula: I_day = (JDN - 2448851) mod 60
   const index = ((jdn - 2448851) % 60 + 60) % 60;
 
@@ -138,16 +154,17 @@ export function calculateDayPillar(jdn: number): GanZhi {
  * - 01:00-03:00: 丑時 (index 1)
  * - ... (12 hours total)
  *
- * @param hour - Hour of birth (0-23)
- * @param minute - Minute of birth (0-59)
+ * @param trueSolarTime - True solar time (after longitude & EoT corrections)
  * @param dayStemIndex - Index of day stem [0-9]
  * @returns Hour pillar GanZhi
  *
  * @example
- * const hourPillar = calculateHourPillar(5, 56, 5); // 己日 05:56 (卯時)
+ * const hourPillar = calculateHourPillar(new Date(1992, 8, 10, 5, 56), 5); // 己日 05:56 (卯時)
  * // Returns: 丁卯 (using 五鼠遁日法: (2*5 + 3) mod 10 = 3 → 丁)
  */
-export function calculateHourPillar(hour: number, minute: number, dayStemIndex: number): GanZhi {
+export function calculateHourPillar(trueSolarTime: Date, dayStemIndex: number): GanZhi {
+  const hour = trueSolarTime.getHours();
+  const minute = trueSolarTime.getMinutes();
   const totalMinutes = hour * 60 + minute;
 
   // Map to hour branch (子=0, 丑=1, ...)

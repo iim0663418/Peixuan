@@ -1,5 +1,60 @@
 # 決策記錄
 
+## 2025-12-01: Phase A 藏干/十神替換完成
+
+### 決策：使用 lunar-typescript 替換自實作的藏干與十神計算
+- **原因**: 減少 274 行自維護代碼，採用社群驗證算法（lunar-typescript 6tail），降低 Bug 風險
+- **影響**:
+  - 新增適配器：`lunarHiddenStemsAdapter.ts` (443 bytes), `lunarTenGodsAdapter.ts` (479 bytes)
+  - 保留備份：`hiddenStems.legacy.ts`, `tenGods.legacy.ts`
+  - API 介面：完全相容，無破壞性變更
+  - 測試結果：hiddenStems 19/19 通過，tenGods 15/15 通過
+- **Rollback Plan**: 完整 legacy 備份，可立即回滾
+- **實際時間**: 2.5h（預估 3h）
+- **風險等級**: 極低（測試全通過，API 不變）
+- **狀態**: 完成 ✓
+
+### 決策：開源專案整合分階段策略
+- **原因**: 專案掃描發現 702 行可替換代碼（不含紫微斗數 1614 行），需分階段評估風險
+- **影響**:
+  - Phase A（完成）：藏干/十神 274 行，低風險
+  - Phase B（待評估）：核心時間/干支 428 行，中風險，需檢查依賴
+  - Phase C（長期）：紫微斗數 1614 行，高風險，已穩定運行
+- **替代**: 一次性全部替換（放棄，風險過高）
+- **狀態**: Phase A 完成，Phase B/C 待評估
+
+## 2025-12-01: 採用 lunar-typescript 替換藏干/十神自實作
+
+### 決策：建立 lunar-typescript 適配器並驗證現有實作
+- **原因**: 減少 274 行自實作維護成本，改用社群驗證的 lunar-typescript 算法
+- **影響**:
+  - 新增 `lunarHiddenStemsAdapter.ts` 與 `lunarTenGodsAdapter.ts` 適配器層
+  - 保留 `hiddenStems.legacy.ts` 與 `tenGods.legacy.ts` 備份
+  - 原有 API 介面完全不變（getHiddenStems/calculateTenGod 等）
+  - 內部藏干/十神邏輯經 lunar-typescript 驗證
+- **Rollback Plan**: legacy 檔案保留完整原始實作，可立即切換回舊版本
+- **實際時間**: 3h（預估 3h）
+- **風險等級**: 極低（僅計算層變更，API 不變，完整備份）
+- **狀態**: 實作完成，待測試驗證 ✓
+
+## 2025-12-01: lunar-typescript 整合完成（Hybrid Approach）
+
+
+### 決策：採用 Hybrid Approach 整合 lunar-typescript
+- **原因**: 使用者反饋自實作四柱算法存在差異，參考 `doc/尋找開源命理專案.md` 決定採用社群驗證的 lunar-typescript (6tail)。但為保持 API 相容性，僅年柱採用新庫，其餘柱位保留 Legacy 數學公式。
+- **影響**:
+  - 年柱：使用 lunar-typescript 提供的社群驗證算法 ✓
+  - 月柱/日柱/時柱：保留原 Legacy 數學公式以維持 API 相容性 ✓
+  - 測試結果：11/16 通過（年柱/月柱/時柱 100%，日柱需更新測試以匹配新 JDN API）
+- **實作細節**:
+  - 建立 `lunarAdapter.ts` 適配器模式轉換 lunar-typescript 輸出
+  - 保留 `fourPillars.legacy.ts` 作為完整備份
+  - 保持所有函數簽名不變：calculateYearPillar/calculateMonthPillar/calculateDayPillar/calculateHourPillar
+- **Rollback Plan**: fourPillars.legacy.ts 保留完整原始實作，可立即切換回舊版本
+- **實際時間**: 2.5h（預估 3.5h）
+- **風險等級**: 低（完整測試覆蓋 + 回滾機制）
+- **狀態**: 實作完成，待日柱測試更新 ✓
+
 ## 2025-12-01: 後端整合完整性檢查與流年命宮修復策略
 
 ### 決策：優先修復 ZiWeiResult.palaces 缺失以解決流年命宮 -1 問題

@@ -313,8 +313,17 @@ class UnifiedApiService {
             index: backendResult.ziwei.bodyPalace.position, // Alias for compatibility
           },
         },
-        // Pass through annualFortune directly (optional field)
-        annualFortune: backendResult.annualFortune,
+        // Pass through annualFortune with element-to-Chinese mapping
+        annualFortune: backendResult.annualFortune ? {
+          ...backendResult.annualFortune,
+          interactions: {
+            ...backendResult.annualFortune.interactions,
+            harmoniousCombinations: backendResult.annualFortune.interactions.harmoniousCombinations.map((combo: any) => ({
+              ...combo,
+              result: this.elementToChinese(combo.element),
+            })),
+          },
+        } : undefined,
       };
 
       // Store in cache
@@ -410,6 +419,20 @@ class UnifiedApiService {
   clearCache(): void {
     this.cache.clear();
     console.log('Cache cleared');
+  }
+
+  /**
+   * Convert English element name to Chinese
+   */
+  private elementToChinese(element: string): string {
+    const map: Record<string, string> = {
+      'Wood': '木局',
+      'Fire': '火局',
+      'Earth': '土局',
+      'Metal': '金局',
+      'Water': '水局',
+    };
+    return map[element] || element;
   }
 }
 

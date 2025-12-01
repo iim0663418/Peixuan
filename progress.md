@@ -31,6 +31,32 @@
 
 ---
 
+## ✅ 流年顯示問題修復 (2025-12-01 11:22)
+
+### 修復內容
+**問題: 三合顯示 "(sanhe)" 而非中文元素名稱**
+- 修復 unifiedApiService.ts annualFortune 適配
+- 添加 elementToChinese 方法映射英文元素名稱
+- 修復前: `巳 + 酉 + 丑 → (sanhe)`
+- 修復後: `巳 + 酉 + 丑 → 金局 (sanhe)`
+
+### 元素映射表
+| 英文 | 中文 |
+|------|------|
+| Wood | 木局 |
+| Fire | 火局 |
+| Earth | 土局 |
+| Metal | 金局 |
+| Water | 水局 |
+
+### 已知問題
+- ⚠️ 流年命宮顯示 "-1宮" - 需要後端支援 (MEDIUM 優先級)
+- 可能原因: 後端未實作 `locateAnnualLifePalace` 函數
+
+**診斷報告**: `ANNUAL_FORTUNE_DISPLAY_ISSUES.md`
+
+---
+
 ## ✅ 前端顯示問題修復完成 (2025-12-01 11:06)
 
 ### 修復內容

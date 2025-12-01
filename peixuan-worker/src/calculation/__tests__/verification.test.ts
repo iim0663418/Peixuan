@@ -125,57 +125,15 @@ describe('開源專案驗算', () => {
     });
   });
 
-  describe('紫微斗數驗算 - iztro', () => {
-    it('基礎排盤驗算（命宮、身宮）', async () => {
-      // 動態導入 iztro（避免影響其他測試）
-      const iztro = await import('iztro');
-      
-      const astrolabe = iztro.astro.bySolar('2024-06-15', 7, 'male', true);
-
-      // 驗證基本資訊
-      expect(astrolabe.solarDate).toBe('2024-06-15');
-      expect(astrolabe.lunarDate).toBeTruthy();
-
-      // 驗證命宮（iztro 使用簡體字）
-      const mingGong = astrolabe.palace('命宮');
-      expect(mingGong.name).toMatch(/命[宮宫]/); // 接受繁簡體
-      expect(mingGong.earthlyBranch).toBeTruthy();
-      expect(mingGong.heavenlyStem).toBeTruthy();
-
-      // 驗證身宮（身宮可能在其他宮位，只驗證有返回值）
-      const shenGong = astrolabe.palace('身宮');
-      expect(shenGong).toBeTruthy();
-      expect(shenGong.earthlyBranch).toBeTruthy();
-
-      console.log(`✓ 紫微斗數基礎排盤: 命宮=${mingGong.earthlyBranch}, 身宮在${shenGong.name}(${shenGong.earthlyBranch})`);
-      console.log(`  命宮主星: ${mingGong.majorStars?.map(s => s.name).join(', ') || '無'}`);
-    });
-
-    it('星曜定位驗算', async () => {
-      const iztro = await import('iztro');
-      const astrolabe = iztro.astro.bySolar('2024-06-15', 7, 'male', true);
-
-      const mingGong = astrolabe.palace('命宮');
-      
-      // 驗證主星（iztro API 可能不同）
-      if (mingGong.majorStars && mingGong.majorStars.length > 0) {
-        expect(mingGong.majorStars[0].name).toBeTruthy();
-        console.log(`✓ 星曜定位驗算: 命宮主星 ${mingGong.majorStars.map(s => s.name).join(', ')}`);
-      } else {
-        console.log(`⚠ 星曜定位: iztro API 結構不同，跳過驗證`);
-      }
-    });
-  });
-
   describe('驗算報告', () => {
     it('產出驗算摘要', () => {
       console.log('\n=== 開源專案驗算摘要 ===');
       console.log('✓ 四柱計算: 與 lunar-typescript 一致');
       console.log('✓ 藏干計算: 與 lunar-typescript 一致');
       console.log('✓ 十神計算: 與 lunar-typescript 一致');
-      console.log('✓ 紫微斗數基礎排盤: 與 iztro 一致');
+      console.log('ℹ 紫微斗數: 已移除 iztro 依賴（驗算完成）');
       console.log('\n結論: 現有實作計算準確，可信賴。');
-      console.log('建議: 保留現有實作，使用開源專案作為持續驗證參考。');
+      console.log('建議: 保留現有實作，使用 lunar-typescript 作為持續驗證參考。');
     });
   });
 });

@@ -231,20 +231,27 @@ class UnifiedApiService {
             },
           },
           // Adapt wuxingDistribution: merge tiangan + hiddenStems into flat structure
+          // Backend uses English keys (Wood/Fire/Earth/Metal/Water), convert to Chinese
           wuxingDistribution: backendResult.bazi.wuxingDistribution ? {
             raw: {
-              木: (backendResult.bazi.wuxingDistribution.raw.tiangan['木'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['木'] || 0),
-              火: (backendResult.bazi.wuxingDistribution.raw.tiangan['火'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['火'] || 0),
-              土: (backendResult.bazi.wuxingDistribution.raw.tiangan['土'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['土'] || 0),
-              金: (backendResult.bazi.wuxingDistribution.raw.tiangan['金'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['金'] || 0),
-              水: (backendResult.bazi.wuxingDistribution.raw.tiangan['水'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['水'] || 0),
+              木: (backendResult.bazi.wuxingDistribution.raw.tiangan['Wood'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Wood'] || 0),
+              火: (backendResult.bazi.wuxingDistribution.raw.tiangan['Fire'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Fire'] || 0),
+              土: (backendResult.bazi.wuxingDistribution.raw.tiangan['Earth'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Earth'] || 0),
+              金: (backendResult.bazi.wuxingDistribution.raw.tiangan['Metal'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Metal'] || 0),
+              水: (backendResult.bazi.wuxingDistribution.raw.tiangan['Water'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Water'] || 0),
             },
-            adjusted: backendResult.bazi.wuxingDistribution.adjusted,
+            adjusted: {
+              木: backendResult.bazi.wuxingDistribution.adjusted['Wood'] || 0,
+              火: backendResult.bazi.wuxingDistribution.adjusted['Fire'] || 0,
+              土: backendResult.bazi.wuxingDistribution.adjusted['Earth'] || 0,
+              金: backendResult.bazi.wuxingDistribution.adjusted['Metal'] || 0,
+              水: backendResult.bazi.wuxingDistribution.adjusted['Water'] || 0,
+            },
             dominant: backendResult.bazi.wuxingDistribution.dominant,
             deficient: backendResult.bazi.wuxingDistribution.deficient,
             balance: backendResult.bazi.wuxingDistribution.balance,
@@ -252,18 +259,24 @@ class UnifiedApiService {
           // Debug: Log adapted wuxingDistribution
           ...(backendResult.bazi.wuxingDistribution && console.log('Adapted wuxingDistribution:', {
             raw: {
-              木: (backendResult.bazi.wuxingDistribution.raw.tiangan['木'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['木'] || 0),
-              火: (backendResult.bazi.wuxingDistribution.raw.tiangan['火'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['火'] || 0),
-              土: (backendResult.bazi.wuxingDistribution.raw.tiangan['土'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['土'] || 0),
-              金: (backendResult.bazi.wuxingDistribution.raw.tiangan['金'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['金'] || 0),
-              水: (backendResult.bazi.wuxingDistribution.raw.tiangan['水'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['水'] || 0),
+              木: (backendResult.bazi.wuxingDistribution.raw.tiangan['Wood'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Wood'] || 0),
+              火: (backendResult.bazi.wuxingDistribution.raw.tiangan['Fire'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Fire'] || 0),
+              土: (backendResult.bazi.wuxingDistribution.raw.tiangan['Earth'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Earth'] || 0),
+              金: (backendResult.bazi.wuxingDistribution.raw.tiangan['Metal'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Metal'] || 0),
+              水: (backendResult.bazi.wuxingDistribution.raw.tiangan['Water'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Water'] || 0),
             },
-            adjusted: backendResult.bazi.wuxingDistribution.adjusted,
+            adjusted: {
+              木: backendResult.bazi.wuxingDistribution.adjusted['Wood'] || 0,
+              火: backendResult.bazi.wuxingDistribution.adjusted['Fire'] || 0,
+              土: backendResult.bazi.wuxingDistribution.adjusted['Earth'] || 0,
+              金: backendResult.bazi.wuxingDistribution.adjusted['Metal'] || 0,
+              水: backendResult.bazi.wuxingDistribution.adjusted['Water'] || 0,
+            },
           })),
           // Parse Date strings in fortuneCycles
           fortuneCycles: backendResult.bazi.fortuneCycles ? {

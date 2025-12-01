@@ -517,7 +517,7 @@ export function useDataAdapter() {
     return traits.length > 0 ? traits : ['穩重務實', '思維敏捷', '待人和善'];
   };
 
-  const extractCurrentFortune = (data: any): string[] => {
+  const extractCurrentFortune = (_data: any): string[] => {
     return ['整體運勢平穩向上，適合穩紮穩打'];
   };
 
@@ -533,7 +533,7 @@ export function useDataAdapter() {
     );
   };
 
-  const extractFortuneTrends = (data: any): string[] => {
+  const extractFortuneTrends = (_data: any): string[] => {
     return [
       '近期運勢：穩中有升，宜把握機會',
       '中期展望：事業發展順遂，財運漸佳',
@@ -551,7 +551,7 @@ export function useDataAdapter() {
     );
   };
 
-  const extractLifeStages = (data: any): string[] => {
+  const extractLifeStages = (_data: any): string[] => {
     return [
       '青年期：奠定基礎，累積實力',
       '中年期：事業高峰，責任重大',
@@ -559,7 +559,7 @@ export function useDataAdapter() {
     ];
   };
 
-  const extractRelationships = (data: any): string[] => {
+  const extractRelationships = (_data: any): string[] => {
     return [
       '家庭關係和睦，親情深厚',
       '朋友圈廣泛，貴人運佳',
@@ -567,7 +567,7 @@ export function useDataAdapter() {
     ];
   };
 
-  const extractCareerGuidance = (data: any): string[] => {
+  const extractCareerGuidance = (_data: any): string[] => {
     return [
       '適合穩定發展的行業',
       '重視團隊合作與人際關係',
@@ -575,7 +575,7 @@ export function useDataAdapter() {
     ];
   };
 
-  const extractHealthWellness = (data: any): string[] => {
+  const extractHealthWellness = (_data: any): string[] => {
     return [
       '注意腸胃保養，飲食清淡',
       '多運動強身，增強體質',
@@ -583,7 +583,7 @@ export function useDataAdapter() {
     ];
   };
 
-  const extractElementalAnalysis = (data: any): string[] => {
+  const extractElementalAnalysis = (_data: any): string[] => {
     return [
       '五行中土元素較旺，性格穩重',
       '金元素適中，理性務實',
@@ -591,7 +591,7 @@ export function useDataAdapter() {
     ];
   };
 
-  const extractCosmicInfluences = (data: any): string[] => {
+  const extractCosmicInfluences = (_data: any): string[] => {
     return [
       '命宮主星影響性格基調',
       '財帛宮配置影響財運走向',
@@ -599,7 +599,7 @@ export function useDataAdapter() {
     ];
   };
 
-  const extractTransformationCycles = (data: any): string[] => {
+  const extractTransformationCycles = (_data: any): string[] => {
     return [
       '當前大運利於事業發展',
       '流年四化帶來新機遇',
@@ -607,7 +607,7 @@ export function useDataAdapter() {
     ];
   };
 
-  const extractDetailedForecasts = (data: any): string[] => {
+  const extractDetailedForecasts = (_data: any): string[] => {
     return [
       '未來三個月事業運勢上升',
       '半年內財運有所改善',
@@ -615,7 +615,7 @@ export function useDataAdapter() {
     ];
   };
 
-  const extractSpiritualGuidance = (data: any): string[] => {
+  const extractSpiritualGuidance = (_data: any): string[] => {
     return [
       '保持內心平靜，多行善事',
       '培養感恩的心，珍惜當下',
@@ -623,7 +623,7 @@ export function useDataAdapter() {
     ];
   };
 
-  const extractActionPlans = (data: any): string[] => {
+  const extractActionPlans = (_data: any): string[] => {
     return [
       '制定明確的短期和長期目標',
       '建立良好的人際關係網絡',

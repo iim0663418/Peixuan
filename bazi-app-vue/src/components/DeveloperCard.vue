@@ -68,13 +68,13 @@
           </el-descriptions-item>
           <el-descriptions-item label="參考文獻">
             <el-tag
-              v-for="ref in result.ziwei.metadata.references"
-              :key="ref"
+              v-for="reference in result.ziwei.metadata.references"
+              :key="reference"
               type="info"
               size="small"
               style="margin-right: 4px"
             >
-              {{ ref }}
+              {{ reference }}
             </el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="計算方法">
@@ -155,7 +155,7 @@ const copyJSON = async () => {
   try {
     await navigator.clipboard.writeText(formatJSON(props.result));
     ElMessage.success('JSON 已複製到剪貼簿');
-  } catch (err) {
+  } catch {
     ElMessage.error('複製失敗');
   }
 };

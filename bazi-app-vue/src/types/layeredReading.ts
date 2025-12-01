@@ -199,11 +199,13 @@ export const RESPONSIVE_CONFIGS: Record<
 };
 
 // 資料轉換器類型
+/* eslint-disable no-unused-vars */
 export interface DataAdapter<T> {
   adaptToLevel(data: T, level: ReadingLevel): LayeredContent[];
   getDataCompleteness(data: T): number;
   getAvailableLevels(data: T): ReadingLevel[];
 }
+/* eslint-enable no-unused-vars */
 
 // 用戶偏好設置
 export interface UserReadingPreferences {

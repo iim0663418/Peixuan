@@ -55,7 +55,7 @@ export const isStorageAvailable = (): boolean => {
     sessionStorage.setItem(test, test);
     sessionStorage.removeItem(test);
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -275,41 +275,33 @@ export const initializeChartData = (): boolean => {
     );
 
     // 檢查並添加命盤資料
-    let isUpdated = false;
-
     // 使用更安全的賦值方式
     if (baziChart) {
       unifiedData.charts.bazi = baziChart;
       unifiedData.status.bazi = true;
-      isUpdated = true;
     }
 
     if (purpleStarChart) {
       unifiedData.charts.purpleStar = purpleStarChart;
       unifiedData.status.purpleStar = true;
-      isUpdated = true;
     }
 
     if (integratedAnalysis) {
       unifiedData.charts.integrated = integratedAnalysis;
       unifiedData.status.integrated = true;
-      isUpdated = true;
     }
 
     // 檢查並添加出生資訊
     if (baziBirthInfo) {
       unifiedData.birthInfo.bazi = baziBirthInfo;
-      isUpdated = true;
     }
 
     if (purpleStarBirthInfo) {
       unifiedData.birthInfo.purpleStar = purpleStarBirthInfo;
-      isUpdated = true;
     }
 
     if (integratedBirthInfo) {
       unifiedData.birthInfo.integrated = integratedBirthInfo;
-      isUpdated = true;
     }
 
     // 更新並保存統一資料

@@ -1,6 +1,25 @@
 # 檢查點記錄
 
-# 檢查點記錄
+## Checkpoint: progress-2025-11-30-2343-attn
+**時間**: 2025-11-30 23:43  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- 清理前端廢棄產物：移除 50 個 .js/.js.map，保留 11 個核心 .vue，重新構建 5.64s 成功。
+- 執行 `eslint --fix`：自動修復 48 項（10 errors + 38 warnings），問題數 407 → 186 → 152；錯誤 83 → 36 → 26；警告 324 → 150 → 126。
+- 進度更新：53.5/62 小時 (86%)；統一 API/Workers 持續 200 OK，設計系統與視覺優化保持。
+
+### 關鍵成果
+- Lint 噪音大幅下降，剩餘問題集中於 `no-unused-vars` 與 Vue 標籤換行規則，便於手動收尾。
+- 移除編譯產物避免舊檔誤用與 lint 噪音，核心組件清單收斂。
+
+### 已知問題
+- 26 errors / 126 warnings 待處理，主要為 `no-unused-vars`、`vue/html-closing-bracket-newline`、prettier/any。
+- 測試覆蓋仍缺：補測 3-4h；四化飛星頂層彙總 (6-8h)、流年太歲 (4-6h) 未實作。
+
+### 下一步
+- 1-2h 手動清理剩餘 ESLint errors，後續批次處理警告與 prettier/any。
+- 補齊測試與功能缺口（四化飛星、流年太歲），維持 fallback 僅於 Worker 故障時啟用。
 
 ## Checkpoint: progress-2025-11-30-2332-attn
 **時間**: 2025-11-30 23:32  

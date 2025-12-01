@@ -1,9 +1,6 @@
 // yearlyInteractionUtils.ts
 
 import {
-  HEAVENLY_STEMS,
-  EARTHLY_BRANCHES,
-  STEM_TO_ELEMENT,
   type HeavenlyStem,
   type EarthlyBranch,
   type BaziResult,

@@ -53,13 +53,13 @@
             </el-descriptions-item>
             <el-descriptions-item label="參考文獻">
               <el-tag
-                v-for="ref in result.bazi.metadata.references"
-                :key="ref"
+                v-for="reference in result.bazi.metadata.references"
+                :key="reference"
                 type="info"
                 size="small"
                 style="margin-right: 4px"
               >
-                {{ ref }}
+                {{ reference }}
               </el-tag>
             </el-descriptions-item>
             <el-descriptions-item label="計算方法">
@@ -87,7 +87,7 @@ interface Props {
   result: any;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 const activeNames = ref<string[]>([]);
 
 const formatDateTime = (dateStr: string) => {

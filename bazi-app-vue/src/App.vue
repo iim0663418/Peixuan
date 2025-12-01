@@ -110,6 +110,27 @@ onMounted(() => {
           <h4>聯絡資訊</h4>
           <p>© 2025 佩璇命理服務平台</p>
           <p>版權所有，保留一切權利</p>
+          <p class="footer-licenses">
+            Built with
+            <a
+              href="https://vuejs.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Vue.js</a
+            >,
+            <a
+              href="https://element-plus.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Element Plus</a
+            >,
+            <a
+              href="https://workers.cloudflare.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Cloudflare Workers</a
+            >
+          </p>
         </div>
       </div>
     </footer>
@@ -327,6 +348,22 @@ main {
 }
 
 .footer-links a:hover {
+  color: #f0e68c;
+}
+
+.footer-licenses {
+  font-size: 12px;
+  color: rgba(230, 221, 212, 0.7);
+  margin-top: 8px;
+}
+
+.footer-licenses a {
+  color: #e6ddd4;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-licenses a:hover {
   color: #f0e68c;
 }
 

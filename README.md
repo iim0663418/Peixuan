@@ -333,6 +333,28 @@ npm run test
 
 本專案採用 MIT 授權 - 詳見 [LICENSE](LICENSE) 文件
 
+### 第三方授權
+
+本專案使用以下開源軟體，特此致謝：
+
+**前端框架**
+- [Vue.js](https://vuejs.org) (MIT) - 漸進式 JavaScript 框架
+- [Element Plus](https://element-plus.org) (MIT) - Vue 3 UI 組件庫
+- [Pinia](https://pinia.vuejs.org) (MIT) - Vue 狀態管理
+- [Vue Router](https://router.vuejs.org) (MIT) - Vue 官方路由
+
+**後端框架**
+- [Cloudflare Workers](https://workers.cloudflare.com) (Apache-2.0) - Serverless 運算平台
+- [Drizzle ORM](https://orm.drizzle.team) (Apache-2.0) - TypeScript ORM
+- [itty-router](https://github.com/kwhitley/itty-router) (MIT) - 輕量級路由
+
+**工具庫**
+- [Chart.js](https://www.chartjs.org) (MIT) - 圖表視覺化
+- [axios](https://axios-http.com) (MIT) - HTTP 客戶端
+- [lunar-typescript](https://github.com/6tail/lunar-typescript) (MIT) - 農曆計算
+
+完整授權清單請參考 [LICENSES.md](LICENSES.md)
+
 ## 聯繫我們
 
 - 電子郵件：support@peixuan.com

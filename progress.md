@@ -31,6 +31,40 @@
 
 ---
 
+## ✅ 第三方授權盤點完成 (2025-12-01 10:57)
+
+### 完成內容
+- **新增檔案**: LICENSES.md (完整授權清單)
+- **更新檔案**: 
+  - bazi-app-vue/src/App.vue (Footer 添加授權連結)
+  - README.md (添加第三方授權章節)
+
+### 盤點結果
+**前端依賴** (11 個主要套件):
+- Vue.js 3.5.13 (MIT)
+- Element Plus 2.10.1 (MIT)
+- Chart.js 4.4.9 (MIT)
+- axios 1.9.0 (MIT)
+- 其他 Vue 生態系套件 (MIT)
+
+**後端依賴** (8 個主要套件):
+- Cloudflare Workers (Apache-2.0)
+- Drizzle ORM 0.44.7 (Apache-2.0)
+- itty-router 5.0.22 (MIT)
+- lunar-typescript 1.8.6 (MIT)
+- Zod 4.1.13 (MIT)
+
+### 授權相容性
+- ✅ 所有依賴使用 MIT 或 Apache-2.0 授權
+- ✅ 與專案 MIT 授權完全相容
+- ✅ 允許商業使用、修改、分發
+
+### 視覺更新
+- Footer 新增「Built with Vue.js, Element Plus, Cloudflare Workers」連結
+- 樣式符合現有設計系統
+
+---
+
 ## 📋 依賴警告記錄 (2025-12-01 10:55)
 
 ### npm deprecation 警告

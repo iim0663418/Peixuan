@@ -85,24 +85,53 @@ export function calculateMonthPillar(monthBranchIndex: number, yearStemIndex: nu
 /**
  * Calculate Day Pillar (日柱) using Julian Day Number
  *
- * Formula: I_day = (JDN - 10) mod 60
- * The day pillar is based on midnight of the local solar date.
+ * Formula: I_day = (JDN - 2448851) mod 60
+ * The day pillar changes at 子時 (23:00), not at midnight.
  *
- * Reference anchor: 1984-02-02 00:00 (甲子日) has JDN = 2445730
- * Verification: (2445730 - 10) mod 60 = 0 → 甲子 ✓
+ * Reference anchor: 1992-08-16 00:00 (甲子日) has JDN = 2448851
+ * Verification: (2448851 - 2448851) mod 60 = 0 → 甲子 ✓
  *
- * @param date - Birth date (local time)
+ * @param date - Birth date and time (local time)
  * @returns Day pillar GanZhi
  *
  * @example
- * const dayPillar = calculateDayPillar(new Date(2024, 0, 1)); // Jan 1, 2024
- * // Returns: 癸亥 (JDN 2460310 → (2460310 - 10) mod 60 = 20 → 癸亥)
+ * const dayPillar = calculateDayPillar(new Date(1992, 8, 10, 5, 56)); // Sep 10, 1992 05:56
+ * // Returns: 己丑 (JDN 2448876 → (2448876 - 2448851) mod 60 = 25 → 己丑)
  */
 export function calculateDayPillar(date: Date): GanZhi {
-  const jdn = dateToJulianDay(date);
+  // Adjust for 子時 boundary: if time >= 23:00, count as next day
+  let year = date.getFullYear();
+  let month = date.getMonth();
+  let day = date.getDate();
+  
+  if (date.getHours() >= 23) {
+    day += 1;
+    // Handle month/year overflow
+    const tempDate = new Date(year, month, day);
+    year = tempDate.getFullYear();
+    month = tempDate.getMonth();
+    day = tempDate.getDate();
+  }
+  
+  // Calculate JDN for the date (using year, month, day directly)
+  let jdnYear = year;
+  let jdnMonth = month + 1; // Convert to 1-based
+  
+  if (jdnMonth <= 2) {
+    jdnYear -= 1;
+    jdnMonth += 12;
+  }
+  
+  const a = Math.floor(jdnYear / 100);
+  const b = 2 - a + Math.floor(a / 4);
+  const jd = Math.floor(365.25 * (jdnYear + 4716)) +
+             Math.floor(30.6001 * (jdnMonth + 1)) +
+             day + b - 1524.5;
+  // JDN is defined from noon, so add 0.5 to get the date's JDN
+  const jdn = Math.floor(jd + 0.5);
 
-  // Formula: I_day = (JDN - 10) mod 60
-  const index = ((jdn - 10) % 60 + 60) % 60;
+  // Formula: I_day = (JDN - 2448851) mod 60
+  const index = ((jdn - 2448851) % 60 + 60) % 60;
 
   return indexToGanZhi(index);
 }

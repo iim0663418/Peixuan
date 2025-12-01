@@ -11626,8 +11626,27 @@ function calculateMonthPillar(monthBranchIndex, yearStemIndex) {
   return indexToGanZhi(pillarIndex);
 }
 function calculateDayPillar(date5) {
-  const jdn = dateToJulianDay(date5);
-  const index = ((jdn - 10) % 60 + 60) % 60;
+  let year = date5.getFullYear();
+  let month = date5.getMonth();
+  let day = date5.getDate();
+  if (date5.getHours() >= 23) {
+    day += 1;
+    const tempDate = new Date(year, month, day);
+    year = tempDate.getFullYear();
+    month = tempDate.getMonth();
+    day = tempDate.getDate();
+  }
+  let jdnYear = year;
+  let jdnMonth = month + 1;
+  if (jdnMonth <= 2) {
+    jdnYear -= 1;
+    jdnMonth += 12;
+  }
+  const a2 = Math.floor(jdnYear / 100);
+  const b = 2 - a2 + Math.floor(a2 / 4);
+  const jd = Math.floor(365.25 * (jdnYear + 4716)) + Math.floor(30.6001 * (jdnMonth + 1)) + day + b - 1524.5;
+  const jdn = Math.floor(jd + 0.5);
+  const index = ((jdn - 2448851) % 60 + 60) % 60;
   return indexToGanZhi(index);
 }
 function calculateHourPillar(trueSolarTime, dayStemIndex) {
@@ -11654,7 +11673,6 @@ var init_fourPillars = __esm({
   "src/calculation/bazi/fourPillars.ts"() {
     "use strict";
     init_ganZhi();
-    init_time();
   }
 });
 

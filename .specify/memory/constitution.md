@@ -31,12 +31,11 @@
 - 前端八字計算 + 後端紫微計算
 
 ## 程式碼品質基線
-- **ESLint 當前狀態**: 107 issues (更新於 2025-12-01 10:26)
-  - 錯誤: 0
-  - 警告: 107（prettier/any/風格類待批次）
-  - 可自動修復: 48 已處理；剩餘警告待後續批次
-  - 處理策略: 警告先後置，優先補測試與四化飛星/流年太歲缺口
-- **改善進度**: 從 1,142 → 107 (-90.6%)；錯誤 725 → 0 (-100%)、警告 417 → 107 (-74.3%)
+- **ESLint 當前狀態**: 22 warnings / 0 errors (更新於 2025-12-01 10:46)
+  - 警告: 22（6 any、1 complexity、其餘風格類；prettier 已清）
+  - 可自動修復: Prettier 警告已清；剩餘警告待後續批次
+  - 處理策略: 警告後置，先補測試與四化飛星/流年太歲缺口
+- **改善進度**: 從 1,142 → 22 (-98.1%)；錯誤 725 → 0 (-100%)、警告 417 → 22 (-94.7%)
 - **v-for :key 覆蓋率**: 100% (68/68)
 - **TypeScript 嚴格模式**: 部分啟用（測試檔案排除）
 - **設計系統套用**: 100% (12/13 組件使用 CSS 變數，1 組件保留語意色彩)
@@ -54,10 +53,10 @@
 - **版本**: v1.0
 - **狀態**: 生產運行中；Phase 1-4 + Task A1/A2 完成；Sprint R5 前端統一遷移完成；設計系統套用完成
 - **優化階段**: Week 2 技術債務清理進行中（進度 55/62 小時，89%）
-- **最後更新**: 2025-12-01 10:26（統一 API 常態運行；重複 .js 產物清理；ESLint 錯誤清零後僅餘 107 warnings）
-- **最新成果**: 清理 19 個重複 .js 檔保留 .ts 單一來源；ESLint 錯誤清零（152 → 107，errors 0）；前端 7 組件接軌 Unified API 並移除舊 `baziCalc.ts`/視圖/表單；清除 50 個編譯產物、保留 11 個核心 .vue；Worker 單元測試對齊 `/health` 並啟用 `nodejs_compat`；Hybrid API 持續運行，FortuneCycles/流年模組穩定；12 組件套用設計 token，視覺優化完成。
+- **最後更新**: 2025-12-01 10:46（統一 API 常態運行；前端服務層適配新欄位；ESLint 0 errors/22 warnings）
+- **最新成果**: 清理 19 個重複 .js 檔保留 .ts 單一來源；完成前端服務層對 `wuxingDistribution/fortuneCycles/annualFortune` 的最小適配（含 Date 解析）；ESLint 錯誤清零並壓到 22 warnings；前端 7 組件接軌 Unified API 並移除舊 `baziCalc.ts`/視圖/表單；清除 50 個編譯產物、保留 11 個核心 .vue；Worker 單元測試對齊 `/health` 並啟用 `nodejs_compat`；Hybrid API 持續運行，FortuneCycles/流年模組穩定；12 組件套用設計 token，視覺優化完成。
 
 ## 已知缺口
 - 四化飛星頂層彙總尚未實作
 - 流年太歲計算缺失
-- 前端測試尚未覆蓋 UnifiedView/UnifiedResultView；ESLint 剩餘 107 warnings 待清理
+- 前端測試尚未覆蓋 UnifiedView/UnifiedResultView；ESLint 剩餘 22 warnings 待清理

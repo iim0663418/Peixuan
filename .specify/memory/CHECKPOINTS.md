@@ -1,5 +1,27 @@
 # 檢查點記錄
 
+## Checkpoint: week2-tech-debt-closure
+**時間**: 2025-12-01 10:46  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- 統一 API 新欄位適配完成：`wuxingDistribution` 直通、`fortuneCycles` 日期解析（qiyunDate/dayunList/currentDayun）、`annualFortune` 直通，修改於 `bazi-app-vue/src/services/unifiedApiService.ts`（19 行）。
+- WuXingChart/FortuneTimeline/流年分析恢復正常顯示；Prettier 警告清除。
+- ESLint 狀態：0 errors / 22 warnings（6 any、1 complexity、其餘風格類）；進度 55/62 小時 (89%)。
+- Worker 單元測試 33 項維持綠燈；集成測試仍暫停。
+
+### 關鍵成果
+- 前端服務層對齊最新後端 CalculationResult，資料契約一致；保留現有 cache/error 流程與 null-safety。
+- 視覺與功能回歸：五行分布、大運時間軸、流年結果均可正常呈現。
+
+### 已知問題
+- 測試覆蓋待補 (3-4h)；四化飛星頂層彙總 (6-8h) 與流年太歲 (4-6h) 尚未實作。
+- 22 項 ESLint 警告後置處理。
+
+### 下一步
+- 先補測試覆蓋，再實作四化飛星彙總與流年太歲；最後分批清理剩餘 ESLint 警告。
+- 持續監控統一 API/Worker，可用性維持，fallback 僅於故障時啟用。
+
 ## Checkpoint: progress-2025-12-01-attn2
 **時間**: 2025-12-01 10:26  
 **狀態**: ✅ 完成

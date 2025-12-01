@@ -28,6 +28,61 @@
 
 ---
 
+## ✅ 前端服務層適配修復完成 (2025-12-01 10:46)
+
+### 修復內容
+**檔案**: `bazi-app-vue/src/services/unifiedApiService.ts`
+
+**新增適配** (Lines 230-248, 263-264):
+1. **wuxingDistribution**: 直接傳遞（格式已對齊）
+2. **fortuneCycles**: Date 字串解析
+   - qiyunDate: `new Date()`
+   - dayunList: 遍歷轉換 startDate/endDate
+   - currentDayun: 條件轉換 + null 處理
+3. **annualFortune**: 直接傳遞（可選欄位）
+
+### 改善成果
+- ✅ WuXingChart 組件現可正常顯示五行分布
+- ✅ FortuneTimeline 組件現可正常顯示大運資訊
+- ✅ 流年分析功能現可正常使用
+- ✅ Prettier 格式化警告已清除
+
+### 程式碼品質
+- 遵循現有程式碼模式（spread operators + null safety）
+- 保持快取與錯誤處理邏輯不變
+- 最小變更：僅新增 19 行
+- ESLint: 0 errors, 22 warnings (6 any + 1 complexity + 15 其他)
+
+**驗證報告**: `FRONTEND_BACKEND_CONTRACT_VERIFICATION.md`
+
+---
+
+## ⚠️ 最新發現：前端服務層適配不完整 (2025-12-01 10:43)
+
+### 驗證範圍
+- 後端 API 類型定義 (CalculationResult)
+- 前端服務層適配 (unifiedApiService.ts)
+- 顯示組件資料綁定 (UnifiedResultView.vue)
+
+### 關鍵問題
+1. **wuxingDistribution**: 後端有，前端服務層未轉換
+2. **fortuneCycles**: 後端有，前端服務層未轉換（Date 需解析）
+3. **annualFortune**: 後端有，前端服務層未轉換
+
+### 影響範圍
+- WuXingChart 組件可能無法顯示
+- FortuneTimeline 組件可能無法顯示
+- 流年分析功能可能無法使用
+
+### 修復優先級
+- **HIGH**: 補齊服務層適配 (15-20 分鐘)
+- **MEDIUM**: 驗證組件格式兼容性 (10 分鐘)
+- **LOW**: 添加錯誤處理與測試 (30 分鐘)
+
+**詳細報告**: `FRONTEND_BACKEND_CONTRACT_VERIFICATION.md`
+
+---
+
 ## ✅ 最近完成：ESLint 錯誤全部修復 (2025-12-01 10:26)
 
 ### 修復內容

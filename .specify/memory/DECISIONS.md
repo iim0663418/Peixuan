@@ -1,5 +1,22 @@
 # 決策記錄
 
+## 2025-12-01: 統一 API 前端適配與收尾策略
+
+### 決策：統一 API 回傳新增欄位僅做最小適配（19 行）並維持現有快取/錯誤處理
+- **原因**: 後端 CalculationResult 新增 `wuxingDistribution/fortuneCycles/annualFortune`，前端僅缺對應轉換，避免觸碰穩定的 cache 與 error 流程。
+- **影響**: 在 `bazi-app-vue/src/services/unifiedApiService.ts` 新增欄位 passthrough + Date 解析（qiyunDate/dayunList/currentDayun）；WuXingChart/FortuneTimeline/流年分析恢復正常；Prettier 警告清除。
+- **替代**: 全域重構資料層（放棄，時間成本高且風險大）。
+
+### 決策：保留 null-safety 與條件轉換策略，不引入額外型別收斂
+- **原因**: 現有 API 回應含可選欄位與空值，強制型別收斂可能破壞容錯。
+- **影響**: 使用條件鏈與可選欄位直通；僅在日期欄位做顯式解析與空值檢查。
+- **替代**: 在服務層強制類型/值正規化（放棄，會放大變更面積）。
+
+### 決策：後續優先補測試與未完功能，再處理剩餘 ESLint 警告
+- **原因**: 89% 工時已完成，剩餘風險集中在測試缺口與四化飛星/流年太歲未實作。
+- **影響**: 先投 3-4h 補測試，6-8h 完成四化飛星頂層彙總，4-6h 實作流年太歲；22 條 ESLint 警告後置。
+- **替代**: 立即清零警告或進一步重構（放棄，對交付價值低）。
+
 ## 2025-12-01: ESLint 錯誤收尾與重複產物清理
 
 ### 決策：移除 19 個重複 .js 檔，保留 .ts 原始檔

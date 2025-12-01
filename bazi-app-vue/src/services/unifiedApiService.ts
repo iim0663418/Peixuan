@@ -227,6 +227,25 @@ class UnifiedApiService {
               zhi: backendResult.bazi.fourPillars.hour.branch,
             },
           },
+          // Pass through wuxingDistribution directly (format already aligned)
+          wuxingDistribution: backendResult.bazi.wuxingDistribution,
+          // Parse Date strings in fortuneCycles
+          fortuneCycles: backendResult.bazi.fortuneCycles ? {
+            ...backendResult.bazi.fortuneCycles,
+            qiyunDate: new Date(backendResult.bazi.fortuneCycles.qiyunDate),
+            dayunList: backendResult.bazi.fortuneCycles.dayunList.map((dayun: any) => ({
+              ...dayun,
+              startDate: new Date(dayun.startDate),
+              endDate: new Date(dayun.endDate),
+            })),
+            currentDayun: backendResult.bazi.fortuneCycles.currentDayun
+              ? {
+                  ...backendResult.bazi.fortuneCycles.currentDayun,
+                  startDate: new Date(backendResult.bazi.fortuneCycles.currentDayun.startDate),
+                  endDate: new Date(backendResult.bazi.fortuneCycles.currentDayun.endDate),
+                }
+              : null,
+          } : undefined,
         },
         ziwei: {
           ...backendResult.ziwei,
@@ -241,6 +260,8 @@ class UnifiedApiService {
             index: backendResult.ziwei.bodyPalace.position, // Alias for compatibility
           },
         },
+        // Pass through annualFortune directly (optional field)
+        annualFortune: backendResult.annualFortune,
       };
 
       // Store in cache

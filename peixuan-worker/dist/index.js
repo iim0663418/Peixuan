@@ -11615,7 +11615,9 @@ function calculateYearPillar(solarDate, lichunTime) {
   return indexToGanZhi(index);
 }
 function calculateMonthPillar(monthBranchIndex, yearStemIndex) {
-  const stemIndex = stemModulo(2 * yearStemIndex + 2);
+  const yinStem = stemModulo(2 * yearStemIndex + 2);
+  const offset = (monthBranchIndex - 2 + 12) % 12;
+  const stemIndex = stemModulo(yinStem + offset);
   let pillarIndex = 0;
   for (let n2 = 0; n2 < 60; n2++) {
     if (n2 % 10 === stemIndex && n2 % 12 === monthBranchIndex) {

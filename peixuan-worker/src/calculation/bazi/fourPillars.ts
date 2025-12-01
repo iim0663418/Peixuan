@@ -66,11 +66,18 @@ export function calculateYearPillar(solarDate: Date, lichunTime: Date): GanZhi {
  */
 export function calculateMonthPillar(monthBranchIndex: number, yearStemIndex: number): GanZhi {
   // 五虎遁年法: Calculate month stem from year stem
-  // Formula: idx = (2 × yearStem + 2) mod 10
-  const stemIndex = stemModulo(2 * yearStemIndex + 2);
+  // Step 1: Get the stem for 寅月 (Yin month, index 2)
+  // Formula: yinStem = (2 × yearStem + 2) mod 10
+  const yinStem = stemModulo(2 * yearStemIndex + 2);
+  
+  // Step 2: Calculate offset from 寅月 to target month
+  // 寅=2, so offset = (monthBranchIndex - 2 + 12) % 12
+  const offset = (monthBranchIndex - 2 + 12) % 12;
+  
+  // Step 3: Calculate month stem
+  const stemIndex = stemModulo(yinStem + offset);
 
   // Combine stem and branch into 60 Jiazi index
-  // Use Chinese Remainder Theorem: find n where n ≡ stemIndex (mod 10) and n ≡ branchIndex (mod 12)
   let pillarIndex = 0;
   for (let n = 0; n < 60; n++) {
     if (n % 10 === stemIndex && n % 12 === monthBranchIndex) {

@@ -35,7 +35,7 @@ import { calculateWuXingDistribution } from '../wuXing/distribution';
 import { determineFortuneDirection, calculateQiYunDate } from '../fortune/qiyun';
 import { generateDaYunList, getCurrentDaYun } from '../fortune/dayun';
 import { getAnnualPillar } from '../annual/liuchun';
-import { locateAnnualLifePalace } from '../annual/palace';
+import { locateAnnualLifePalace, Palace, createPalaceArray } from '../annual/palace';
 import {
   detectStemCombinations,
   detectBranchClashes,
@@ -162,6 +162,44 @@ function calculateStarSymmetry(
   });
 
   return symmetry;
+}
+
+/**
+ * Create palace array for ZiWei chart
+ *
+ * Generates the 12 palaces array using life palace position and branch.
+ * Uses EARTHLY_BRANCHES rotation starting from life palace position.
+ *
+ * @param lifePalacePosition - Life palace position (0-11)
+ * @param lifePalaceBranch - Life palace earthly branch
+ * @returns Array of 12 palaces with position and branch
+ */
+function createPalaceArrayFromLifePalace(
+  lifePalacePosition: number,
+  lifePalaceBranch: string
+): Palace[] {
+  const EARTHLY_BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+
+  // Find the index of life palace branch in EARTHLY_BRANCHES
+  const lifePalaceBranchIndex = EARTHLY_BRANCHES.indexOf(lifePalaceBranch);
+  if (lifePalaceBranchIndex === -1) {
+    return [];
+  }
+
+  // Calculate offset: how many positions to shift to align life palace
+  const offset = lifePalaceBranchIndex - lifePalacePosition;
+
+  // Generate 12 palaces
+  const palaces: Palace[] = [];
+  for (let i = 0; i < 12; i++) {
+    const branchIndex = (offset + i + 12) % 12;
+    palaces.push({
+      position: i,
+      branch: EARTHLY_BRANCHES[branchIndex]
+    });
+  }
+
+  return palaces;
 }
 
 /**
@@ -511,6 +549,15 @@ export class UnifiedCalculator {
     const auxiliaryStars = { wenChang, wenQu, zuoFu, youBi };
     const starSymmetry = calculateStarSymmetry(ziWeiPosition, tianFuPosition, auxiliaryStars);
 
+    // Generate palaces array using life palace position and branch
+    const palaces = createPalaceArrayFromLifePalace(lifePalace.position, lifePalace.branch);
+    calculationSteps.push({
+      step: 'palacesArray',
+      input: { lifePalacePosition: lifePalace.position, lifePalaceBranch: lifePalace.branch },
+      output: palaces,
+      description: 'Generate 12 palaces array with earthly branches'
+    });
+
     // Metadata
     const metadata: CalculationMetadata = {
       algorithms: ['ZiWeiPositioning', 'BureauCalculation', 'PalacePositioning'],
@@ -526,6 +573,7 @@ export class UnifiedCalculator {
       tianFuPosition,
       auxiliaryStars,
       starSymmetry,
+      palaces,
       calculationSteps,
       metadata
     };

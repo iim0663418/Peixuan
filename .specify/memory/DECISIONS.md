@@ -1,5 +1,17 @@
 # 決策記錄
 
+## 2025-12-01: 後端整合完整性檢查與流年命宮修復策略
+
+### 決策：優先修復 ZiWeiResult.palaces 缺失以解決流年命宮 -1 問題
+- **原因**: calculateZiWei 未返回 palaces 陣列，導致流年命宮定位失敗（locateAnnualLifePalace 需要 palaces）
+- **影響**: HIGH 優先級，影響流年分析核心功能；修復需在 calculator.ts 補充 palaces 輸出（預估 1-1.5h）
+- **替代**: 前端 fallback 或改用 Legacy API（放棄，會破壞統一架構）
+
+### 決策：維持 96.4% 契約完整度，僅修復關鍵缺口
+- **原因**: 28 個欄位中 27 個正確，僅 palaces 缺失；其餘欄位（wuxingDistribution/fortuneCycles/annualFortune）已完整
+- **影響**: 集中火力修復 1 個高影響問題，避免擴大變更面；已修復問題（英文鍵名映射、element 映射、null 處理）保持穩定
+- **替代**: 全面重構或增加更多欄位（放棄，當前契約已足夠）
+
 ## 2025-12-01: 統一 API 前端適配與收尾策略
 
 ### 決策：統一 API 回傳新增欄位僅做最小適配（19 行）並維持現有快取/錯誤處理

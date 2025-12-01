@@ -15,6 +15,7 @@ import {
   BranchClash,
   HarmoniousCombination,
 } from '../annual/interaction';
+import { Palace } from '../annual/palace';
 
 /**
  * Birth information input
@@ -187,6 +188,9 @@ export interface ZiWeiResult {
 
   /** Star symmetry information */
   starSymmetry: StarSymmetry[];
+
+  /** 12 palaces array (命宮-父母宮) */
+  palaces: Palace[];
 
   /** Calculation steps */
   calculationSteps: CalculationStep[];

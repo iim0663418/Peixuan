@@ -52,11 +52,23 @@
 ## 當前狀態
 - **版本**: v1.0
 - **狀態**: 生產運行中；Phase 1-4 + Task A1/A2 完成；Sprint R5 前端統一遷移完成；設計系統套用完成
-- **優化階段**: Week 2 技術債務清理進行中（進度 55/62 小時，89%）
-- **最後更新**: 2025-12-01 10:46（統一 API 常態運行；前端服務層適配新欄位；ESLint 0 errors/22 warnings）
-- **最新成果**: 清理 19 個重複 .js 檔保留 .ts 單一來源；完成前端服務層對 `wuxingDistribution/fortuneCycles/annualFortune` 的最小適配（含 Date 解析）；ESLint 錯誤清零並壓到 22 warnings；前端 7 組件接軌 Unified API 並移除舊 `baziCalc.ts`/視圖/表單；清除 50 個編譯產物、保留 11 個核心 .vue；Worker 單元測試對齊 `/health` 並啟用 `nodejs_compat`；Hybrid API 持續運行，FortuneCycles/流年模組穩定；12 組件套用設計 token，視覺優化完成。
+- **優化階段**: Week 2 技術債務清理進行中（進度 56.5/62 小時，91%）
+- **最後更新**: 2025-12-01 11:35（後端整合完整性達成 100% (28/28)）
+- **最新成果**:
+  - 後端整合檢查：CalculationResult 契約 100% (28/28)，ZiWeiResult.palaces 已修復
+  - 清理 19 個重複 .js 檔保留 .ts 單一來源
+  - 完成前端服務層對 `wuxingDistribution/fortuneCycles/annualFortune` 的最小適配（含 Date 解析）
+  - ESLint 錯誤清零（0 errors/22 warnings）
+  - 前端 7 組件接軌 Unified API 並移除舊 `baziCalc.ts`/視圖/表單
+  - 清除 50 個編譯產物、保留 11 個核心 .vue
+  - Worker 單元測試對齊 `/health` 並啟用 `nodejs_compat`
+  - Hybrid API 持續運行，FortuneCycles/流年模組穩定
+  - 12 組件套用設計 token，視覺優化完成
+  - SSCI 壓縮完成：progress.md 361→96 行（-73%）
 
 ## 已知缺口
-- 四化飛星頂層彙總尚未實作
-- 流年太歲計算缺失
-- 前端測試尚未覆蓋 UnifiedView/UnifiedResultView；ESLint 剩餘 22 warnings 待清理
+- 四化飛星頂層彙總尚未實作 (6-8h)
+- 流年太歲計算缺失 (4-6h)
+- 前端測試尚未覆蓋 UnifiedView/UnifiedResultView (3-4h)
+- ESLint 剩餘 22 warnings 待清理
+- npm 依賴警告 4 項（Week 2 後期處理）

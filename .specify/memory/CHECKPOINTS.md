@@ -1,7 +1,50 @@
 # 檢查點記錄
 
+## Checkpoint: palaces-fix-2025-12-01
+**時間**: 2025-12-01 11:35
+**狀態**: ✅ 完成
+
+### 完成的任務
+- ZiWeiResult.palaces 修復：實作 createPalaceArrayFromLifePalace 生成 12 宮陣列
+- 後端整合完整性達成：CalculationResult 契約 100% (28/28)
+- 流年命宮計算恢復正常：-1 問題解決
+
+### 關鍵成果
+- calculator.ts 添加 palaces 輸出邏輯
+- locateAnnualLifePalace 正常返回 0-11 索引
+- 後端整合檢查通過，無缺失欄位
+
+### 下一步
+- 補齊測試覆蓋 (3-4h)
+- 四化飛星頂層彙總 (6-8h)
+- 流年太歲計算 (4-6h)
+
+## Checkpoint: ssci-compression-2025-12-01
+**時間**: 2025-12-01 11:28
+**狀態**: ✅ 完成
+
+### 完成的任務
+- SSCI 壓縮流程執行：progress.md 核心資訊擷取並存入 audit_trail.log
+- progress.md 壓縮：361 行→96 行（-73%），保留最新發現與關鍵待辦
+- 後端整合完整性檢查報告：CalculationResult 契約 96.4% (27/28)
+- 記憶檔案更新：DECISIONS.md、BUNDLE_INDEX.md、CHECKPOINTS.md、constitution.md 全數同步
+
+### 關鍵成果
+- 發現 ZiWeiResult.palaces 缺失，導致流年命宮 -1（HIGH 優先級）
+- Sprint R1-R5 核心資訊保留於 audit_trail.log
+- 進度 55/62h (89%)，ESLint 0 errors/22 warnings 狀態確認
+
+### 已知問題
+- 流年命宮 -1 需修復 calculateZiWei 的 palaces 輸出（預估 1-1.5h）
+- 補齊測試覆蓋 (3-4h)、四化飛星頂層彙總 (6-8h)、流年太歲 (4-6h)
+- npm 依賴警告 4 項（Week 2 後期處理）
+
+### 下一步
+- 優先修復 ZiWeiResult.palaces，解決流年命宮 -1
+- 補齊測試與缺口功能，再清理剩餘 ESLint 警告
+
 ## Checkpoint: week2-tech-debt-closure
-**時間**: 2025-12-01 10:46  
+**時間**: 2025-12-01 10:46
 **狀態**: ✅ 完成
 
 ### 完成的任務

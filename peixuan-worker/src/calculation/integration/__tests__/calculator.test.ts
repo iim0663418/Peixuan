@@ -134,6 +134,66 @@ describe('UnifiedCalculator', () => {
       expect(result.ziwei.auxiliaryStars.youBi).toBeLessThan(12);
     });
 
+    it('should populate palaces with stars', () => {
+      const input: BirthInfo = {
+        solarDate: new Date(2024, 0, 15, 14, 30, 0),
+        longitude: 121.5,
+        gender: 'female'
+      };
+
+      const result = calculator.calculate(input);
+
+      // Verify palaces array exists and has 12 palaces
+      expect(result.ziwei.palaces).toBeDefined();
+      expect(result.ziwei.palaces).toHaveLength(12);
+
+      // Count total stars across all palaces
+      let totalStars = 0;
+      const foundStars = new Set<string>();
+
+      result.ziwei.palaces.forEach((palace) => {
+        expect(palace).toHaveProperty('position');
+        expect(palace).toHaveProperty('branch');
+        expect(palace).toHaveProperty('stars');
+
+        if (palace.stars) {
+          totalStars += palace.stars.length;
+          palace.stars.forEach((star) => {
+            expect(star).toHaveProperty('name');
+            expect(star).toHaveProperty('brightness');
+            foundStars.add(star.name);
+          });
+        }
+      });
+
+      // Should have at least main stars (14) + auxiliary stars (4) = 18 stars
+      expect(totalStars).toBeGreaterThanOrEqual(18);
+
+      // Verify main ZiWei system stars are present
+      expect(foundStars.has('紫微')).toBe(true);
+      expect(foundStars.has('天機')).toBe(true);
+      expect(foundStars.has('太陽')).toBe(true);
+      expect(foundStars.has('武曲')).toBe(true);
+      expect(foundStars.has('天同')).toBe(true);
+      expect(foundStars.has('廉貞')).toBe(true);
+
+      // Verify main TianFu system stars are present
+      expect(foundStars.has('天府')).toBe(true);
+      expect(foundStars.has('太陰')).toBe(true);
+      expect(foundStars.has('貪狼')).toBe(true);
+      expect(foundStars.has('巨門')).toBe(true);
+      expect(foundStars.has('天相')).toBe(true);
+      expect(foundStars.has('天梁')).toBe(true);
+      expect(foundStars.has('七殺')).toBe(true);
+      expect(foundStars.has('破軍')).toBe(true);
+
+      // Verify auxiliary stars are present
+      expect(foundStars.has('文昌')).toBe(true);
+      expect(foundStars.has('文曲')).toBe(true);
+      expect(foundStars.has('左輔')).toBe(true);
+      expect(foundStars.has('右弼')).toBe(true);
+    });
+
     it('should handle leap month input', () => {
       const input: BirthInfo = {
         solarDate: new Date(2023, 2, 22, 10, 0, 0), // Leap month scenario

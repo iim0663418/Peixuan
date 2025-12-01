@@ -9,6 +9,17 @@
  * - Palace rotation: Once annual life palace is located, all 12 palace meanings rotate accordingly
  */
 
+/** Star brightness levels */
+export type StarBrightness = 'temple' | 'prosperous' | 'advantageous' | 'neutral' | 'trapped';
+
+/** Star in a palace */
+export interface Star {
+  /** Star name (e.g., "紫微", "天機") */
+  name: string;
+  /** Star brightness level */
+  brightness?: StarBrightness;
+}
+
 /** Palace interface with earthly branch information */
 export interface Palace {
   /** Palace index (0-11) */
@@ -17,6 +28,8 @@ export interface Palace {
   branch: string;
   /** Palace meaning/name (e.g., "命宮", "兄弟宮") */
   meaning?: string;
+  /** Stars in this palace */
+  stars?: Star[];
 }
 
 /** Standard 12 earthly branches in order */

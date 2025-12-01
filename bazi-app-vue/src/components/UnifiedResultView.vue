@@ -103,6 +103,10 @@
         <div v-if="result.ziwei.starSymmetry" class="section">
           <StarSymmetryDisplay :star-symmetry="result.ziwei.starSymmetry" />
         </div>
+
+        <div v-if="result.ziwei.sihuaAggregation" class="section">
+          <SiHuaAggregationCard :sihua-aggregation="result.ziwei.sihuaAggregation" />
+        </div>
       </el-tab-pane>
 
       <el-tab-pane v-if="result.annualFortune" label="流年" name="annual">
@@ -151,6 +155,7 @@ import WuXingChart from './WuXingChart.vue';
 import FortuneTimeline from './FortuneTimeline.vue';
 import AnnualInteraction from './AnnualInteraction.vue';
 import StarSymmetryDisplay from './StarSymmetryDisplay.vue';
+import SiHuaAggregationCard from './SiHuaAggregationCard.vue';
 import TechnicalDetailsCard from './TechnicalDetailsCard.vue';
 import DeveloperCard from './DeveloperCard.vue';
 import TaiSuiCard from './TaiSuiCard.vue';

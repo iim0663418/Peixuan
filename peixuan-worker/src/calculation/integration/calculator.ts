@@ -43,6 +43,9 @@ import {
   detectHarmoniousCombinations,
 } from '../annual/interaction';
 import { analyzeTaiSui } from '../../services/annual/taiSuiAnalysis';
+import { aggregateSiHua } from '../ziwei/sihua/aggregator';
+import { calculateCurrentDecade } from '../ziwei/decade';
+import type { Star } from '../annual/palace';
 
 /**
  * Hidden stems mapping for earthly branches
@@ -134,6 +137,101 @@ function calculateStarSymmetry(
 }
 
 /**
+ * Place a star in the appropriate palace
+ *
+ * @param palaces - Palace array
+ * @param starName - Name of the star
+ * @param palaceIndex - Palace index (0-11) where star should be placed
+ */
+function placeStar(palaces: Palace[], starName: string, palaceIndex: number): void {
+  const palace = palaces.find((p) => p.position === palaceIndex);
+  if (palace) {
+    if (!palace.stars) {
+      palace.stars = [];
+    }
+    palace.stars.push({
+      name: starName,
+      brightness: 'neutral' // Default brightness, can be enhanced later
+    });
+  }
+}
+
+/**
+ * Populate palaces with ZiWei system stars
+ *
+ * ZiWei system: 紫微, 天機, 太陽, 武曲, 天同, 廉貞
+ * Follows purpleStarCalculation.ts pattern with offsets: [0, -1, -3, -4, -5, -8]
+ *
+ * @param palaces - Palace array to populate
+ * @param ziWeiPosition - ZiWei star position (0-11)
+ */
+function populateZiWeiSystemStars(palaces: Palace[], ziWeiPosition: number): void {
+  const ZIWEI_STAR_SYSTEM = ['紫微', '天機', '太陽', '武曲', '天同', '廉貞'];
+  const ziweiSystemOffsets = [0, -1, -3, -4, -5, -8];
+
+  for (let i = 0; i < ZIWEI_STAR_SYSTEM.length; i++) {
+    const starName = ZIWEI_STAR_SYSTEM[i];
+    const palaceIndex = (ziWeiPosition + ziweiSystemOffsets[i] + 12) % 12;
+    placeStar(palaces, starName, palaceIndex);
+  }
+}
+
+/**
+ * Populate palaces with TianFu system stars
+ *
+ * TianFu system: 天府, 太陰, 貪狼, 巨門, 天相, 天梁, 七殺, 破軍
+ * Follows purpleStarCalculation.ts pattern with offsets: [0, 1, 2, 3, 4, 5, 6, 10]
+ *
+ * @param palaces - Palace array to populate
+ * @param tianFuPosition - TianFu star position (0-11)
+ */
+function populateTianFuSystemStars(palaces: Palace[], tianFuPosition: number): void {
+  const TIANFU_STAR_SYSTEM = ['天府', '太陰', '貪狼', '巨門', '天相', '天梁', '七殺', '破軍'];
+  const tianfuSystemOffsets = [0, 1, 2, 3, 4, 5, 6, 10];
+
+  for (let i = 0; i < TIANFU_STAR_SYSTEM.length; i++) {
+    const starName = TIANFU_STAR_SYSTEM[i];
+    const palaceIndex = (tianFuPosition + tianfuSystemOffsets[i]) % 12;
+    placeStar(palaces, starName, palaceIndex);
+  }
+}
+
+/**
+ * Populate palaces with auxiliary stars
+ *
+ * Auxiliary stars: 文昌, 文曲 (based on hour), 左輔, 右弼 (based on month)
+ * Follows purpleStarCalculation.ts pattern
+ *
+ * @param palaces - Palace array to populate
+ * @param hourBranch - Hour branch index (0-11)
+ * @param lunarMonth - Lunar month (1-12)
+ */
+function populateAuxiliaryStars(
+  palaces: Palace[],
+  hourBranch: number,
+  lunarMonth: number
+): void {
+  const CHEN_PALACE_STD_INDEX = 4; // 辰
+  const XU_PALACE_STD_INDEX = 10; // 戌
+
+  // 左輔: starts from 辰, advances by (lunarMonth - 1)
+  const zuoFuPalaceIndex = (CHEN_PALACE_STD_INDEX + (lunarMonth - 1) + 12) % 12;
+  placeStar(palaces, '左輔', zuoFuPalaceIndex);
+
+  // 右弼: starts from 戌, retreats by (lunarMonth - 1)
+  const youBiPalaceIndex = (XU_PALACE_STD_INDEX - (lunarMonth - 1) + 12) % 12;
+  placeStar(palaces, '右弼', youBiPalaceIndex);
+
+  // 文昌: starts from 戌, retreats by hourBranch
+  const wenChangPalaceIndex = (XU_PALACE_STD_INDEX - hourBranch + 12) % 12;
+  placeStar(palaces, '文昌', wenChangPalaceIndex);
+
+  // 文曲: starts from 辰, advances by hourBranch
+  const wenQuPalaceIndex = (CHEN_PALACE_STD_INDEX + hourBranch + 12) % 12;
+  placeStar(palaces, '文曲', wenQuPalaceIndex);
+}
+
+/**
  * Create palace array for ZiWei chart
  *
  * Generates the 12 palaces array using life palace position and branch.
@@ -163,7 +261,8 @@ function createPalaceArrayFromLifePalace(
     const branchIndex = (lifePalaceBranchIndex + (i - lifePalacePosition) + 12) % 12;
     palaces.push({
       position: i,
-      branch: EARTHLY_BRANCHES[branchIndex]
+      branch: EARTHLY_BRANCHES[branchIndex],
+      stars: []
     });
   }
 
@@ -201,12 +300,12 @@ export class UnifiedCalculator {
     // Step 2: Calculate BaZi
     const bazi = this.calculateBaZi(input);
 
-    // Step 3: Calculate ZiWei
-    const ziwei = this.calculateZiWei(input, bazi);
-
-    // Step 4: Calculate Annual Fortune (using current date as query date)
+    // Step 3: Calculate Annual Fortune (using current date as query date)
     const queryDate = new Date();
     const annualPillar = getAnnualPillar(queryDate);
+
+    // Step 4: Calculate ZiWei (pass annualStem for SiHua aggregation)
+    const ziwei = this.calculateZiWei(input, bazi, annualPillar.stem);
     const annualLifePalaceIndex = locateAnnualLifePalace(
       annualPillar.branch,
       ziwei.palaces || []
@@ -419,9 +518,10 @@ export class UnifiedCalculator {
    *
    * @param input - Birth information
    * @param bazi - BaZi calculation result (for hour branch)
+   * @param annualStem - Annual fortune's heavenly stem (optional)
    * @returns ZiWei calculation result
    */
-  private calculateZiWei(input: BirthInfo, bazi: BaZiResult): ZiWeiResult {
+  private calculateZiWei(input: BirthInfo, bazi: BaZiResult, annualStem?: string): ZiWeiResult {
     const { solarDate, isLeapMonth } = input;
     const calculationSteps: CalculationStep[] = [];
 
@@ -526,11 +626,48 @@ export class UnifiedCalculator {
       description: 'Generate 12 palaces array with earthly branches'
     });
 
+    // Populate palaces with stars
+    populateZiWeiSystemStars(palaces, ziWeiPosition);
+    populateTianFuSystemStars(palaces, tianFuPosition);
+    populateAuxiliaryStars(palaces, hourBranch, lunarMonth);
+    calculationSteps.push({
+      step: 'starPlacement',
+      input: { ziWeiPosition, tianFuPosition, hourBranch, lunarMonth },
+      output: { totalStars: palaces.reduce((sum, p) => sum + (p.stars?.length || 0), 0) },
+      description: 'Populate palaces with main stars (ZiWei + TianFu systems) and auxiliary stars'
+    });
+
+    // Calculate current decade stem
+    const yearStem = HEAVENLY_STEMS[yearStemIndex];
+    const decadeStem = calculateCurrentDecade(
+      solarDate,
+      bureau,
+      yearStem,
+      input.gender,
+      palaces
+    );
+    calculationSteps.push({
+      step: 'decadeCalculation',
+      input: { birthDate: solarDate.toISOString(), bureau, yearStem, gender: input.gender },
+      output: decadeStem,
+      description: 'Calculate current decade (大限) palace stem'
+    });
+
+    // Calculate SiHua Flying Stars aggregation
+    // Pass lifePalaceStem as first parameter, decadeStem as second parameter, annualStem as third parameter
+    const sihuaAggregation = aggregateSiHua(palaces, lifePalaceStem, decadeStem, annualStem);
+    calculationSteps.push({
+      step: 'sihuaAggregation',
+      input: { palaces, lifePalaceStem, decadeStem, annualStem },
+      output: sihuaAggregation,
+      description: 'Aggregate SiHua flying stars analysis (cycles, centrality, graph statistics)'
+    });
+
     // Metadata
     const metadata: CalculationMetadata = {
-      algorithms: ['ZiWeiPositioning', 'BureauCalculation', 'PalacePositioning'],
+      algorithms: ['ZiWeiPositioning', 'BureauCalculation', 'PalacePositioning', 'SiHuaGraphAnalysis'],
       references: ['紫微斗数全书', '紫微斗数讲义', '骨髓赋'],
-      methods: ['LunarCalendar', 'StarSymmetry', 'AuxiliaryStarPlacement']
+      methods: ['LunarCalendar', 'StarSymmetry', 'AuxiliaryStarPlacement', 'FlyingStarCycleDetection', 'CentralityAnalysis']
     };
 
     return {
@@ -542,6 +679,7 @@ export class UnifiedCalculator {
       auxiliaryStars,
       starSymmetry,
       palaces,
+      sihuaAggregation,
       calculationSteps,
       metadata
     };

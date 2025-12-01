@@ -11596,6 +11596,72 @@ var init_fourPillars = __esm({
   }
 });
 
+// src/calculation/bazi/tenGods.ts
+function getElementRelation(dayElement, targetElement) {
+  if (dayElement === targetElement) return "same";
+  if (PRODUCES_MAP[dayElement] === targetElement) return "produces";
+  if (PRODUCES_MAP[targetElement] === dayElement) return "produced-by";
+  if (CONTROLS_MAP[dayElement] === targetElement) return "controls";
+  return "controlled-by";
+}
+function samePolarityAs(dayStem, targetStem) {
+  return STEM_PROPERTIES[dayStem].polarity === STEM_PROPERTIES[targetStem].polarity;
+}
+function calculateTenGod(dayStem, targetStem) {
+  const dayProps = STEM_PROPERTIES[dayStem];
+  const targetProps = STEM_PROPERTIES[targetStem];
+  if (!dayProps || !targetProps) {
+    throw new Error(`Invalid stem: ${dayStem} or ${targetStem}`);
+  }
+  const relation = getElementRelation(dayProps.element, targetProps.element);
+  const samePol = samePolarityAs(dayStem, targetStem);
+  if (relation === "same") {
+    return samePol ? "\u6BD4\u80A9" : "\u52AB\u8CA1";
+  }
+  if (relation === "produces") {
+    return samePol ? "\u98DF\u795E" : "\u50B7\u5B98";
+  }
+  if (relation === "controls") {
+    return samePol ? "\u504F\u8CA1" : "\u6B63\u8CA1";
+  }
+  if (relation === "controlled-by") {
+    return samePol ? "\u4E03\u6BBA" : "\u6B63\u5B98";
+  }
+  return samePol ? "\u504F\u5370" : "\u6B63\u5370";
+}
+var STEM_PROPERTIES, PRODUCES_MAP, CONTROLS_MAP;
+var init_tenGods = __esm({
+  "src/calculation/bazi/tenGods.ts"() {
+    "use strict";
+    STEM_PROPERTIES = {
+      \u7532: { element: "\u6728", polarity: "yang" },
+      \u4E59: { element: "\u6728", polarity: "yin" },
+      \u4E19: { element: "\u706B", polarity: "yang" },
+      \u4E01: { element: "\u706B", polarity: "yin" },
+      \u620A: { element: "\u571F", polarity: "yang" },
+      \u5DF1: { element: "\u571F", polarity: "yin" },
+      \u5E9A: { element: "\u91D1", polarity: "yang" },
+      \u8F9B: { element: "\u91D1", polarity: "yin" },
+      \u58EC: { element: "\u6C34", polarity: "yang" },
+      \u7678: { element: "\u6C34", polarity: "yin" }
+    };
+    PRODUCES_MAP = {
+      \u6728: "\u706B",
+      \u706B: "\u571F",
+      \u571F: "\u91D1",
+      \u91D1: "\u6C34",
+      \u6C34: "\u6728"
+    };
+    CONTROLS_MAP = {
+      \u6728: "\u571F",
+      \u571F: "\u6C34",
+      \u6C34: "\u706B",
+      \u706B: "\u91D1",
+      \u91D1: "\u6728"
+    };
+  }
+});
+
 // src/calculation/ziwei/palaces.ts
 function calculateLifePalace(lunarMonth, hourBranch, options) {
   const adjustment = options?.leapMonthAdjustment ?? 0;
@@ -12095,8 +12161,8 @@ var init_distribution = __esm({
 
 // src/calculation/fortune/qiyun.ts
 function determineFortuneDirection(yearStem, gender) {
-  const isYangStem = YANG_STEMS.includes(yearStem);
-  if (gender === "male" && isYangStem || gender === "female" && !isYangStem) {
+  const isYangStem2 = YANG_STEMS.includes(yearStem);
+  if (gender === "male" && isYangStem2 || gender === "female" && !isYangStem2) {
     return "forward";
   }
   return "backward";
@@ -12563,31 +12629,472 @@ var init_taiSuiAnalysis = __esm({
   }
 });
 
+// src/calculation/ziwei/sihua/edgeGenerator.ts
+function findStarPalace(palaces, starName) {
+  for (let i = 0; i < palaces.length; i++) {
+    const palace = palaces[i];
+    if (palace && Array.isArray(palace.stars)) {
+      const stars = palace.stars;
+      if (stars.some((star) => star.name === starName || star === starName)) {
+        return i;
+      }
+    }
+  }
+  return -1;
+}
+function getPalaceStem(lifePalaceStem, palaceIndex) {
+  const lifePalaceStemIndex = HEAVENLY_STEMS4.indexOf(lifePalaceStem);
+  if (lifePalaceStemIndex === -1) {
+    return "";
+  }
+  return HEAVENLY_STEMS4[(lifePalaceStemIndex + palaceIndex) % 10];
+}
+function generateNatalEdges(palaces, lifePalaceStem) {
+  const edges = [];
+  if (!palaces || palaces.length !== 12) {
+    return edges;
+  }
+  for (let sourceIdx = 0; sourceIdx < 12; sourceIdx++) {
+    const sourceStem = getPalaceStem(lifePalaceStem, sourceIdx);
+    if (!sourceStem || !FOUR_TRANSFORMATIONS_MAP[sourceStem]) {
+      continue;
+    }
+    const sourceTransforms = FOUR_TRANSFORMATIONS_MAP[sourceStem];
+    ["lu", "quan", "ke", "ji"].forEach((type) => {
+      const starName = sourceTransforms[type];
+      const targetIdx = findStarPalace(palaces, starName);
+      if (targetIdx !== -1) {
+        edges.push({
+          source: sourceIdx,
+          target: targetIdx,
+          sihuaType: TYPE_MAP[type],
+          starName,
+          layer: "natal",
+          weight: 1,
+          sourceStem
+        });
+      }
+    });
+  }
+  return edges;
+}
+function generateDecadeEdges(palaces, decadeStem) {
+  const edges = [];
+  if (!palaces || palaces.length !== 12 || !decadeStem) {
+    return edges;
+  }
+  if (!FOUR_TRANSFORMATIONS_MAP[decadeStem]) {
+    return edges;
+  }
+  const transforms = FOUR_TRANSFORMATIONS_MAP[decadeStem];
+  ["lu", "quan", "ke", "ji"].forEach((type) => {
+    const starName = transforms[type];
+    const targetIdx = findStarPalace(palaces, starName);
+    if (targetIdx !== -1) {
+      edges.push({
+        source: -1,
+        // Decade stem doesn't have specific palace
+        target: targetIdx,
+        sihuaType: TYPE_MAP[type],
+        starName,
+        layer: "decade",
+        weight: 0.7,
+        sourceStem: decadeStem
+      });
+    }
+  });
+  return edges;
+}
+function generateAnnualEdges(palaces, annualStem) {
+  const edges = [];
+  if (!palaces || palaces.length !== 12 || !annualStem) {
+    return edges;
+  }
+  if (!FOUR_TRANSFORMATIONS_MAP[annualStem]) {
+    return edges;
+  }
+  const transforms = FOUR_TRANSFORMATIONS_MAP[annualStem];
+  ["lu", "quan", "ke", "ji"].forEach((type) => {
+    const starName = transforms[type];
+    const targetIdx = findStarPalace(palaces, starName);
+    if (targetIdx !== -1) {
+      edges.push({
+        source: -1,
+        // Annual stem doesn't have specific palace
+        target: targetIdx,
+        sihuaType: TYPE_MAP[type],
+        starName,
+        layer: "annual",
+        weight: 0.5,
+        sourceStem: annualStem
+      });
+    }
+  });
+  return edges;
+}
+function buildPalaceGraph(edges) {
+  const nodes = Array.from({ length: 12 }, (_, i) => i);
+  const adjacencyList = /* @__PURE__ */ new Map();
+  for (let i = 0; i < 12; i++) {
+    adjacencyList.set(i, []);
+  }
+  edges.forEach((edge) => {
+    if (edge.source >= 0 && edge.source < 12) {
+      const existing = adjacencyList.get(edge.source) || [];
+      existing.push(edge);
+      adjacencyList.set(edge.source, existing);
+    }
+  });
+  return {
+    nodes,
+    edges,
+    adjacencyList
+  };
+}
+var FOUR_TRANSFORMATIONS_MAP, TYPE_MAP, HEAVENLY_STEMS4;
+var init_edgeGenerator = __esm({
+  "src/calculation/ziwei/sihua/edgeGenerator.ts"() {
+    "use strict";
+    FOUR_TRANSFORMATIONS_MAP = {
+      "\u7532": { lu: "\u5EC9\u8C9E", quan: "\u7834\u8ECD", ke: "\u6B66\u66F2", ji: "\u592A\u967D" },
+      "\u4E59": { lu: "\u5929\u6A5F", quan: "\u5929\u6881", ke: "\u7D2B\u5FAE", ji: "\u592A\u9670" },
+      "\u4E19": { lu: "\u5929\u540C", quan: "\u5929\u6A5F", ke: "\u6587\u660C", ji: "\u5EC9\u8C9E" },
+      "\u4E01": { lu: "\u592A\u9670", quan: "\u5929\u540C", ke: "\u5929\u6A5F", ji: "\u5DE8\u9580" },
+      "\u620A": { lu: "\u8CAA\u72FC", quan: "\u592A\u9670", ke: "\u53F3\u5F3C", ji: "\u5929\u6A5F" },
+      "\u5DF1": { lu: "\u6B66\u66F2", quan: "\u8CAA\u72FC", ke: "\u5929\u6881", ji: "\u6587\u66F2" },
+      "\u5E9A": { lu: "\u592A\u967D", quan: "\u6B66\u66F2", ke: "\u592A\u9670", ji: "\u5929\u540C" },
+      "\u8F9B": { lu: "\u5DE8\u9580", quan: "\u592A\u967D", ke: "\u6587\u66F2", ji: "\u6587\u660C" },
+      "\u58EC": { lu: "\u5929\u6881", quan: "\u7D2B\u5FAE", ke: "\u5DE6\u8F14", ji: "\u6B66\u66F2" },
+      "\u7678": { lu: "\u7834\u8ECD", quan: "\u5DE8\u9580", ke: "\u592A\u9670", ji: "\u8CAA\u72FC" }
+    };
+    TYPE_MAP = {
+      lu: "\u797F",
+      quan: "\u6B0A",
+      ke: "\u79D1",
+      ji: "\u5FCC"
+    };
+    HEAVENLY_STEMS4 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+  }
+});
+
+// src/calculation/ziwei/sihua/graphAnalysis.ts
+function calculateCycleSeverity(palaces, sihuaType) {
+  const cycleLength = palaces.length;
+  if (sihuaType === "\u5FCC") {
+    if (cycleLength >= 4) return "high";
+    if (cycleLength === 3) return "medium";
+    return "low";
+  }
+  if (cycleLength >= 5) return "high";
+  if (cycleLength >= 3) return "medium";
+  return "low";
+}
+function generateCycleDescription(palaces, sihuaType) {
+  const palaceNames = palaces.map((p2) => PALACE_NAMES[p2] || `\u5BAE${p2}`);
+  const typeDesc = {
+    "\u797F": "\u8CC7\u6E90\u5FAA\u74B0",
+    "\u6B0A": "\u6B0A\u529B\u5FAA\u74B0",
+    "\u79D1": "\u540D\u8072\u5FAA\u74B0",
+    "\u5FCC": "\u696D\u529B\u5FAA\u74B0"
+  }[sihuaType] || "\u5FAA\u74B0";
+  return `${typeDesc}: ${palaceNames.join(" \u2192 ")} \u2192 ${palaceNames[0]}`;
+}
+function detectCycles(graph, sihuaType) {
+  const cycles = [];
+  const visited = /* @__PURE__ */ new Set();
+  const recStack = /* @__PURE__ */ new Set();
+  const path = [];
+  function dfs(node) {
+    visited.add(node);
+    recStack.add(node);
+    path.push(node);
+    const edges = graph.adjacencyList.get(node) || [];
+    const filteredEdges = edges.filter((e) => e.sihuaType === sihuaType);
+    for (const edge of filteredEdges) {
+      const target = edge.target;
+      if (!visited.has(target)) {
+        dfs(target);
+      } else if (recStack.has(target)) {
+        const cycleStart = path.indexOf(target);
+        if (cycleStart !== -1) {
+          const cyclePalaces = path.slice(cycleStart);
+          const cycleKey = cyclePalaces.sort().join(",");
+          const isDuplicate = cycles.some(
+            (c2) => c2.palaces.sort().join(",") === cycleKey
+          );
+          if (!isDuplicate) {
+            cycles.push({
+              palaces: [...cyclePalaces],
+              type: sihuaType,
+              severity: calculateCycleSeverity(cyclePalaces, sihuaType),
+              description: generateCycleDescription(cyclePalaces, sihuaType)
+            });
+          }
+        }
+      }
+    }
+    path.pop();
+    recStack.delete(node);
+  }
+  for (let i = 0; i < 12; i++) {
+    if (!visited.has(i)) {
+      dfs(i);
+    }
+  }
+  return cycles;
+}
+function calculateInDegree(graph, sihuaType) {
+  const inDegree = /* @__PURE__ */ new Map();
+  for (let i = 0; i < 12; i++) {
+    inDegree.set(i, 0);
+  }
+  graph.edges.forEach((edge) => {
+    if (edge.sihuaType === sihuaType) {
+      const current = inDegree.get(edge.target) || 0;
+      inDegree.set(edge.target, current + 1);
+    }
+  });
+  return inDegree;
+}
+function calculateOutDegree(graph, sihuaType) {
+  const outDegree = /* @__PURE__ */ new Map();
+  for (let i = 0; i < 12; i++) {
+    outDegree.set(i, 0);
+  }
+  graph.edges.forEach((edge) => {
+    if (edge.sihuaType === sihuaType && edge.source >= 0) {
+      const current = outDegree.get(edge.source) || 0;
+      outDegree.set(edge.source, current + 1);
+    }
+  });
+  return outDegree;
+}
+function identifyStressNodes(graph) {
+  const inDegree = calculateInDegree(graph, "\u5FCC");
+  const nodes = [];
+  inDegree.forEach((degree, palace) => {
+    if (degree > 0) {
+      nodes.push({
+        palace,
+        palaceName: PALACE_NAMES[palace] || `\u5BAE${palace}`,
+        inDegree: degree,
+        outDegree: 0,
+        // Not relevant for stress nodes
+        sihuaType: "\u5FCC",
+        severity: degree >= 3 ? "high" : degree >= 2 ? "medium" : "low"
+      });
+    }
+  });
+  return nodes.sort((a2, b) => b.inDegree - a2.inDegree);
+}
+function identifyResourceNodes(graph) {
+  const outDegree = calculateOutDegree(graph, "\u797F");
+  const nodes = [];
+  outDegree.forEach((degree, palace) => {
+    if (degree > 0) {
+      nodes.push({
+        palace,
+        palaceName: PALACE_NAMES[palace] || `\u5BAE${palace}`,
+        inDegree: 0,
+        // Not relevant for resource nodes
+        outDegree: degree,
+        sihuaType: "\u797F",
+        severity: degree >= 3 ? "high" : degree >= 2 ? "medium" : "low"
+      });
+    }
+  });
+  return nodes.sort((a2, b) => b.outDegree - a2.outDegree);
+}
+function identifyPowerNodes(graph) {
+  const outDegree = calculateOutDegree(graph, "\u6B0A");
+  const nodes = [];
+  outDegree.forEach((degree, palace) => {
+    if (degree > 0) {
+      nodes.push({
+        palace,
+        palaceName: PALACE_NAMES[palace] || `\u5BAE${palace}`,
+        inDegree: 0,
+        outDegree: degree,
+        sihuaType: "\u6B0A",
+        severity: degree >= 3 ? "high" : degree >= 2 ? "medium" : "low"
+      });
+    }
+  });
+  return nodes.sort((a2, b) => b.outDegree - a2.outDegree);
+}
+function identifyFameNodes(graph) {
+  const outDegree = calculateOutDegree(graph, "\u79D1");
+  const nodes = [];
+  outDegree.forEach((degree, palace) => {
+    if (degree > 0) {
+      nodes.push({
+        palace,
+        palaceName: PALACE_NAMES[palace] || `\u5BAE${palace}`,
+        inDegree: 0,
+        outDegree: degree,
+        sihuaType: "\u79D1",
+        severity: degree >= 3 ? "high" : degree >= 2 ? "medium" : "low"
+      });
+    }
+  });
+  return nodes.sort((a2, b) => b.outDegree - a2.outDegree);
+}
+var PALACE_NAMES;
+var init_graphAnalysis = __esm({
+  "src/calculation/ziwei/sihua/graphAnalysis.ts"() {
+    "use strict";
+    PALACE_NAMES = [
+      "\u547D\u5BAE",
+      "\u5144\u5F1F\u5BAE",
+      "\u592B\u59BB\u5BAE",
+      "\u5B50\u5973\u5BAE",
+      "\u8CA1\u5E1B\u5BAE",
+      "\u75BE\u5384\u5BAE",
+      "\u9077\u79FB\u5BAE",
+      "\u5974\u50D5\u5BAE",
+      "\u5B98\u797F\u5BAE",
+      "\u7530\u5B85\u5BAE",
+      "\u798F\u5FB7\u5BAE",
+      "\u7236\u6BCD\u5BAE"
+    ];
+  }
+});
+
+// src/calculation/ziwei/sihua/aggregator.ts
+function countEdgesByType(edges) {
+  const counts = {
+    "\u797F": 0,
+    "\u6B0A": 0,
+    "\u79D1": 0,
+    "\u5FCC": 0
+  };
+  edges.forEach((edge) => {
+    if (edge.sihuaType && counts[edge.sihuaType] !== void 0) {
+      counts[edge.sihuaType]++;
+    }
+  });
+  return counts;
+}
+function countEdgesByLayer(edges) {
+  const counts = {
+    natal: 0,
+    decade: 0,
+    annual: 0
+  };
+  edges.forEach((edge) => {
+    if (edge.layer && counts[edge.layer] !== void 0) {
+      counts[edge.layer]++;
+    }
+  });
+  return counts;
+}
+function aggregateSiHua(palaces, lifePalaceStem, decadeStem, annualStem) {
+  const natalEdges = generateNatalEdges(palaces, lifePalaceStem);
+  const decadeEdges = decadeStem ? generateDecadeEdges(palaces, decadeStem) : [];
+  const annualEdges = annualStem ? generateAnnualEdges(palaces, annualStem) : [];
+  const allEdges = [...natalEdges, ...decadeEdges, ...annualEdges];
+  const graph = buildPalaceGraph(allEdges);
+  const jiCycles = detectCycles(graph, "\u5FCC");
+  const luCycles = detectCycles(graph, "\u797F");
+  const quanCycles = detectCycles(graph, "\u6B0A");
+  const keCycles = detectCycles(graph, "\u79D1");
+  const stressNodes = identifyStressNodes(graph);
+  const resourceNodes = identifyResourceNodes(graph);
+  const powerNodes = identifyPowerNodes(graph);
+  const fameNodes = identifyFameNodes(graph);
+  const totalEdges = allEdges.length;
+  const edgesByType = countEdgesByType(allEdges);
+  const edgesByLayer = countEdgesByLayer(allEdges);
+  const hasJiCycle = jiCycles.length > 0;
+  const hasLuCycle = luCycles.length > 0;
+  const maxStressPalace = stressNodes[0]?.palace ?? -1;
+  const maxResourcePalace = resourceNodes[0]?.palace ?? -1;
+  return {
+    // Cycle Detection
+    jiCycles,
+    luCycles,
+    quanCycles,
+    keCycles,
+    // Centrality Analysis
+    stressNodes,
+    resourceNodes,
+    powerNodes,
+    fameNodes,
+    // Graph Statistics
+    totalEdges,
+    edgesByType,
+    edgesByLayer,
+    // Structural Features
+    hasJiCycle,
+    hasLuCycle,
+    maxStressPalace,
+    maxResourcePalace
+  };
+}
+var init_aggregator = __esm({
+  "src/calculation/ziwei/sihua/aggregator.ts"() {
+    "use strict";
+    init_edgeGenerator();
+    init_graphAnalysis();
+  }
+});
+
+// src/calculation/ziwei/decade.ts
+function isYangStem(stem) {
+  const yangStems = ["\u7532", "\u4E19", "\u620A", "\u5E9A", "\u58EC"];
+  return yangStems.includes(stem);
+}
+function getStartingAge(bureau) {
+  return bureau;
+}
+function determineDecadeDirection(yearStem, gender) {
+  const isYang = isYangStem(yearStem);
+  if (isYang && gender === "male" || !isYang && gender === "female") {
+    return "forward";
+  } else {
+    return "backward";
+  }
+}
+function calculateCurrentDecade(birthDate, bureau, yearStem, gender, palaces) {
+  const now = /* @__PURE__ */ new Date();
+  const currentAge = now.getFullYear() - birthDate.getFullYear() + 1;
+  const startingAge = getStartingAge(bureau);
+  if (currentAge < startingAge) {
+    return void 0;
+  }
+  const direction = determineDecadeDirection(yearStem, gender);
+  const ageIntoDecades = currentAge - startingAge;
+  const decadeIndex = Math.floor(ageIntoDecades / 10);
+  const lifePalacePosition = 0;
+  let decadePalacePosition;
+  if (direction === "forward") {
+    decadePalacePosition = (lifePalacePosition + decadeIndex) % 12;
+  } else {
+    decadePalacePosition = (lifePalacePosition - decadeIndex + 120) % 12;
+  }
+  const decadePalace = palaces.find((p2) => p2.position === decadePalacePosition);
+  if (!decadePalace) {
+    return void 0;
+  }
+  const yearStemIndex = HEAVENLY_STEMS5.indexOf(yearStem);
+  if (yearStemIndex === -1) {
+    return void 0;
+  }
+  const decadePalaceStemIndex = (2 * yearStemIndex + 2 + decadePalacePosition) % 10;
+  const decadePalaceStem = HEAVENLY_STEMS5[decadePalaceStemIndex];
+  return decadePalaceStem;
+}
+var HEAVENLY_STEMS5;
+var init_decade = __esm({
+  "src/calculation/ziwei/decade.ts"() {
+    "use strict";
+    HEAVENLY_STEMS5 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+  }
+});
+
 // src/calculation/integration/calculator.ts
 function getHiddenStems2(branch) {
   return HIDDEN_STEMS_MAP2[branch] || { primary: branch };
-}
-function calculateTenGod(dayStem, targetStem) {
-  const HEAVENLY_STEMS4 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
-  const dayIndex = HEAVENLY_STEMS4.indexOf(dayStem);
-  const targetIndex = HEAVENLY_STEMS4.indexOf(targetStem);
-  if (dayIndex === -1 || targetIndex === -1) {
-    return "\u6BD4\u80A9";
-  }
-  const dayYinYang = dayIndex % 2;
-  const targetYinYang = targetIndex % 2;
-  const diff = (targetIndex - dayIndex + 10) % 10;
-  if (diff === 0) return "\u6BD4\u80A9";
-  if (diff === 1) return dayYinYang === targetYinYang ? "\u52AB\u8D22" : "\u6BD4\u80A9";
-  if (diff === 2) return dayYinYang === targetYinYang ? "\u98DF\u795E" : "\u4F24\u5B98";
-  if (diff === 3) return dayYinYang === targetYinYang ? "\u4F24\u5B98" : "\u98DF\u795E";
-  if (diff === 4) return dayYinYang === targetYinYang ? "\u504F\u8D22" : "\u6B63\u8D22";
-  if (diff === 5) return dayYinYang === targetYinYang ? "\u6B63\u8D22" : "\u504F\u8D22";
-  if (diff === 6) return dayYinYang === targetYinYang ? "\u4E03\u6740" : "\u6B63\u5B98";
-  if (diff === 7) return dayYinYang === targetYinYang ? "\u6B63\u5B98" : "\u4E03\u6740";
-  if (diff === 8) return dayYinYang === targetYinYang ? "\u504F\u5370" : "\u6B63\u5370";
-  if (diff === 9) return dayYinYang === targetYinYang ? "\u6B63\u5370" : "\u504F\u5370";
-  return "\u6BD4\u80A9";
 }
 function calculateStarSymmetry(ziWeiPos, tianFuPos, auxiliaryStars) {
   const symmetry = [];
@@ -12635,6 +13142,66 @@ function calculateStarSymmetry(ziWeiPos, tianFuPos, auxiliaryStars) {
   });
   return symmetry;
 }
+function placeStar(palaces, starName, palaceIndex) {
+  const palace = palaces.find((p2) => p2.position === palaceIndex);
+  if (palace) {
+    if (!palace.stars) {
+      palace.stars = [];
+    }
+    palace.stars.push({
+      name: starName,
+      brightness: "neutral"
+      // Default brightness, can be enhanced later
+    });
+  }
+}
+function populateZiWeiSystemStars(palaces, ziWeiPosition) {
+  const ZIWEI_STAR_SYSTEM = ["\u7D2B\u5FAE", "\u5929\u6A5F", "\u592A\u967D", "\u6B66\u66F2", "\u5929\u540C", "\u5EC9\u8C9E"];
+  const ziweiSystemOffsets = [0, -1, -3, -4, -5, -8];
+  for (let i = 0; i < ZIWEI_STAR_SYSTEM.length; i++) {
+    const starName = ZIWEI_STAR_SYSTEM[i];
+    const palaceIndex = (ziWeiPosition + ziweiSystemOffsets[i] + 12) % 12;
+    placeStar(palaces, starName, palaceIndex);
+  }
+}
+function populateTianFuSystemStars(palaces, tianFuPosition) {
+  const TIANFU_STAR_SYSTEM = ["\u5929\u5E9C", "\u592A\u9670", "\u8CAA\u72FC", "\u5DE8\u9580", "\u5929\u76F8", "\u5929\u6881", "\u4E03\u6BBA", "\u7834\u8ECD"];
+  const tianfuSystemOffsets = [0, 1, 2, 3, 4, 5, 6, 10];
+  for (let i = 0; i < TIANFU_STAR_SYSTEM.length; i++) {
+    const starName = TIANFU_STAR_SYSTEM[i];
+    const palaceIndex = (tianFuPosition + tianfuSystemOffsets[i]) % 12;
+    placeStar(palaces, starName, palaceIndex);
+  }
+}
+function populateAuxiliaryStars(palaces, hourBranch, lunarMonth) {
+  const CHEN_PALACE_STD_INDEX = 4;
+  const XU_PALACE_STD_INDEX = 10;
+  const zuoFuPalaceIndex = (CHEN_PALACE_STD_INDEX + (lunarMonth - 1) + 12) % 12;
+  placeStar(palaces, "\u5DE6\u8F14", zuoFuPalaceIndex);
+  const youBiPalaceIndex = (XU_PALACE_STD_INDEX - (lunarMonth - 1) + 12) % 12;
+  placeStar(palaces, "\u53F3\u5F3C", youBiPalaceIndex);
+  const wenChangPalaceIndex = (XU_PALACE_STD_INDEX - hourBranch + 12) % 12;
+  placeStar(palaces, "\u6587\u660C", wenChangPalaceIndex);
+  const wenQuPalaceIndex = (CHEN_PALACE_STD_INDEX + hourBranch + 12) % 12;
+  placeStar(palaces, "\u6587\u66F2", wenQuPalaceIndex);
+}
+function createPalaceArrayFromLifePalace(lifePalacePosition, lifePalaceBranch) {
+  const EARTHLY_BRANCHES5 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
+  const lifePalaceBranchIndex = EARTHLY_BRANCHES5.indexOf(lifePalaceBranch);
+  if (lifePalaceBranchIndex === -1) {
+    return [];
+  }
+  const palaces = [];
+  for (let i = 0; i < 12; i++) {
+    const branchIndex = (lifePalaceBranchIndex + (i - lifePalacePosition) + 12) % 12;
+    palaces.push({
+      position: i,
+      branch: EARTHLY_BRANCHES5[branchIndex],
+      stars: []
+    });
+  }
+  return palaces;
+}
 var HIDDEN_STEMS_MAP2, UnifiedCalculator;
 var init_calculator = __esm({
   "src/calculation/integration/calculator.ts"() {
@@ -12644,6 +13211,7 @@ var init_calculator = __esm({
     init_time();
     init_ganZhi();
     init_fourPillars();
+    init_tenGods();
     init_palaces();
     init_bureau();
     init_ziwei();
@@ -12656,6 +13224,8 @@ var init_calculator = __esm({
     init_palace();
     init_interaction();
     init_taiSuiAnalysis();
+    init_aggregator();
+    init_decade();
     HIDDEN_STEMS_MAP2 = {
       "\u5B50": { primary: "\u7678" },
       "\u4E11": { primary: "\u5DF1", middle: "\u7678", residual: "\u8F9B" },
@@ -12684,9 +13254,9 @@ var init_calculator = __esm({
           throw new Error(`Validation failed: ${validation.errors.join(", ")}`);
         }
         const bazi = this.calculateBaZi(input);
-        const ziwei = this.calculateZiWei(input, bazi);
         const queryDate = /* @__PURE__ */ new Date();
         const annualPillar = getAnnualPillar(queryDate);
+        const ziwei = this.calculateZiWei(input, bazi, annualPillar.stem);
         const annualLifePalaceIndex = locateAnnualLifePalace(
           annualPillar.branch,
           ziwei.palaces || []
@@ -12774,22 +13344,22 @@ var init_calculator = __esm({
           output: hour,
           description: "Calculate hour pillar using true solar time"
         });
-        const HEAVENLY_STEMS4 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+        const HEAVENLY_STEMS6 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
         const EARTHLY_BRANCHES5 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
         const yearBranch = EARTHLY_BRANCHES5[ganZhiToIndex(year) % 12];
         const monthBranch = EARTHLY_BRANCHES5[ganZhiToIndex(month) % 12];
         const dayBranch = EARTHLY_BRANCHES5[ganZhiToIndex(day) % 12];
         const hourBranch = EARTHLY_BRANCHES5[ganZhiToIndex(hour) % 12];
-        const dayStem = HEAVENLY_STEMS4[dayStemIndex];
+        const dayStem = HEAVENLY_STEMS6[dayStemIndex];
         const hiddenStems = {
           year: getHiddenStems2(yearBranch),
           month: getHiddenStems2(monthBranch),
           day: getHiddenStems2(dayBranch),
           hour: getHiddenStems2(hourBranch)
         };
-        const yearStem = HEAVENLY_STEMS4[yearStemIndex];
-        const monthStem = HEAVENLY_STEMS4[ganZhiToIndex(month) % 10];
-        const hourStem = HEAVENLY_STEMS4[ganZhiToIndex(hour) % 10];
+        const yearStem = HEAVENLY_STEMS6[yearStemIndex];
+        const monthStem = HEAVENLY_STEMS6[ganZhiToIndex(month) % 10];
+        const hourStem = HEAVENLY_STEMS6[ganZhiToIndex(hour) % 10];
         const tenGods = {
           year: calculateTenGod(dayStem, yearStem),
           month: calculateTenGod(dayStem, monthStem),
@@ -12861,9 +13431,10 @@ var init_calculator = __esm({
        *
        * @param input - Birth information
        * @param bazi - BaZi calculation result (for hour branch)
+       * @param annualStem - Annual fortune's heavenly stem (optional)
        * @returns ZiWei calculation result
        */
-      calculateZiWei(input, bazi) {
+      calculateZiWei(input, bazi, annualStem) {
         const { solarDate, isLeapMonth } = input;
         const calculationSteps = [];
         const solar = Solar.fromDate(solarDate);
@@ -12898,8 +13469,8 @@ var init_calculator = __esm({
         const lifePalaceIndex = lifePalace.position;
         const yearStemIndex = ganZhiToIndex(bazi.fourPillars.year) % 10;
         const lifePalaceStemIndex = (2 * yearStemIndex + 2 + lifePalaceIndex) % 10;
-        const HEAVENLY_STEMS4 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
-        const lifePalaceStem = HEAVENLY_STEMS4[lifePalaceStemIndex];
+        const HEAVENLY_STEMS6 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+        const lifePalaceStem = HEAVENLY_STEMS6[lifePalaceStemIndex];
         const bureau = calculateBureau(lifePalaceStem, lifePalace.branch);
         calculationSteps.push({
           step: "bureau",
@@ -12937,10 +13508,47 @@ var init_calculator = __esm({
         });
         const auxiliaryStars = { wenChang, wenQu, zuoFu, youBi };
         const starSymmetry = calculateStarSymmetry(ziWeiPosition, tianFuPosition, auxiliaryStars);
+        const palaces = createPalaceArrayFromLifePalace(lifePalace.position, lifePalace.branch);
+        calculationSteps.push({
+          step: "palacesArray",
+          input: { lifePalacePosition: lifePalace.position, lifePalaceBranch: lifePalace.branch },
+          output: palaces,
+          description: "Generate 12 palaces array with earthly branches"
+        });
+        populateZiWeiSystemStars(palaces, ziWeiPosition);
+        populateTianFuSystemStars(palaces, tianFuPosition);
+        populateAuxiliaryStars(palaces, hourBranch, lunarMonth);
+        calculationSteps.push({
+          step: "starPlacement",
+          input: { ziWeiPosition, tianFuPosition, hourBranch, lunarMonth },
+          output: { totalStars: palaces.reduce((sum, p2) => sum + (p2.stars?.length || 0), 0) },
+          description: "Populate palaces with main stars (ZiWei + TianFu systems) and auxiliary stars"
+        });
+        const yearStem = HEAVENLY_STEMS6[yearStemIndex];
+        const decadeStem = calculateCurrentDecade(
+          solarDate,
+          bureau,
+          yearStem,
+          input.gender,
+          palaces
+        );
+        calculationSteps.push({
+          step: "decadeCalculation",
+          input: { birthDate: solarDate.toISOString(), bureau, yearStem, gender: input.gender },
+          output: decadeStem,
+          description: "Calculate current decade (\u5927\u9650) palace stem"
+        });
+        const sihuaAggregation = aggregateSiHua(palaces, lifePalaceStem, decadeStem, annualStem);
+        calculationSteps.push({
+          step: "sihuaAggregation",
+          input: { palaces, lifePalaceStem, decadeStem, annualStem },
+          output: sihuaAggregation,
+          description: "Aggregate SiHua flying stars analysis (cycles, centrality, graph statistics)"
+        });
         const metadata = {
-          algorithms: ["ZiWeiPositioning", "BureauCalculation", "PalacePositioning"],
+          algorithms: ["ZiWeiPositioning", "BureauCalculation", "PalacePositioning", "SiHuaGraphAnalysis"],
           references: ["\u7D2B\u5FAE\u6597\u6570\u5168\u4E66", "\u7D2B\u5FAE\u6597\u6570\u8BB2\u4E49", "\u9AA8\u9AD3\u8D4B"],
-          methods: ["LunarCalendar", "StarSymmetry", "AuxiliaryStarPlacement"]
+          methods: ["LunarCalendar", "StarSymmetry", "AuxiliaryStarPlacement", "FlyingStarCycleDetection", "CentralityAnalysis"]
         };
         return {
           lifePalace,
@@ -12950,6 +13558,8 @@ var init_calculator = __esm({
           tianFuPosition,
           auxiliaryStars,
           starSymmetry,
+          palaces,
+          sihuaAggregation,
           calculationSteps,
           metadata
         };
@@ -32125,9 +32735,6 @@ var ChartController = class {
   }
 };
 
-// src/index.ts
-import { getAssetFromKV } from "@cloudflare/kv-asset-handler";
-
 // src/controllers/unifiedController.ts
 init_calculator();
 var UnifiedController = class {
@@ -32344,24 +32951,10 @@ var index_default = {
         });
       }
     }
-    try {
-      return await getAssetFromKV(
-        { request, waitUntil: (promise2) => ctx.waitUntil(promise2) },
-        { ASSET_NAMESPACE: env.__STATIC_CONTENT, ASSET_MANIFEST: JSON.parse(env.__STATIC_CONTENT_MANIFEST) }
-      );
-    } catch (e) {
-      if (e.status === 404 || e.message.includes("could not find")) {
-        try {
-          return await getAssetFromKV(
-            { request: new Request(new URL("/", request.url).toString()), waitUntil: (promise2) => ctx.waitUntil(promise2) },
-            { ASSET_NAMESPACE: env.__STATIC_CONTENT, ASSET_MANIFEST: JSON.parse(env.__STATIC_CONTENT_MANIFEST) }
-          );
-        } catch {
-          return new Response("Not Found", { status: 404 });
-        }
-      }
-      return new Response("Internal Server Error", { status: 500 });
-    }
+    return new Response("Not Found", {
+      status: 404,
+      headers: { "Content-Type": "text/plain" }
+    });
   }
 };
 export {

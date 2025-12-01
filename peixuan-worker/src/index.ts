@@ -3,7 +3,6 @@
  * Include annual fortune calculation modules
  */
 import { ChartController } from './controllers/chartController';
-import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
 import { drizzle } from 'drizzle-orm/d1';
 import { users } from './db/schema';
 import { eq } from 'drizzle-orm';
@@ -13,8 +12,6 @@ import { AutoRouter } from 'itty-router';
 export interface Env {
 	DB: D1Database;
 	CACHE?: KVNamespace;
-	__STATIC_CONTENT: KVNamespace;
-	__STATIC_CONTENT_MANIFEST: string;
 }
 
 // 確保 anonymous 用戶存在
@@ -172,26 +169,11 @@ export default {
 			}
 		}
 
-		// 靜態資源
-		try {
-			return await getAssetFromKV(
-				{ request, waitUntil: (promise) => ctx.waitUntil(promise) },
-				{ ASSET_NAMESPACE: env.__STATIC_CONTENT, ASSET_MANIFEST: JSON.parse(env.__STATIC_CONTENT_MANIFEST) }
-			);
-		} catch (e: any) {
-			// 靜態資源不存在時返回 index.html (SPA fallback)
-			if (e.status === 404 || e.message.includes('could not find')) {
-				try {
-					return await getAssetFromKV(
-						{ request: new Request(new URL('/', request.url).toString()), waitUntil: (promise) => ctx.waitUntil(promise) },
-						{ ASSET_NAMESPACE: env.__STATIC_CONTENT, ASSET_MANIFEST: JSON.parse(env.__STATIC_CONTENT_MANIFEST) }
-					);
-				} catch {
-					return new Response('Not Found', { status: 404 });
-				}
-			}
-			// 真正的錯誤
-			return new Response('Internal Server Error', { status: 500 });
-		}
+		// 靜態資源由 Wrangler assets 自動處理
+		// 如果到達這裡，表示不是 API 路由，返回 404 或讓 assets 處理
+		return new Response('Not Found', { 
+			status: 404,
+			headers: { 'Content-Type': 'text/plain' }
+		});
 	},
 } satisfies ExportedHandler<Env>;

@@ -16,6 +16,7 @@ import {
   HarmoniousCombination,
 } from '../annual/interaction';
 import { Palace } from '../annual/palace';
+import { SiHuaAggregation } from '../ziwei/sihua/types';
 
 /**
  * Birth information input
@@ -191,6 +192,9 @@ export interface ZiWeiResult {
 
   /** 12 palaces array (命宮-父母宮) */
   palaces: Palace[];
+
+  /** SiHua flying stars aggregation (optional) */
+  sihuaAggregation?: SiHuaAggregation;
 
   /** Calculation steps */
   calculationSteps: CalculationStep[];

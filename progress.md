@@ -31,6 +31,40 @@
 
 ---
 
+## ✅ 前端顯示問題修復完成 (2025-12-01 11:06)
+
+### 修復內容
+**問題 1: 八字命盤與四柱重疊**
+- 移除 UnifiedResultView.vue Line 12-23 重複的四柱區塊
+- BaziChart 已包含完整四柱顯示
+
+**問題 2: 五行分布沒有正常顯示**
+- 修復 unifiedApiService.ts Line 231-248 資料適配
+- 合併後端 `tiangan` + `hiddenStems` 為前端扁平結構
+- 修復前: `raw: { tiangan: {...}, hiddenStems: {...} }`
+- 修復後: `raw: { 木, 火, 土, 金, 水 }`
+
+**問題 3: 大運各歲沒有顯示**
+- 修復 unifiedApiService.ts Line 253-268 欄位映射
+- 添加 `startAge = age` 和 `endAge = age + 10`
+- 修復 dayunList 與 currentDayun
+
+### 改善成果
+- ✅ 八字區塊無重複顯示
+- ✅ 五行分布正確顯示各元素得分
+- ✅ 大運時間軸顯示年齡範圍 (例: 3-13歲)
+- ✅ 構建成功驗證
+
+### 技術細節
+- 變更檔案: 2 個 (UnifiedResultView.vue, unifiedApiService.ts)
+- 變更行數: ~30 行
+- 風險等級: 低 (僅資料轉換層)
+- 向後相容: ✅ 無破壞性變更
+
+**診斷報告**: `FRONTEND_DISPLAY_ISSUES_DIAGNOSIS.md`
+
+---
+
 ## ✅ 第三方授權盤點完成 (2025-12-01 10:57)
 
 ### 完成內容

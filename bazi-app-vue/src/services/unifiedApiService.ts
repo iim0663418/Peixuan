@@ -227,20 +227,41 @@ class UnifiedApiService {
               zhi: backendResult.bazi.fourPillars.hour.branch,
             },
           },
-          // Pass through wuxingDistribution directly (format already aligned)
-          wuxingDistribution: backendResult.bazi.wuxingDistribution,
+          // Adapt wuxingDistribution: merge tiangan + hiddenStems into flat structure
+          wuxingDistribution: backendResult.bazi.wuxingDistribution ? {
+            raw: {
+              木: (backendResult.bazi.wuxingDistribution.raw.tiangan['木'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['木'] || 0),
+              火: (backendResult.bazi.wuxingDistribution.raw.tiangan['火'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['火'] || 0),
+              土: (backendResult.bazi.wuxingDistribution.raw.tiangan['土'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['土'] || 0),
+              金: (backendResult.bazi.wuxingDistribution.raw.tiangan['金'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['金'] || 0),
+              水: (backendResult.bazi.wuxingDistribution.raw.tiangan['水'] || 0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['水'] || 0),
+            },
+            adjusted: backendResult.bazi.wuxingDistribution.adjusted,
+            dominant: backendResult.bazi.wuxingDistribution.dominant,
+            deficient: backendResult.bazi.wuxingDistribution.deficient,
+            balance: backendResult.bazi.wuxingDistribution.balance,
+          } : undefined,
           // Parse Date strings in fortuneCycles
           fortuneCycles: backendResult.bazi.fortuneCycles ? {
             ...backendResult.bazi.fortuneCycles,
             qiyunDate: new Date(backendResult.bazi.fortuneCycles.qiyunDate),
             dayunList: backendResult.bazi.fortuneCycles.dayunList.map((dayun: any) => ({
               ...dayun,
+              startAge: dayun.age,
+              endAge: dayun.age + 10,
               startDate: new Date(dayun.startDate),
               endDate: new Date(dayun.endDate),
             })),
             currentDayun: backendResult.bazi.fortuneCycles.currentDayun
               ? {
                   ...backendResult.bazi.fortuneCycles.currentDayun,
+                  startAge: backendResult.bazi.fortuneCycles.currentDayun.age,
+                  endAge: backendResult.bazi.fortuneCycles.currentDayun.age + 10,
                   startDate: new Date(backendResult.bazi.fortuneCycles.currentDayun.startDate),
                   endDate: new Date(backendResult.bazi.fortuneCycles.currentDayun.endDate),
                 }

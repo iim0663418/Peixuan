@@ -10,18 +10,6 @@
         />
 
         <div class="section">
-          <h4>四柱</h4>
-          <el-row :gutter="16">
-            <el-col v-for="(pillar, key) in pillars" :key="key" :span="6">
-              <div class="pillar-card">
-                <div class="pillar-label">{{ pillar.label }}</div>
-                <div class="pillar-value">{{ pillar.gan }}{{ pillar.zhi }}</div>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
-
-        <div class="section">
           <h4>十神</h4>
           <el-descriptions :column="3" border size="small">
             <el-descriptions-item label="年干">{{

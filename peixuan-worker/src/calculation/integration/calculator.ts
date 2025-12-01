@@ -19,6 +19,7 @@ import {
 } from '../types';
 import { validateBirthInfo } from './validator';
 import { calculateTrueSolarTime, dateToJulianDay, getLichunTime } from '../core/time';
+import { getMonthBranchIndex } from '../core/time/monthBranch';
 import { ganZhiToIndex } from '../core/ganZhi';
 import {
   calculateYearPillar,
@@ -371,13 +372,6 @@ export class UnifiedCalculator {
       description: 'Convert solar date to Julian day number'
     });
 
-    // Get solar info for month pillar
-    const solar = Solar.fromDate(solarDate);
-    
-    // Calculate solar longitude using ShouXingUtil
-    const julianDayForSolar = solar.getJulianDay();
-    const solarLongitude = ShouXingUtil.gxcSunLon(julianDayForSolar);
-
     // Calculate four pillars
     const lichunTime = getLichunTime(solarDate.getFullYear());
     const year = calculateYearPillar(solarDate, lichunTime);
@@ -389,10 +383,12 @@ export class UnifiedCalculator {
       description: 'Calculate year pillar using Lichun boundary'
     });
 
-    const month = calculateMonthPillar(solarLongitude, yearStemIndex);
+    // Get month branch from solar terms
+    const monthBranchIndex = getMonthBranchIndex(solarDate);
+    const month = calculateMonthPillar(monthBranchIndex, yearStemIndex);
     calculationSteps.push({
       step: 'monthPillar',
-      input: { solarLongitude, yearStemIndex },
+      input: { monthBranchIndex, yearStemIndex },
       output: month,
       description: 'Calculate month pillar using solar longitude'
     });

@@ -56,27 +56,15 @@ export function calculateYearPillar(solarDate: Date, lichunTime: Date): GanZhi {
  * Formula: idx = (2 × yearStem + 2) mod 10
  * The month pillar changes at the monthly solar term (節氣), not at the start of lunar month.
  *
- * Solar longitude mapping:
- * - 315° ~ 345°: 寅月 (立春 ~ 驚蟄)
- * - 345° ~ 15°:  卯月 (驚蟄 ~ 清明)
- * - ... (12 months total)
- *
- * @param solarLongitude - Solar longitude in degrees [0, 360)
+ * @param monthBranchIndex - Month branch index (0-11, where 0=子, 1=丑, 2=寅, ...)
  * @param yearStemIndex - Index of year stem [0-9]
  * @returns Month pillar GanZhi
  *
  * @example
- * const monthPillar = calculateMonthPillar(330, 0); // 甲年, solar longitude 330° (寅月)
- * // Returns: 丙寅 (using 五虎遁年法: (2*0 + 2) mod 10 = 2 → 丙, branch = 寅)
+ * const monthPillar = calculateMonthPillar(2, 0); // 甲年寅月
+ * // Returns: 丙寅 (using 五虎遁年法: (2*0 + 2) mod 10 = 2 → 丙)
  */
-export function calculateMonthPillar(solarLongitude: number, yearStemIndex: number): GanZhi {
-  // Map solar longitude to month branch (0 = 寅, 1 = 卯, ...)
-  // 立春 starts at ~315°, each month spans 30°
-  // Normalize to start from 寅月 (index 2 in Earthly Branches)
-  const normalizedLongitude = ((solarLongitude + 45) % 360);
-  const monthBranchOffset = Math.floor(normalizedLongitude / 30);
-  const branchIndex = (monthBranchOffset + 2) % 12; // 寅 is index 2
-
+export function calculateMonthPillar(monthBranchIndex: number, yearStemIndex: number): GanZhi {
   // 五虎遁年法: Calculate month stem from year stem
   // Formula: idx = (2 × yearStem + 2) mod 10
   const stemIndex = stemModulo(2 * yearStemIndex + 2);
@@ -85,7 +73,7 @@ export function calculateMonthPillar(solarLongitude: number, yearStemIndex: numb
   // Use Chinese Remainder Theorem: find n where n ≡ stemIndex (mod 10) and n ≡ branchIndex (mod 12)
   let pillarIndex = 0;
   for (let n = 0; n < 60; n++) {
-    if (n % 10 === stemIndex && n % 12 === branchIndex) {
+    if (n % 10 === stemIndex && n % 12 === monthBranchIndex) {
       pillarIndex = n;
       break;
     }

@@ -11455,6 +11455,70 @@ var init_solarTerms = __esm({
   }
 });
 
+// src/calculation/core/time/monthBranch.ts
+function getMonthBranchIndex(date5) {
+  const solar = Solar.fromDate(date5);
+  const lunar = solar.getLunar();
+  const jieQiTable = lunar.getJieQiTable();
+  const jieQiList = Object.entries(jieQiTable).map(([name, solarTerm]) => ({
+    name,
+    date: new Date(
+      solarTerm.getYear(),
+      solarTerm.getMonth() - 1,
+      solarTerm.getDay(),
+      solarTerm.getHour(),
+      solarTerm.getMinute(),
+      solarTerm.getSecond()
+    ),
+    branchIndex: MONTH_BRANCH_MAPPING[name] ?? SIMPLIFIED_MAPPING[name]
+  })).filter((item) => item.branchIndex !== void 0).sort((a2, b) => a2.date.getTime() - b.date.getTime());
+  for (let i = 0; i < jieQiList.length; i++) {
+    const current = jieQiList[i];
+    const next = jieQiList[i + 1];
+    if (date5 >= current.date && (!next || date5 < next.date)) {
+      return current.branchIndex;
+    }
+  }
+  return 1;
+}
+var MONTH_BRANCH_MAPPING, SIMPLIFIED_MAPPING;
+var init_monthBranch = __esm({
+  "src/calculation/core/time/monthBranch.ts"() {
+    "use strict";
+    init_dist();
+    MONTH_BRANCH_MAPPING = {
+      "\u7ACB\u6625": 2,
+      // 寅
+      "\u9A5A\u87C4": 3,
+      // 卯 (simplified: 惊蛰)
+      "\u6E05\u660E": 4,
+      // 辰
+      "\u7ACB\u590F": 5,
+      // 巳
+      "\u8292\u7A2E": 6,
+      // 午 (simplified: 芒种)
+      "\u5C0F\u6691": 7,
+      // 未
+      "\u7ACB\u79CB": 8,
+      // 申
+      "\u767D\u9732": 9,
+      // 酉
+      "\u5BD2\u9732": 10,
+      // 戌
+      "\u7ACB\u51AC": 11,
+      // 亥
+      "\u5927\u96EA": 0,
+      // 子
+      "\u5C0F\u5BD2": 1
+      // 丑
+    };
+    SIMPLIFIED_MAPPING = {
+      "\u60CA\u86F0": 3,
+      "\u8292\u79CD": 6
+    };
+  }
+});
+
 // src/calculation/core/time/index.ts
 var init_time = __esm({
   "src/calculation/core/time/index.ts"() {
@@ -11462,6 +11526,7 @@ var init_time = __esm({
     init_trueSolarTime();
     init_julianDay();
     init_solarTerms();
+    init_monthBranch();
   }
 });
 
@@ -11549,14 +11614,11 @@ function calculateYearPillar(solarDate, lichunTime) {
   const index = ((year - 4) % 60 + 60) % 60;
   return indexToGanZhi(index);
 }
-function calculateMonthPillar(solarLongitude, yearStemIndex) {
-  const normalizedLongitude = (solarLongitude + 45) % 360;
-  const monthBranchOffset = Math.floor(normalizedLongitude / 30);
-  const branchIndex = (monthBranchOffset + 2) % 12;
+function calculateMonthPillar(monthBranchIndex, yearStemIndex) {
   const stemIndex = stemModulo(2 * yearStemIndex + 2);
   let pillarIndex = 0;
   for (let n2 = 0; n2 < 60; n2++) {
-    if (n2 % 10 === stemIndex && n2 % 12 === branchIndex) {
+    if (n2 % 10 === stemIndex && n2 % 12 === monthBranchIndex) {
       pillarIndex = n2;
       break;
     }
@@ -13209,6 +13271,7 @@ var init_calculator = __esm({
     init_dist();
     init_validator();
     init_time();
+    init_monthBranch();
     init_ganZhi();
     init_fourPillars();
     init_tenGods();
@@ -13310,9 +13373,6 @@ var init_calculator = __esm({
           output: julianDay,
           description: "Convert solar date to Julian day number"
         });
-        const solar = Solar.fromDate(solarDate);
-        const julianDayForSolar = solar.getJulianDay();
-        const solarLongitude = ShouXingUtil.gxcSunLon(julianDayForSolar);
         const lichunTime = getLichunTime(solarDate.getFullYear());
         const year = calculateYearPillar(solarDate, lichunTime);
         const yearStemIndex = ganZhiToIndex(year) % 10;
@@ -13322,10 +13382,11 @@ var init_calculator = __esm({
           output: year,
           description: "Calculate year pillar using Lichun boundary"
         });
-        const month = calculateMonthPillar(solarLongitude, yearStemIndex);
+        const monthBranchIndex = getMonthBranchIndex(solarDate);
+        const month = calculateMonthPillar(monthBranchIndex, yearStemIndex);
         calculationSteps.push({
           step: "monthPillar",
-          input: { solarLongitude, yearStemIndex },
+          input: { monthBranchIndex, yearStemIndex },
           output: month,
           description: "Calculate month pillar using solar longitude"
         });

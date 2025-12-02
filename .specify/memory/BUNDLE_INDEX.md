@@ -1,6 +1,6 @@
 # Memory Bundle Index
 
-- `.specify/memory/audit_trail.log`: Full SSCI audit；最新 session `lunar-typescript-integration-2025-12-01-23:30`（lunar-typescript 整合完成，採用 Hybrid Approach，年柱使用新庫、其餘保留 Legacy，測試 11/16 通過，進度 65/62h 105%）。
-- `.specify/memory/DECISIONS.md`: Decision log updated 2025-12-01 23:30（新增 lunar-typescript Hybrid Approach 決策；保留後端整合修復、統一 API 適配、null-safety、測試優先等先前決策）。
-- `.specify/memory/CHECKPOINTS.md`: Timeline updated through `lunar-typescript-integration-2025-12-01-23:30`（lunar-typescript 整合完成，四化飛星頂層彙總完成，進度 65/62h，ESLint 0 errors/22 warnings）。
-- `.specify/memory/constitution.md`: Project traits 更新於 2025-12-01 23:30（專案進度 105%，lunar-typescript 整合完成；四化飛星頂層彙總完成；ESLint 0 errors/22 warnings；統一 API 穩定）。
+- `.specify/memory/audit_trail.log`: Full SSCI audit；最新 session `phase-a-complete-verification-ready-2025-12-02`（Phase A 藏干/十神替換完成 -274行，開源專案驗算測試套件 10/10 通過，Phase B/C 評估完成決定保留現有實作，進度 70/62h 113%）。
+- `.specify/memory/DECISIONS.md`: Decision log updated 2025-12-02 00:10（新增開源專案整合策略確立決策：Phase B/C 評估完成決定保留現有實作 2042 行，建立 verification.test.ts 驗算套件；保留 Phase A 藏干/十神替換、lunar-typescript 整合等先前決策）。
+- `.specify/memory/CHECKPOINTS.md`: Timeline updated through `phase-a-complete-verification-ready-2025-12-02`（Phase A 藏干/十神替換完成，開源專案驗算測試套件建立，Phase B/C 評估完成，進度 70/62h 113%，ESLint 0 errors/22 warnings）。
+- `.specify/memory/constitution.md`: Project traits 更新於 2025-12-02 00:10（專案進度 113%，開源專案整合策略確立：Phase A 完成 -274行，Phase B/C 保留 2042行核心代碼，verification.test.ts 驗算 10/10 通過；ESLint 0 errors/22 warnings；統一 API 穩定）。

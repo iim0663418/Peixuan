@@ -70,18 +70,10 @@ onMounted(() => {
         <router-link
           to="/unified"
           class="mobile-nav-link"
-          :class="{ active: route.name === 'purple-star' }"
+          :class="{ active: route.path.startsWith('/unified') }"
           @click="showMobileMenu = false"
         >
-          {{ $t('astrology.purple_star') }}
-        </router-link>
-        <router-link
-          to="/unified"
-          class="mobile-nav-link"
-          :class="{ active: route.name === 'bazi' }"
-          @click="showMobileMenu = false"
-        >
-          {{ $t('astrology.bazi') }}
+          {{ $t('astrology.unified') }}
         </router-link>
       </div>
     </header>
@@ -101,9 +93,8 @@ onMounted(() => {
           <h4>服務項目</h4>
           <div class="footer-links">
             <router-link to="/unified">{{
-              $t('astrology.purple_star')
+              $t('astrology.unified')
             }}</router-link>
-            <router-link to="/unified">{{ $t('astrology.bazi') }}</router-link>
           </div>
         </div>
         <div class="footer-section">
@@ -117,19 +108,29 @@ onMounted(() => {
               target="_blank"
               rel="noopener noreferrer"
               >Vue.js</a
-            >,
+            >
+            (MIT),
             <a
               href="https://element-plus.org"
               target="_blank"
               rel="noopener noreferrer"
               >Element Plus</a
-            >,
+            >
+            (MIT),
             <a
               href="https://workers.cloudflare.com"
               target="_blank"
               rel="noopener noreferrer"
               >Cloudflare Workers</a
             >
+            (Apache-2.0),
+            <a
+              href="https://github.com/6tail/lunar-typescript"
+              target="_blank"
+              rel="noopener noreferrer"
+              >lunar-typescript</a
+            >
+            (MIT)
           </p>
         </div>
       </div>

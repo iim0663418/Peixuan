@@ -235,7 +235,7 @@ npm run test
 - ✅ 實現紫微斗數命盤自動排盤
 - ✅ 開發星曜屬性和宮位吉凶高亮功能
 - ✅ 開發流年和大運計算功能
-- ✅ 實現四化飛星功能
+- ✅ 實現四化飛星功能（含圖論分析、循環檢測、中心性分析）
 - ✅ 開發全程異動記錄和還原功能
 - ✅ 優化命盤演算法效能
 - ✅ 實現國際化（i18n）支持
@@ -247,11 +247,18 @@ npm run test
 - ✅ 增強紫微斗數命盤解說功能
 - ✅ 實現多層次命盤解讀功能
 - ✅ 優化會話存儲實現
+- ✅ Cloudflare Workers + D1 部署完成
+- ✅ 統一 API 架構（UnifiedCalculator）
+- ✅ 前端遷移至統一 API
+- ✅ 設計系統套用（Design Tokens）
+- ✅ lunar-typescript 整合（Hybrid Approach）
+- ✅ 藏干/十神計算優化（減少 274 行維護代碼）
+- ✅ 開源專案驗算測試套件
 
 ### 進行中功能
-- 🔄 修復紫微斗數表單資料傳遞問題
 - 🔄 實現用戶認證系統
 - 🔄 開發匿名轉會員合併機制
+- 🔄 測試覆蓋補齊
 
 ### 待開發功能
 - ⏳ 設計和實現完整 RESTful API
@@ -332,6 +339,28 @@ npm run test
 ## 📄 授權
 
 本專案採用 MIT 授權 - 詳見 [LICENSE](LICENSE) 文件
+
+### 第三方授權
+
+本專案使用以下開源軟體，特此致謝：
+
+**前端框架**
+- [Vue.js](https://vuejs.org) (MIT) - 漸進式 JavaScript 框架
+- [Element Plus](https://element-plus.org) (MIT) - Vue 3 UI 組件庫
+- [Pinia](https://pinia.vuejs.org) (MIT) - Vue 狀態管理
+- [Vue Router](https://router.vuejs.org) (MIT) - Vue 官方路由
+
+**後端框架**
+- [Cloudflare Workers](https://workers.cloudflare.com) (Apache-2.0) - Serverless 運算平台
+- [Drizzle ORM](https://orm.drizzle.team) (Apache-2.0) - TypeScript ORM
+- [itty-router](https://github.com/kwhitley/itty-router) (MIT) - 輕量級路由
+
+**工具庫**
+- [Chart.js](https://www.chartjs.org) (MIT) - 圖表視覺化
+- [axios](https://axios-http.com) (MIT) - HTTP 客戶端
+- [lunar-typescript](https://github.com/6tail/lunar-typescript) (MIT) - 農曆計算
+
+完整授權清單請參考 [LICENSES.md](LICENSES.md)
 
 ### 第三方授權
 

@@ -284,16 +284,12 @@ class UnifiedApiService {
             qiyunDate: new Date(backendResult.bazi.fortuneCycles.qiyunDate),
             dayunList: backendResult.bazi.fortuneCycles.dayunList.map((dayun: any) => ({
               ...dayun,
-              startAge: dayun.age,
-              endAge: dayun.age + 10,
               startDate: new Date(dayun.startDate),
               endDate: new Date(dayun.endDate),
             })),
             currentDayun: backendResult.bazi.fortuneCycles.currentDayun
               ? {
                   ...backendResult.bazi.fortuneCycles.currentDayun,
-                  startAge: backendResult.bazi.fortuneCycles.currentDayun.age,
-                  endAge: backendResult.bazi.fortuneCycles.currentDayun.age + 10,
                   startDate: new Date(backendResult.bazi.fortuneCycles.currentDayun.startDate),
                   endDate: new Date(backendResult.bazi.fortuneCycles.currentDayun.endDate),
                 }

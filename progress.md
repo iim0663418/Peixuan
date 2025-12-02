@@ -46,3 +46,10 @@
 1. **測試覆蓋** (3-4h): 日柱測試更新、UnifiedView/UnifiedResultView 測試補齊
 2. **代碼品質** (2-3h): ESLint 22 warnings、npm 依賴警告 4 項
 3. **文件完善** (1-2h): API 文件更新、架構圖更新
+
+
+### 🐛 前端大運顯示修正 (2025-12-02 18:13)
+- **問題**: 前端顯示 "-NaN歲"，因為仍使用舊的 `dayun.age` 欄位
+- **原因**: 後端已改為 `startAge/endAge`，但前端適配層仍嘗試從 `age` 計算
+- **修正**: 移除前端計算邏輯，直接使用後端返回的 `startAge/endAge`
+- **檔案**: `bazi-app-vue/src/services/unifiedApiService.ts`

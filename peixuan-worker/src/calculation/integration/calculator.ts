@@ -465,6 +465,7 @@ export class UnifiedCalculator {
 
     const dayunList = generateDaYunList(
       { stem: monthStem, branch: monthBranch },
+      solarDate,
       qiyunDate,
       direction,
       10
@@ -472,8 +473,8 @@ export class UnifiedCalculator {
     const currentDayun = getCurrentDaYun(dayunList, new Date());
     calculationSteps.push({
       step: 'dayunGeneration',
-      input: { monthPillar: month, qiyunDate: qiyunDate.toISOString(), direction, count: 10 },
-      output: { dayunList: dayunList.map(d => ({ stem: d.stem, branch: d.branch, age: d.age })), currentDayun },
+      input: { monthPillar: month, birthDate: solarDate.toISOString(), qiyunDate: qiyunDate.toISOString(), direction, count: 10 },
+      output: { dayunList: dayunList.map(d => ({ stem: d.stem, branch: d.branch, startAge: d.startAge, endAge: d.endAge })), currentDayun },
       description: 'Generate 10-year fortune cycles and identify current cycle'
     });
 

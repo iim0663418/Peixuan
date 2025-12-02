@@ -16,8 +16,10 @@ export interface DaYun {
   startDate: Date;
   /** End date of this fortune cycle (exclusive) */
   endDate: Date;
-  /** Age when this cycle begins */
-  age: number;
+  /** Age when this cycle begins (real age from birth) */
+  startAge: number;
+  /** Age when this cycle ends (real age from birth) */
+  endAge: number;
 }
 
 /**
@@ -29,6 +31,7 @@ export type DaYunDirection = 'forward' | 'backward';
  * Generate DaYun (大運) fortune cycles list
  *
  * @param monthPillar - Month pillar GanZhi as baseline
+ * @param birthDate - Birth date for calculating real age
  * @param qiyunDate - Starting date of fortune cycle (起運日期)
  * @param direction - Forward (順行) or backward (逆行) progression
  * @param count - Number of cycles to generate (default: 10)
@@ -38,19 +41,36 @@ export type DaYunDirection = 'forward' | 'backward';
  * // Forward progression from month pillar 甲子
  * const cycles = generateDaYunList(
  *   { stem: '甲', branch: '子' },
- *   new Date('2000-01-01'),
+ *   new Date('1990-01-01'),
+ *   new Date('1993-01-01'),
  *   'forward',
  *   10
  * );
- * // Result: 乙丑(0-10), 丙寅(10-20), 丁卯(20-30), ...
+ * // Result: 乙丑(3-13歲), 丙寅(13-23歲), 丁卯(23-33歲), ...
  */
 export function generateDaYunList(
   monthPillar: GanZhi,
+  birthDate: Date,
   qiyunDate: Date,
   direction: DaYunDirection,
   count: number = 10
 ): DaYun[] {
   const cycles: DaYun[] = [];
+
+  // Calculate starting age (age at qiyunDate) using full years
+  const birthYear = birthDate.getFullYear();
+  const qiyunYear = qiyunDate.getFullYear();
+  let qiyunAge = qiyunYear - birthYear;
+  
+  // Adjust if qiyunDate hasn't reached birth month/day yet
+  const birthMonth = birthDate.getMonth();
+  const birthDay = birthDate.getDate();
+  const qiyunMonth = qiyunDate.getMonth();
+  const qiyunDay = qiyunDate.getDate();
+  
+  if (qiyunMonth < birthMonth || (qiyunMonth === birthMonth && qiyunDay < birthDay)) {
+    qiyunAge--;
+  }
 
   // Get base index from month pillar
   let currentIndex = ganZhiToIndex(monthPillar);
@@ -75,15 +95,17 @@ export function generateDaYunList(
     const endDate = new Date(startDate);
     endDate.setFullYear(endDate.getFullYear() + 10);
 
-    // Calculate age (cycles start at age 0, 10, 20, ...)
-    const age = i * 10;
+    // Calculate real age from birth
+    const startAge = qiyunAge + (i * 10);
+    const endAge = startAge + 10;
 
     cycles.push({
       stem: ganZhi.stem,
       branch: ganZhi.branch,
       startDate,
       endDate,
-      age
+      startAge,
+      endAge
     });
   }
 

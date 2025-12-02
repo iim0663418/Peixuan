@@ -19,6 +19,7 @@
 - 前端靜態資源服務
 - UnifiedCalculator: 八字+紫微統一計算，CalculationResult 包含 hiddenStems、tenGods、starSymmetry、steps、metadata
 - FortuneCycles: 起運/大運計算（determineFortuneDirection、calculateQiYunDate、generateDaYunList、自動當前大運偵測）整合於 BaZiResult.fortuneCycles
+- 大運計歲：使用真實歲數（startAge/endAge），從出生日期開始計算
 - 流年模組: `getAnnualPillar`/`hasPassedLiChun`（立春界、year-4 mod 60）、`locateAnnualLifePalace`/`rotateAnnualPalaces`（地支定位+意義旋轉）、`detectStemCombinations`/`detectBranchClashes`/`detectHarmoniousCombinations`（五合/六沖/三合三會+大運）
 - Hybrid API: Unified (core) + Legacy (palaces) 並行，`/api/v1/purple-star/calculate` 返回 PurpleStarApiResponse；`/api/v1/calculate` 返回完整 CalculationResult（前端 UnifiedView/UnifiedResultView 已接入）
 - Worker 測試：對齊 `/health` 端點並啟用 `nodejs_compat`；保留單元測試 33 項，暫停 workerd 集成測試
@@ -51,10 +52,15 @@
 
 ## 當前狀態
 - **版本**: v1.0
-- **狀態**: 生產運行中；Phase 1-4 + Task A1/A2 完成；Sprint R5 前端統一遷移完成；設計系統套用完成；四化飛星頂層彙總完成；lunar-typescript 整合完成；Phase A 藏干/十神替換完成
-- **優化階段**: Week 2 技術債務清理完成 + 開源專案整合評估完成
-- **最後更新**: 2025-12-02 00:10（開源專案整合策略確立）
+- **狀態**: 生產運行中；Phase 1-4 + Task A1/A2 完成；Sprint R5 前端統一遷移完成；設計系統套用完成；四化飛星頂層彙總完成；lunar-typescript 整合完成；Phase A 藏干/十神替換完成；大運計歲修正完成
+- **優化階段**: Week 2 技術債務清理完成 + 開源專案整合評估完成 + Bug 修復
+- **最後更新**: 2025-12-02 18:06（大運計歲修正）
 - **最新成果**:
+  - **大運計歲修正** ✓
+    - DaYun 介面：age → startAge + endAge
+    - generateDaYunList：新增 birthDate 參數，計算真實歲數
+    - 測試結果：22/22 通過
+    - 前端無需修改：直接使用後端返回的 startAge/endAge
   - **開源專案整合策略確立** ✓
     - Phase A (藏干/十神 274 行): ✅ 已完成替換，測試 34/34 通過
     - Phase B (核心時間/干支 428 行): ❌ 評估完成，決定保留（成本高，收益低）

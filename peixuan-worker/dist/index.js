@@ -33242,6 +33242,21 @@ var ChartCacheService = class {
     const results = await db.select().from(chartRecords).orderBy(desc(chartRecords.createdAt)).limit(limit);
     return results;
   }
+  /**
+   * Find chart by birth parameters (for cache lookup)
+   * @param params - Birth parameters to match
+   * @param env - Cloudflare Worker environment containing DB binding
+   * @returns The matching chart record or null if not found
+   */
+  async findChartByParams(params, env) {
+    const db = drizzle(env.DB);
+    const results = await db.select().from(chartRecords).orderBy(desc(chartRecords.createdAt)).limit(100);
+    const match = results.find((record2) => {
+      const meta3 = record2.metadata;
+      return meta3.birthDate === params.birthDate && meta3.birthTime === params.birthTime && meta3.gender === params.gender && (params.longitude === void 0 || meta3.longitude === params.longitude);
+    });
+    return match || null;
+  }
 };
 
 // src/controllers/unifiedController.ts
@@ -33260,6 +33275,33 @@ var UnifiedController = class {
    */
   async calculate(requestData, format = "json", env) {
     try {
+      if (env) {
+        try {
+          console.log("[UnifiedController] Checking cache for existing calculation...");
+          const cachedChart = await this.chartCacheService.findChartByParams(
+            {
+              birthDate: requestData.birthDate,
+              birthTime: requestData.birthTime,
+              gender: requestData.gender,
+              longitude: requestData.longitude
+            },
+            env
+          );
+          if (cachedChart) {
+            console.log("[UnifiedController] Cache hit! Returning cached result:", cachedChart.id);
+            if (format === "markdown") {
+              return formatToMarkdown(cachedChart.chartData);
+            }
+            return {
+              chartId: cachedChart.id,
+              ...cachedChart.chartData
+            };
+          }
+          console.log("[UnifiedController] Cache miss, proceeding with calculation...");
+        } catch (cacheError) {
+          console.error("[UnifiedController] Cache lookup failed:", cacheError);
+        }
+      }
       const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
       const solarDate = new Date(birthDateTime);
       if (isNaN(solarDate.getTime())) {
@@ -33288,6 +33330,8 @@ var UnifiedController = class {
               name: requestData.name,
               birthDate: requestData.birthDate,
               birthTime: requestData.birthTime,
+              gender: requestData.gender,
+              longitude: requestData.longitude || 121.5,
               location: requestData.location || "Unknown"
             },
             env

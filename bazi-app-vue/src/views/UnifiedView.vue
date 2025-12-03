@@ -79,11 +79,37 @@ const handleSubmit = async (birthInfo: any) => {
   }
 };
 
-onMounted(() => {
-  const { metadata } = chartStore.loadFromLocalStorage();
+onMounted(async () => {
+  const { chartId, metadata } = chartStore.loadFromLocalStorage();
+  
+  // Load saved metadata for form autofill
   if (metadata) {
     savedMetadata.value = metadata;
     console.log('[UnifiedView] Loaded saved metadata:', metadata);
+  }
+  
+  // Try to load cached chart result
+  if (chartId) {
+    try {
+      console.log('[UnifiedView] Found cached chartId, loading result:', chartId);
+      loading.value = true;
+      
+      const response = await fetch(`/api/v1/charts/${chartId}`);
+      if (response.ok) {
+        const data = await response.json();
+        result.value = {
+          chartId: data.id,
+          ...data.chartData,
+        };
+        console.log('[UnifiedView] Loaded cached chart result');
+        ElMessage.success('已載入上次的命盤結果');
+      }
+    } catch (err) {
+      console.error('[UnifiedView] Failed to load cached chart:', err);
+      // Silently fail, user can recalculate
+    } finally {
+      loading.value = false;
+    }
   }
 });
 </script>

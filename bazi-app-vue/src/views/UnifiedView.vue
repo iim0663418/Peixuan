@@ -106,8 +106,10 @@ onMounted(async () => {
         const data = await response.json();
         console.log('[UnifiedView] Received data:', data);
         
-        // 轉換後端格式 (stem/branch) 為前端格式 (gan/zhi)
+        // 轉換後端格式為前端格式
         const chartData = data.chartData;
+        const backendWuxing = chartData.bazi.wuxingDistribution;
+        
         result.value = {
           input: chartData.input,
           bazi: {
@@ -128,6 +130,23 @@ onMounted(async () => {
               hour: {
                 gan: chartData.bazi.fourPillars.hour.stem,
                 zhi: chartData.bazi.fourPillars.hour.branch,
+              },
+            },
+            // 轉換 wuxingDistribution: 英文鍵 → 中文鍵
+            wuxingDistribution: {
+              raw: {
+                木: (backendWuxing.raw.tiangan?.Wood || 0) + (backendWuxing.raw.hiddenStems?.Wood || 0),
+                火: (backendWuxing.raw.tiangan?.Fire || 0) + (backendWuxing.raw.hiddenStems?.Fire || 0),
+                土: (backendWuxing.raw.tiangan?.Earth || 0) + (backendWuxing.raw.hiddenStems?.Earth || 0),
+                金: (backendWuxing.raw.tiangan?.Metal || 0) + (backendWuxing.raw.hiddenStems?.Metal || 0),
+                水: (backendWuxing.raw.tiangan?.Water || 0) + (backendWuxing.raw.hiddenStems?.Water || 0),
+              },
+              adjusted: {
+                木: backendWuxing.adjusted?.Wood || 0,
+                火: backendWuxing.adjusted?.Fire || 0,
+                土: backendWuxing.adjusted?.Earth || 0,
+                金: backendWuxing.adjusted?.Metal || 0,
+                水: backendWuxing.adjusted?.Water || 0,
               },
             },
           },

@@ -967,5 +967,59 @@ bazi: {
 - 預估: 30min
 - 實際: 10min
 
+---
+
+## 🐛 Bug 修復：五行分布顯示與 loading 狀態 (2025-12-03 18:53)
+
+### 問題描述
+1. 五行分布不能正常顯示
+2. 快取讀取後鎖定 AI navbar
+
+### 根本原因
+1. **wuxingDistribution 沒有轉換**：
+   - 後端：`{ raw: { tiangan: {Wood, Fire, ...}, hiddenStems: {...} }, adjusted: {Wood, Fire, ...} }`
+   - 前端期望：`{ raw: {木, 火, 土, 金, 水}, adjusted: {木, 火, 土, 金, 水} }`
+   - 快取讀取時沒有做英文鍵 → 中文鍵轉換
+
+2. **loading 狀態沒有重置**：
+   - 快取讀取後沒有 `finally { loading.value = false }`
+   - 導致 UI 持續顯示 loading 狀態
+
+### 解決方案
+1. 在快取讀取時轉換 wuxingDistribution：
+```typescript
+wuxingDistribution: {
+  raw: {
+    木: (tiangan.Wood || 0) + (hiddenStems.Wood || 0),
+    火: (tiangan.Fire || 0) + (hiddenStems.Fire || 0),
+    // ...
+  },
+  adjusted: {
+    木: adjusted.Wood || 0,
+    // ...
+  }
+}
+```
+
+2. 添加 `finally` 區塊重置 loading：
+```typescript
+} finally {
+  loading.value = false;
+}
+```
+
+### 修改文件
+- `bazi-app-vue/src/views/UnifiedView.vue` (快取讀取邏輯)
+
+### 結果
+- ✅ 編譯成功
+- ✅ 五行分布可正常顯示
+- ✅ loading 狀態正確重置
+
+### 實作時間
+- 預估: 20min
+- 實際: 8min
+
+
 
 

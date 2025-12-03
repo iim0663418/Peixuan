@@ -58,7 +58,6 @@
       <div
         v-if="geocodeStatus.message"
         class="geocode-status"
-        style="margin-top: 5px"
       >
         <el-text :type="geocodeStatus.type" size="small">
           {{ geocodeStatus.message }}
@@ -70,7 +69,7 @@
         v-if="candidateAddresses.length > 1"
         v-model="selectedCandidateIndex"
         placeholder="發現多個匹配地址，請選擇最準確的"
-        style="width: 100%; margin-top: 8px"
+        class="candidate-select"
         @change="selectCandidate"
       >
         <el-option
@@ -142,7 +141,7 @@
         v-model="selectedCity"
         filterable
         placeholder="選擇城市快速填入座標"
-        style="width: 100%"
+        class="city-select"
         clearable
         @change="fillCityCoordinates"
       >
@@ -161,22 +160,30 @@
     </el-form-item>
 
     <el-form-item>
-      <div style="display: flex; gap: 12px; width: 100%;">
-        <el-button 
-          type="primary" 
+      <div class="button-group">
+        <el-button
+          type="primary"
           :disabled="hasCache"
+          :icon="hasCache ? Lock : Check"
           @click="submitForm"
-          style="flex: 1;"
+          class="submit-btn"
         >
-          {{ hasCache ? '已有快取命盤' : '提交' }}
+          {{ hasCache ? '已有快取命盤' : '開始計算' }}
         </el-button>
-        <el-button 
+        <el-tooltip
           v-if="hasCache"
-          type="warning"
-          @click="clearCache"
+          content="清除快取後可重新計算"
+          placement="top"
         >
-          清除快取
-        </el-button>
+          <el-button
+            type="warning"
+            :icon="Delete"
+            @click="clearCache"
+            class="clear-btn"
+          >
+            清除快取
+          </el-button>
+        </el-tooltip>
       </div>
     </el-form-item>
   </el-form>
@@ -185,6 +192,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch, computed } from 'vue';
 import { ElMessage } from 'element-plus';
+import { Lock, Check, Delete } from '@element-plus/icons-vue';
 import { saveTimeZoneInfo, getTimeZoneInfo } from '../utils/storageService';
 import {
   GeocodeService,
@@ -614,13 +622,13 @@ const submitForm = async () => {
 
 /* Form items - fluid spacing with clamp() */
 :deep(.el-form-item) {
-  margin-bottom: clamp(1rem, 2vw, 1.5rem);
+  margin-bottom: clamp(var(--space-lg), 2vw, var(--space-2xl));
 }
 
 :deep(.el-form-item__label) {
-  font-size: clamp(0.875rem, 2.5vw, 1rem);
-  line-height: 1.4;
-  margin-bottom: 0.5rem;
+  font-size: clamp(var(--font-size-sm), 2.5vw, var(--font-size-base));
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-sm);
 }
 
 :deep(.el-form-item__content) {
@@ -631,13 +639,13 @@ const submitForm = async () => {
 :deep(.el-input__inner) {
   min-height: 44px;
   font-size: 16px !important; /* Prevent iOS zoom */
-  padding: 12px 15px;
-  border-radius: 8px;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-sm);
 }
 
 :deep(.el-textarea__inner) {
   font-size: 16px !important; /* Prevent iOS zoom */
-  padding: 12px 15px;
+  padding: var(--space-md) var(--space-lg);
 }
 
 /* Date and time pickers - full width on mobile */
@@ -656,7 +664,7 @@ const submitForm = async () => {
 :deep(.el-radio-group) {
   display: flex;
   flex-direction: column;
-  gap: clamp(0.75rem, 2vw, 1rem);
+  gap: clamp(var(--space-md), 2vw, var(--space-lg));
 }
 
 :deep(.el-radio) {
@@ -671,9 +679,9 @@ const submitForm = async () => {
 }
 
 :deep(.el-radio__label) {
-  font-size: 16px;
-  padding-left: 8px;
-  line-height: 1.5;
+  font-size: var(--font-size-base);
+  padding-left: var(--space-sm);
+  line-height: var(--line-height-normal);
 }
 
 /* Select dropdowns - full width with touch targets */
@@ -692,14 +700,14 @@ const submitForm = async () => {
 
 :deep(.el-input-group__append .el-button) {
   min-height: 44px;
-  padding: 0 15px;
+  padding: 0 var(--space-lg);
 }
 
 /* Coordinate inputs - mobile-first stacked layout */
 .coordinate-inputs {
   display: flex;
   flex-direction: column;
-  gap: clamp(0.75rem, 2vw, 1rem);
+  gap: clamp(var(--space-md), 2vw, var(--space-lg));
   width: 100%;
 }
 
@@ -713,28 +721,34 @@ const submitForm = async () => {
 }
 
 .coordinate-warning {
-  margin-top: clamp(0.5rem, 1.5vw, 0.75rem);
+  margin-top: clamp(var(--space-sm), 1.5vw, var(--space-md));
   display: block;
-  line-height: 1.5;
+  line-height: var(--line-height-normal);
 }
 
 /* Input prepend styling */
 :deep(.el-input-group__prepend) {
-  padding: 0 12px;
-  background-color: #f5f7fa;
-  font-size: 14px;
+  padding: 0 var(--space-md);
+  background-color: var(--bg-primary);
+  font-size: var(--font-size-sm);
   white-space: nowrap;
 }
 
 /* Geocode status messages - proper wrapping and spacing */
 .geocode-status {
-  margin-top: clamp(0.5rem, 1.5vw, 0.75rem);
-  line-height: 1.5;
+  margin-top: clamp(var(--space-sm), 1.5vw, var(--space-md));
+  line-height: var(--line-height-normal);
 }
 
 /* Candidate address select */
-:deep(.el-select .el-input__inner) {
-  min-height: 44px;
+.candidate-select {
+  width: 100%;
+  margin-top: var(--space-sm);
+}
+
+/* City select */
+.city-select {
+  width: 100%;
 }
 
 /* Checkbox - touch-friendly */
@@ -745,18 +759,60 @@ const submitForm = async () => {
 }
 
 :deep(.el-checkbox__label) {
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+}
+
+/* Button group - flexible layout */
+.button-group {
+  display: flex;
+  gap: var(--space-md);
+  width: 100%;
+}
+
+.submit-btn {
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.clear-btn {
+  transition: all 0.3s ease;
+}
+
+.clear-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(230, 162, 60, 0.3);
+}
+
+/* Mobile responsive button layout (< 768px) */
+@media (max-width: 767px) {
+  .button-group {
+    flex-direction: column;
+  }
+
+  .button-group :deep(.el-button) {
+    min-height: 44px;
+  }
 }
 
 /* Submit button - full width on mobile with proper touch targets */
 :deep(.el-button) {
   width: 100%;
   min-height: 48px;
-  padding: clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
-  font-size: clamp(1rem, 2.5vw, 1.125rem);
-  border-radius: 8px;
-  font-weight: 500;
+  padding: clamp(var(--space-md), 2vw, var(--space-lg)) clamp(var(--space-2xl), 3vw, var(--space-3xl));
+  font-size: clamp(var(--font-size-base), 2.5vw, var(--font-size-lg));
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-medium);
 }
 
 :deep(.el-button--primary) {
@@ -765,10 +821,10 @@ const submitForm = async () => {
 
 /* Form validation messages */
 :deep(.el-form-item__error) {
-  font-size: 14px;
-  line-height: 1.5;
-  padding-top: 4px;
-  margin-top: 4px;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  padding-top: var(--space-xs);
+  margin-top: var(--space-xs);
 }
 
 /* ==========================================
@@ -779,7 +835,7 @@ const submitForm = async () => {
   .coordinate-inputs {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
+    gap: var(--space-md);
   }
 
   .timezone-field {
@@ -789,7 +845,7 @@ const submitForm = async () => {
   /* Radio buttons - horizontal on larger screens */
   :deep(.el-radio-group) {
     flex-direction: row;
-    gap: clamp(1rem, 2vw, 1.5rem);
+    gap: clamp(var(--space-lg), 2vw, var(--space-2xl));
   }
 }
 
@@ -800,7 +856,7 @@ const submitForm = async () => {
   /* Coordinate inputs - 3 column layout */
   .coordinate-inputs {
     grid-template-columns: 2fr 2fr 1.5fr;
-    gap: 1rem;
+    gap: var(--space-lg);
   }
 
   .timezone-field {
@@ -809,19 +865,19 @@ const submitForm = async () => {
 
   /* Form spacing adjustments */
   :deep(.el-form-item) {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-2xl);
   }
 
   /* Buttons - constrained width on larger screens */
   :deep(.el-button) {
     width: auto;
     min-width: 200px;
-    padding: 0.75rem 2rem;
+    padding: var(--space-md) var(--space-3xl);
   }
 
   /* Input group append button - better sizing */
   :deep(.el-input-group__append .el-button) {
-    padding: 0 20px;
+    padding: 0 var(--space-xl);
   }
 }
 
@@ -830,11 +886,11 @@ const submitForm = async () => {
    ========================================== */
 @media (min-width: 1024px) {
   :deep(.el-form-item__label) {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 
   :deep(.el-button) {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 }
 </style>

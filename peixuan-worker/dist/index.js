@@ -34083,6 +34083,20 @@ var index_default = {
       status: 404,
       headers: { "Content-Type": "text/plain" }
     });
+  },
+  async scheduled(event, env, ctx) {
+    try {
+      const orm = drizzle(env.DB);
+      const sixMonthsAgo = /* @__PURE__ */ new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      const cutoffDate = sixMonthsAgo.toISOString();
+      const result = await env.DB.prepare(
+        `DELETE FROM chart_records WHERE created_at < datetime('now', '-6 months')`
+      ).run();
+      console.log(`[scheduled] Cleanup completed: ${result.meta.changes} chart records deleted (older than ${cutoffDate})`);
+    } catch (error46) {
+      console.error("[scheduled] Chart cleanup failed:", error46.message);
+    }
   }
 };
 export {

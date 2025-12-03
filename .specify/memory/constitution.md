@@ -23,7 +23,9 @@
 - 流年模組: `getAnnualPillar`/`hasPassedLiChun`（立春界、year-4 mod 60）、`locateAnnualLifePalace`/`rotateAnnualPalaces`（地支定位+意義旋轉）、`detectStemCombinations`/`detectBranchClashes`/`detectHarmoniousCombinations`（五合/六沖/三合三會+大運）
 - Hybrid API: Unified (core) + Legacy (palaces) 並行，`/api/v1/purple-star/calculate` 返回 PurpleStarApiResponse；`/api/v1/calculate` 返回完整 CalculationResult（前端 UnifiedView/UnifiedResultView 已接入）
 - AI/Markdown 輸出: `/api/v1/calculate` 支援 `format=markdown`（markdownFormatter 完整覆蓋輸出）；`/api/v1/analyze` 產生計算+AI 分析（Gemini 2.5 Flash）；`/api/v1/analyze/stream` SSE 串流輸出，chartId + D1 chart/analysis 快取；Prompt 口語化佩璇風格，Max Output Tokens 2048，加入 currentYear 防止年份誤判；新增 GET `/api/v1/analyze/check` 快取預檢查
-- 快取體驗: analyzeStream 先查 analysis_records，命中直接返回 SSE（0.118s）；快取 SSE 逐行輸出保留 Markdown，loading 文案依 cached 狀態切換；UnifiedView 自動載入 savedMetadata，移除 chartHistory
+- 快取體驗: analyzeStream 先查 analysis_records，命中直接返回 SSE（0.118s，180x 提速）；快取 SSE 逐行輸出保留 Markdown，loading 文案依 cached 狀態切換；表單鎖定機制（currentChartId 存在時鎖定提交防重複計算）；移除 chartHistory
+- UI 設計系統: UnifiedInputForm/UnifiedResultView 完整 CSS 變數化（--space-*/--font-size-*/--radius-*/--bg-*/--text-*），移除所有硬編碼與內聯樣式；移動端響應式優化（<768px Tab 44px 觸控目標、水平滾動、無痕滾動條）；按鈕圖標與 hover 動畫（Lock/Check/Delete + Tooltip）
+- Bug 修復: Chart API 404（chartRoutes 註冊）、userId null≠'anonymous'、chartId 為唯一識別符、欄位轉換層（stem/branch↔gan/zhi、Wood/Fire↔木/火）、wuxingDistribution 英文鍵轉中文鍵、balance NaN 防護（?? 0）、AI 按鈕鎖定（chartStore 狀態同步）
 - Worker 測試：對齊 `/health` 端點並啟用 `nodejs_compat`；保留單元測試 33 項，暫停 workerd 集成測試
 
 ## 架構決策
@@ -54,17 +56,26 @@
 
 ## 當前狀態
 - **版本**: v1.0
-- **狀態**: 生產運行中；Phase 1-4 + Task A1/A2 完成；Sprint R5 前端統一遷移完成；設計系統套用完成；四化飛星頂層彙總完成；lunar-typescript 整合完成；Phase A 藏干/十神替換完成；大運計歲修正完成
-- **優化階段**: Week 2 技術債務清理 + 開源整合評估 + Bug 修復 + AI Streaming/監控完成
- - **最後更新**: 2025-12-03 17:28（cache/UX/AI streaming 核心同步：快取預檢查 + 命中 0.118s + SSE 逐行保留 Markdown + metadata 自動回填/移除 chartHistory）
-- **最新成果**:
-  - **AI 整合/Streaming** ✓：`/api/v1/analyze` + `/api/v1/analyze/stream`（Gemini 2.5 Flash），Markdown Formatter + AI 分析輸出，SSE 27 chunks/19s，chartId + D1 快取，前端 AIAnalysisView/路由/ChartStore + EventSource 串流
-  - **Prompt 精簡 + 年份保護** ✓：佩璇 Prompt -57% tokens，範例 2 個，Max Output Tokens 2048，注入 currentYear，語氣/比喻/粗體保留，AI 年份誤判修正
-  - **性能監控** ✓：geminiService 日誌 tokens/cost/latency/errors；成本計算 (prompt/completion rates) 即時可視；Response time 18-25s
-  - **測試/品質** ✓：markdownFormatter.test.ts 14/14 通過；大運/日柱測試 20/20；AI Streaming 實測 20+ chunks；npm 漏洞 7→0；後端 ESLint 配置新增
-  - **Lint/債務狀態**：前端 ESLint 6 errors/120 warnings（233→126）；後端 ESLint 3597 issues 基線；前端 EventSource 錯誤修復
-  - **既有成果延續**：開源整合策略確立（Phase A 完成，Phase B/C 保留 2042 行核心）、大運計歲真實歲數、四化飛星頂層彙總、Unified API/設計系統/部署穩定
-  - **快取/UX 提速** ✓：新增 `/api/v1/analyze/check` 預檢查；analysis_records 命中直接回傳 SSE，快取命中 0.118s；SSE 逐行輸出保留 Markdown；UnifiedView 自動回填 savedMetadata，移除 chartHistory，Navbar 去除 🤖 emoji，App.vue DOM 操作封裝 closeMobileMenu() 解 TS
+- **狀態**: 生產運行中；Week 2 完成 ✅（進度 70/62h, 113%）
+- **最後更新**: 2025-12-03 17:32
+- **Week 2 核心成就**:
+  - **AI Streaming 完整鏈路** ✓：Gemini SSE → D1 快取 → EventSource → Markdown 渲染；佩璇風格保留（口語化、生動比喻、情感化反應）
+  - **快取性能提升** ✓：命中時 0.118s vs 初次 18-21s（180x 提速）；analysis_records 24h TTL 策略
+  - **快取預檢查** ✓：GET `/api/v1/analyze/check` 端點 + checkCache()，loading 文案依 cached 狀態切換
+  - **SSE 排版一致化** ✓：逐行輸出保留換行，延遲 10ms/行，快取/非快取格式一致
+  - **UI 設計系統整合** ✓：完整 CSS 變數化（padding/margin/font-size/color 全部 token 化）；移動端響應式（<768px Tab 44px 觸控、水平滾動、無痕滾動條）
+  - **表單鎖定與清除** ✓：有 chartId 時鎖定提交防重複計算；清除按鈕（Delete 圖標 + Tooltip）；按鈕圖標與 hover 動畫
+  - **Bug 修復系列** ✓：Chart API 404（chartRoutes 未註冊）、userId null≠'anonymous'、chartId 唯一識別符、stem/branch→gan/zhi 轉換層缺失、wuxingDistribution 英文鍵→中文鍵、balance NaN nullish coalescing、AI 按鈕鎖定（chartStore 狀態同步）
+  - **技術債償還** ✓：前端 ESLint 233→126（-46%）；npm 漏洞 7→0；日柱測試 3 失敗→20 通過（JDN API 對齊）；後端 ESLint 配置建立
+  - **Prompt 精簡** ✓：350 → 150 tokens（-57%），範例 2 個，Max Output Tokens 2048，注入 currentYear
+  - **性能監控** ✓：geminiService 日誌 tokens/cost/latency/errors；成本計算即時可視
+- **架構決策記錄**:
+  1. chartId 為唯一識別符：移除 userId AND 條件（類 URL shortener）
+  2. 快取策略：chart_records 永久 + analysis_records 24h TTL；預檢查 /analyze/check 端點改善提示 UX
+  3. 欄位標準化：後端 stem/branch ↔ 前端 gan/zhi 雙向轉換層；wuxingDistribution Wood/Fire ↔ 木/火 映射
+  4. 狀態同步：UnifiedView 載入快取後必須 chartStore.setCurrentChart() 更新狀態以解鎖 AI 按鈕
+  5. UI Token 化：完整採用 CSS 變數（--space-*/--font-size-*/--radius-*/--bg-*/--text-*），移除所有硬編碼數值與內聯樣式
+- **既有成果延續**：開源整合策略確立（Phase A 完成，Phase B/C 保留 2042 行核心）、大運計歲真實歲數、四化飛星頂層彙總、Unified API/設計系統/部署穩定
 
 ## 已知缺口
 - 日柱測試更新（匹配新 JDN API）(1h) — 已更新，但可再補充覆蓋率

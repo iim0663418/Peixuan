@@ -1,8 +1,40 @@
 # 檢查點記錄
 
-## Checkpoint: progress-core-2025-12-03-17:28
-**時間**: 2025-12-03 17:28  
+## Checkpoint: week2-complete-2025-12-03-17:32
+**時間**: 2025-12-03 17:32
 **狀態**: ✅ 完成
+
+### 完成的任務
+- **AI Streaming 完整鏈路**: Gemini SSE → D1 快取 → EventSource → Markdown 渲染；佩璇風格保留
+- **快取性能提升**: 命中時 0.118s vs 初次 18-21s，提速 180x；analysis_records 24h TTL
+- **快取預檢查**: GET `/api/v1/analyze/check` 端點 + checkCache()，loading 文案依 cached 狀態切換
+- **SSE 排版一致化**: 逐行輸出保留換行，延遲 10ms/行，快取/非快取格式一致
+- **UI 設計系統整合**: UnifiedInputForm/UnifiedResultView CSS 變數化，移動端響應式優化
+- **表單鎖定與清除**: currentChartId 存在時鎖定提交防重複計算；清除按鈕（Delete 圖標 + Tooltip）
+- **Bug 修復系列**: Chart API 404、userId 不匹配、欄位轉換層（stem/branch↔gan/zhi）、balance NaN、AI 按鈕鎖定
+- **技術債償還**: 前端 ESLint 233→126（-46%）；npm 漏洞 7→0；日柱測試 20/20 通過
+
+### 關鍵成果
+- 專案進度：70/62h (113%) ✅ Week 2 目標達成
+- 性能指標：快取命中 0.118s（180x faster），Gemini 18-21s，Token 優化 -57%
+- 架構決策：chartId 唯一識別符、快取策略、欄位標準化、狀態同步、UI Token 化
+- 整體流程測試：chartId `961e01d7-da21-4524-a002-17fa03657bec` 完整驗證通過
+
+### 已知問題
+- 前端 ESLint: 6 errors (手動修復) + 120 warnings (@typescript-eslint/no-explicit-any)
+- 後端 ESLint: 3597 issues (逐步清理)
+- LanguageSelector 測試: 6 failures (localStorage mock)
+- 後端 npm: 4 moderate 漏洞 (drizzle-kit 開發依賴)
+
+### 下一步
+- 修復前端 ESLint 6 errors（手動清理）
+- 修復 LanguageSelector 測試（localStorage mock 深入調查）
+- 後端 ESLint 分批清理（逐步收斂 3597 issues）
+- 監控快取命中率與性能指標
+
+## Checkpoint: progress-core-2025-12-03-17:28
+**時間**: 2025-12-03 17:28
+**狀態**: ✅ 完成（已被 week2-complete-2025-12-03-17:32 取代）
 
 ### 完成的任務
 - 核心同步：快取預檢查 `/api/v1/analyze/check` + analysis_records 快取命中路徑 createCachedSSEStream，回應 **0.118s**，修正 result 欄位/事件型別

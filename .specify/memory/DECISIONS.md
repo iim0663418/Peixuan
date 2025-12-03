@@ -52,17 +52,40 @@
   - 快取與非快取輸出格式一致，避免渲染差異
 - **狀態**: 完成 ✓
 
-### 決策：表單回填與歷史清理
-- **原因**: 回訪用戶需保留輸入體驗，移除未用狀態減少維護
+### 決策：表單回填與歷史清理（已廢棄 metadata 自動回填）
+- **原因**: 回訪用戶需保留輸入體驗，移除未用狀態減少維護；最終決定簡化為表單鎖定機制
 - **影響**:
-  - chartStore 保存/載入 currentChartMetadata，UnifiedView onMounted 自動回填表單
+  - ~~chartStore 保存/載入 currentChartMetadata（已移除）~~
+  - 改為表單鎖定機制：currentChartId 存在時鎖定提交按鈕，防止重複計算
   - 移除未用 chartHistory 狀態/方法/localStorage，降低複雜度
   - App.vue DOM 操作封裝 closeMobileMenu()，消除 TS 錯誤；Navbar 移除 🤖 emoji 保持純文字
+- **狀態**: 完成 ✓（metadata 回填已廢棄，改用表單鎖定）
+
+### 決策：UI 設計系統完整整合
+- **原因**: 硬編碼顏色/間距/字體影響視覺一致性與維護效率
+- **影響**:
+  - UnifiedInputForm/UnifiedResultView 完整 CSS 變數化（--space-*/--font-size-*/--radius-*/--bg-*/--text-*）
+  - 移除所有硬編碼數值與內聯樣式
+  - 移動端響應式優化（<768px Tab 44px 觸控目標、水平滾動、無痕滾動條）
+  - 按鈕圖標與 hover 動畫（Lock/Check/Delete + Tooltip）
 - **狀態**: 完成 ✓
 
-### 狀態更新（2025-12-03 17:28）
+### 決策：Bug 修復系列（Chart API、欄位轉換、狀態同步）
+- **原因**: 快取讀取失敗與前端顯示異常
+- **影響**:
+  - Chart API 404：chartRoutes 註冊到 Worker index.ts
+  - userId 不匹配：null → 'anonymous' 統一
+  - chartId 為唯一識別符：移除 userId AND 條件（類 URL shortener）
+  - 欄位轉換層：stem/branch ↔ gan/zhi、Wood/Fire ↔ 木/火
+  - wuxingDistribution 英文鍵轉中文鍵
+  - balance NaN 防護：?? 0 nullish coalescing
+  - AI 按鈕鎖定：UnifiedView 載入快取後必須 chartStore.setCurrentChart() 更新狀態
+- **狀態**: 完成 ✓
+
+### 狀態更新（2025-12-03 17:32）
+- Week 2 完整收尾：AI Streaming + D1 快取（0.118s 命中，180x 提速）、SSE 排版一致化、UI 設計系統整合、UX 優化（表單鎖定/清除）、Bug 修復系列、技術債償還（ESLint -46%、npm 漏洞 0、測試 100%）
 - 快取預檢查 + analysis_records 快取命中流程驗證：響應 0.118s、成本 0，loading 文案依 cached 狀態切換，快取/非快取 Markdown 排版一致（逐行 SSE）
-- UX 清理落地：metadata 自動回填、chartHistory 移除、Navbar 去 emoji，流程測試 chartId `961e01d7-da21-4524-a002-17fa03657bec` 通過
+- UX 清理落地：metadata 回填改為表單鎖定、chartHistory 移除、Navbar 去 emoji，流程測試 chartId `961e01d7-da21-4524-a002-17fa03657bec` 通過
 - 未解決：前端 ESLint 6 errors/120 warnings、後端 ESLint 3597 issues；LanguageSelector 測試 6 失敗（localStorage mock）
 
 ## 2025-12-02: 開源專案整合策略確立

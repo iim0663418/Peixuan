@@ -40,7 +40,7 @@
         缺失: {{ distribution.deficient }}
       </el-tag>
       <el-tag type="info" size="large">
-        平衡度: {{ (distribution.balance * 100).toFixed(1) }}%
+        平衡度: {{ ((distribution.balance ?? 0) * 100).toFixed(1) }}%
       </el-tag>
     </div>
 

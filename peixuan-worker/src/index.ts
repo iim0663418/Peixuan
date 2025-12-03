@@ -176,9 +176,29 @@ export default {
 
 		// 靜態資源由 Wrangler assets 自動處理
 		// 如果到達這裡，表示不是 API 路由，返回 404 或讓 assets 處理
-		return new Response('Not Found', { 
+		return new Response('Not Found', {
 			status: 404,
 			headers: { 'Content-Type': 'text/plain' }
 		});
+	},
+
+	async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+		// Cleanup chart_records older than 6 months
+		// Runs daily at 2:00 AM UTC
+		try {
+			const orm = drizzle(env.DB);
+			const sixMonthsAgo = new Date();
+			sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+			const cutoffDate = sixMonthsAgo.toISOString();
+
+			// Using raw SQL since Drizzle ORM doesn't have direct support for SQLite datetime functions
+			const result = await env.DB.prepare(
+				`DELETE FROM chart_records WHERE created_at < datetime('now', '-6 months')`
+			).run();
+
+			console.log(`[scheduled] Cleanup completed: ${result.meta.changes} chart records deleted (older than ${cutoffDate})`);
+		} catch (error: any) {
+			console.error('[scheduled] Chart cleanup failed:', error.message);
+		}
 	},
 } satisfies ExportedHandler<Env>;

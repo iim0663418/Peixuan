@@ -1,6 +1,6 @@
 # Memory Bundle Index
 
-- `.specify/memory/audit_trail.log`: Full SSCI audit；最新 session `ai-streaming-and-monitoring-2025-12-03`（AI Integration + Streaming + 性能監控完成，Prompt 精簡 -57%，Gemini SSE + D1 快取，上下游測試通過，前端 AIAnalysisView/route 上線，進度 70/62h 113%）。
-- `.specify/memory/DECISIONS.md`: Decision log updated 2025-12-03（新增 AI Streaming + Gemini 快取/SSE 決策、前端串流體驗、Prompt 精簡+年份保護、Gemini 成本/性能監控；保留既有開源整合與大運計歲修正決策）。
-- `.specify/memory/CHECKPOINTS.md`: Timeline updated through `ai-streaming-2025-12-03`（AI Streaming 後端/前端完成，佩璇 Prompt 精簡，Gemini 監控落地，日柱/大運測試綠燈，npm 漏洞清零）。
-- `.specify/memory/constitution.md`: Project traits 更新於 2025-12-03（新增 Markdown/AI 分析 API + SSE 串流、Gemini 監控、Prompt 精簡；程式碼品質狀態更新：前端 ESLint 6 errors/120 warnings、後端 3597 issues；持續缺口與任務同步）。
+- `.specify/memory/audit_trail.log`: Full SSCI audit；最新 session `progress-core-2025-12-03-17:28`（cache/UX/AI streaming 核心摘要：快取預檢查 + analysis_records 命中 0.118s、SSE 逐行保留 Markdown、metadata 自動回填/移除 chartHistory、Navbar 去 emoji；待辦 ESLint/LanguageSelector 測試）。
+- `.specify/memory/DECISIONS.md`: Decision log updated 2025-12-03（新增快取優先策略與預檢查、SSE 排版一致化、表單回填/歷史清理決策；既有 AI Streaming、Prompt 精簡、年份保護、Gemini 成本監控等）。
+- `.specify/memory/CHECKPOINTS.md`: Timeline updated through `progress-core-2025-12-03-17:28`（cache/UX/AI streaming 核心成果 + 快取預檢查與命中提速 + SSE 排版修復 + metadata 回填；保留 AI Streaming/Prompt 精簡/監控紀錄）。
+- `.specify/memory/constitution.md`: Project traits 更新於 2025-12-03（含 Markdown/AI 分析 API + SSE、快取優先策略、Gemini 監控、Prompt 精簡；品質狀態：前端 ESLint 6 errors/120 warnings、後端 3597 issues，待補 ESLint/LanguageSelector 測試）。

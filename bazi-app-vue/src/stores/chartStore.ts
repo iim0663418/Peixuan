@@ -18,11 +18,6 @@ export interface ChartData {
 export const useChartStore = defineStore('chart', {
   state: () => ({
     currentChart: null as ChartData | null,
-    history: [] as Array<{
-      chartId: string;
-      metadata: ChartMetadata;
-      createdAt: Date;
-    }>,
   }),
 
   getters: {
@@ -36,52 +31,29 @@ export const useChartStore = defineStore('chart', {
 
       // 保存到 localStorage (匿名用戶)
       localStorage.setItem('currentChartId', chartData.chartId);
-
-      // 添加到歷史記錄
-      this.addToHistory(chartData);
+      localStorage.setItem('currentChartMetadata', JSON.stringify(chartData.metadata));
     },
 
-    addToHistory(chartData: ChartData) {
-      const historyItem = {
-        chartId: chartData.chartId,
-        metadata: chartData.metadata,
-        createdAt: chartData.createdAt,
-      };
-
-      // 避免重複
-      const index = this.history.findIndex(
-        (h) => h.chartId === chartData.chartId,
-      );
-      if (index >= 0) {
-        this.history.splice(index, 1);
-      }
-
-      // 添加到開頭
-      this.history.unshift(historyItem);
-
-      // 限制歷史記錄數量
-      if (this.history.length > 10) {
-        this.history = this.history.slice(0, 10);
-      }
-
-      // 保存到 localStorage
-      localStorage.setItem('chartHistory', JSON.stringify(this.history));
-    },
-
-    loadFromLocalStorage() {
+    loadFromLocalStorage(): { chartId: string | null; metadata: ChartMetadata | null } {
       const chartId = localStorage.getItem('currentChartId');
-      const history = localStorage.getItem('chartHistory');
+      const metadataStr = localStorage.getItem('currentChartMetadata');
 
-      if (history) {
-        this.history = JSON.parse(history);
+      let metadata: ChartMetadata | null = null;
+      if (metadataStr) {
+        try {
+          metadata = JSON.parse(metadataStr);
+        } catch (e) {
+          console.error('Failed to parse metadata:', e);
+        }
       }
 
-      return chartId;
+      return { chartId, metadata };
     },
 
     clearCurrentChart() {
       this.currentChart = null;
       localStorage.removeItem('currentChartId');
+      localStorage.removeItem('currentChartMetadata');
     },
   },
 });

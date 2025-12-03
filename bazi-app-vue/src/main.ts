@@ -1,4 +1,5 @@
 import { createApp } from 'vue';
+import { createPinia } from 'pinia';
 import './style.css';
 import App from './App.vue';
 import router from './router'; // 導入 router
@@ -20,7 +21,9 @@ import enhancedStorageService from './utils/enhancedStorageService';
 import { errorHandlerPlugin } from './plugins/errorHandler';
 
 const app = createApp(App);
+const pinia = createPinia();
 
+app.use(pinia); // 使用 Pinia (必須在 router 之前)
 app.use(router); // 使用 router
 app.use(i18n); // 使用 i18n
 app.use(ElementPlus, {

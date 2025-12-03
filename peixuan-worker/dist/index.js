@@ -11702,10 +11702,18 @@ var init_fourPillars = __esm({
 
 // src/calculation/bazi/tenGods.ts
 function getElementRelation(dayElement, targetElement) {
-  if (dayElement === targetElement) return "same";
-  if (PRODUCES_MAP[dayElement] === targetElement) return "produces";
-  if (PRODUCES_MAP[targetElement] === dayElement) return "produced-by";
-  if (CONTROLS_MAP[dayElement] === targetElement) return "controls";
+  if (dayElement === targetElement) {
+    return "same";
+  }
+  if (PRODUCES_MAP[dayElement] === targetElement) {
+    return "produces";
+  }
+  if (PRODUCES_MAP[targetElement] === dayElement) {
+    return "produced-by";
+  }
+  if (CONTROLS_MAP[dayElement] === targetElement) {
+    return "controls";
+  }
   return "controlled-by";
 }
 function samePolarityAs(dayStem, targetStem) {
@@ -11976,7 +11984,9 @@ function findTimeStars(hourBranch) {
     throw new Error(`Invalid hour branch: ${hourBranch}. Must be 0-11.`);
   }
   let wenChang = (10 - hourBranch) % 12;
-  if (wenChang < 0) wenChang += 12;
+  if (wenChang < 0) {
+    wenChang += 12;
+  }
   const wenQu = (4 + hourBranch) % 12;
   return { wenChang, wenQu };
 }
@@ -11987,7 +11997,9 @@ function findMonthStars(lunarMonth) {
   const monthIndex = lunarMonth - 1;
   const zuoFu = (4 + monthIndex) % 12;
   let youBi = (10 - monthIndex) % 12;
-  if (youBi < 0) youBi += 12;
+  if (youBi < 0) {
+    youBi += 12;
+  }
   return { zuoFu, youBi };
 }
 var init_auxiliary = __esm({
@@ -12274,13 +12286,12 @@ function findNearestJie(birthDate, direction) {
       throw new Error("Cannot find next Jie solar term");
     }
     return nextJie;
-  } else {
-    const prevJie = allJieDates.reverse().find((jie) => jie < birthDate);
-    if (!prevJie) {
-      throw new Error("Cannot find previous Jie solar term");
-    }
-    return prevJie;
   }
+  const prevJie = allJieDates.reverse().find((jie) => jie < birthDate);
+  if (!prevJie) {
+    throw new Error("Cannot find previous Jie solar term");
+  }
+  return prevJie;
 }
 function calculateQiYunDate(birthDate, yearStem, gender, trueSolarTime) {
   const direction = determineFortuneDirection(yearStem, gender);
@@ -12661,11 +12672,21 @@ function analyzeTaiSui(annualPillar, natalChart) {
   const po = detectPoTaiSui(annualBranch, natalChart.year.branch);
   const hai = detectHaiTaiSui(annualBranch, natalChart.year.branch);
   const types = [];
-  if (zhi) types.push("\u503C\u592A\u6B72");
-  if (chong) types.push("\u6C96\u592A\u6B72");
-  if (xing.hasXing) types.push(`\u5211\u592A\u6B72\uFF08${xing.description}\uFF09`);
-  if (po) types.push("\u7834\u592A\u6B72");
-  if (hai) types.push("\u5BB3\u592A\u6B72");
+  if (zhi) {
+    types.push("\u503C\u592A\u6B72");
+  }
+  if (chong) {
+    types.push("\u6C96\u592A\u6B72");
+  }
+  if (xing.hasXing) {
+    types.push(`\u5211\u592A\u6B72\uFF08${xing.description}\uFF09`);
+  }
+  if (po) {
+    types.push("\u7834\u592A\u6B72");
+  }
+  if (hai) {
+    types.push("\u5BB3\u592A\u6B72");
+  }
   const severity = calculateSeverity(zhi, chong, xing.hasXing, po, hai);
   const recommendations = generateRecommendations(severity, types);
   return {
@@ -12681,15 +12702,33 @@ function analyzeTaiSui(annualPillar, natalChart) {
 }
 function calculateSeverity(zhi, chong, xing, po, hai) {
   let score = 0;
-  if (zhi) score += 3;
-  if (chong) score += 3;
-  if (xing) score += 2;
-  if (po) score += 1;
-  if (hai) score += 1;
-  if (score === 0) return "none";
-  if (score <= 2) return "low";
-  if (score <= 4) return "medium";
-  if (score <= 6) return "high";
+  if (zhi) {
+    score += 3;
+  }
+  if (chong) {
+    score += 3;
+  }
+  if (xing) {
+    score += 2;
+  }
+  if (po) {
+    score += 1;
+  }
+  if (hai) {
+    score += 1;
+  }
+  if (score === 0) {
+    return "none";
+  }
+  if (score <= 2) {
+    return "low";
+  }
+  if (score <= 4) {
+    return "medium";
+  }
+  if (score <= 6) {
+    return "high";
+  }
   return "critical";
 }
 function generateRecommendations(severity, types) {
@@ -12732,7 +12771,7 @@ function findStarPalace(palaces, starName) {
   for (let i = 0; i < palaces.length; i++) {
     const palace = palaces[i];
     if (palace && Array.isArray(palace.stars)) {
-      const stars = palace.stars;
+      const { stars } = palace;
       if (stars.some((star) => star.name === starName || star === starName)) {
         return i;
       }
@@ -12879,12 +12918,20 @@ var init_edgeGenerator = __esm({
 function calculateCycleSeverity(palaces, sihuaType) {
   const cycleLength = palaces.length;
   if (sihuaType === "\u5FCC") {
-    if (cycleLength >= 4) return "high";
-    if (cycleLength === 3) return "medium";
+    if (cycleLength >= 4) {
+      return "high";
+    }
+    if (cycleLength === 3) {
+      return "medium";
+    }
     return "low";
   }
-  if (cycleLength >= 5) return "high";
-  if (cycleLength >= 3) return "medium";
+  if (cycleLength >= 5) {
+    return "high";
+  }
+  if (cycleLength >= 3) {
+    return "medium";
+  }
   return "low";
 }
 function generateCycleDescription(palaces, sihuaType) {
@@ -12909,7 +12956,7 @@ function detectCycles(graph, sihuaType) {
     const edges = graph.adjacencyList.get(node) || [];
     const filteredEdges = edges.filter((e) => e.sihuaType === sihuaType);
     for (const edge of filteredEdges) {
-      const target = edge.target;
+      const { target } = edge;
       if (!visited.has(target)) {
         dfs(target);
       } else if (recStack.has(target)) {
@@ -13149,9 +13196,8 @@ function determineDecadeDirection(yearStem, gender) {
   const isYang = isYangStem(yearStem);
   if (isYang && gender === "male" || !isYang && gender === "female") {
     return "forward";
-  } else {
-    return "backward";
   }
+  return "backward";
 }
 function calculateCurrentDecade(birthDate, bureau, yearStem, gender, palaces) {
   const now = /* @__PURE__ */ new Date();
@@ -13395,7 +13441,7 @@ var init_calculator = __esm({
         const { solarDate, longitude } = input;
         const calculationSteps = [];
         const trueSolarTimeResult = calculateTrueSolarTime(solarDate, longitude);
-        const trueSolarTime = trueSolarTimeResult.trueSolarTime;
+        const { trueSolarTime } = trueSolarTimeResult;
         calculationSteps.push({
           step: "trueSolarTime",
           input: { solarDate: solarDate.toISOString(), longitude },
@@ -32766,11 +32812,15 @@ var ChartController = class {
   async getChartHistory(db, userId, page = 1, limit = 10, type) {
     const cacheKey = CacheKeys.chartList(userId, page, limit, type);
     const cached2 = await this.cache.get(cacheKey);
-    if (cached2) return cached2;
+    if (cached2) {
+      return cached2;
+    }
     const orm = drizzle(db);
     const offset = (page - 1) * limit;
     let query = orm.select().from(chartRecords).where(eq(chartRecords.userId, userId));
-    if (type) query = query.where(eq(chartRecords.type, type));
+    if (type) {
+      query = query.where(eq(chartRecords.type, type));
+    }
     const records = await query.orderBy(desc(chartRecords.createdAt)).limit(limit).offset(offset);
     const result = { data: records, page, limit };
     await this.cache.set(cacheKey, result, CacheTTL.chartList);
@@ -32792,7 +32842,9 @@ var ChartController = class {
   async getChart(db, id, userId) {
     const cacheKey = CacheKeys.chart(id);
     const cached2 = await this.cache.get(cacheKey);
-    if (cached2) return cached2;
+    if (cached2) {
+      return cached2;
+    }
     const orm = drizzle(db);
     const [record2] = await orm.select().from(chartRecords).where(and(eq(chartRecords.id, id), eq(chartRecords.userId, userId)));
     if (record2) {
@@ -32810,7 +32862,9 @@ var ChartController = class {
   async getAnalysisHistory(db, userId, page = 1, limit = 10) {
     const cacheKey = CacheKeys.analysisList(userId, page, limit);
     const cached2 = await this.cache.get(cacheKey);
-    if (cached2) return cached2;
+    if (cached2) {
+      return cached2;
+    }
     const orm = drizzle(db);
     const offset = (page - 1) * limit;
     const records = await orm.select().from(analysisRecords).where(eq(analysisRecords.userId, userId)).orderBy(desc(analysisRecords.createdAt)).limit(limit).offset(offset);
@@ -32908,8 +32962,12 @@ function formatHiddenStems(pillar, stems) {
   const lines = [`
 **${pillar}\u85CF\u5E72**`];
   lines.push(`- \u4E3B\u6C23\uFF1A${stems.primary}`);
-  if (stems.middle) lines.push(`- \u4E2D\u6C23\uFF1A${stems.middle}`);
-  if (stems.residual) lines.push(`- \u9918\u6C23\uFF1A${stems.residual}`);
+  if (stems.middle) {
+    lines.push(`- \u4E2D\u6C23\uFF1A${stems.middle}`);
+  }
+  if (stems.residual) {
+    lines.push(`- \u9918\u6C23\uFF1A${stems.residual}`);
+  }
   return lines.join("\n");
 }
 function formatWuXingDistribution(dist) {
@@ -32938,7 +32996,9 @@ function formatWuXingDistribution(dist) {
 }
 function formatFortuneCycles(result) {
   const { fortuneCycles } = result.bazi;
-  if (!fortuneCycles) return "";
+  if (!fortuneCycles) {
+    return "";
+  }
   const sections = ["## \u{1F504} \u5927\u904B\u6D41\u5E74\n"];
   sections.push("### \u8D77\u904B\u8CC7\u8A0A");
   sections.push(`- **\u8D77\u904B\u65E5\u671F**\uFF1A${formatDate(fortuneCycles.qiyunDate)}`);
@@ -33004,7 +33064,9 @@ function getBureauName(bureau) {
 }
 function formatSiHua(result) {
   const { siHuaAggregation } = result.ziwei;
-  if (!siHuaAggregation) return "";
+  if (!siHuaAggregation) {
+    return "";
+  }
   const sections = ["## \u2728 \u56DB\u5316\u98DB\u661F\n"];
   sections.push("### \u7D71\u8A08\u8CC7\u8A0A");
   sections.push(`- **\u7E3D\u98DB\u5316\u908A\u6578**\uFF1A${siHuaAggregation.totalEdges}`);
@@ -33040,7 +33102,9 @@ function formatSiHua(result) {
 }
 function formatAnnualFortune(result) {
   const { annualFortune } = result;
-  if (!annualFortune) return "";
+  if (!annualFortune) {
+    return "";
+  }
   const sections = ["## \u{1F4C5} \u6D41\u5E74\u5206\u6790\n"];
   sections.push("### \u6D41\u5E74\u5E74\u67F1");
   sections.push(`- **\u5E72\u652F**\uFF1A${annualFortune.annualPillar.stem}${annualFortune.annualPillar.branch}`);
@@ -33072,11 +33136,21 @@ function formatAnnualFortune(result) {
     const { taiSuiAnalysis } = annualFortune;
     sections.push("\n### \u592A\u6B72\u5206\u6790");
     const violations = [];
-    if (taiSuiAnalysis.zhi) violations.push("\u503C\u592A\u6B72");
-    if (taiSuiAnalysis.chong) violations.push("\u6C96\u592A\u6B72");
-    if (taiSuiAnalysis.xing) violations.push("\u5211\u592A\u6B72");
-    if (taiSuiAnalysis.po) violations.push("\u7834\u592A\u6B72");
-    if (taiSuiAnalysis.hai) violations.push("\u5BB3\u592A\u6B72");
+    if (taiSuiAnalysis.zhi) {
+      violations.push("\u503C\u592A\u6B72");
+    }
+    if (taiSuiAnalysis.chong) {
+      violations.push("\u6C96\u592A\u6B72");
+    }
+    if (taiSuiAnalysis.xing) {
+      violations.push("\u5211\u592A\u6B72");
+    }
+    if (taiSuiAnalysis.po) {
+      violations.push("\u7834\u592A\u6B72");
+    }
+    if (taiSuiAnalysis.hai) {
+      violations.push("\u5BB3\u592A\u6B72");
+    }
     if (violations.length > 0) {
       sections.push(`- **\u72AF\u592A\u6B72\u985E\u578B**\uFF1A${violations.join("\u3001")}`);
       sections.push(`- **\u56B4\u91CD\u7A0B\u5EA6**\uFF1A${taiSuiAnalysis.severity}`);
@@ -33544,6 +33618,16 @@ var AnalyzeController = class {
     }
   }
   /**
+   * Check if analysis cache exists for a chart
+   * @param chartId - The chart ID to check
+   * @param env - Cloudflare Worker environment
+   * @returns Object with cached status
+   */
+  async checkCache(chartId, env) {
+    const cachedAnalysis = await this.analysisCacheService.getAnalysis(chartId, "ai-streaming", env);
+    return { cached: !!cachedAnalysis };
+  }
+  /**
    * Analyze astrological chart with streaming AI response
    *
    * @param chartId - The chart ID to analyze
@@ -33552,6 +33636,12 @@ var AnalyzeController = class {
    */
   async analyzeStream(chartId, env) {
     console.log("[analyzeStream] Entry, chartId:", chartId);
+    const cachedAnalysis = await this.analysisCacheService.getAnalysis(chartId, "ai-streaming", env);
+    if (cachedAnalysis) {
+      console.log("[analyzeStream] Cache hit! Returning cached analysis");
+      const cachedText = typeof cachedAnalysis.result === "string" ? cachedAnalysis.result : cachedAnalysis.result.text || JSON.stringify(cachedAnalysis.result);
+      return this.createCachedSSEStream(cachedText);
+    }
     const chart = await this.chartCacheService.getChart(chartId, env);
     console.log("[analyzeStream] After getChart, found:", !!chart);
     if (!chart) {
@@ -33563,6 +33653,30 @@ var AnalyzeController = class {
     const geminiStream = await this.geminiService.analyzeChartStream(markdown);
     console.log("[analyzeStream] After geminiService.analyzeChartStream, stream:", !!geminiStream);
     return this.transformToSSE(geminiStream, chartId, env);
+  }
+  /**
+   * Create SSE stream from cached analysis
+   * @param cachedText - The cached analysis text
+   * @returns ReadableStream in SSE format
+   */
+  createCachedSSEStream(cachedText) {
+    const encoder = new TextEncoder();
+    const lines = cachedText.split("\n");
+    return new ReadableStream({
+      async start(controller) {
+        console.log("[createCachedSSEStream] Sending", lines.length, "cached lines");
+        for (const line of lines) {
+          const sseData = `data: ${JSON.stringify({ text: line + "\n" })}
+
+`;
+          controller.enqueue(encoder.encode(sseData));
+          await new Promise((resolve) => setTimeout(resolve, 10));
+        }
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+        console.log("[createCachedSSEStream] Stream complete");
+      }
+    });
   }
   /**
    * Transform Gemini streaming response to SSE format
@@ -33674,6 +33788,33 @@ function createAnalyzeRoutes(router, env) {
       );
     }
   });
+  router.get("/api/v1/analyze/check", async (req) => {
+    try {
+      const url2 = new URL(req.url);
+      const chartId = url2.searchParams.get("chartId");
+      if (!chartId) {
+        return new Response(
+          JSON.stringify({ error: "chartId is required" }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      const geminiApiKey = env.GEMINI_API_KEY;
+      const controller = new AnalyzeController(geminiApiKey);
+      const result = await controller.checkCache(chartId, env);
+      return new Response(JSON.stringify(result), {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      });
+    } catch (error46) {
+      console.error("Check cache error:", error46);
+      return new Response(
+        JSON.stringify({ error: "Failed to check cache" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  });
   router.get("/api/v1/analyze/stream", async (req) => {
     try {
       const url2 = new URL(req.url);
@@ -33776,7 +33917,7 @@ async function ensureAnonymousUser(db) {
 async function handleAPI(request, env) {
   const url2 = new URL(request.url);
   const path = url2.pathname;
-  const method = request.method;
+  const { method } = request;
   if (path === "/health" && method === "GET") {
     return new Response(JSON.stringify({ status: "ok" }), {
       headers: { "Content-Type": "application/json" }

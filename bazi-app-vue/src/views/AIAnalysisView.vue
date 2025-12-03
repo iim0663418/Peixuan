@@ -11,6 +11,7 @@ const analysisText = ref('');
 const isLoading = ref(true);
 const error = ref<string | null>(null);
 const progress = ref(0);
+const loadingMessage = ref('佩璇正在分析你的命盤...');
 
 let eventSource: EventSource | null = null;
 
@@ -18,7 +19,18 @@ const renderMarkdown = (text: string): string => {
   return marked(text) as string;
 };
 
-const startStreaming = () => {
+const checkCache = async (chartId: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`/api/v1/analyze/check?chartId=${chartId}`);
+    const data = await response.json();
+    return data.cached || false;
+  } catch (err) {
+    console.error('[checkCache] Error:', err);
+    return false;
+  }
+};
+
+const startStreaming = async () => {
   const { chartId } = chartStore;
 
   if (!chartId) {
@@ -27,7 +39,13 @@ const startStreaming = () => {
     return;
   }
 
-  const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/analyze/stream?chartId=${chartId}`;
+  // Check cache first
+  const hasCached = await checkCache(chartId);
+  loadingMessage.value = hasCached
+    ? '正在載入分析結果...'
+    : '佩璇正在分析你的命盤...';
+
+  const apiUrl = `/api/v1/analyze/stream?chartId=${chartId}`;
 
   eventSource = new EventSource(apiUrl);
 
@@ -82,6 +100,7 @@ const goBack = () => {
 };
 
 onMounted(() => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   startStreaming();
 });
 
@@ -110,13 +129,16 @@ onUnmounted(() => {
       <!-- 載入狀態 -->
       <div v-if="isLoading" class="loading">
         <div class="spinner" />
-        <p>佩璇正在分析你的命盤...</p>
+        <p class="loading-text">{{ loadingMessage }}</p>
+        <p class="loading-hint">這可能需要 15-20 秒</p>
       </div>
 
       <!-- 錯誤狀態 -->
       <div v-else-if="error" class="error">
-        <p>{{ error }}</p>
-        <button @click="goBack">返回重試</button>
+        <div class="error-icon">😢</div>
+        <h3>哎呀，出了點小問題</h3>
+        <p class="error-message">{{ error }}</p>
+        <button @click="goBack" class="retry-btn">← 返回重試</button>
       </div>
 
       <!-- 分析內容 -->
@@ -199,6 +221,29 @@ onUnmounted(() => {
   padding: 4rem 2rem;
 }
 
+.loading-text {
+  font-size: 1.2rem;
+  color: #667eea;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.loading-hint {
+  font-size: 0.9rem;
+  color: #999;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 .spinner {
   width: 50px;
   height: 50px;
@@ -221,10 +266,26 @@ onUnmounted(() => {
 .error {
   text-align: center;
   padding: 4rem 2rem;
-  color: #e74c3c;
 }
 
-.error button {
+.error-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.error h3 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.retry-btn {
   margin-top: 1rem;
   padding: 0.75rem 1.5rem;
   background: #667eea;
@@ -233,10 +294,13 @@ onUnmounted(() => {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 1rem;
 }
 
-.error button:hover {
+.retry-btn:hover {
   background: #5568d3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 .progress-bar {

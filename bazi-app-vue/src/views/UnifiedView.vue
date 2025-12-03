@@ -5,7 +5,10 @@
         <h2>統一命盤計算</h2>
       </template>
 
-      <UnifiedInputForm @submit="handleSubmit" />
+      <UnifiedInputForm 
+        :initial-data="savedMetadata" 
+        @submit="handleSubmit" 
+      />
     </el-card>
 
     <el-card v-if="loading" class="result-card">
@@ -44,6 +47,7 @@ const chartStore = useChartStore();
 const loading = ref(false);
 const error = ref('');
 const result = ref<CalculationResult | null>(null);
+const savedMetadata = ref<any>(null);
 
 const handleSubmit = async (birthInfo: any) => {
   loading.value = true;
@@ -53,8 +57,8 @@ const handleSubmit = async (birthInfo: any) => {
   try {
     result.value = await unifiedApiService.calculate(birthInfo);
 
-    // Save to chartStore
-    const chartId = `chart_${Date.now()}`;
+    // Save to chartStore - use chartId from backend
+    const chartId = (result.value as any).chartId || `chart_${Date.now()}`;
     chartStore.setCurrentChart({
       chartId,
       calculation: result.value,
@@ -77,74 +81,159 @@ const handleSubmit = async (birthInfo: any) => {
 };
 
 onMounted(() => {
-  chartStore.loadFromLocalStorage();
+  const { chartId, metadata } = chartStore.loadFromLocalStorage();
+  if (metadata) {
+    savedMetadata.value = metadata;
+    console.log('[UnifiedView] Loaded saved metadata:', metadata);
+  }
 });
 </script>
 
 <style scoped>
+/* ==========================================
+   Mobile-First Responsive View Styles
+   ========================================== */
+
+/* Base styles (Mobile < 480px) */
 .unified-view {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: clamp(0.75rem, 3vw, 1.5rem);
 }
 
 .form-card,
 .result-card {
-  margin-bottom: 20px;
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
+  border-radius: clamp(8px, 2vw, 12px);
 }
 
+/* Error state styling */
 .result-card.error {
   background-color: #fef0f0;
 }
 
+/* Result sections */
 .result-section {
-  padding: 20px 0;
+  padding: clamp(1rem, 3vw, 1.5rem) 0;
 }
 
+/* Pillar display */
 .pillar {
   text-align: center;
-  padding: 15px;
+  padding: clamp(0.875rem, 2.5vw, 1.25rem);
   background: #f5f7fa;
   border-radius: 8px;
 }
 
 .pillar-label {
-  font-size: 14px;
+  font-size: clamp(0.875rem, 2vw, 1rem);
   color: #909399;
-  margin-bottom: 8px;
+  margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
+  line-height: 1.4;
 }
 
 .pillar-value {
-  font-size: 24px;
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
   font-weight: bold;
   color: #303133;
+  line-height: 1.3;
 }
 
+/* Typography - fluid sizing */
 h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: clamp(1.125rem, 3vw, 1.5rem);
   color: #303133;
+  line-height: 1.3;
 }
 
 h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
   color: #303133;
+  line-height: 1.4;
 }
 
 h4 {
-  font-size: 16px;
+  font-size: clamp(0.875rem, 2vw, 1rem);
   color: #606266;
-  margin-bottom: 12px;
+  margin-bottom: clamp(0.75rem, 2vw, 1rem);
+  line-height: 1.4;
 }
 
-@media (max-width: 768px) {
+/* Card header styling */
+:deep(.el-card__header) {
+  padding: clamp(1rem, 3vw, 1.25rem);
+}
+
+:deep(.el-card__body) {
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+/* Alert styling for better mobile readability */
+:deep(.el-alert) {
+  padding: clamp(0.75rem, 2.5vw, 1rem);
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  line-height: 1.5;
+}
+
+:deep(.el-alert__title) {
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  line-height: 1.5;
+}
+
+/* Skeleton loading optimization */
+:deep(.el-skeleton) {
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+/* ==========================================
+   Tablet and above (≥ 480px)
+   ========================================== */
+@media (min-width: 480px) {
   .unified-view {
-    padding: 10px;
+    padding: 1.25rem;
   }
 
-  .pillar-value {
-    font-size: 20px;
+  .form-card,
+  .result-card {
+    margin-bottom: 1.25rem;
+  }
+}
+
+/* ==========================================
+   Tablet (≥ 768px)
+   ========================================== */
+@media (min-width: 768px) {
+  .unified-view {
+    padding: 1.5rem;
+  }
+
+  .form-card,
+  .result-card {
+    margin-bottom: 1.5rem;
+  }
+
+  :deep(.el-card__header) {
+    padding: 1.25rem 1.5rem;
+  }
+
+  :deep(.el-card__body) {
+    padding: 1.5rem;
+  }
+}
+
+/* ==========================================
+   Desktop (≥ 1024px)
+   ========================================== */
+@media (min-width: 1024px) {
+  .unified-view {
+    padding: 2rem;
+  }
+
+  .form-card,
+  .result-card {
+    margin-bottom: 2rem;
   }
 }
 </style>

@@ -99,6 +99,17 @@ export class AnalyzeController {
   }
 
   /**
+   * Check if analysis cache exists for a chart
+   * @param chartId - The chart ID to check
+   * @param env - Cloudflare Worker environment
+   * @returns Object with cached status
+   */
+  async checkCache(chartId: string, env: { DB: D1Database }): Promise<{ cached: boolean }> {
+    const cachedAnalysis = await this.analysisCacheService.getAnalysis(chartId, 'ai-streaming', env);
+    return { cached: !!cachedAnalysis };
+  }
+
+  /**
    * Analyze astrological chart with streaming AI response
    *
    * @param chartId - The chart ID to analyze
@@ -107,6 +118,16 @@ export class AnalyzeController {
    */
   async analyzeStream(chartId: string, env: { DB: D1Database }): Promise<ReadableStream> {
     console.log('[analyzeStream] Entry, chartId:', chartId);
+
+    // Step 0: Check analysis cache first
+    const cachedAnalysis = await this.analysisCacheService.getAnalysis(chartId, 'ai-streaming', env);
+    if (cachedAnalysis) {
+      console.log('[analyzeStream] Cache hit! Returning cached analysis');
+      const cachedText = typeof cachedAnalysis.result === 'string'
+        ? cachedAnalysis.result
+        : (cachedAnalysis.result as any).text || JSON.stringify(cachedAnalysis.result);
+      return this.createCachedSSEStream(cachedText);
+    }
 
     // Step 1: Read chart data from D1
     const chart = await this.chartCacheService.getChart(chartId, env);
@@ -128,6 +149,36 @@ export class AnalyzeController {
 
     // Step 4: Transform to SSE format
     return this.transformToSSE(geminiStream, chartId, env);
+  }
+
+  /**
+   * Create SSE stream from cached analysis
+   * @param cachedText - The cached analysis text
+   * @returns ReadableStream in SSE format
+   */
+  private createCachedSSEStream(cachedText: string): ReadableStream {
+    const encoder = new TextEncoder();
+    // Split by lines to preserve Markdown formatting
+    const lines = cachedText.split('\n');
+
+    return new ReadableStream({
+      async start(controller) {
+        console.log('[createCachedSSEStream] Sending', lines.length, 'cached lines');
+
+        for (const line of lines) {
+          // Send each line with newline preserved
+          const sseData = `data: ${JSON.stringify({ text: line + '\n' })}\n\n`;
+          controller.enqueue(encoder.encode(sseData));
+          // Shorter delay for faster playback
+          await new Promise(resolve => setTimeout(resolve, 10));
+        }
+
+        // Send [DONE] signal
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+        controller.close();
+        console.log('[createCachedSSEStream] Stream complete');
+      }
+    });
   }
 
   /**

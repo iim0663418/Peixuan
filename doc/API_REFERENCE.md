@@ -4,9 +4,9 @@
 
 佩璇平台提供 RESTful API，支援紫微斗數計算、八字分析和多術數整合服務。所有 API 均使用 JSON 格式進行數據交換。
 
-**Base URL**: `http://localhost:3000/api/v1`  
-**Content-Type**: `application/json`  
-**Rate Limiting**: 
+**Base URL**: `http://localhost:8787/api/v1` (Cloudflare Workers)
+**Content-Type**: `application/json`
+**Rate Limiting**:
 - 一般 API: 100 請求/15分鐘
 - 計算 API: 20 請求/5分鐘
 
@@ -423,6 +423,518 @@ GET /api/v1/bazi/history?limit=10&offset=0
 
 ---
 
+## 🤖 AI 智能分析 API
+
+### POST /api/v1/analyze
+
+結合命盤計算與 AI 深度分析，一次性返回完整的命理解讀。使用 Google Gemini 2.5 Flash 模型進行智能分析。
+
+#### 請求參數
+
+```json
+{
+  "birthDate": "1990-05-15",        // 出生日期 (YYYY-MM-DD)
+  "birthTime": "14:30",             // 出生時間 (HH:MM)
+  "gender": "male",                 // 性別 ("male" | "female")
+  "longitude": 121.5,               // 經度 (可選，預設 121.5)
+  "isLeapMonth": false              // 是否閏月 (可選，預設 false)
+}
+```
+
+#### 成功響應 (200)
+
+```json
+{
+  "calculation": {
+    "bazi": {
+      "fourPillars": {
+        "year": {"stem": "庚", "branch": "午"},
+        "month": {"stem": "辛", "branch": "巳"},
+        "day": {"stem": "癸", "branch": "未"},
+        "hour": {"stem": "己", "branch": "未"}
+      },
+      "hiddenStems": {
+        "year": ["己", "丁"],
+        "month": ["丙", "庚", "戊"],
+        "day": ["己", "乙", "丁"],
+        "hour": ["己", "乙", "丁"]
+      },
+      "tenGods": {
+        "year": {"stem": "偏印", "branch": "傷官"},
+        "month": {"stem": "正印", "branch": "劫財"},
+        "day": {"stem": "日主", "branch": "食神"},
+        "hour": {"stem": "傷官", "branch": "食神"}
+      }
+    },
+    "ziwei": {
+      "lifePalace": {
+        "index": 2,
+        "earthlyBranch": "寅",
+        "heavenlyStem": "甲",
+        "stars": [
+          {
+            "name": "紫微",
+            "type": "主星",
+            "brightness": "旺"
+          }
+        ]
+      },
+      "bodyPalace": {
+        "index": 8,
+        "earthlyBranch": "申",
+        "heavenlyStem": "庚"
+      },
+      "bureau": {
+        "name": "水二局",
+        "element": "水",
+        "number": 2
+      },
+      "stars": {
+        "major": [
+          {"name": "紫微", "palace": "命宮", "brightness": "旺"}
+        ],
+        "minor": [
+          {"name": "文昌", "palace": "財帛宮", "brightness": "平"}
+        ]
+      }
+    },
+    "metadata": {
+      "calculatedAt": "2025-01-24T10:30:00Z",
+      "solarDate": "1990-05-15T14:30:00+08:00",
+      "lunarDate": "1990年四月廿一 未時"
+    }
+  },
+  "aiAnalysis": "## 整體命格分析\n\n您的命盤顯示...\n\n### 性格特質\n\n1. **領導能力突出**：命宮紫微星坐命...\n2. **創新思維**：...\n\n### 事業運勢\n\n官祿宮配置顯示...\n\n### 財富特質\n\n財帛宮分析...\n\n### 感情運勢\n\n夫妻宮...\n\n### 健康建議\n\n疾厄宮...",
+  "usage": {
+    "promptTokens": 1250,
+    "completionTokens": 850,
+    "totalTokens": 2100
+  }
+}
+```
+
+#### 錯誤響應
+
+```json
+// 400 - 請求參數錯誤
+{
+  "error": "Invalid birth date or time format"
+}
+
+// 500 - Gemini API 未配置
+{
+  "error": "Gemini API key not configured"
+}
+
+// 500 - 計算或分析錯誤
+{
+  "error": "Unknown error during analysis"
+}
+```
+
+---
+
+### GET /api/v1/analyze/stream
+
+使用 Server-Sent Events (SSE) 串流方式返回 AI 分析結果，適合需要即時顯示分析進度的場景。
+
+#### 請求參數
+
+```
+GET /api/v1/analyze/stream?chartId=550e8400-e29b-41d4-a716-446655440000
+```
+
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| chartId | string | 是 | 先前計算獲得的命盤 ID |
+
+#### SSE 響應格式
+
+**Content-Type**: `text/event-stream`
+
+```
+data: {"text": "## 整體命格分析\n\n"}
+
+data: {"text": "您的命盤顯示"}
+
+data: {"text": "領導特質突出，"}
+
+data: {"text": "適合從事管理工作...\n\n"}
+
+data: [DONE]
+```
+
+#### 客戶端使用範例
+
+```javascript
+// 使用 EventSource API
+const eventSource = new EventSource(
+  'http://localhost:8787/api/v1/analyze/stream?chartId=YOUR_CHART_ID'
+);
+
+let analysisText = '';
+
+eventSource.onmessage = (event) => {
+  if (event.data === '[DONE]') {
+    console.log('分析完成:', analysisText);
+    eventSource.close();
+    return;
+  }
+
+  const data = JSON.parse(event.data);
+  analysisText += data.text;
+
+  // 即時更新 UI
+  document.getElementById('analysis').textContent = analysisText;
+};
+
+eventSource.onerror = (error) => {
+  console.error('SSE 錯誤:', error);
+  eventSource.close();
+};
+```
+
+```typescript
+// TypeScript 完整範例
+async function streamAnalysis(chartId: string) {
+  const eventSource = new EventSource(
+    `http://localhost:8787/api/v1/analyze/stream?chartId=${chartId}`
+  );
+
+  return new Promise<string>((resolve, reject) => {
+    let fullText = '';
+
+    eventSource.onmessage = (event) => {
+      if (event.data === '[DONE]') {
+        eventSource.close();
+        resolve(fullText);
+        return;
+      }
+
+      try {
+        const { text } = JSON.parse(event.data);
+        fullText += text;
+
+        // 觸發進度回調
+        onProgress?.(fullText);
+      } catch (error) {
+        console.error('解析 SSE 數據失敗:', error);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      eventSource.close();
+      reject(error);
+    };
+  });
+}
+
+// 使用範例
+try {
+  const analysis = await streamAnalysis('YOUR_CHART_ID');
+  console.log('完整分析:', analysis);
+} catch (error) {
+  console.error('串流分析失敗:', error);
+}
+```
+
+#### SSE 特性說明
+
+| 特性 | 說明 |
+|------|------|
+| **即時性** | 分析結果即時傳送，無需等待完整響應 |
+| **自動重連** | EventSource API 自動處理連接中斷 |
+| **單向通信** | 服務器向客戶端推送數據 |
+| **持久連接** | 保持 HTTP 連接直到傳輸完成 |
+| **緩存策略** | 完整分析結果自動緩存至 D1 數據庫 |
+
+#### 錯誤響應
+
+```json
+// 400 - 缺少 chartId 參數
+{
+  "error": "Missing chartId parameter"
+}
+
+// 404 - 命盤不存在
+{
+  "error": "Chart not found"
+}
+
+// 500 - Gemini API 未配置
+{
+  "error": "Gemini API key not configured"
+}
+
+// 500 - 串流錯誤
+{
+  "error": "Failed to parse Gemini response: ..."
+}
+```
+
+---
+
+## 📊 統一計算 API
+
+### POST /api/v1/calculate
+
+統一的命盤計算端點，同時計算八字與紫微斗數，支援 JSON 和 Markdown 兩種輸出格式。
+
+#### 請求參數
+
+```json
+{
+  "birthDate": "1990-05-15",        // 出生日期 (YYYY-MM-DD)
+  "birthTime": "14:30",             // 出生時間 (HH:MM)
+  "gender": "male",                 // 性別 ("male" | "female")
+  "longitude": 121.5,               // 經度 (可選，預設 121.5)
+  "isLeapMonth": false,             // 是否閏月 (可選，預設 false)
+  "format": "json",                 // 輸出格式 ("json" | "markdown"，預設 "json")
+  "name": "張三",                    // 姓名 (可選，用於緩存)
+  "location": "台北市"               // 出生地點 (可選，用於緩存)
+}
+```
+
+#### 成功響應 - JSON 格式 (200)
+
+**Content-Type**: `application/json`
+
+```json
+{
+  "chartId": "550e8400-e29b-41d4-a716-446655440000",
+  "bazi": {
+    "fourPillars": {
+      "year": {"stem": "庚", "branch": "午"},
+      "month": {"stem": "辛", "branch": "巳"},
+      "day": {"stem": "癸", "branch": "未"},
+      "hour": {"stem": "己", "branch": "未"}
+    },
+    "hiddenStems": {
+      "year": ["己", "丁"],
+      "month": ["丙", "庚", "戊"],
+      "day": ["己", "乙", "丁"],
+      "hour": ["己", "乙", "丁"]
+    },
+    "tenGods": {
+      "year": {"stem": "偏印", "branch": "傷官"},
+      "month": {"stem": "正印", "branch": "劫財"},
+      "day": {"stem": "日主", "branch": "食神"},
+      "hour": {"stem": "傷官", "branch": "食神"}
+    },
+    "calculationSteps": [
+      {
+        "step": "1. 節氣計算",
+        "description": "計算出生時間所在節氣",
+        "result": "立夏後 10 天"
+      }
+    ]
+  },
+  "ziwei": {
+    "lifePalace": {
+      "index": 2,
+      "earthlyBranch": "寅",
+      "heavenlyStem": "甲",
+      "stars": [...]
+    },
+    "bodyPalace": {
+      "index": 8,
+      "earthlyBranch": "申",
+      "heavenlyStem": "庚"
+    },
+    "bureau": {
+      "name": "水二局",
+      "element": "水",
+      "number": 2
+    },
+    "palaces": [...],
+    "stars": {...},
+    "symmetry": {...},
+    "calculationSteps": [...]
+  },
+  "metadata": {
+    "calculatedAt": "2025-01-24T10:30:00Z",
+    "solarDate": "1990-05-15T14:30:00+08:00",
+    "lunarDate": "1990年四月廿一 未時"
+  }
+}
+```
+
+#### 成功響應 - Markdown 格式 (200)
+
+**Content-Type**: `text/markdown; charset=utf-8`
+
+```markdown
+# 命理排盤結果
+
+## 基本資訊
+- **陽曆生日**: 1990-05-15 14:30
+- **農曆生日**: 1990年四月廿一 未時
+- **性別**: 男
+
+---
+
+## 八字命盤
+
+### 四柱八字
+| 柱位 | 天干 | 地支 |
+|------|------|------|
+| 年柱 | 庚   | 午   |
+| 月柱 | 辛   | 巳   |
+| 日柱 | 癸   | 未   |
+| 時柱 | 己   | 未   |
+
+### 藏干
+- **年支 (午)**: 己、丁
+- **月支 (巳)**: 丙、庚、戊
+- **日支 (未)**: 己、乙、丁
+- **時支 (未)**: 己、乙、丁
+
+### 十神關係
+- **年干 (庚)**: 偏印
+- **月干 (辛)**: 正印
+- **日干 (癸)**: 日主
+- **時干 (己)**: 傷官
+
+---
+
+## 紫微斗數命盤
+
+### 命宮與身宮
+- **命宮**: 寅宮 (甲寅)
+- **身宮**: 申宮 (庚申)
+- **五行局**: 水二局
+
+### 十二宮星曜配置
+
+#### 命宮 (寅)
+- 主星: 紫微 (旺)
+- 輔星: 文昌、左輔
+
+#### 兄弟宮 (卯)
+- 主星: 天機 (旺)
+
+[... 其他宮位]
+
+---
+
+## 計算步驟
+
+### 八字計算
+1. 節氣計算: 立夏後 10 天
+2. 月柱推算: 庚年生人，立夏至芒種為辛巳月
+3. 日干支查表: 1990-05-15 為癸未日
+4. 時柱計算: 癸日午時為己未時
+
+### 紫微斗數計算
+1. 五行局確定: 癸未日生人屬水二局
+2. 命宮定位: 巳時生人，命宮在寅
+3. 紫微星定位: 水二局，生日 21 日，紫微在寅宮
+4. 其他主星安星...
+
+---
+
+*計算時間: 2025-01-24T10:30:00Z*
+```
+
+#### 使用範例
+
+```typescript
+// JSON 格式 (預設)
+const response = await fetch('http://localhost:8787/api/v1/calculate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    birthDate: '1990-05-15',
+    birthTime: '14:30',
+    gender: 'male'
+  })
+});
+
+const data = await response.json();
+console.log('命盤 ID:', data.chartId);
+console.log('八字:', data.bazi);
+console.log('紫微:', data.ziwei);
+```
+
+```typescript
+// Markdown 格式
+const response = await fetch('http://localhost:8787/api/v1/calculate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    birthDate: '1990-05-15',
+    birthTime: '14:30',
+    gender: 'male',
+    format: 'markdown'
+  })
+});
+
+const markdown = await response.text();
+console.log(markdown); // Markdown 格式的命盤
+```
+
+```bash
+# cURL 範例 - JSON 格式
+curl -X POST http://localhost:8787/api/v1/calculate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "birthDate": "1990-05-15",
+    "birthTime": "14:30",
+    "gender": "male",
+    "format": "json"
+  }'
+
+# cURL 範例 - Markdown 格式
+curl -X POST http://localhost:8787/api/v1/calculate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "birthDate": "1990-05-15",
+    "birthTime": "14:30",
+    "gender": "male",
+    "format": "markdown"
+  }'
+```
+
+#### 格式對比
+
+| 格式 | Content-Type | 適用場景 | chartId |
+|------|--------------|----------|---------|
+| **json** | `application/json` | 前端應用、數據處理、API 串接 | ✅ 包含 |
+| **markdown** | `text/markdown` | 文檔生成、報告輸出、可讀性優先 | ❌ 不包含 |
+
+#### chartId 說明
+
+- **用途**: 用於 SSE 串流分析 (`/api/v1/analyze/stream`)
+- **格式**: UUID v4 (例: `550e8400-e29b-41d4-a716-446655440000`)
+- **緩存**: 自動保存至 D1 數據庫 (如果環境支持)
+- **有效期**: 建議在 24 小時內使用
+
+#### 錯誤響應
+
+```json
+// 400 - 日期格式錯誤
+{
+  "error": "Invalid birth date or time format"
+}
+
+// 400 - 性別參數錯誤
+{
+  "error": "Invalid gender: must be \"male\" or \"female\""
+}
+
+// 500 - 計算錯誤
+{
+  "error": "Input validation error: ..."
+}
+
+// 500 - 未知錯誤
+{
+  "error": "Unknown error during unified calculation"
+}
+```
+
+---
+
 ## 🔧 系統 API
 
 ### GET /health
@@ -577,7 +1089,7 @@ const integratedAnalysis = async (birthData: BirthData, charts: Charts) => {
 
 ```bash
 # 紫微斗數計算
-curl -X POST http://localhost:3000/api/v1/purple-star/calculate \
+curl -X POST http://localhost:8787/api/v1/purple-star/calculate \
   -H "Content-Type: application/json" \
   -d '{
     "birthDate": "1990-05-15",
@@ -599,10 +1111,10 @@ curl -X POST http://localhost:3000/api/v1/purple-star/calculate \
   }'
 
 # 健康檢查
-curl -X GET http://localhost:3000/health
+curl -X GET http://localhost:8787/health
 
 # 整合分析
-curl -X POST http://localhost:3000/api/v1/astrology/integrated-analysis \
+curl -X POST http://localhost:8787/api/v1/astrology/integrated-analysis \
   -H "Content-Type: application/json" \
   -d '{
     "birthDate": "1990-05-15",
@@ -652,11 +1164,29 @@ curl -X POST http://localhost:3000/api/v1/astrology/integrated-analysis \
 ### API 文檔
 
 - **OpenAPI 規範**: `/docs/purpleStarApi.yaml`
-- **在線文檔**: `http://localhost:3000/api-docs` (開發中)
-- **測試環境**: `http://localhost:3000/api/v1`
+- **在線文檔**: `http://localhost:8787/api-docs` (開發中)
+- **測試環境**: `http://localhost:8787/api/v1` (Cloudflare Workers)
+- **本地開發環境**: `http://localhost:3000/api/v1` (Node.js 後端)
 
 ---
 
-*文檔版本：v1.0*  
-*最後更新：2025年1月24日*  
+*文檔版本：v1.1*
+*最後更新：2025年12月3日*
 *維護者：API開發團隊*
+
+## 📝 更新記錄
+
+### v1.1 (2025-12-03)
+- ✨ 新增 AI 智能分析 API (`/api/v1/analyze`)
+- ✨ 新增 SSE 串流分析 API (`/api/v1/analyze/stream`)
+- ✨ 新增統一計算 API Markdown 格式支援
+- 🔄 更新 Base URL 為 Cloudflare Workers (`http://localhost:8787`)
+- 📚 新增詳細的 SSE 使用範例與客戶端代碼
+- 📚 新增 chartId 說明與使用指引
+
+### v1.0 (2025-01-24)
+- 🎉 初始版本發布
+- 📚 紫微斗數計算 API
+- 📚 命理整合 API
+- 📚 八字計算 API
+- 📚 系統健康檢查 API

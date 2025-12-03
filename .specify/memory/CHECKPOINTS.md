@@ -1,5 +1,49 @@
 # 檢查點記錄
 
+## Checkpoint: progress-core-2025-12-03-17:28
+**時間**: 2025-12-03 17:28  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- 核心同步：快取預檢查 `/api/v1/analyze/check` + analysis_records 快取命中路徑 createCachedSSEStream，回應 **0.118s**，修正 result 欄位/事件型別
+- SSE 排版：快取流由逐字改為逐行輸出並保留換行，延遲 10ms/行，確保快取/非快取 Markdown 一致
+- UX/狀態：UnifiedView onMounted 自動載入 savedMetadata 回填；移除未用 chartHistory/localStorage；Navbar 移除 🤖 emoji；App.vue 封裝 closeMobileMenu() 修復 TS
+
+### 關鍵成果
+- 快取命中 0.118s、成本 0；快取與非快取版呈現一致；loading 文案依 cached 狀態切換
+- 整體流程測試 chartId `961e01d7-da21-4524-a002-17fa03657bec` 通過（首次 42.9s、再訪 0.118s）
+
+### 已知問題
+- 前端 ESLint 6 errors/120 warnings；後端 ESLint 3597 issues
+- 前端測試：LanguageSelector 6 失敗（localStorage mock 未觸發）
+
+### 下一步
+- 補齊 LanguageSelector 測試並持續清理 ESLint（前端→0 errors，後端分批收斂）
+- 監控快取命中率與 SSE 排版，必要時調整 UX/文檔
+
+## Checkpoint: cache-ux-2025-12-03
+**時間**: 2025-12-03 17:22  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- 快取優先: analyzeStream 先查 analysis_records，命中直接回傳 createCachedSSEStream，響應 **0.118s**，修正欄位/result 解析與事件型別
+- 快取預檢查: 新增 GET `/api/v1/analyze/check` + 前端 checkCache()，依 cached 狀態切換 loading 文案（有快取「正在載入分析結果...」，無快取「佩璇正在分析你的命盤...」）
+- SSE 排版修復: 快取 SSE 改逐行輸出保留換行，延遲 10ms/行，Markdown 與非快取格式一致
+- UX/狀態: UnifiedView 自動載入 savedMetadata 回填表單；移除未用 chartHistory 狀態；App.vue 封裝 closeMobileMenu() 解 TS；Navbar 移除 🤖 emoji
+
+### 關鍵成果
+- 整體流程驗證：chartId `961e01d7-da21-4524-a002-17fa03657bec` 快取預檢查 + 首次分析 42.9s + 二次快取命中 0.118s
+- 快取命中速度 18-21s → 0.118s（成本 0），提示文案依快取狀態切換，快取/非快取排版一致
+- 使用者回訪可自動回填前次輸入，移除未用狀態降低維護成本
+
+### 已知問題
+- 前端 ESLint 剩 6 errors/120 warnings；後端 ESLint 3597 issues
+- 測試缺口：LanguageSelector 6 失敗（localStorage mock 未觸發）
+
+### 下一步
+- 補齊 LanguageSelector 測試並持續清理 ESLint
+- 監控快取命中率與 SSE 排版，必要時再優化 UX/文檔
+
 ## Checkpoint: ai-streaming-2025-12-03
 **時間**: 2025-12-03 15:30
 **狀態**: ✅ 完成

@@ -58,7 +58,6 @@ describe('LanguageSelector', () => {
 
     expect(wrapper.find('select').exists()).toBe(true);
     expect(wrapper.find('option[value="en"]').exists()).toBe(true);
-    expect(wrapper.find('option[value="zh"]').exists()).toBe(true);
     expect(wrapper.find('option[value="zh_TW"]').exists()).toBe(true);
   });
 
@@ -88,7 +87,7 @@ describe('LanguageSelector', () => {
 
   it('loads saved language preference from localStorage', () => {
     // 模擬 localStorage 返回保存的語言設定
-    localStorageMock.getItem.mockReturnValue('zh');
+    localStorageMock.getItem.mockReturnValue('zh_TW');
 
     const i18n = createTestI18n('en');
     const wrapper = mount(LanguageSelector, {
@@ -101,7 +100,7 @@ describe('LanguageSelector', () => {
     expect(localStorageMock.getItem).toHaveBeenCalledWith('preferred-language');
 
     // 驗證語言已設定為保存的值
-    expect(i18n.global.locale.value).toBe('zh');
+    expect(i18n.global.locale.value).toBe('zh_TW');
   });
 
   it('handles invalid localStorage values gracefully', () => {
@@ -156,14 +155,14 @@ describe('LanguageSelector', () => {
 
     const select = wrapper.find('select');
 
-    // 模擬選擇簡體中文
-    await select.setValue('zh');
+    // 模擬選擇繁體中文
+    await select.setValue('zh_TW');
     await select.trigger('change');
 
     // 驗證 localStorage 保存了新的語言偏好
     expect(localStorageMock.setItem).toHaveBeenCalledWith(
       'preferred-language',
-      'zh',
+      'zh_TW',
     );
   });
 
@@ -209,12 +208,12 @@ describe('LanguageSelector', () => {
     });
 
     // 外部更改 locale
-    i18n.global.locale.value = 'zh';
+    i18n.global.locale.value = 'zh_TW';
     await wrapper.vm.$nextTick();
 
     // 驗證選擇框的值已同步更新
     const select = wrapper.find('select');
-    expect((select.element as HTMLSelectElement).value).toBe('zh');
+    expect((select.element as HTMLSelectElement).value).toBe('zh_TW');
   });
 
   it('has proper accessibility attributes', () => {

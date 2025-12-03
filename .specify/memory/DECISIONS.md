@@ -35,6 +35,36 @@
   - 預估成本可見，便於限流與預算控管
 - **狀態**: 完成 ✓
 
+## 2025-12-03: 快取體驗與 UX 決策
+
+### 決策：快取優先策略與預檢查
+- **原因**: 已有 chartId 時避免重算 Gemini，降低 18-40s 延遲
+- **影響**:
+  - analyzeStream 先查 analysis_records，命中直接回傳 createCachedSSEStream（0.118s）
+  - 新增 GET `/api/v1/analyze/check` 端點 + checkCache() 前端預檢查，依快取狀態切換 loading 文案
+  - 修正欄位/result 解析與事件型別，防止快取 MISS/格式破壞
+- **狀態**: 完成 ✓
+
+### 決策：SSE 排版一致化
+- **原因**: 50 字分塊破壞 Markdown（快取版排版錯亂）
+- **影響**:
+  - SSE 以行為單位輸出並保留換行，延遲 10ms/行
+  - 快取與非快取輸出格式一致，避免渲染差異
+- **狀態**: 完成 ✓
+
+### 決策：表單回填與歷史清理
+- **原因**: 回訪用戶需保留輸入體驗，移除未用狀態減少維護
+- **影響**:
+  - chartStore 保存/載入 currentChartMetadata，UnifiedView onMounted 自動回填表單
+  - 移除未用 chartHistory 狀態/方法/localStorage，降低複雜度
+  - App.vue DOM 操作封裝 closeMobileMenu()，消除 TS 錯誤；Navbar 移除 🤖 emoji 保持純文字
+- **狀態**: 完成 ✓
+
+### 狀態更新（2025-12-03 17:28）
+- 快取預檢查 + analysis_records 快取命中流程驗證：響應 0.118s、成本 0，loading 文案依 cached 狀態切換，快取/非快取 Markdown 排版一致（逐行 SSE）
+- UX 清理落地：metadata 自動回填、chartHistory 移除、Navbar 去 emoji，流程測試 chartId `961e01d7-da21-4524-a002-17fa03657bec` 通過
+- 未解決：前端 ESLint 6 errors/120 warnings、後端 ESLint 3597 issues；LanguageSelector 測試 6 失敗（localStorage mock）
+
 ## 2025-12-02: 開源專案整合策略確立
 
 ### 決策：Phase B/C 評估完成，決定保留現有實作

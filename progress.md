@@ -559,3 +559,301 @@ const currentYear = new Date().getFullYear();
 - [ ] 提交代碼到 feature/ai-integration 分支
 - [ ] 合併回 main 分支
 - [ ] 部署到生產環境
+
+
+---
+
+## 🧪 測試修復 Phase 1 (2025-12-03 16:10)
+
+### 問題分析
+- ❌ ziweiCalc.spec.ts: 文件不存在（已刪除）
+- ❌ enhancedStorageService.spec.ts: 10/10 失敗（constructor 問題）
+- ❌ LanguageSelector.spec.ts: 8/9 失敗（語言選項變更）
+
+### TASKLIST
+- [x] Task 1: 刪除 ziweiCalc.spec.ts ✅
+- [x] Task 2: 修復 enhancedStorageService.spec.ts (7/10 通過，70%)
+- [ ] Task 3: 修復 LanguageSelector.spec.ts (3/9 通過，需深入修復)
+
+### 測試結果
+- enhancedStorageService: 3 個失敗（圖表資料、清除資料、驗證完整性）
+- LanguageSelector: 6 個失敗（localStorage mock 未被調用）
+- 總通過率: 17/26 (65%)
+
+
+---
+
+## 🎨 AI 分析 UX 優化 (2025-12-03 16:24)
+
+### 問題
+- 切換到 AI 分析分頁時，頁面停留在底部
+
+### TASKLIST
+- [x] Task 1: 添加自動滾動到頂部（onMounted）✅
+- [x] Task 2: 改善載入狀態視覺（脈動動畫 + 時間提示）✅
+- [x] Task 3: 優化錯誤提示（友善訊息 + 圖標 + 懸停效果）✅
+
+### 優化內容
+1. **滾動優化**: 切換分頁時自動平滑滾動到頂部
+2. **載入狀態**: 添加時間提示（15-20秒）+ 脈動動畫
+3. **錯誤提示**: 友善訊息 + 表情圖標 + 懸停效果
+
+### 實作時間
+- 預估: 30min
+- 實際: 8min
+
+
+---
+
+## 🔧 TypeScript 錯誤修復 (2025-12-03 16:26)
+
+### 問題
+- App.vue 中 template 無法訪問 `document` 和 `window` 對象
+
+### 解決方案
+- 創建 `closeMobileMenu()` 方法封裝 DOM 操作
+- 替換 template 中的內聯代碼為方法調用
+
+### 修改文件
+- `bazi-app-vue/src/App.vue` (3 處修改)
+
+### 結果
+- ✅ TypeScript 編譯成功
+- ✅ 構建時間: 5.64s
+- ✅ PWA 生成成功
+
+
+---
+
+## 🐛 D1 快取問題修復 (2025-12-03 16:31)
+
+### 問題
+- chartId 存在於 localStorage 時，沒有從 D1 讀取 analysis_records 快取
+- 每次都重新調用 Gemini API（浪費成本和時間）
+
+### 根本原因
+- `analyzeStream` 只檢查 chart_records，沒有檢查 analysis_records
+- 缺少快取命中時的快速返回邏輯
+
+### TASKLIST
+- [x] Task 1: 添加 analysis_records 快取檢查 ✅
+- [x] Task 2: 快取命中時直接返回（不調用 Gemini）✅
+- [ ] Task 3: 測試快取邏輯
+
+### 修改內容
+1. **analyzeStream**: 添加 Step 0 檢查 analysis_records 快取
+2. **createCachedSSEStream**: 新方法，將快取文字轉換為 SSE 格式
+3. **快取邏輯**: 24h TTL，快取命中時跳過 Gemini 調用
+
+### 實作時間
+- 預估: 1h
+- 實際: 10min
+
+### 預期效果
+- ✅ 快取命中時響應時間 <5s（vs 原本 18-19s）
+- ✅ 節省 Gemini API 成本
+- ✅ 改善用戶體驗
+
+
+### Task 3: 測試快取邏輯 ✅ 完成
+
+**測試 chartId**: `7e97f6d3-3348-46fc-9bb9-7374081dde12`
+
+#### 測試結果
+| 測試 | 場景 | 響應時間 | 狀態 |
+|------|------|----------|------|
+| 1 | 首次分析 | 21.7s | ✅ 調用 Gemini |
+| 2 | 快取測試（修復前）| 18s | ❌ 未命中 |
+| 3 | 快取測試（修復後）| **0.118s** | ✅ 快取命中 |
+
+#### 修復內容
+1. **欄位名稱錯誤**: `analysisResult` → `result`
+2. **JSON 解析**: 從 `{"text":"..."}` 提取 `text`
+3. **類型不匹配**: `'ai-stream'` → `'ai-streaming'`
+
+#### 效果驗證
+- ✅ 快取命中日誌：`[analyzeStream] Cache hit! Returning cached analysis`
+- ✅ 響應時間：**0.118s** (vs 原本 18-21s，**快 180 倍**）
+- ✅ 成本節省：快取命中時 **$0** Gemini 調用
+
+### 實作時間
+- 預估: 1h
+- 實際: 25min（含測試與修復）
+
+
+---
+
+## 🎨 UI 優化：移除 navbar emoji (2025-12-03 16:41)
+
+### 修改內容
+- 移除桌面版 AI 分析按鈕的 🤖 emoji
+- 移除移動版 AI 分析按鈕的 🤖 emoji
+- 保持純文字「AI 分析」
+
+### 修改文件
+- `bazi-app-vue/src/App.vue` (2 處)
+
+### 結果
+- ✅ 編譯成功
+- ✅ PWA 生成成功
+
+
+---
+
+## 🚀 快取預檢查功能 (2025-12-03 16:44)
+
+### 需求
+- localStorage 有 currentChartId 時，應該先檢查是否有快取
+- 改善載入狀態提示（快取 vs 新分析）
+
+### TASKLIST
+- [x] Task 1: 後端添加 `/api/v1/analyze/check` 端點 ✅
+- [x] Task 2: 前端添加快取預檢查邏輯 ✅
+- [x] Task 3: 改善載入狀態提示 ✅
+
+### 實作內容
+
+#### 後端
+1. **analyzeController.checkCache()**: 檢查 D1 快取是否存在
+2. **GET /api/v1/analyze/check**: 新端點返回 `{ cached: boolean }`
+
+#### 前端
+1. **checkCache()**: 調用後端檢查 API
+2. **loadingMessage**: 動態載入提示
+   - 有快取：「正在載入分析結果...」
+   - 無快取：「佩璇正在分析你的命盤...」
+
+### 測試結果
+```bash
+curl "http://localhost:8787/api/v1/analyze/check?chartId=7e97f6d3-3348-46fc-9bb9-7374081dde12"
+# 返回: {"cached":true}
+```
+
+### 實作時間
+- 預估: 1h
+- 實際: 15min
+
+
+### 完整流程測試 ✅
+
+**測試 chartId**: `961e01d7-da21-4524-a002-17fa03657bec`
+
+| 步驟 | 操作 | 結果 | 時間 |
+|------|------|------|------|
+| 1 | 新計算 | chartId 生成 | - |
+| 2 | 檢查快取 | `{"cached":false}` | - |
+| 3 | 首次 AI 分析 | 調用 Gemini | 42.9s |
+| 4 | 再次檢查快取 | `{"cached":true}` | - |
+| 5 | 第二次 AI 分析 | **快取命中** | **0.118s** ⚡ |
+
+### 效果驗證
+- ✅ 快取檢查 API 正常工作
+- ✅ 首次分析正常調用 Gemini
+- ✅ 快取命中響應時間 **0.118s**（快 **363 倍**）
+- ✅ 前端可根據快取狀態顯示不同提示
+
+### 總結
+- **無快取**: 顯示「佩璇正在分析你的命盤...」（~40s）
+- **有快取**: 顯示「正在載入分析結果...」（~0.1s）
+
+
+---
+
+## 🎨 快取排版修復 (2025-12-03 17:05)
+
+### 問題
+- 快取的 AI 分析排版與非快取不同
+- 原因：按 50 字符分塊破壞了 Markdown 格式
+
+### 解決方案
+- 改為按行分塊（split by `\n`）
+- 保留每行的換行符
+- 縮短延遲時間（50ms → 10ms）
+
+### 修改內容
+```typescript
+// 修改前
+const chunks = cachedText.match(/.{1,50}/g) || [cachedText];
+
+// 修改後
+const lines = cachedText.split('\n');
+for (const line of lines) {
+  const sseData = `data: ${JSON.stringify({ text: line + '\n' })}\n\n`;
+  // ...
+}
+```
+
+### 結果
+- ✅ Markdown 格式完整保留
+- ✅ 排版與非快取一致
+- ✅ 播放速度更快（10ms/行）
+
+
+---
+
+## 💾 Unified 快取輸入值 (2025-12-03 17:10)
+
+### 功能
+- localStorage 有 chartId 時，自動載入並填充表單
+- 用戶重新訪問時可以看到之前的輸入
+
+### 實作內容
+
+#### chartStore 擴展
+1. **保存 metadata**: `localStorage.setItem('currentChartMetadata', JSON.stringify(metadata))`
+2. **載入 metadata**: `loadFromLocalStorage()` 返回 `{ chartId, metadata }`
+3. **清除 metadata**: `clearCurrentChart()` 同時清除
+
+#### UnifiedView
+1. **onMounted**: 載入 savedMetadata
+2. **傳遞給表單**: `:initial-data="savedMetadata"`
+
+#### UnifiedInputForm
+1. **接收 props**: `initialData?: ChartMetadata | null`
+2. **watch 監聽**: 自動填充 formData
+3. **immediate: true**: 立即執行
+
+### 結果
+- ✅ 編譯成功
+- ✅ 自動填充表單
+- ✅ 改善用戶體驗
+
+
+---
+
+## 🧹 移除 chartHistory (2025-12-03 17:17)
+
+### 原因
+- chartHistory 未被使用
+- 減少不必要的 localStorage 存儲
+
+### 修改內容
+1. **移除 state**: `history: []`
+2. **移除 action**: `addToHistory()`
+3. **移除 localStorage**: `chartHistory`
+
+### 結果
+- ✅ 編譯成功
+- ✅ 減少代碼複雜度
+- ✅ 減少 localStorage 使用
+### 深度確認
+- ✅ 搜索整個項目：無 `chartHistory` 引用
+- ✅ 搜索 `.history` 訪問：無使用
+- ✅ 搜索 `addToHistory` 調用：無使用
+- ✅ chartStore 文件：已完全移除
+- ✅ 編譯檢查：無錯誤或警告
+
+### 確認結果
+**chartHistory 完全未被使用，安全移除 ✅**
+
+
+---
+
+## 📦 Phase 3: SSCI 上下文管理 (2025-12-03 17:22)
+
+### 準備執行 SSCI
+- 壓縮 progress.md
+- 更新 .specify/memory 文件
+- 歸檔核心資訊
+
+### 執行中...

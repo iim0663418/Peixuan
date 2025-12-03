@@ -9,6 +9,7 @@
 
     <el-form-item label="出生日期" prop="birthDate">
       <el-date-picker
+        id="birth-date"
         v-model="formData.birthDate"
         type="date"
         placeholder="請選擇出生日期"
@@ -82,9 +83,9 @@
     </el-form-item>
 
     <!-- 精確地理位置輸入 -->
-    <el-form-item label="出生地點座標（必填）" prop="location">
-      <el-row :gutter="12">
-        <el-col :span="10">
+    <el-form-item label="出生地點座標（必填）" prop="location" class="location-form-item">
+      <div class="coordinate-inputs">
+        <div class="coordinate-field">
           <el-input
             v-model.number="formData.longitude"
             placeholder="經度（必填）"
@@ -92,11 +93,12 @@
             :min="-180"
             :max="180"
             :step="0.000001"
+            class="coordinate-input"
           >
             <template #prepend>經度</template>
           </el-input>
-        </el-col>
-        <el-col :span="10">
+        </div>
+        <div class="coordinate-field">
           <el-input
             v-model.number="formData.latitude"
             placeholder="緯度"
@@ -104,16 +106,17 @@
             :min="-90"
             :max="90"
             :step="0.000001"
+            class="coordinate-input"
           >
             <template #prepend>緯度</template>
           </el-input>
-        </el-col>
-        <el-col :span="4">
+        </div>
+        <div class="coordinate-field timezone-field">
           <el-select
             v-model="formData.timezone"
             filterable
             placeholder="時區"
-            style="width: 100%"
+            class="timezone-select"
           >
             <el-option
               v-for="tz in timezones"
@@ -122,12 +125,12 @@
               :value="tz.value"
             />
           </el-select>
-        </el-col>
-      </el-row>
+        </div>
+      </div>
       <el-text
         type="warning"
         size="small"
-        style="margin-top: 5px; display: block"
+        class="coordinate-warning"
       >
         ⚠️ 經度為必填項目，用於精確計算
       </el-text>
@@ -164,13 +167,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { saveTimeZoneInfo, getTimeZoneInfo } from '../utils/storageService';
 import {
   GeocodeService,
   type GeocodeCandidate,
 } from '../services/geocodeService';
+
+const props = defineProps<{
+  initialData?: {
+    birthDate: string;
+    birthTime: string;
+    gender: 'male' | 'female';
+    longitude: number;
+  } | null;
+}>();
 
 const emit = defineEmits(['submit']);
 
@@ -484,6 +496,21 @@ const formRules = {
 
 const unifiedForm = ref();
 
+// Watch for initialData changes and populate form
+watch(
+  () => props.initialData,
+  (newData) => {
+    if (newData) {
+      formData.birthDate = newData.birthDate;
+      formData.birthTime = newData.birthTime;
+      formData.gender = newData.gender;
+      formData.longitude = newData.longitude;
+      console.log('[UnifiedInputForm] Populated form with saved data:', newData);
+    }
+  },
+  { immediate: true }
+);
+
 const submitForm = async () => {
   if (!unifiedForm.value) {
     return;
@@ -545,99 +572,238 @@ const submitForm = async () => {
 </script>
 
 <style scoped>
-/* 響應式表單優化 */
+/* ==========================================
+   Mobile-First Responsive Form Styles
+   ========================================== */
+
+/* Base styles (Mobile < 480px) */
 .el-form {
   width: 100%;
 }
 
-/* 確保表單項目在小螢幕上正確顯示 */
+/* Form items - fluid spacing with clamp() */
+:deep(.el-form-item) {
+  margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+
 :deep(.el-form-item__label) {
-  font-size: 14px;
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
   line-height: 1.4;
+  margin-bottom: 0.5rem;
 }
 
 :deep(.el-form-item__content) {
   flex: 1;
 }
 
-/* 日期和時間選擇器優化 */
+/* Input fields - minimum 44px touch targets */
+:deep(.el-input__inner) {
+  min-height: 44px;
+  font-size: 16px !important; /* Prevent iOS zoom */
+  padding: 12px 15px;
+  border-radius: 8px;
+}
+
+:deep(.el-textarea__inner) {
+  font-size: 16px !important; /* Prevent iOS zoom */
+  padding: 12px 15px;
+}
+
+/* Date and time pickers - full width on mobile */
 :deep(.el-date-editor),
 :deep(.el-time-picker) {
   width: 100%;
+  min-height: 44px;
 }
 
-/* 單選按鈕組優化 */
+:deep(.el-date-editor .el-input__inner),
+:deep(.el-time-picker .el-input__inner) {
+  min-height: 44px;
+}
+
+/* Radio buttons - vertical stack on mobile with touch-friendly spacing */
 :deep(.el-radio-group) {
   display: flex;
-  gap: 15px;
+  flex-direction: column;
+  gap: clamp(0.75rem, 2vw, 1rem);
 }
 
 :deep(.el-radio) {
   margin-right: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+:deep(.el-radio__input) {
+  line-height: 44px;
+}
+
+:deep(.el-radio__label) {
+  font-size: 16px;
+  padding-left: 8px;
+  line-height: 1.5;
+}
+
+/* Select dropdowns - full width with touch targets */
+:deep(.el-select) {
+  width: 100%;
+}
+
+:deep(.el-select .el-input__inner) {
+  min-height: 44px;
+}
+
+/* Address input with append button */
+:deep(.el-input-group__append) {
+  padding: 0;
+}
+
+:deep(.el-input-group__append .el-button) {
+  min-height: 44px;
+  padding: 0 15px;
+}
+
+/* Coordinate inputs - mobile-first stacked layout */
+.coordinate-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 2vw, 1rem);
+  width: 100%;
+}
+
+.coordinate-field {
+  width: 100%;
+}
+
+.coordinate-input,
+.timezone-select {
+  width: 100%;
+}
+
+.coordinate-warning {
+  margin-top: clamp(0.5rem, 1.5vw, 0.75rem);
+  display: block;
+  line-height: 1.5;
+}
+
+/* Input prepend styling */
+:deep(.el-input-group__prepend) {
+  padding: 0 12px;
+  background-color: #f5f7fa;
+  font-size: 14px;
   white-space: nowrap;
 }
 
-/* 提交按鈕優化 */
-:deep(.el-button) {
+/* Geocode status messages - proper wrapping and spacing */
+.geocode-status {
+  margin-top: clamp(0.5rem, 1.5vw, 0.75rem);
+  line-height: 1.5;
+}
+
+/* Candidate address select */
+:deep(.el-select .el-input__inner) {
   min-height: 44px;
-  padding: 12px 24px;
+}
+
+/* Checkbox - touch-friendly */
+:deep(.el-checkbox) {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+:deep(.el-checkbox__label) {
   font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Submit button - full width on mobile with proper touch targets */
+:deep(.el-button) {
+  width: 100%;
+  min-height: 48px;
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(1rem, 2.5vw, 1.125rem);
   border-radius: 8px;
+  font-weight: 500;
 }
 
-/* 移動端優化 */
-@media (max-width: 768px) {
-  :deep(.el-form-item) {
-    margin-bottom: 20px;
+:deep(.el-button--primary) {
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
+}
+
+/* Form validation messages */
+:deep(.el-form-item__error) {
+  font-size: 14px;
+  line-height: 1.5;
+  padding-top: 4px;
+  margin-top: 4px;
+}
+
+/* ==========================================
+   Tablet and above (≥ 480px)
+   ========================================== */
+@media (min-width: 480px) {
+  /* Coordinate inputs - 2 column layout */
+  .coordinate-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
   }
 
-  :deep(.el-form-item__label) {
-    font-size: 15px;
-    margin-bottom: 8px;
-    line-height: 1.3;
+  .timezone-field {
+    grid-column: 1 / -1;
   }
 
-  /* 單選按鈕在小螢幕上垂直排列 */
+  /* Radio buttons - horizontal on larger screens */
   :deep(.el-radio-group) {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  :deep(.el-radio) {
-    align-items: center;
-  }
-
-  :deep(.el-radio__label) {
-    font-size: 16px;
-    padding-left: 8px;
-  }
-
-  /* 按鈕在小螢幕上全寬 */
-  :deep(.el-button) {
-    width: 100%;
-    min-height: 48px;
-    font-size: 17px;
+    flex-direction: row;
+    gap: clamp(1rem, 2vw, 1.5rem);
   }
 }
 
-@media (max-width: 480px) {
+/* ==========================================
+   Tablet (≥ 768px)
+   ========================================== */
+@media (min-width: 768px) {
+  /* Coordinate inputs - 3 column layout */
+  .coordinate-inputs {
+    grid-template-columns: 2fr 2fr 1.5fr;
+    gap: 1rem;
+  }
+
+  .timezone-field {
+    grid-column: auto;
+  }
+
+  /* Form spacing adjustments */
   :deep(.el-form-item) {
-    margin-bottom: 18px;
+    margin-bottom: 1.5rem;
   }
 
+  /* Buttons - constrained width on larger screens */
+  :deep(.el-button) {
+    width: auto;
+    min-width: 200px;
+    padding: 0.75rem 2rem;
+  }
+
+  /* Input group append button - better sizing */
+  :deep(.el-input-group__append .el-button) {
+    padding: 0 20px;
+  }
+}
+
+/* ==========================================
+   Desktop (≥ 1024px)
+   ========================================== */
+@media (min-width: 1024px) {
   :deep(.el-form-item__label) {
-    font-size: 14px;
+    font-size: 1rem;
   }
 
-  :deep(.el-input__inner) {
-    font-size: 16px;
-    padding: 12px 15px;
-  }
-
-  /* 防止iOS縮放 */
-  :deep(.el-input__inner),
-  :deep(.el-textarea__inner) {
-    font-size: 16px !important;
+  :deep(.el-button) {
+    font-size: 1rem;
   }
 }
 </style>

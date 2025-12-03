@@ -57,6 +57,50 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
   });
 
   /**
+   * GET /api/v1/analyze/check
+   *
+   * Checks if analysis cache exists for a chart
+   *
+   * Query params:
+   * - chartId: string (required)
+   *
+   * Response:
+   * {
+   *   cached: boolean
+   * }
+   */
+  router.get('/api/v1/analyze/check', async (req: any) => {
+    try {
+      const url = new URL(req.url);
+      const chartId = url.searchParams.get('chartId');
+
+      if (!chartId) {
+        return new Response(
+          JSON.stringify({ error: 'chartId is required' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const geminiApiKey = env.GEMINI_API_KEY;
+      const controller = new AnalyzeController(geminiApiKey);
+      const result = await controller.checkCache(chartId, env);
+
+      return new Response(JSON.stringify(result), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
+    } catch (error) {
+      console.error('Check cache error:', error);
+      return new Response(
+        JSON.stringify({ error: 'Failed to check cache' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+  });
+
+  /**
    * GET /api/v1/analyze/stream
    *
    * Streams AI-powered analysis for an existing chart using Server-Sent Events (SSE)

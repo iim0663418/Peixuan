@@ -18,6 +18,17 @@ const hasChartData = computed(() => chartStore.hasChart);
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value;
+  // 防止背景滾動
+  if (showMobileMenu.value) {
+    window.document.body.style.overflow = 'hidden';
+  } else {
+    window.document.body.style.overflow = '';
+  }
+};
+
+const closeMobileMenu = () => {
+  showMobileMenu.value = false;
+  window.document.body.style.overflow = '';
 };
 
 const handleAIAnalysis = () => {
@@ -35,7 +46,7 @@ const handleAIAnalysis = () => {
 
   // 跳轉到 AI 分析頁面
   router.push('/ai-analysis');
-  showMobileMenu.value = false;
+  closeMobileMenu();
 };
 
 onMounted(() => {
@@ -61,7 +72,7 @@ onMounted(() => {
           <router-link
             to="/unified"
             class="nav-link"
-            :class="{ active: route.path.startsWith('/unified') }"
+            :class="{ active: route?.path?.startsWith('/unified') }"
           >
             {{ $t('astrology.unified') }}
           </router-link>
@@ -70,13 +81,12 @@ onMounted(() => {
           <button
             class="nav-link ai-analysis-btn"
             :class="{
-              active: route.path === '/ai-analysis',
+              active: route?.path === '/ai-analysis',
               disabled: !hasChartData,
             }"
             :disabled="!hasChartData"
             @click="handleAIAnalysis"
           >
-            <span class="icon">🤖</span>
             <span>AI 分析</span>
           </button>
         </div>
@@ -102,16 +112,16 @@ onMounted(() => {
         <router-link
           to="/"
           class="mobile-nav-link"
-          :class="{ active: route.name === 'home' }"
-          @click="showMobileMenu = false"
+          :class="{ active: route?.name === 'home' }"
+          @click="closeMobileMenu"
         >
           {{ $t('common.home') }}
         </router-link>
         <router-link
           to="/unified"
           class="mobile-nav-link"
-          :class="{ active: route.path.startsWith('/unified') }"
-          @click="showMobileMenu = false"
+          :class="{ active: route?.path?.startsWith('/unified') }"
+          @click="closeMobileMenu"
         >
           {{ $t('astrology.unified') }}
         </router-link>
@@ -120,13 +130,12 @@ onMounted(() => {
         <button
           class="mobile-nav-link mobile-ai-btn"
           :class="{
-            active: route.path === '/ai-analysis',
+            active: route?.path === '/ai-analysis',
             disabled: !hasChartData,
           }"
           :disabled="!hasChartData"
           @click="handleAIAnalysis"
         >
-          <span class="icon">🤖</span>
           <span>AI 分析</span>
         </button>
       </div>
@@ -261,8 +270,12 @@ onMounted(() => {
   font-weight: 600;
   padding: 0.5rem 1rem;
   border-radius: 20px;
-  transition: all 0.3s;
+  transition: all 0.3s ease-in-out;
   position: relative;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-link:hover {
@@ -304,24 +317,29 @@ onMounted(() => {
   gap: 1rem;
 }
 
-/* 移動版菜單按鈕 */
+/* 移動版菜單按鈕 - 符合最小觸控尺寸 44x44px */
 .mobile-menu-button {
-  display: none;
+  display: flex;
   flex-direction: column;
   background: none;
   border: none;
   cursor: pointer;
   padding: 0.5rem;
-  width: 30px;
-  height: 30px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   justify-content: space-around;
+  align-items: center;
+  position: relative;
+  z-index: 1000;
 }
 
 .mobile-menu-button span {
-  width: 100%;
+  width: 24px;
   height: 3px;
   background: #8b4513;
-  transition: all 0.3s;
+  transition: all 0.3s ease-in-out;
   border-radius: 2px;
 }
 
@@ -337,32 +355,57 @@ onMounted(() => {
   transform: rotate(-45deg) translate(6px, -6px);
 }
 
-/* 移動版導航菜單 */
+/* 移動版導航菜單 - 全螢幕覆蓋設計 */
 .mobile-menu {
-  display: none;
-  background: white;
-  border-top: 1px solid #e9dcc9;
-  padding: 1rem 2rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #ffffff 0%, #fdf7f0 100%);
+  padding: clamp(5rem, 15vh, 8rem) clamp(1.5rem, 5vw, 2rem) 2rem;
+  box-shadow: 0 4px 30px rgba(139, 69, 19, 0.2);
+  z-index: 999;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-100%);
+  transition:
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out,
+    visibility 0.3s;
 }
 
 .mobile-menu.show {
-  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
 }
 
 .mobile-nav-link {
-  display: block;
+  display: flex;
+  align-items: center;
   text-decoration: none;
   color: #8b4513;
   font-weight: 600;
-  padding: 1rem 0;
+  padding: 1rem;
+  min-height: 56px;
   border-bottom: 1px solid #f0f0f0;
-  transition: color 0.3s;
+  transition: all 0.3s ease-in-out;
+  font-size: 1.1rem;
 }
 
-.mobile-nav-link:hover,
+.mobile-nav-link:hover {
+  color: #d2691e;
+  background: rgba(210, 105, 30, 0.1);
+  transform: translateX(8px);
+}
+
 .mobile-nav-link.active {
   color: #d2691e;
+  background: linear-gradient(90deg, rgba(210, 105, 30, 0.15), transparent);
+  border-left: 4px solid #d2691e;
+  padding-left: calc(1rem - 4px);
 }
 
 .mobile-nav-link:last-child {
@@ -373,16 +416,22 @@ onMounted(() => {
 .mobile-ai-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   background: none;
   border: none;
   width: 100%;
   text-align: left;
   cursor: pointer;
+  justify-content: flex-start;
 }
 
 .mobile-ai-btn .icon {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
+  transition: transform 0.3s ease-in-out;
+}
+
+.mobile-ai-btn:not(.disabled):hover .icon {
+  transform: scale(1.15);
 }
 
 .mobile-ai-btn.disabled {
@@ -461,50 +510,87 @@ main {
   color: #f0e68c;
 }
 
-/* 響應式設計 */
-@media (max-width: 768px) {
+/* 響應式設計 - Mobile First */
+/* 小螢幕手機 (< 480px) - 基礎樣式已在上方定義 */
+
+/* 中型手機和平板 (480px+) */
+@media (min-width: 480px) {
   .navbar {
-    padding: 1rem;
+    padding: clamp(1rem, 2vw, 1.5rem);
   }
 
   .nav-brand h1 {
-    font-size: 1.5rem;
+    font-size: clamp(1.3rem, 3vw, 1.5rem);
   }
 
   .brand-subtitle {
-    font-size: 0.75rem;
+    font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+  }
+
+  .mobile-menu {
+    padding: clamp(1rem, 2vw, 1.5rem);
+  }
+}
+
+/* 平板 (768px+) */
+@media (min-width: 768px) {
+  .navbar {
+    padding: 1rem 2rem;
+  }
+
+  .nav-brand h1 {
+    font-size: 1.8rem;
+  }
+
+  .brand-subtitle {
+    font-size: 0.8rem;
   }
 
   .desktop-menu {
-    display: none;
-  }
-
-  .mobile-menu-button {
     display: flex;
   }
 
+  .mobile-menu-button {
+    display: none;
+  }
+
   .app-footer {
-    padding: 2rem 1rem 1.5rem;
+    padding: 3rem 2rem 2rem;
+  }
+
+  .footer-content {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    text-align: left;
+  }
+}
+
+/* 小螢幕手機特定樣式 */
+@media (max-width: 479px) {
+  .navbar {
+    padding: clamp(0.75rem, 2vw, 1rem);
+  }
+
+  .nav-brand h1 {
+    font-size: clamp(1.2rem, 4vw, 1.3rem);
+  }
+
+  .brand-subtitle {
+    font-size: 0.7rem;
+  }
+
+  .mobile-menu {
+    padding: clamp(0.75rem, 2vw, 1rem);
+  }
+
+  .app-footer {
+    padding: clamp(1.5rem, 3vw, 2rem) clamp(1rem, 2vw, 1.5rem);
   }
 
   .footer-content {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     text-align: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .navbar {
-    padding: 0.75rem;
-  }
-
-  .nav-brand h1 {
-    font-size: 1.3rem;
-  }
-
-  .mobile-menu {
-    padding: 1rem;
   }
 }
 
@@ -538,7 +624,7 @@ main {
   }
 
   .mobile-menu {
-    background: #1f2937;
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
     border-top-color: #374151;
   }
 
@@ -547,9 +633,15 @@ main {
     border-bottom-color: #374151;
   }
 
-  .mobile-nav-link:hover,
+  .mobile-nav-link:hover {
+    color: #f0e68c;
+    background: rgba(240, 230, 140, 0.1);
+  }
+
   .mobile-nav-link.active {
     color: #f0e68c;
+    background: linear-gradient(90deg, rgba(240, 230, 140, 0.15), transparent);
+    border-left-color: #f0e68c;
   }
 
   .mobile-menu-button span {

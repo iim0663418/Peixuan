@@ -212,6 +212,7 @@ class UnifiedApiService {
 
       // Adapt backend format to frontend format
       const result: CalculationResult = {
+        chartId: backendResult.chartId, // Preserve chartId from backend
         ...backendResult,
         bazi: {
           ...backendResult.bazi,

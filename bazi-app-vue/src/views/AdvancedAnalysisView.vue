@@ -165,75 +165,79 @@ onUnmounted(() => {
 .ai-analysis-view {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 2rem 1rem;
+  padding: var(--space-3xl) var(--space-lg);
 }
 
 .container {
   max-width: 800px;
   margin: 0 auto;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-3xl);
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: var(--space-3xl);
+  padding-bottom: var(--space-lg);
+  border-bottom: 2px solid var(--bg-tertiary);
 }
 
 .header h1 {
-  font-size: 1.8rem;
-  color: #333;
+  font-size: var(--font-size-3xl);
+  color: var(--text-primary);
   margin: 0;
+  font-weight: var(--font-weight-bold);
 }
 
 .back-btn,
 .copy-btn {
-  padding: 0.5rem 1rem;
+  padding: var(--space-sm) var(--space-lg);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-normal);
+  font-weight: var(--font-weight-medium);
 }
 
 .back-btn {
-  background: #f0f0f0;
-  color: #666;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
 }
 
 .back-btn:hover {
-  background: #e0e0e0;
+  background: var(--border-medium);
+  transform: translateY(-1px);
 }
 
 .copy-btn {
   background: #667eea;
-  color: white;
+  color: var(--text-inverse);
 }
 
 .copy-btn:hover {
   background: #5568d3;
+  transform: translateY(-1px);
 }
 
 .loading {
   text-align: center;
-  padding: 4rem 2rem;
+  padding: var(--space-5xl) var(--space-3xl);
 }
 
 .loading-text {
-  font-size: 1.2rem;
+  font-size: var(--font-size-xl);
   color: #667eea;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-sm);
 }
 
 .loading-hint {
-  font-size: 0.9rem;
-  color: #999;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -250,11 +254,11 @@ onUnmounted(() => {
 .spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid #f0f0f0;
+  border: 4px solid var(--bg-tertiary);
   border-top: 4px solid #667eea;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
+  margin: 0 auto var(--space-lg);
 }
 
 @keyframes spin {
@@ -268,42 +272,44 @@ onUnmounted(() => {
 
 .error {
   text-align: center;
-  padding: 4rem 2rem;
+  padding: var(--space-5xl) var(--space-3xl);
 }
 
 .error-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+  font-size: var(--font-size-5xl);
+  margin-bottom: var(--space-lg);
 }
 
 .error h3 {
-  color: #333;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  color: var(--text-primary);
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-lg);
+  font-weight: var(--font-weight-semibold);
 }
 
 .error-message {
-  color: #e74c3c;
-  font-size: 1rem;
-  margin-bottom: 2rem;
+  color: var(--error);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--space-3xl);
 }
 
 .retry-btn {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
+  margin-top: var(--space-lg);
+  padding: var(--space-md) var(--space-2xl);
   background: #667eea;
-  color: white;
+  color: var(--text-inverse);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1rem;
+  transition: var(--transition-normal);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
 }
 
 .retry-btn:hover {
   background: #5568d3;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: var(--shadow-purple);
 }
 
 .progress-bar {

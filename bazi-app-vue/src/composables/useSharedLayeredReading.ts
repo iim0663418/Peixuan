@@ -55,15 +55,8 @@ export function useSharedLayeredReading(
       return readingState.currentLevel;
     },
     set: (newLevel: ReadingLevel) => {
-      console.log(
-        `useSharedLayeredReading[${moduleType}]: effectiveReadingLevel.set 被調用，newLevel=${newLevel}`,
-      );
-
       if (moduleType === 'purpleStar') {
         // 紫微斗數更新時，同時更新共享狀態
-        console.log(
-          `useSharedLayeredReading: 紫微斗數更新共享狀態: ${purpleStarReadingLevel.value} → ${newLevel}`,
-        );
         purpleStarReadingLevel.value = newLevel;
         // 保存到 sessionStorage
         sessionStorage.setItem('purple-star-reading-level', newLevel);
@@ -72,9 +65,6 @@ export function useSharedLayeredReading(
           new CustomEvent('purple-star-level-changed', {
             detail: { level: newLevel },
           }),
-        );
-        console.log(
-          `useSharedLayeredReading: 已發送 purple-star-level-changed 事件: ${newLevel}`,
         );
       }
       // 更新本地狀態
@@ -85,22 +75,11 @@ export function useSharedLayeredReading(
   // 監聽紫微斗數層級變化（僅四化飛星需要）
   if (moduleType === 'transformationStars') {
     const handlePurpleStarLevelChange = (event: CustomEvent) => {
-      console.log(
-        `useSharedLayeredReading[transformationStars]: 收到 purple-star-level-changed 事件`,
-        event.detail,
-      );
       if (
         event.detail?.level &&
         event.detail.level !== readingState.currentLevel
       ) {
-        console.log(
-          `useSharedLayeredReading[transformationStars]: 切換層級 ${readingState.currentLevel} → ${event.detail.level}`,
-        );
         switchToLevel(event.detail.level);
-      } else {
-        console.log(
-          `useSharedLayeredReading[transformationStars]: 層級相同，無需切換: ${event.detail?.level}`,
-        );
       }
     };
 
@@ -108,15 +87,9 @@ export function useSharedLayeredReading(
       'purple-star-level-changed',
       handlePurpleStarLevelChange as EventListener,
     );
-    console.log(
-      `useSharedLayeredReading[transformationStars]: 已註冊 purple-star-level-changed 監聽器`,
-    );
 
     // 同步初始狀態
     if (purpleStarReadingLevel.value !== readingState.currentLevel) {
-      console.log(
-        `useSharedLayeredReading[transformationStars]: 同步初始狀態 ${readingState.currentLevel} → ${purpleStarReadingLevel.value}`,
-      );
       switchToLevel(purpleStarReadingLevel.value);
     }
   }

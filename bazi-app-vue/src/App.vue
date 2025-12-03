@@ -68,7 +68,6 @@ const handleAdvancedAnalysis = () => {
 };
 
 onMounted(() => {
-  console.log('應用初始化完成');
   // 嘗試從 localStorage 載入歷史記錄
   chartStore.loadFromLocalStorage();
 });

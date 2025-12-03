@@ -76,26 +76,17 @@ const handleSubmit = async (birthInfo: any) => {
 onMounted(async () => {
   const chartId = chartStore.loadFromLocalStorage();
 
-  console.log('[UnifiedView] onMounted - chartId:', chartId);
-
   // Try to load cached chart result
   if (chartId) {
     try {
-      console.log(
-        '[UnifiedView] Found cached chartId, loading result:',
-        chartId,
-      );
       loading.value = true;
 
       const url = `/api/charts/${chartId}`;
-      console.log('[UnifiedView] Fetching from:', url);
 
       const response = await fetch(url);
-      console.log('[UnifiedView] Response status:', response.status);
 
       if (response.ok) {
         const data = await response.json();
-        console.log('[UnifiedView] Received data:', data);
 
         // 轉換後端格式為前端格式
         const { chartData } = data;
@@ -182,8 +173,6 @@ onMounted(async () => {
     } finally {
       loading.value = false;
     }
-  } else {
-    console.log('[UnifiedView] No chartId found in localStorage');
   }
 });
 </script>

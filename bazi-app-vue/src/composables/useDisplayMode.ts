@@ -35,7 +35,6 @@ export function useDisplayMode(componentName: string) {
       // 持久化存儲邏輯，保存到 sessionStorage
       try {
         sessionStorage.setItem(`${componentName}-display-depth`, newMode);
-        console.log(`${componentName} 顯示深度已更新為: ${newMode}`);
       } catch (e) {
         console.error('無法保存顯示深度設定到 sessionStorage:', e);
       }

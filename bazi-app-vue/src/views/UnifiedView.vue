@@ -2,7 +2,7 @@
   <div class="unified-view">
     <el-card class="form-card">
       <template #header>
-        <h2>統一命盤計算</h2>
+        <h2>整合命盤計算</h2>
       </template>
 
       <UnifiedInputForm @submit="handleSubmit" />

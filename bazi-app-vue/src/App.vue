@@ -87,7 +87,7 @@ onMounted(() => {
             :disabled="!hasChartData"
             @click="handleAIAnalysis"
           >
-            <span>AI 分析</span>
+            <span>佩璇 AI 分析</span>
           </button>
         </div>
 
@@ -136,7 +136,7 @@ onMounted(() => {
           :disabled="!hasChartData"
           @click="handleAIAnalysis"
         >
-          <span>AI 分析</span>
+          <span>佩璇 AI 分析</span>
         </button>
       </div>
     </header>
@@ -158,7 +158,7 @@ onMounted(() => {
             <router-link to="/unified">{{
               $t('astrology.unified')
             }}</router-link>
-            <router-link to="/ai-analysis">AI 智能分析</router-link>
+            <router-link to="/ai-analysis">佩璇 AI 分析</router-link>
             <router-link to="/">服務介紹</router-link>
           </div>
         </div>

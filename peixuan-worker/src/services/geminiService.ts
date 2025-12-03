@@ -113,6 +113,60 @@ export class GeminiService {
   }
 
   /**
+   * Analyze advanced astrological data using Gemini AI with streaming
+   *
+   * @param markdown - Advanced chart data in Markdown format
+   * @returns ReadableStream of AI-generated analysis
+   */
+  async analyzeAdvancedStream(markdown: string): Promise<ReadableStream> {
+    const prompt = this.buildAdvancedAnalysisPrompt(markdown);
+    const url = `${this.baseUrl}/${this.model}:streamGenerateContent`;
+
+    console.log(`[Gemini Advanced Stream] Fetching URL: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': this.apiKey,
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.85,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 4096,
+        },
+      }),
+    });
+
+    console.log(`[Gemini Advanced Stream] Response status: ${response.status} ${response.statusText}`);
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error(`[Gemini Advanced Stream] Error response: ${error}`);
+      throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${error}`);
+    }
+
+    if (!response.body) {
+      console.error('[Gemini Advanced Stream] No response body received');
+      throw new Error('No response body from Gemini streaming API');
+    }
+
+    console.log('[Gemini Advanced Stream] Stream established successfully');
+    return response.body;
+  }
+
+  /**
    * Build analysis prompt for Gemini
    */
   private buildAnalysisPrompt(markdown: string): string {
@@ -140,6 +194,40 @@ ${markdown}
 ---
 
 嗨嗨！我是佩璇，讓我來看看你的命盤～`;
+  }
+
+  /**
+   * Build advanced analysis prompt for Gemini
+   */
+  private buildAdvancedAnalysisPrompt(markdown: string): string {
+    const currentYear = new Date().getFullYear();
+    return `# 佩璇：20歲進階算命師，深度解析十神、四化、流年預測
+**重要**：今年是 ${currentYear} 年
+
+## 風格
+- 口語化但更深入：「我們來看看你的深層性格」、「這個四化循環很特別哦」
+- 專業術語必要時解釋：十神=性格特質、四化=能量流動、犯太歲=與流年衝突
+- 重點粗體、關鍵結論獨立段落
+
+## 任務：進階5層解析
+1. **十神矩陣**：深層性格特質、主導十神影響
+2. **藏干系統**：多層次特質、隱藏能量
+3. **四化飛星**：能量流動、化忌循環警示
+4. **星曜對稱**：能量平衡、對稱星系解讀
+5. **下一年預測**：犯太歲類型、風險評估、行動建議（按季度）
+
+## 範例
+- 主導十神=傷官 → 「你的主導能量是傷官（小惡魔），創意十足但容易叛逆」
+- 化忌循環 → 「警告！發現化忌循環：命宮→財帛→事業，能量打結要小心」
+- 下一年犯太歲 → 「${currentYear + 1}年你會沖太歲，健康風險中等，記得定期檢查」
+
+---
+
+${markdown}
+
+---
+
+嗨嗨！我來幫你做進階深度分析～`;
   }
 
   /**

@@ -162,4 +162,111 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
       );
     }
   });
+
+  /**
+   * GET /api/v1/analyze/advanced/check
+   *
+   * Checks if advanced analysis cache exists for a chart
+   *
+   * Query params:
+   * - chartId: string (required)
+   *
+   * Response:
+   * {
+   *   cached: boolean
+   * }
+   */
+  router.get('/api/v1/analyze/advanced/check', async (req: any) => {
+    try {
+      const url = new URL(req.url);
+      const chartId = url.searchParams.get('chartId');
+
+      if (!chartId) {
+        return new Response(
+          JSON.stringify({ error: 'chartId is required' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const geminiApiKey = env.GEMINI_API_KEY;
+      const controller = new AnalyzeController(geminiApiKey);
+      const result = await controller.checkAdvancedCache(chartId, env);
+
+      return new Response(JSON.stringify(result), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
+    } catch (error) {
+      console.error('Check advanced cache error:', error);
+      return new Response(
+        JSON.stringify({ error: 'Failed to check advanced cache' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+  });
+
+  /**
+   * GET /api/v1/analyze/advanced/stream
+   *
+   * Streams advanced AI-powered analysis for an existing chart using Server-Sent Events (SSE)
+   *
+   * Query parameters:
+   * - chartId: string (required) - The ID of the chart to analyze
+   *
+   * Response:
+   * - Content-Type: text/event-stream
+   * - Format: SSE events with incremental advanced analysis text
+   * - Final event: "data: [DONE]\n\n"
+   */
+  router.get('/api/v1/analyze/advanced/stream', async (req: any) => {
+    try {
+      // Parse URL and get chartId from query params
+      const url = new URL(req.url);
+      const chartId = url.searchParams.get('chartId');
+
+      // Validate chartId
+      if (!chartId) {
+        return new Response(
+          JSON.stringify({ error: 'Missing chartId parameter' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Get Gemini API key from environment
+      const geminiApiKey = env.GEMINI_API_KEY;
+
+      if (!geminiApiKey) {
+        return new Response(
+          JSON.stringify({ error: 'Gemini API key not configured' }),
+          { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Create controller and call analyzeAdvancedStream
+      const controller = new AnalyzeController(geminiApiKey);
+      const stream = await controller.analyzeAdvancedStream(chartId, env);
+
+      // Return Response with SSE headers
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
+      });
+    } catch (error) {
+      console.error('Analyze advanced stream error:', error);
+
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return new Response(
+        JSON.stringify({ error: errorMessage }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+  });
 }

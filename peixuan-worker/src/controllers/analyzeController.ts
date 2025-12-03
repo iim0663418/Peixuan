@@ -5,9 +5,11 @@
 
 import { UnifiedCalculator } from '../calculation/integration/calculator';
 import { formatToMarkdown } from '../formatters/markdownFormatter';
+import { formatAdvancedMarkdown } from '../formatters/advancedMarkdownFormatter';
 import { GeminiService } from '../services/geminiService';
 import { ChartCacheService } from '../services/chartCacheService';
 import { AnalysisCacheService } from '../services/analysisCacheService';
+import { AdvancedAnalysisCacheService } from '../services/advancedAnalysisCacheService';
 import type { BirthInfo, CalculationResult } from '../calculation/types';
 
 export interface AnalyzeRequest {
@@ -32,6 +34,7 @@ export class AnalyzeController {
   private geminiService: GeminiService;
   private chartCacheService: ChartCacheService;
   private analysisCacheService: AnalysisCacheService;
+  private advancedAnalysisCacheService: AdvancedAnalysisCacheService;
 
   constructor(geminiApiKey: string) {
     this.geminiService = new GeminiService({
@@ -41,6 +44,7 @@ export class AnalyzeController {
     });
     this.chartCacheService = new ChartCacheService();
     this.analysisCacheService = new AnalysisCacheService();
+    this.advancedAnalysisCacheService = new AdvancedAnalysisCacheService();
   }
 
   /**
@@ -279,6 +283,157 @@ export class AnalyzeController {
           controller.close();
         } catch (error) {
           console.error('[transformToSSE] Stream error:', error);
+          controller.error(error);
+        }
+      },
+    });
+  }
+
+  /**
+   * Check if advanced analysis cache exists for a chart
+   * @param chartId - The chart ID to check
+   * @param env - Cloudflare Worker environment
+   * @returns Object with cached status
+   */
+  async checkAdvancedCache(chartId: string, env: { DB: D1Database }): Promise<{ cached: boolean }> {
+    const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, env);
+    return { cached: !!cachedAnalysis };
+  }
+
+  /**
+   * Analyze astrological chart with advanced streaming AI response
+   *
+   * @param chartId - The chart ID to analyze
+   * @param env - Cloudflare Worker environment with DB binding
+   * @returns ReadableStream in SSE format
+   */
+  async analyzeAdvancedStream(chartId: string, env: { DB: D1Database }): Promise<ReadableStream> {
+    console.log('[analyzeAdvancedStream] Entry, chartId:', chartId);
+
+    // Step 0: Check advanced analysis cache first
+    const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, env);
+    if (cachedAnalysis) {
+      console.log('[analyzeAdvancedStream] Cache hit! Returning cached analysis');
+      const cachedText = typeof cachedAnalysis.result === 'string'
+        ? cachedAnalysis.result
+        : (cachedAnalysis.result as any).text || JSON.stringify(cachedAnalysis.result);
+      return this.createCachedSSEStream(cachedText);
+    }
+
+    // Step 1: Read chart data from D1
+    const chart = await this.chartCacheService.getChart(chartId, env);
+    console.log('[analyzeAdvancedStream] After getChart, found:', !!chart);
+    if (!chart) {
+      throw new Error('Chart not found');
+    }
+
+    // Step 2: Convert to Advanced Markdown
+    const calculation: CalculationResult = typeof chart.chartData === 'string'
+      ? JSON.parse(chart.chartData)
+      : chart.chartData;
+    const advancedMarkdown = formatAdvancedMarkdown(calculation);
+
+    // Step 3: Call Gemini Advanced Stream
+    console.log('[analyzeAdvancedStream] Before geminiService.analyzeAdvancedStream');
+    const geminiStream = await this.geminiService.analyzeAdvancedStream(advancedMarkdown);
+    console.log('[analyzeAdvancedStream] After geminiService.analyzeAdvancedStream, stream:', !!geminiStream);
+
+    // Step 4: Transform to SSE format with advanced cache
+    return this.transformAdvancedToSSE(geminiStream, chartId, env);
+  }
+
+  /**
+   * Transform Gemini advanced streaming response to SSE format
+   *
+   * Similar to transformToSSE but saves to advancedAnalysisCacheService
+   *
+   * @param geminiStream - ReadableStream from Gemini API
+   * @param chartId - The chart ID for caching
+   * @param env - Cloudflare Worker environment
+   * @returns ReadableStream in SSE format
+   */
+  private transformAdvancedToSSE(
+    geminiStream: ReadableStream,
+    chartId: string,
+    env: { DB: D1Database }
+  ): ReadableStream {
+    const reader = geminiStream.getReader();
+    const decoder = new TextDecoder();
+    const encoder = new TextEncoder();
+    let buffer = '';
+    let fullText = '';
+    let chunkCount = 0;
+
+    console.log('[transformAdvancedToSSE] Starting stream transformation for chartId:', chartId);
+
+    return new ReadableStream({
+      async start(controller) {
+        try {
+          // Step 1: Accumulate entire buffer
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+              console.log('[transformAdvancedToSSE] Stream done, total chunks received:', chunkCount);
+              break;
+            }
+
+            chunkCount++;
+            console.log('[transformAdvancedToSSE] Chunk', chunkCount, 'received, bytes:', value.length);
+            buffer += decoder.decode(value, { stream: true });
+          }
+
+          console.log('[transformAdvancedToSSE] Complete buffer accumulated, size:', buffer.length);
+
+          // Step 2: Try to parse as JSON array
+          try {
+            const jsonArray = JSON.parse(buffer);
+
+            if (!Array.isArray(jsonArray)) {
+              throw new Error('Expected JSON array from Gemini API');
+            }
+
+            console.log('[transformAdvancedToSSE] Parsed JSON array, length:', jsonArray.length);
+
+            // Step 3: Extract and send text from each object
+            for (let i = 0; i < jsonArray.length; i++) {
+              const obj = jsonArray[i];
+              const text = obj?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+              if (text) {
+                fullText += text;
+                console.log('[transformAdvancedToSSE] Object', i + 1, '- text chunk extracted, length:', text.length);
+                const sseData = `data: ${JSON.stringify({ text })}\n\n`;
+                controller.enqueue(encoder.encode(sseData));
+              } else {
+                console.log('[transformAdvancedToSSE] Object', i + 1, '- no text content found');
+              }
+            }
+
+            console.log('[transformAdvancedToSSE] All text chunks sent, total text length:', fullText.length);
+          } catch (parseError) {
+            console.error('[transformAdvancedToSSE] JSON parse failed:', parseError);
+            console.error('[transformAdvancedToSSE] Buffer preview:', buffer.substring(0, 500));
+            throw new Error(`Failed to parse Gemini response: ${parseError}`);
+          }
+
+          // Step 4: Save complete advanced analysis to D1
+          if (fullText) {
+            console.log('[transformAdvancedToSSE] Saving advanced analysis to cache');
+            const advancedAnalysisCacheService = new AdvancedAnalysisCacheService();
+            await advancedAnalysisCacheService.saveAnalysis(
+              chartId,
+              { text: fullText },
+              env
+            );
+            console.log('[transformAdvancedToSSE] Advanced analysis saved successfully');
+          }
+
+          // Step 5: Send completion event
+          console.log('[transformAdvancedToSSE] Sending completion event');
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+          controller.close();
+        } catch (error) {
+          console.error('[transformAdvancedToSSE] Stream error:', error);
           controller.error(error);
         }
       },

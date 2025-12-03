@@ -82,6 +82,8 @@ const handleSubmit = async (birthInfo: any) => {
 onMounted(async () => {
   const { chartId, metadata } = chartStore.loadFromLocalStorage();
   
+  console.log('[UnifiedView] onMounted - chartId:', chartId, 'metadata:', metadata);
+  
   // Load saved metadata for form autofill
   if (metadata) {
     savedMetadata.value = metadata;
@@ -94,15 +96,24 @@ onMounted(async () => {
       console.log('[UnifiedView] Found cached chartId, loading result:', chartId);
       loading.value = true;
       
-      const response = await fetch(`/api/v1/charts/${chartId}`);
+      const url = `/api/v1/charts/${chartId}`;
+      console.log('[UnifiedView] Fetching from:', url);
+      
+      const response = await fetch(url);
+      console.log('[UnifiedView] Response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('[UnifiedView] Received data:', data);
+        
         result.value = {
           chartId: data.id,
           ...data.chartData,
         };
-        console.log('[UnifiedView] Loaded cached chart result');
+        console.log('[UnifiedView] Set result.value:', result.value);
         ElMessage.success('已載入上次的命盤結果');
+      } else {
+        console.warn('[UnifiedView] Response not OK:', response.status, response.statusText);
       }
     } catch (err) {
       console.error('[UnifiedView] Failed to load cached chart:', err);
@@ -110,6 +121,8 @@ onMounted(async () => {
     } finally {
       loading.value = false;
     }
+  } else {
+    console.log('[UnifiedView] No chartId found in localStorage');
   }
 });
 </script>

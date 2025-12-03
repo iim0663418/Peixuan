@@ -95,9 +95,11 @@ const tenGodsForPillars = computed(() => {
 
 <style scoped>
 /* Design tokens applied - 2025-11-30 */
+/* RWD optimization - 2025-12-03 */
+
 .bazi-chart {
-  margin-top: 20px;
-  padding: 15px;
+  margin-top: clamp(16px, 4vw, 20px);
+  padding: clamp(12px, 3vw, 15px);
   border: 1px solid var(--border-light);
   border-radius: 6px;
   background-color: var(--bg-secondary);
@@ -106,27 +108,30 @@ const tenGodsForPillars = computed(() => {
 .bazi-chart h4 {
   text-align: center;
   margin-top: 0;
-  margin-bottom: 15px;
+  margin-bottom: clamp(12px, 3vw, 15px);
   color: var(--text-primary);
   font-weight: 600;
+  font-size: clamp(14px, 3.5vw, 16px);
 }
 
+/* Mobile-first: Normal order, stack vertically if needed */
 .pillars-container {
   display: flex;
-  justify-content: space-around; /* 從右到左排列，所以用 row-reverse */
+  justify-content: space-around;
   flex-direction: row-reverse; /* 傳統排盤：時日月年 */
-  flex-wrap: wrap-reverse; /* 允許換行，並保持反向順序 */
-  gap: 10px;
+  flex-wrap: wrap; /* 移動端允許換行 */
+  gap: clamp(8px, 2vw, 10px);
   text-align: center;
 }
 
 .pillar-card-display {
   flex: 1;
-  padding: 10px;
+  padding: clamp(8px, 2vw, 10px);
   border: 1px solid var(--border-medium);
   border-radius: 4px;
   background-color: var(--bg-primary);
-  min-width: 70px; /* 確保每個柱子有足夠寬度 */
+  min-width: 80px; /* 移動端增大最小寬度 */
+  min-height: 44px; /* 觸控目標 */
 }
 
 .pillar-card-display.highlighted {
@@ -136,30 +141,48 @@ const tenGodsForPillars = computed(() => {
 
 .pillar-card-display h5 {
   margin-top: 0;
-  margin-bottom: 8px;
-  font-size: 1em;
+  margin-bottom: clamp(6px, 1.5vw, 8px);
+  font-size: clamp(0.9em, 2.2vw, 1em);
   color: var(--text-secondary);
 }
 
 .stem-branch {
-  margin-bottom: 5px;
+  margin-bottom: clamp(4px, 1vw, 5px);
 }
 
 .char {
-  font-size: 1.4em; /* 放大干支字體 */
+  font-size: clamp(1.2em, 3vw, 1.4em); /* 響應式字體 */
   font-weight: bold;
   color: var(--text-primary);
 }
 
 .label {
-  font-size: 0.8em;
+  font-size: clamp(0.75em, 1.8vw, 0.8em);
   color: var(--text-tertiary);
 }
 
 .ten-god {
   display: block;
-  font-size: 0.85em;
-  color: var(--success); /* 十神用主題色 */
+  font-size: clamp(0.8em, 2vw, 0.85em);
+  color: var(--success);
   margin-top: 2px;
+}
+
+/* Tablet: Ensure 4 columns */
+@media (min-width: 768px) {
+  .pillar-card-display {
+    min-width: 90px;
+  }
+}
+
+/* Desktop: Larger display */
+@media (min-width: 1024px) {
+  .pillar-card-display {
+    min-width: 100px;
+  }
+  
+  .char {
+    font-size: 1.4em;
+  }
 }
 </style>

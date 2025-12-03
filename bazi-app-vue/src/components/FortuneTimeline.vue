@@ -105,40 +105,84 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
 
 <style scoped>
 /* Design tokens applied - 2025-11-30 */
+/* RWD optimization - 2025-12-03 */
+
 .fortune-timeline {
-  padding: 16px;
+  padding: clamp(12px, 3vw, 16px);
   background: var(--bg-primary);
   border-radius: 8px;
 }
 
 .qiyun-info {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: clamp(10px, 2.5vw, 12px);
+  margin-bottom: clamp(16px, 4vw, 20px);
   flex-wrap: wrap;
 }
 
+/* Mobile: Add scroll hint */
 .timeline-container {
   overflow-x: auto;
-  margin-bottom: 20px;
+  margin-bottom: clamp(16px, 4vw, 20px);
+  position: relative;
+  -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+}
+
+/* Scroll hint for mobile */
+.timeline-container::after {
+  content: '← 滑動查看更多 →';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .timeline-container::after {
+    display: none;
+  }
+}
+
+/* Custom scrollbar for better UX */
+.timeline-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.timeline-container::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 3px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 3px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
 }
 
 .timeline-track {
   display: flex;
-  gap: 8px;
+  gap: clamp(6px, 1.5vw, 8px);
   min-width: max-content;
-  padding: 8px 0;
+  padding: clamp(6px, 1.5vw, 8px) 0;
 }
 
 .dayun-segment {
   flex: 1;
-  min-width: 120px;
-  padding: 12px;
+  min-width: 100px; /* 移動端減小寬度 */
+  padding: clamp(10px, 2.5vw, 12px);
   background: var(--bg-secondary);
   border: 2px solid var(--border-light);
   border-radius: 8px;
   transition: all 0.3s ease;
   cursor: pointer;
+  min-height: 44px; /* 觸控目標 */
 }
 
 .dayun-segment:hover {
@@ -158,47 +202,51 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: clamp(6px, 1.5vw, 8px);
 }
 
 .dayun-age {
-  font-size: 12px;
+  font-size: clamp(11px, 2.8vw, 12px);
   opacity: 0.8;
 }
 
 .dayun-ganzhi {
-  font-size: 18px;
+  font-size: clamp(16px, 4vw, 18px);
   font-weight: bold;
   letter-spacing: 1px;
 }
 
 .dayun-period {
-  font-size: 11px;
+  font-size: clamp(10px, 2.5vw, 11px);
   opacity: 0.7;
   text-align: center;
 }
 
 .current-fortune {
-  padding: 16px;
+  padding: clamp(12px, 3vw, 16px);
   background: #f0f9ff;
   border-radius: 8px;
   border: 1px solid #bfdbfe;
 }
 
 .current-fortune h5 {
-  margin: 0 0 12px 0;
-  font-size: 14px;
+  margin: 0 0 clamp(10px, 2.5vw, 12px) 0;
+  font-size: clamp(13px, 3.2vw, 14px);
   color: #1e40af;
   font-weight: 600;
 }
 
-@media (max-width: 768px) {
+/* Tablet: Larger segments */
+@media (min-width: 768px) {
   .dayun-segment {
-    min-width: 100px;
+    min-width: 120px;
   }
+}
 
-  .dayun-ganzhi {
-    font-size: 16px;
+/* Desktop: Even larger */
+@media (min-width: 1024px) {
+  .dayun-segment {
+    min-width: 140px;
   }
 }
 </style>

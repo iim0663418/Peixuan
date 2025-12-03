@@ -110,8 +110,10 @@ const getBarWidth = (score: number): string => {
 
 <style scoped>
 /* Design tokens applied - 2025-11-30 */
+/* RWD optimization - 2025-12-03 */
+
 .wuxing-chart {
-  padding: 16px;
+  padding: clamp(12px, 3vw, 16px);
   background: var(--bg-primary);
   border-radius: 8px;
 }
@@ -119,31 +121,31 @@ const getBarWidth = (score: number): string => {
 .chart-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: clamp(12px, 3vw, 16px);
+  margin-bottom: clamp(16px, 4vw, 20px);
 }
 
 .element-bar {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: clamp(5px, 1.2vw, 6px);
 }
 
 .element-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: clamp(13px, 3.2vw, 14px);
 }
 
 .element-name {
   font-weight: 600;
-  font-size: 16px;
+  font-size: clamp(15px, 3.8vw, 16px);
 }
 
 .element-scores {
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: clamp(12px, 3vw, 13px);
 }
 
 .raw-score {
@@ -160,12 +162,14 @@ const getBarWidth = (score: number): string => {
   font-weight: 600;
 }
 
+/* Mobile: Taller bars for better visibility */
 .bar-track {
   position: relative;
-  height: 32px;
+  height: clamp(28px, 7vw, 32px); /* 移動端增加高度 */
   background: var(--bg-secondary);
   border-radius: 6px;
   overflow: hidden;
+  min-height: 28px; /* 確保最小高度 */
 }
 
 .bar-fill {
@@ -188,29 +192,30 @@ const getBarWidth = (score: number): string => {
 .summary {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: clamp(10px, 2.5vw, 12px);
+  margin-bottom: clamp(12px, 3vw, 16px);
   flex-wrap: wrap;
 }
 
 .legend {
   display: flex;
   justify-content: center;
-  gap: 16px;
-  font-size: 12px;
+  gap: clamp(12px, 3vw, 16px);
+  font-size: clamp(11px, 2.8vw, 12px);
   color: var(--text-tertiary);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: clamp(5px, 1.2vw, 6px);
 }
 
 .legend-dot {
-  width: 12px;
-  height: 12px;
+  width: clamp(10px, 2.5vw, 12px);
+  height: clamp(10px, 2.5vw, 12px);
   border-radius: 2px;
+  flex-shrink: 0; /* 防止縮小 */
 }
 
 .legend-dot.raw {
@@ -220,5 +225,19 @@ const getBarWidth = (score: number): string => {
 
 .legend-dot.adjusted {
   background: var(--text-secondary);
+}
+
+/* Tablet: Standard sizes */
+@media (min-width: 768px) {
+  .bar-track {
+    height: 32px;
+  }
+}
+
+/* Desktop: Larger display */
+@media (min-width: 1024px) {
+  .bar-track {
+    height: 36px;
+  }
 }
 </style>

@@ -30,7 +30,9 @@
             <el-col
               v-for="(stems, key) in result.bazi.hiddenStems"
               :key="key"
-              :span="6"
+              :xs="24"
+              :sm="12"
+              :md="6"
             >
               <div class="hidden-stems">
                 <div class="branch-label">
@@ -96,7 +98,9 @@
             <el-col
               v-for="(pos, star) in result.ziwei.auxiliaryStars"
               :key="star"
-              :span="6"
+              :xs="12"
+              :sm="8"
+              :md="6"
             >
               <div class="star-card">
                 <div class="star-name">{{ formatStarName(String(star)) }}</div>
@@ -248,19 +252,47 @@ const formatStarName = (key: string): string => {
 
 <style scoped>
 /* Design tokens applied - 2025-11-30 */
+/* RWD optimization - 2025-12-03 */
+
 .unified-result {
   width: 100%;
 }
 
+/* Mobile-first: Tab navigation optimization */
+:deep(.el-tabs__header) {
+  margin-bottom: clamp(12px, 3vw, 24px);
+}
+
+:deep(.el-tabs__item) {
+  min-height: 44px;
+  padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px);
+  font-size: clamp(14px, 3.5vw, 16px);
+}
+
 .section {
-  margin-bottom: 24px;
+  margin-bottom: clamp(16px, 4vw, 24px);
 }
 
 h4 {
-  font-size: 16px;
+  font-size: clamp(14px, 3.5vw, 16px);
   color: var(--text-primary);
-  margin: 0 0 12px 0;
+  margin: 0 0 clamp(8px, 2vw, 12px) 0;
   font-weight: 600;
+}
+
+/* Mobile: Stack hidden stems vertically */
+.hidden-stems {
+  padding: clamp(10px, 2.5vw, 12px);
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+@media (min-width: 768px) {
+  .hidden-stems {
+    margin-bottom: 0;
+  }
 }
 
 .pillar-card {
@@ -283,15 +315,8 @@ h4 {
   letter-spacing: 2px;
 }
 
-.hidden-stems {
-  padding: 12px;
-  background: var(--bg-secondary);
-  border-radius: 6px;
-  text-align: center;
-}
-
 .branch-label {
-  font-size: 12px;
+  font-size: clamp(11px, 2.8vw, 12px);
   color: var(--text-tertiary);
   margin-bottom: 6px;
 }
@@ -299,8 +324,8 @@ h4 {
 .stem-list {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  font-size: 14px;
+  gap: clamp(6px, 1.5vw, 8px);
+  font-size: clamp(13px, 3.2vw, 14px);
 }
 
 .stem-primary {
@@ -316,23 +341,61 @@ h4 {
   color: var(--text-tertiary);
 }
 
+/* Mobile: Larger star cards */
 .star-card {
   text-align: center;
-  padding: 12px;
+  padding: clamp(10px, 2.5vw, 12px);
   background: var(--bg-primary);
   border: 1px solid var(--border-light);
   border-radius: 6px;
+  margin-bottom: 12px;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .star-card {
+    margin-bottom: 0;
+  }
 }
 
 .star-name {
-  font-size: 14px;
+  font-size: clamp(13px, 3.2vw, 14px);
   color: var(--text-secondary);
   margin-bottom: 4px;
 }
 
 .star-position {
-  font-size: 18px;
+  font-size: clamp(16px, 4vw, 18px);
   font-weight: bold;
   color: var(--info);
+}
+
+/* Tablet optimization */
+@media (min-width: 768px) {
+  :deep(.el-tabs__item) {
+    font-size: 15px;
+  }
+  
+  h4 {
+    font-size: 15px;
+  }
+}
+
+/* Desktop optimization */
+@media (min-width: 1024px) {
+  :deep(.el-tabs__item) {
+    font-size: 16px;
+  }
+  
+  h4 {
+    font-size: 16px;
+  }
+  
+  .section {
+    margin-bottom: 24px;
+  }
 }
 </style>

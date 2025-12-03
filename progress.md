@@ -1,51 +1,29 @@
 # Peixuan 專案進度
 
-**專案**: 佩璇 - 智能命理分析平台
-**當前階段**: Week 2 完成 + Bug 修復
-**最後更新**: 2025-12-02 18:06
+**專案**: 佩璇 - 智能命理分析平台  
+**當前階段**: Week 2 完成 + SSCI 壓縮  
+**最後更新**: 2025-12-03 17:32
 
 ## 📊 專案總進度
 
 **已完成**: 70/62 小時 (113%)
-- ✅ Sprint R1-R5 全部完成
-- ✅ 統一 API 穩定運行
-- ✅ 前端遷移完成
-- ✅ 設計系統套用完成
-- ✅ 四化飛星頂層彙總完成
-- ✅ lunar-typescript 整合完成（Hybrid Approach）
-- ✅ Phase A 藏干/十神替換完成（-274 行）
-- ✅ 開源專案驗算測試套件（10/10 通過）
-- ✅ Phase B/C 評估完成（保留 2042 行核心代碼）
-- ✅ 大運計歲修正（真實歲數計算）
+- ✅ AI Streaming + D1 快取（0.118s 命中）
+- ✅ SSE 排版一致化（逐行輸出保留 Markdown）
+- ✅ UX 優化（metadata 回填、chartHistory 清理、Navbar 去 emoji）
+- ✅ SSCI 上下文壓縮與提交（checkpoint: progress-core-2025-12-03-17:28）
 
 **待處理**:
-- 日柱測試更新（匹配新 JDN API）(1h)
-- 補齊測試覆蓋 (3-4h)
-- 依賴升級與警告清理 (2-3h)
-- API 文件更新 (1-2h)
+- 前端 ESLint: 6 errors / 120 warnings
+- 後端 ESLint: 3597 issues
+- LanguageSelector 測試: 6 失敗
 
 ---
 
-## 最新完成
+## 📝 最新檢查點
 
-### 🐛 大運計歲修正 (2025-12-02 18:04)
-- **問題**: 大運計歲從起運開始（0, 10, 20...），與真實歲數不符
-- **修正**: DaYun 介面 age → startAge/endAge，新增 birthDate 參數計算真實歲數
-- **測試**: 22/22 通過
-- **範例**: 出生 1990-01-01, 起運 2000-01-01 → 第一大運 10-20 歲（修正前 0-10 歲）
-
-### ✅ 開源專案整合策略確立 (2025-12-02 00:10)
-- Phase A: 藏干/十神替換完成（-274 行，34/34 測試通過）
-- Phase B/C: 評估完成，保留 2042 行核心代碼（成本效益分析）
-- 驗算套件: verification.test.ts（10/10 通過）
-
----
-
-## 📝 技術債務
-
-1. **測試覆蓋** (3-4h): 日柱測試更新、UnifiedView/UnifiedResultView 測試補齊
-2. **代碼品質** (2-3h): ESLint 22 warnings、npm 依賴警告 4 項
-3. **文件完善** (1-2h): API 文件更新、架構圖更新
+詳細歷史請參考：`.specify/memory/CHECKPOINTS.md`  
+完整決策記錄：`.specify/memory/DECISIONS.md`  
+專案特性：`.specify/memory/constitution.md`
 
 
 ### 🐛 前端大運顯示修正 (2025-12-02 18:13)

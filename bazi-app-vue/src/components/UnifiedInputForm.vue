@@ -83,7 +83,11 @@
     </el-form-item>
 
     <!-- 精確地理位置輸入 -->
-    <el-form-item label="出生地點座標（必填）" prop="location" class="location-form-item">
+    <el-form-item
+      label="出生地點座標（必填）"
+      prop="location"
+      class="location-form-item"
+    >
       <div class="coordinate-inputs">
         <div class="coordinate-field">
           <el-input
@@ -127,11 +131,7 @@
           </el-select>
         </div>
       </div>
-      <el-text
-        type="warning"
-        size="small"
-        class="coordinate-warning"
-      >
+      <el-text type="warning" size="small" class="coordinate-warning">
         ⚠️ 經度為必填項目，用於精確計算
       </el-text>
     </el-form-item>
@@ -505,10 +505,13 @@ watch(
       formData.birthTime = newData.birthTime;
       formData.gender = newData.gender;
       formData.longitude = newData.longitude;
-      console.log('[UnifiedInputForm] Populated form with saved data:', newData);
+      console.log(
+        '[UnifiedInputForm] Populated form with saved data:',
+        newData,
+      );
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const submitForm = async () => {

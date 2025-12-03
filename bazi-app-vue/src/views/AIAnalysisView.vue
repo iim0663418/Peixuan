@@ -138,7 +138,7 @@ onUnmounted(() => {
         <div class="error-icon">😢</div>
         <h3>哎呀，出了點小問題</h3>
         <p class="error-message">{{ error }}</p>
-        <button @click="goBack" class="retry-btn">← 返回重試</button>
+        <button class="retry-btn" @click="goBack">← 返回重試</button>
       </div>
 
       <!-- 分析內容 -->

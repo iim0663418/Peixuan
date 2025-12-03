@@ -5,10 +5,7 @@
         <h2>統一命盤計算</h2>
       </template>
 
-      <UnifiedInputForm 
-        :initial-data="savedMetadata" 
-        @submit="handleSubmit" 
-      />
+      <UnifiedInputForm :initial-data="savedMetadata" @submit="handleSubmit" />
     </el-card>
 
     <el-card v-if="loading" class="result-card">
@@ -17,9 +14,11 @@
 
     <el-card v-else-if="error" class="result-card error">
       <el-alert
-type="error"
-:title="error" show-icon :closable="false"
-/>
+        type="error"
+        :title="error"
+        show-icon
+        :closable="false"
+      />
     </el-card>
 
     <el-card v-else-if="result" class="result-card">
@@ -81,7 +80,7 @@ const handleSubmit = async (birthInfo: any) => {
 };
 
 onMounted(() => {
-  const { chartId, metadata } = chartStore.loadFromLocalStorage();
+  const { metadata } = chartStore.loadFromLocalStorage();
   if (metadata) {
     savedMetadata.value = metadata;
     console.log('[UnifiedView] Loaded saved metadata:', metadata);

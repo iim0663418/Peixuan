@@ -158,6 +158,8 @@ onMounted(() => {
             <router-link to="/unified">{{
               $t('astrology.unified')
             }}</router-link>
+            <router-link to="/ai-analysis">AI 智能分析</router-link>
+            <router-link to="/">服務介紹</router-link>
           </div>
         </div>
         <div class="footer-section">

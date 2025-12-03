@@ -2,7 +2,7 @@
 
 **專案**: 佩璇 - 智能命理分析平台
 **當前階段**: Week 2 完成
-**最後更新**: 2025-12-03 18:00
+**最後更新**: 2025-12-03 18:30
 
 ## 📊 專案總進度
 
@@ -14,6 +14,10 @@
 - ✅ Bug 修復（Chart API、userId、欄位轉換、balance NaN）
 - ✅ 技術債償還（ESLint -46%、npm 漏洞 0、測試通過率 100%）
 - ✅ Cron Job 數據清理（6 個月自動清理）
+
+**最新更新** (2025-12-03 18:30):
+- ✅ i18n 翻譯更新：'unified' → '整合命盤計算' (zh/zh_TW/en)
+- ✅ App.vue 頁腳服務項目更新：新增「AI 智能分析」、「服務介紹」連結
 
 **待處理**:
 - 前端 ESLint: 6 errors / 120 warnings
@@ -86,8 +90,9 @@
 - `UnifiedResultView.vue`: CSS 變數、Tab 移動端優化
 - `UnifiedView.vue`: 快取轉換層、chartStore 同步
 - `chartStore.ts`: 簡化為 currentChartId + currentChart
-- `App.vue`: 移除 emoji、DOM 操作封裝
+- `App.vue`: 移除 emoji、DOM 操作封裝、頁腳服務項目更新
 - `WuXingChart.vue`: balance NaN 防護
+- `i18n/locales/{zh,zh_TW,en}.json`: 'unified' → '整合命盤計算' (2025-12-03)
 
 **後端**:
 - `analyzeController.ts`: 快取預檢查、優先級、逐行 SSE

@@ -25,9 +25,11 @@
 			"migrations_dir": "drizzle"
 		}
 	],
-	"vars": {
-		"GEMINI_API_KEY": "AIzaSyBJqsHMRDVul3oxgw_PuOznY9Wi3I1XFq8"
-	},
+	/**
+	 * Environment Variables
+	 * GEMINI_API_KEY is set via GitHub Secrets and wrangler secret
+	 * Do not commit API keys to version control
+	 */
 	/**
 	 * KV Cache (Optional)
 	 * Uncomment to enable KV-based caching

@@ -863,3 +863,36 @@ for (const line of lines) {
 ### 實作時間
 - 預估: 15min
 - 實際: 5min
+
+---
+
+## 🐛 Bug 修復：userId 不匹配導致查詢失敗 (2025-12-03 18:35)
+
+### 問題描述
+即使 chartRoutes 已註冊，`/api/charts/:id` 仍返回 404。
+
+### 根本原因
+**保存與查詢的 userId 不一致**：
+- 保存時：`userId: null`（ChartCacheService）
+- 查詢時：`userId: 'anonymous'`（ChartController）
+- SQL 條件：`WHERE id = ? AND userId = ?`
+- 結果：`null ≠ 'anonymous'` → 404
+
+### 解決方案
+修改 `ChartCacheService.saveChart()` 使用 `'anonymous'` 字串：
+```typescript
+userId: 'anonymous', // 統一使用字串而非 null
+```
+
+### 修改文件
+- `peixuan-worker/src/services/chartCacheService.ts` (1 行)
+
+### 結果
+- ✅ 編譯成功 (1.2mb)
+- ✅ 保存與查詢 userId 一致
+- ✅ 匿名用戶可正常查詢命盤
+
+### 實作時間
+- 預估: 10min
+- 實際: 5min
+

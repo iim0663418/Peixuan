@@ -33222,7 +33222,7 @@ var ChartCacheService = class {
     const db = drizzle(env.DB);
     const newChart = {
       id: chartId,
-      userId: null,
+      userId: "anonymous",
       // Anonymous user
       type: "integrated",
       chartData: calculation,

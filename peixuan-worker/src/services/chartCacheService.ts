@@ -49,7 +49,7 @@ export class ChartCacheService {
 
     const newChart: InsertChartRecord = {
       id: chartId,
-      userId: null, // Anonymous user
+      userId: 'anonymous', // Anonymous user
       type: 'integrated',
       chartData: calculation,
       metadata,

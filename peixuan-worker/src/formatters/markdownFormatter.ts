@@ -11,6 +11,8 @@ import type { CalculationResult } from '../calculation/types';
 export interface MarkdownOptions {
   /** Exclude calculation steps and metadata (for AI analysis) */
   excludeSteps?: boolean;
+  /** Personality analysis only (exclude fortune/sihua/annual for focused personality insights) */
+  personalityOnly?: boolean;
 }
 
 /**
@@ -40,30 +42,36 @@ export function formatToMarkdown(result: CalculationResult, options: MarkdownOpt
   // 2. BaZi Four Pillars
   sections.push(formatBaZi(result));
 
-  // 3. Fortune Cycles
-  if (result.bazi.fortuneCycles) {
+  // 3. Ten Gods Matrix
+  sections.push(formatTenGodsMatrix(result));
+
+  // 4. Hidden Stems Advanced
+  sections.push(formatHiddenStemsAdvanced(result));
+
+  // 5. Fortune Cycles (exclude in personality-only mode)
+  if (result.bazi.fortuneCycles && !options.personalityOnly) {
     sections.push(formatFortuneCycles(result));
   }
 
-  // 4. ZiWei Purple Star
+  // 6. ZiWei Purple Star
   sections.push(formatZiWei(result));
 
-  // 5. SiHua Flying Stars (if available)
-  if (result.ziwei.siHuaAggregation) {
+  // 7. SiHua Flying Stars (exclude in personality-only mode)
+  if (result.ziwei.siHuaAggregation && !options.personalityOnly) {
     sections.push(formatSiHua(result));
   }
 
-  // 6. Annual Fortune (if available)
-  if (result.annualFortune) {
+  // 8. Annual Fortune (exclude in personality-only mode)
+  if (result.annualFortune && !options.personalityOnly) {
     sections.push(formatAnnualFortune(result));
   }
 
-  // 7. Calculation Steps (optional, exclude for AI)
+  // 9. Calculation Steps (optional, exclude for AI)
   if (!options.excludeSteps) {
     sections.push(formatCalculationSteps(result));
   }
 
-  // 8. Metadata (optional, exclude for AI)
+  // 10. Metadata (optional, exclude for AI)
   if (!options.excludeSteps) {
     sections.push(formatMetadata(result));
   }
@@ -440,4 +448,61 @@ function formatMetadata(result: CalculationResult): string {
   sections.push(`\n**計算時間**：${formatDate(result.timestamp)}`);
 
   return sections.join('\n');
+}
+
+/**
+ * Format TenGods matrix for deep personality analysis
+ */
+function formatTenGodsMatrix(result: CalculationResult): string {
+  const { bazi } = result;
+  const lines: string[] = ['## 🧠 十神矩陣（深層性格）\n'];
+
+  // TenGods for each pillar
+  lines.push('### 十神分布');
+  lines.push(`- **年干**（${bazi.fourPillars.year.stem}）→ 日主（${bazi.fourPillars.day.stem}）：**${bazi.tenGods.year}**`);
+  lines.push(`- **月干**（${bazi.fourPillars.month.stem}）→ 日主（${bazi.fourPillars.day.stem}）：**${bazi.tenGods.month}**`);
+  lines.push(`- **時干**（${bazi.fourPillars.hour.stem}）→ 日主（${bazi.fourPillars.day.stem}）：**${bazi.tenGods.hour}**`);
+
+  // Dominant TenGod identification (simple count)
+  const tenGodCounts: Record<string, number> = {};
+  [bazi.tenGods.year, bazi.tenGods.month, bazi.tenGods.hour].forEach(god => {
+    tenGodCounts[god] = (tenGodCounts[god] || 0) + 1;
+  });
+
+  const dominant = Object.entries(tenGodCounts).sort((a, b) => b[1] - a[1])[0];
+  if (dominant && dominant[1] > 1) {
+    lines.push(`\n**主導十神**：${dominant[0]}（出現 ${dominant[1]} 次）`);
+  }
+
+  return lines.join('\n');
+}
+
+/**
+ * Format HiddenStems for multi-layer personality analysis
+ */
+function formatHiddenStemsAdvanced(result: CalculationResult): string {
+  const { bazi } = result;
+  const lines: string[] = ['## 🌊 藏干系統（多層特質）\n'];
+
+  // Year pillar hidden stems
+  lines.push('### 年柱藏干');
+  lines.push(`- 主氣：${bazi.hiddenStems.year.primary}`);
+  if (bazi.hiddenStems.year.middle) {
+    lines.push(`- 中氣：${bazi.hiddenStems.year.middle}`);
+  }
+  if (bazi.hiddenStems.year.residual) {
+    lines.push(`- 餘氣：${bazi.hiddenStems.year.residual}`);
+  }
+
+  // Month pillar hidden stems
+  lines.push('\n### 月柱藏干');
+  lines.push(`- 主氣：${bazi.hiddenStems.month.primary}`);
+  if (bazi.hiddenStems.month.middle) {
+    lines.push(`- 中氣：${bazi.hiddenStems.month.middle}`);
+  }
+  if (bazi.hiddenStems.month.residual) {
+    lines.push(`- 餘氣：${bazi.hiddenStems.month.residual}`);
+  }
+
+  return lines.join('\n');
 }

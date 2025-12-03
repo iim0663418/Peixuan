@@ -2,15 +2,15 @@
  * Advanced Markdown Formatter for Progressive Analysis
  * Converts CalculationResult to AI-friendly Markdown format for advanced analysis
  *
- * Target: ~200 tokens for 5 categories:
- * 1. TenGods matrix (bazi.tenGods)
- * 2. HiddenStems (bazi.hiddenStems)
- * 3. SiHua aggregation (ziwei.sihuaAggregation)
- * 4. Star symmetry (ziwei.starSymmetry)
- * 5. Next year prediction (using NextYearCalculator)
+ * Target: ~400 tokens for 4 categories:
+ * 1. Fortune Cycles (bazi.fortuneCycles) - current life phase
+ * 2. SiHua aggregation (ziwei.sihuaAggregation) - energy flow
+ * 3. Star symmetry (ziwei.starSymmetry) - energy balance
+ * 4. Next year prediction (using NextYearCalculator) - future forecast
  */
 
-import type { CalculationResult, BirthInfo } from '../calculation/types';
+import type { CalculationResult, BirthInfo, StarSymmetry } from '../calculation/types';
+import type { SiHuaCycle } from '../calculation/ziwei/sihua/types';
 import { calculateNextYear } from '../calculation/annual/nextYearCalculator';
 
 /**
@@ -25,76 +25,40 @@ export function formatAdvancedMarkdown(result: CalculationResult): string {
   // Header
   sections.push('# 進階分析數據\n');
 
-  // 1. TenGods Matrix
-  sections.push(formatTenGodsMatrix(result));
+  // 1. Fortune Cycles (current life phase)
+  sections.push(formatFortuneCyclesAdvanced(result));
 
-  // 2. Hidden Stems
-  sections.push(formatHiddenStemsAdvanced(result));
-
-  // 3. SiHua Aggregation
+  // 2. SiHua Aggregation
   sections.push(formatSihuaAggregation(result));
 
-  // 4. Star Symmetry
+  // 3. Star Symmetry
   sections.push(formatStarSymmetry(result));
 
-  // 5. Next Year Prediction
+  // 4. Next Year Prediction
   sections.push(formatNextYearBasic(result));
 
   return sections.join('\n---\n\n');
 }
 
 /**
- * Format TenGods matrix for deep personality analysis
+ * Format Fortune Cycles for life phase context (simplified for advanced analysis)
  */
-function formatTenGodsMatrix(result: CalculationResult): string {
-  const { bazi } = result;
-  const lines: string[] = ['## 🧠 十神矩陣（深層性格）\n'];
+function formatFortuneCyclesAdvanced(result: CalculationResult): string {
+  const { fortuneCycles } = result.bazi;
+  const lines: string[] = ['## 🔄 大運流年（人生階段）\n'];
 
-  // TenGods for each pillar
-  lines.push('### 十神分布');
-  lines.push(`- **年干**（${bazi.fourPillars.year.stem}）→ 日主（${bazi.fourPillars.day.stem}）：**${bazi.tenGods.year}**`);
-  lines.push(`- **月干**（${bazi.fourPillars.month.stem}）→ 日主（${bazi.fourPillars.day.stem}）：**${bazi.tenGods.month}**`);
-  lines.push(`- **時干**（${bazi.fourPillars.hour.stem}）→ 日主（${bazi.fourPillars.day.stem}）：**${bazi.tenGods.hour}**`);
-
-  // Dominant TenGod identification (simple count)
-  const tenGodCounts: Record<string, number> = {};
-  [bazi.tenGods.year, bazi.tenGods.month, bazi.tenGods.hour].forEach(god => {
-    tenGodCounts[god] = (tenGodCounts[god] || 0) + 1;
-  });
-
-  const dominant = Object.entries(tenGodCounts).sort((a, b) => b[1] - a[1])[0];
-  if (dominant && dominant[1] > 1) {
-    lines.push(`\n**主導十神**：${dominant[0]}（出現 ${dominant[1]} 次）`);
+  if (!fortuneCycles) {
+    lines.push('無大運數據');
+    return lines.join('\n');
   }
 
-  return lines.join('\n');
-}
-
-/**
- * Format HiddenStems for multi-layer personality analysis
- */
-function formatHiddenStemsAdvanced(result: CalculationResult): string {
-  const { bazi } = result;
-  const lines: string[] = ['## 🌊 藏干系統（多層特質）\n'];
-
-  // Year pillar hidden stems
-  lines.push('### 年柱藏干');
-  lines.push(`- 主氣：${bazi.hiddenStems.year.primary}`);
-  if (bazi.hiddenStems.year.middle) {
-    lines.push(`- 中氣：${bazi.hiddenStems.year.middle}`);
-  }
-  if (bazi.hiddenStems.year.residual) {
-    lines.push(`- 餘氣：${bazi.hiddenStems.year.residual}`);
-  }
-
-  // Month pillar hidden stems
-  lines.push('\n### 月柱藏干');
-  lines.push(`- 主氣：${bazi.hiddenStems.month.primary}`);
-  if (bazi.hiddenStems.month.middle) {
-    lines.push(`- 中氣：${bazi.hiddenStems.month.middle}`);
-  }
-  if (bazi.hiddenStems.month.residual) {
-    lines.push(`- 餘氣：${bazi.hiddenStems.month.residual}`);
+  // Current DaYun (most important for predictions)
+  if (fortuneCycles.currentDayun) {
+    const current = fortuneCycles.currentDayun;
+    lines.push('### 當前大運');
+    lines.push(`- **干支**：${current.stem}${current.branch}`);
+    lines.push(`- **年齡**：${current.startAge}-${current.endAge}歲`);
+    lines.push(`- **方向**：${fortuneCycles.direction === 'forward' ? '順行' : '逆行'}`);
   }
 
   return lines.join('\n');
@@ -111,21 +75,27 @@ function formatSihuaAggregation(result: CalculationResult): string {
     return lines.join('\n');
   }
 
-  const { statistics, cycles } = result.ziwei.sihuaAggregation;
+  const agg = result.ziwei.sihuaAggregation;
 
-  // Statistics
-  lines.push(`### 統計`);
-  lines.push(`- 化祿：${statistics.lu} 條`);
-  lines.push(`- 化權：${statistics.quan} 條`);
-  lines.push(`- 化科：${statistics.ke} 條`);
-  lines.push(`- 化忌：${statistics.ji} 條`);
+  // Count total cycles
+  const totalCycles = agg.jiCycles.length + agg.luCycles.length + agg.quanCycles.length + agg.keCycles.length;
 
-  // Cycles (if any)
-  if (cycles.jiCycles.length > 0) {
-    lines.push(`\n### 化忌循環`);
-    cycles.jiCycles.forEach((cycle, idx) => {
-      lines.push(`- 循環 ${idx + 1}：${cycle.path.join(' → ')}`);
+  if (totalCycles === 0) {
+    lines.push('無循環檢測');
+    return lines.join('\n');
+  }
+
+  // Ji Cycles (most important)
+  if (agg.jiCycles.length > 0) {
+    lines.push(`### 化忌循環（${agg.jiCycles.length} 個）`);
+    agg.jiCycles.forEach((cycle: SiHuaCycle, idx: number) => {
+      lines.push(`- 循環 ${idx + 1}：${cycle.description || cycle.palaces.join(' → ')}`);
     });
+  }
+
+  // Lu Cycles
+  if (agg.luCycles.length > 0) {
+    lines.push(`\n### 化祿循環（${agg.luCycles.length} 個）`);
   }
 
   return lines.join('\n');
@@ -137,12 +107,12 @@ function formatSihuaAggregation(result: CalculationResult): string {
 function formatStarSymmetry(result: CalculationResult): string {
   const lines: string[] = ['## ⚖️ 星曜對稱（能量平衡）\n'];
 
-  if (!result.ziwei?.starSymmetry?.symmetricPairs) {
+  if (!result.ziwei?.starSymmetry || !Array.isArray(result.ziwei.starSymmetry)) {
     lines.push('無對稱數據');
     return lines.join('\n');
   }
 
-  const { symmetricPairs } = result.ziwei.starSymmetry;
+  const symmetricPairs = result.ziwei.starSymmetry;
 
   if (symmetricPairs.length === 0) {
     lines.push('無對稱星系');
@@ -150,8 +120,8 @@ function formatStarSymmetry(result: CalculationResult): string {
   }
 
   lines.push('### 對稱星系');
-  symmetricPairs.slice(0, 5).forEach(pair => {
-    lines.push(`- ${pair.star1}（第${pair.palace1 + 1}宮）↔ ${pair.star2}（第${pair.palace2 + 1}宮）：${pair.type}`);
+  symmetricPairs.slice(0, 5).forEach((pair: StarSymmetry) => {
+    lines.push(`- ${pair.star}（第${pair.position + 1}宮）↔ ${pair.symmetryPair}（第${(pair.symmetryPosition ?? 0) + 1}宮）：${pair.symmetryType}`);
   });
 
   return lines.join('\n');
@@ -190,11 +160,21 @@ function formatNextYearBasic(result: CalculationResult): string {
     if (taiSuiTypes.severity !== 'NONE') {
       lines.push('\n### 犯太歲預測');
       const taiSuiList: string[] = [];
-      if (taiSuiTypes.zhi) taiSuiList.push('值太歲');
-      if (taiSuiTypes.chong) taiSuiList.push('沖太歲');
-      if (taiSuiTypes.xing) taiSuiList.push('刑太歲');
-      if (taiSuiTypes.po) taiSuiList.push('破太歲');
-      if (taiSuiTypes.hai) taiSuiList.push('害太歲');
+      if (taiSuiTypes.zhi) {
+        taiSuiList.push('值太歲');
+      }
+      if (taiSuiTypes.chong) {
+        taiSuiList.push('沖太歲');
+      }
+      if (taiSuiTypes.xing) {
+        taiSuiList.push('刑太歲');
+      }
+      if (taiSuiTypes.po) {
+        taiSuiList.push('破太歲');
+      }
+      if (taiSuiTypes.hai) {
+        taiSuiList.push('害太歲');
+      }
       lines.push(`- **類型**：${taiSuiList.join('、')}`);
       lines.push(`- **嚴重度**：${taiSuiTypes.severity}`);
     } else {

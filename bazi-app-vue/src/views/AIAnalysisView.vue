@@ -114,7 +114,7 @@ onUnmounted(() => {
     <div class="container">
       <div class="header">
         <button class="back-btn" @click="goBack">← 返回</button>
-        <h1>🤖 佩璇 AI 分析</h1>
+        <h1>🤖 佩璇性格分析</h1>
         <div class="actions">
           <button
             v-if="!isLoading && !error"
@@ -325,32 +325,61 @@ onUnmounted(() => {
 }
 
 .markdown-body {
-  font-size: 1rem;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  padding: var(--space-2xl);
+  background: var(--gradient-bg-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Emoji 優化 */
+.markdown-body :deep(p),
+.markdown-body :deep(li) {
+  font-size: var(--font-size-lg);
+}
+
+.markdown-body :deep(p:has(img[alt*='emoji'])),
+.markdown-body :deep(span:has(img[alt*='emoji'])) {
+  font-size: 1.2em;
+}
+
+/* 通用 emoji 字符優化 */
+.markdown-body :deep(*) {
+  font-variant-emoji: emoji;
 }
 
 .markdown-body :deep(h2) {
   color: #667eea;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  font-weight: 600;
+  margin-top: var(--space-3xl);
+  margin-bottom: var(--space-lg);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  text-shadow: var(--text-shadow-sm);
 }
 
 .markdown-body :deep(h3) {
   color: #764ba2;
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
-  font-size: 1.25rem;
-  font-weight: 600;
+  margin-top: var(--space-2xl);
+  margin-bottom: var(--space-md);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  text-shadow: var(--text-shadow-sm);
 }
 
 .markdown-body :deep(p) {
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-lg);
+  line-height: var(--line-height-loose);
 }
 
 .markdown-body :deep(strong) {
-  color: #667eea;
-  font-weight: 600;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: var(--font-weight-bold);
+  text-shadow: var(--text-shadow-md);
+  padding: 0 0.1em;
 }
 
 .markdown-body :deep(ul),

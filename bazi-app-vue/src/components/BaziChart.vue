@@ -22,8 +22,7 @@
         <div class="stem-branch">
           <span class="char">{{ props.bazi[pillarKey].branch }}</span>
           <span class="label">
-            ({{ props.bazi[pillarKey].branchElement }})</span
-          >
+            ({{ props.bazi[pillarKey].branchElement }})</span>
           <!-- 地支藏干及其十神可以後續添加 -->
         </div>
       </div>
@@ -180,7 +179,7 @@ const tenGodsForPillars = computed(() => {
   .pillar-card-display {
     min-width: 100px;
   }
-  
+
   .char {
     font-size: 1.4em;
   }

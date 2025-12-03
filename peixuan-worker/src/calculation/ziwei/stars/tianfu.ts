@@ -24,9 +24,8 @@ export function findTianFuPosition(ziWeiPosition: number): number {
     throw new Error(`Invalid ZiWei position: ${ziWeiPosition}. Must be 0-11.`);
   }
 
-  // Symmetry formula: opposite position around 寅-申 axis
-  // The axis center is at (2 + 8) / 2 = 5, so we use (4 - pos) mod 12
-  let tianfuPos = (4 - ziWeiPosition) % 12;
+  // TianFu is positioned opposite to ZiWei (6 palaces apart in the 12-palace system)
+  let tianfuPos = (ziWeiPosition + 6) % 12;
 
   // Handle negative modulo result
   if (tianfuPos < 0) {

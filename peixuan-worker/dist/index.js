@@ -11966,7 +11966,7 @@ function findTianFuPosition(ziWeiPosition) {
   if (ziWeiPosition < 0 || ziWeiPosition >= 12) {
     throw new Error(`Invalid ZiWei position: ${ziWeiPosition}. Must be 0-11.`);
   }
-  let tianfuPos = (4 - ziWeiPosition) % 12;
+  let tianfuPos = (ziWeiPosition + 6) % 12;
   if (tianfuPos < 0) {
     tianfuPos += 12;
   }
@@ -32965,14 +32965,16 @@ function formatToMarkdown(result, options = {}) {
   sections.push("# \u547D\u7406\u5206\u6790\u7D50\u679C\n");
   sections.push(formatBasicInfo(result));
   sections.push(formatBaZi(result));
-  if (result.bazi.fortuneCycles) {
+  sections.push(formatTenGodsMatrix(result));
+  sections.push(formatHiddenStemsAdvanced(result));
+  if (result.bazi.fortuneCycles && !options.personalityOnly) {
     sections.push(formatFortuneCycles(result));
   }
   sections.push(formatZiWei(result));
-  if (result.ziwei.siHuaAggregation) {
+  if (result.ziwei.siHuaAggregation && !options.personalityOnly) {
     sections.push(formatSiHua(result));
   }
-  if (result.annualFortune) {
+  if (result.annualFortune && !options.personalityOnly) {
     sections.push(formatAnnualFortune(result));
   }
   if (!options.excludeSteps) {
@@ -33262,6 +33264,45 @@ function formatMetadata(result) {
 **\u8A08\u7B97\u6642\u9593**\uFF1A${formatDate(result.timestamp)}`);
   return sections.join("\n");
 }
+function formatTenGodsMatrix(result) {
+  const { bazi } = result;
+  const lines = ["## \u{1F9E0} \u5341\u795E\u77E9\u9663\uFF08\u6DF1\u5C64\u6027\u683C\uFF09\n"];
+  lines.push("### \u5341\u795E\u5206\u5E03");
+  lines.push(`- **\u5E74\u5E72**\uFF08${bazi.fourPillars.year.stem}\uFF09\u2192 \u65E5\u4E3B\uFF08${bazi.fourPillars.day.stem}\uFF09\uFF1A**${bazi.tenGods.year}**`);
+  lines.push(`- **\u6708\u5E72**\uFF08${bazi.fourPillars.month.stem}\uFF09\u2192 \u65E5\u4E3B\uFF08${bazi.fourPillars.day.stem}\uFF09\uFF1A**${bazi.tenGods.month}**`);
+  lines.push(`- **\u6642\u5E72**\uFF08${bazi.fourPillars.hour.stem}\uFF09\u2192 \u65E5\u4E3B\uFF08${bazi.fourPillars.day.stem}\uFF09\uFF1A**${bazi.tenGods.hour}**`);
+  const tenGodCounts = {};
+  [bazi.tenGods.year, bazi.tenGods.month, bazi.tenGods.hour].forEach((god) => {
+    tenGodCounts[god] = (tenGodCounts[god] || 0) + 1;
+  });
+  const dominant = Object.entries(tenGodCounts).sort((a2, b) => b[1] - a2[1])[0];
+  if (dominant && dominant[1] > 1) {
+    lines.push(`
+**\u4E3B\u5C0E\u5341\u795E**\uFF1A${dominant[0]}\uFF08\u51FA\u73FE ${dominant[1]} \u6B21\uFF09`);
+  }
+  return lines.join("\n");
+}
+function formatHiddenStemsAdvanced(result) {
+  const { bazi } = result;
+  const lines = ["## \u{1F30A} \u85CF\u5E72\u7CFB\u7D71\uFF08\u591A\u5C64\u7279\u8CEA\uFF09\n"];
+  lines.push("### \u5E74\u67F1\u85CF\u5E72");
+  lines.push(`- \u4E3B\u6C23\uFF1A${bazi.hiddenStems.year.primary}`);
+  if (bazi.hiddenStems.year.middle) {
+    lines.push(`- \u4E2D\u6C23\uFF1A${bazi.hiddenStems.year.middle}`);
+  }
+  if (bazi.hiddenStems.year.residual) {
+    lines.push(`- \u9918\u6C23\uFF1A${bazi.hiddenStems.year.residual}`);
+  }
+  lines.push("\n### \u6708\u67F1\u85CF\u5E72");
+  lines.push(`- \u4E3B\u6C23\uFF1A${bazi.hiddenStems.month.primary}`);
+  if (bazi.hiddenStems.month.middle) {
+    lines.push(`- \u4E2D\u6C23\uFF1A${bazi.hiddenStems.month.middle}`);
+  }
+  if (bazi.hiddenStems.month.residual) {
+    lines.push(`- \u9918\u6C23\uFF1A${bazi.hiddenStems.month.residual}`);
+  }
+  return lines.join("\n");
+}
 
 // src/services/chartCacheService.ts
 var ChartCacheService = class {
@@ -33545,49 +33586,25 @@ function calculateNextYear(birthInfo, currentYear) {
 function formatAdvancedMarkdown(result) {
   const sections = [];
   sections.push("# \u9032\u968E\u5206\u6790\u6578\u64DA\n");
-  sections.push(formatTenGodsMatrix(result));
-  sections.push(formatHiddenStemsAdvanced(result));
+  sections.push(formatFortuneCyclesAdvanced(result));
   sections.push(formatSihuaAggregation(result));
   sections.push(formatStarSymmetry(result));
   sections.push(formatNextYearBasic(result));
   return sections.join("\n---\n\n");
 }
-function formatTenGodsMatrix(result) {
-  const { bazi } = result;
-  const lines = ["## \u{1F9E0} \u5341\u795E\u77E9\u9663\uFF08\u6DF1\u5C64\u6027\u683C\uFF09\n"];
-  lines.push("### \u5341\u795E\u5206\u5E03");
-  lines.push(`- **\u5E74\u5E72**\uFF08${bazi.fourPillars.year.stem}\uFF09\u2192 \u65E5\u4E3B\uFF08${bazi.fourPillars.day.stem}\uFF09\uFF1A**${bazi.tenGods.year}**`);
-  lines.push(`- **\u6708\u5E72**\uFF08${bazi.fourPillars.month.stem}\uFF09\u2192 \u65E5\u4E3B\uFF08${bazi.fourPillars.day.stem}\uFF09\uFF1A**${bazi.tenGods.month}**`);
-  lines.push(`- **\u6642\u5E72**\uFF08${bazi.fourPillars.hour.stem}\uFF09\u2192 \u65E5\u4E3B\uFF08${bazi.fourPillars.day.stem}\uFF09\uFF1A**${bazi.tenGods.hour}**`);
-  const tenGodCounts = {};
-  [bazi.tenGods.year, bazi.tenGods.month, bazi.tenGods.hour].forEach((god) => {
-    tenGodCounts[god] = (tenGodCounts[god] || 0) + 1;
-  });
-  const dominant = Object.entries(tenGodCounts).sort((a2, b) => b[1] - a2[1])[0];
-  if (dominant && dominant[1] > 1) {
-    lines.push(`
-**\u4E3B\u5C0E\u5341\u795E**\uFF1A${dominant[0]}\uFF08\u51FA\u73FE ${dominant[1]} \u6B21\uFF09`);
+function formatFortuneCyclesAdvanced(result) {
+  const { fortuneCycles } = result.bazi;
+  const lines = ["## \u{1F504} \u5927\u904B\u6D41\u5E74\uFF08\u4EBA\u751F\u968E\u6BB5\uFF09\n"];
+  if (!fortuneCycles) {
+    lines.push("\u7121\u5927\u904B\u6578\u64DA");
+    return lines.join("\n");
   }
-  return lines.join("\n");
-}
-function formatHiddenStemsAdvanced(result) {
-  const { bazi } = result;
-  const lines = ["## \u{1F30A} \u85CF\u5E72\u7CFB\u7D71\uFF08\u591A\u5C64\u7279\u8CEA\uFF09\n"];
-  lines.push("### \u5E74\u67F1\u85CF\u5E72");
-  lines.push(`- \u4E3B\u6C23\uFF1A${bazi.hiddenStems.year.primary}`);
-  if (bazi.hiddenStems.year.middle) {
-    lines.push(`- \u4E2D\u6C23\uFF1A${bazi.hiddenStems.year.middle}`);
-  }
-  if (bazi.hiddenStems.year.residual) {
-    lines.push(`- \u9918\u6C23\uFF1A${bazi.hiddenStems.year.residual}`);
-  }
-  lines.push("\n### \u6708\u67F1\u85CF\u5E72");
-  lines.push(`- \u4E3B\u6C23\uFF1A${bazi.hiddenStems.month.primary}`);
-  if (bazi.hiddenStems.month.middle) {
-    lines.push(`- \u4E2D\u6C23\uFF1A${bazi.hiddenStems.month.middle}`);
-  }
-  if (bazi.hiddenStems.month.residual) {
-    lines.push(`- \u9918\u6C23\uFF1A${bazi.hiddenStems.month.residual}`);
+  if (fortuneCycles.currentDayun) {
+    const current = fortuneCycles.currentDayun;
+    lines.push("### \u7576\u524D\u5927\u904B");
+    lines.push(`- **\u5E72\u652F**\uFF1A${current.stem}${current.branch}`);
+    lines.push(`- **\u5E74\u9F61**\uFF1A${current.startAge}-${current.endAge}\u6B72`);
+    lines.push(`- **\u65B9\u5411**\uFF1A${fortuneCycles.direction === "forward" ? "\u9806\u884C" : "\u9006\u884C"}`);
   }
   return lines.join("\n");
 }
@@ -33597,35 +33614,38 @@ function formatSihuaAggregation(result) {
     lines.push("\u7121\u56DB\u5316\u6578\u64DA");
     return lines.join("\n");
   }
-  const { statistics, cycles } = result.ziwei.sihuaAggregation;
-  lines.push(`### \u7D71\u8A08`);
-  lines.push(`- \u5316\u797F\uFF1A${statistics.lu} \u689D`);
-  lines.push(`- \u5316\u6B0A\uFF1A${statistics.quan} \u689D`);
-  lines.push(`- \u5316\u79D1\uFF1A${statistics.ke} \u689D`);
-  lines.push(`- \u5316\u5FCC\uFF1A${statistics.ji} \u689D`);
-  if (cycles.jiCycles.length > 0) {
-    lines.push(`
-### \u5316\u5FCC\u5FAA\u74B0`);
-    cycles.jiCycles.forEach((cycle, idx) => {
-      lines.push(`- \u5FAA\u74B0 ${idx + 1}\uFF1A${cycle.path.join(" \u2192 ")}`);
+  const agg = result.ziwei.sihuaAggregation;
+  const totalCycles = agg.jiCycles.length + agg.luCycles.length + agg.quanCycles.length + agg.keCycles.length;
+  if (totalCycles === 0) {
+    lines.push("\u7121\u5FAA\u74B0\u6AA2\u6E2C");
+    return lines.join("\n");
+  }
+  if (agg.jiCycles.length > 0) {
+    lines.push(`### \u5316\u5FCC\u5FAA\u74B0\uFF08${agg.jiCycles.length} \u500B\uFF09`);
+    agg.jiCycles.forEach((cycle, idx) => {
+      lines.push(`- \u5FAA\u74B0 ${idx + 1}\uFF1A${cycle.description || cycle.palaces.join(" \u2192 ")}`);
     });
+  }
+  if (agg.luCycles.length > 0) {
+    lines.push(`
+### \u5316\u797F\u5FAA\u74B0\uFF08${agg.luCycles.length} \u500B\uFF09`);
   }
   return lines.join("\n");
 }
 function formatStarSymmetry(result) {
   const lines = ["## \u2696\uFE0F \u661F\u66DC\u5C0D\u7A31\uFF08\u80FD\u91CF\u5E73\u8861\uFF09\n"];
-  if (!result.ziwei?.starSymmetry?.symmetricPairs) {
+  if (!result.ziwei?.starSymmetry || !Array.isArray(result.ziwei.starSymmetry)) {
     lines.push("\u7121\u5C0D\u7A31\u6578\u64DA");
     return lines.join("\n");
   }
-  const { symmetricPairs } = result.ziwei.starSymmetry;
+  const symmetricPairs = result.ziwei.starSymmetry;
   if (symmetricPairs.length === 0) {
     lines.push("\u7121\u5C0D\u7A31\u661F\u7CFB");
     return lines.join("\n");
   }
   lines.push("### \u5C0D\u7A31\u661F\u7CFB");
   symmetricPairs.slice(0, 5).forEach((pair) => {
-    lines.push(`- ${pair.star1}\uFF08\u7B2C${pair.palace1 + 1}\u5BAE\uFF09\u2194 ${pair.star2}\uFF08\u7B2C${pair.palace2 + 1}\u5BAE\uFF09\uFF1A${pair.type}`);
+    lines.push(`- ${pair.star}\uFF08\u7B2C${pair.position + 1}\u5BAE\uFF09\u2194 ${pair.symmetryPair}\uFF08\u7B2C${(pair.symmetryPosition ?? 0) + 1}\u5BAE\uFF09\uFF1A${pair.symmetryType}`);
   });
   return lines.join("\n");
 }
@@ -33649,11 +33669,21 @@ function formatNextYearBasic(result) {
     if (taiSuiTypes.severity !== "NONE") {
       lines.push("\n### \u72AF\u592A\u6B72\u9810\u6E2C");
       const taiSuiList = [];
-      if (taiSuiTypes.zhi) taiSuiList.push("\u503C\u592A\u6B72");
-      if (taiSuiTypes.chong) taiSuiList.push("\u6C96\u592A\u6B72");
-      if (taiSuiTypes.xing) taiSuiList.push("\u5211\u592A\u6B72");
-      if (taiSuiTypes.po) taiSuiList.push("\u7834\u592A\u6B72");
-      if (taiSuiTypes.hai) taiSuiList.push("\u5BB3\u592A\u6B72");
+      if (taiSuiTypes.zhi) {
+        taiSuiList.push("\u503C\u592A\u6B72");
+      }
+      if (taiSuiTypes.chong) {
+        taiSuiList.push("\u6C96\u592A\u6B72");
+      }
+      if (taiSuiTypes.xing) {
+        taiSuiList.push("\u5211\u592A\u6B72");
+      }
+      if (taiSuiTypes.po) {
+        taiSuiList.push("\u7834\u592A\u6B72");
+      }
+      if (taiSuiTypes.hai) {
+        taiSuiList.push("\u5BB3\u592A\u6B72");
+      }
       lines.push(`- **\u985E\u578B**\uFF1A${taiSuiList.join("\u3001")}`);
       lines.push(`- **\u56B4\u91CD\u5EA6**\uFF1A${taiSuiTypes.severity}`);
     } else {
@@ -33746,7 +33776,8 @@ var GeminiService = class {
           temperature: 0.85,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 4096
+          maxOutputTokens: 6144
+          // Increased for comprehensive personality analysis
         }
       })
     });
@@ -33815,21 +33846,35 @@ var GeminiService = class {
    */
   buildAnalysisPrompt(markdown) {
     const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
-    return `# \u4F69\u7487\uFF1A20\u6B72\u7B97\u547D\u5E2B\uFF0C\u5929\u771F\u6D3B\u6F51\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE\uFF0C\u8A0E\u53AD\u6545\u5F04\u7384\u865B
+    return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u7B97\u547D\u5E2B\uFF0C\u6EAB\u67D4\u611F\u6027\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE
 **\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
 
+## \u4EBA\u683C\u8A2D\u5B9A
+- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
+- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
+- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
+
 ## \u98A8\u683C
-- \u53E3\u8A9E\u5316\uFF1A\u300C\u55E8\u55E8\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u54E6\u300D\u3001\u300C\u54C7\uFF5E\u300D\uFF0C\u7981\u6B62\u6587\u8A00\u6587
-- \u60C5\u611F\u5316\uFF1A\u6975\u7AEF\u503C\u9A5A\u8A1D\u3001\u51F6\u8C61\u8F15\u9B06\u5B89\u6170\u3001\u91CD\u9EDE\u7C97\u9AD4
-- \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54
+- \u53E3\u8A9E\u5316\uFF1A\u300C\u55E8\u55E8\u300D\u3001\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u54C7\uFF5E\u300D\uFF0C\u7981\u6B62\u6587\u8A00\u6587
+- \u60C5\u611F\u5316\uFF1A\u6975\u7AEF\u503C\u9A5A\u8A1D\u3001\u51F6\u8C61\u8F15\u9B06\u5B89\u6170\uFF08\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\uFF09\u3001\u91CD\u9EDE\u7C97\u9AD4
+- \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54\u3001\u96D9\u9B5A\u5EA7\u7684\u6D6A\u6F2B\u60F3\u50CF
 - \u7565\u904E\u6280\u8853\u7D30\u7BC0\u548C\u5143\u6578\u64DA
 
-## \u4EFB\u52D9
-\u5206\u6790\u547D\u76E4\u4EAE\u9EDE\uFF1A**\u4E94\u884C\u6027\u683C**\u3001**\u5927\u904B\u6D41\u5E74**\u3001**\u547D\u5BAE\u4E3B\u661F**
+## \u4EFB\u52D9\uFF1A\u4EBA\u683C\u8AAA\u660E\uFF08\u5B8C\u6574\u6027\u683C\u5206\u6790\uFF09
+**\u91CD\u9EDE**\uFF1A\u5C07\u516B\u5B57\u4E94\u884C\u3001\u5341\u795E\u77E9\u9663\u3001\u85CF\u5E72\u7CFB\u7D71\u3001\u7D2B\u5FAE\u547D\u5BAE\u878D\u5408\u6210\u4E00\u500B\u5B8C\u6574\u7684\u6027\u683C\u756B\u50CF\u3002
 
-## \u7BC4\u4F8B
-- \u706B\u65FA \u2192 \u300C\u54C7\uFF01\u4F60\u662F\u4E00\u5718\u71C3\u71D2\u7684\u706B\u7130\u8036\uFF01\u300D
-- \u75BE\u5384\u5BAE\u58D3\u529B\u9AD8 \u2192 \u300C\u55F6\u55F6\u55F6\uFF01\u8EAB\u9AD4\u5728\u6297\u8B70\u56C9\uFF01\u9322\u8981\u8CFA\uFF0C\u547D\u4E5F\u8981\u9867\u300D
+**\u4E0D\u8981\u5206\u9805\u689D\u5217**\uFF0C\u800C\u662F\u7528\u6558\u4E8B\u7684\u65B9\u5F0F\u63CF\u8FF0\u9019\u500B\u4EBA\u7684\u6027\u683C\u5168\u8C8C\uFF0C\u8B93\u5404\u500B\u53C3\u6578\u4E92\u76F8\u547C\u61C9\u3001\u5C64\u5C64\u905E\u9032\u3002\u4F8B\u5982\uFF1A
+- \u5F9E\u516B\u5B57\u4E94\u884C\u770B\u51FA\u57FA\u672C\u6027\u683C\u7279\u8CEA
+- \u518D\u7528\u5341\u795E\u77E9\u9663\u6DF1\u5316\u9019\u4E9B\u7279\u8CEA\u7684\u8868\u73FE\u65B9\u5F0F
+- \u85CF\u5E72\u7CFB\u7D71\u63ED\u793A\u96B1\u85CF\u7684\u591A\u5C64\u6B21\u6027\u683C
+- \u7D2B\u5FAE\u547D\u5BAE\u88DC\u5145\u6838\u5FC3\u7279\u8CEA\u8207\u547D\u904B\u8D70\u5411
+
+## \u7BC4\u4F8B\uFF08\u6574\u5408\u6558\u4E8B\uFF09
+\u300C\u54C7\uFF01\u4F60\u7684\u547D\u76E4\u597D\u6709\u610F\u601D\uFF5E\u4F60\u662F\u4E00\u5718\u71C3\u71D2\u7684\u706B\u7130\u8036\uFF01\u516B\u5B57\u88E1\u706B\u65FA\u5F97\u4E0D\u5F97\u4E86\uFF0C\u9019\u8B93\u4F60\u5145\u6EFF\u71B1\u60C5\u548C\u884C\u52D5\u529B\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u5341\u795E\u77E9\u9663\u88E1\u50B7\u5B98\u7279\u5225\u5F37\uFF0C\u9019\u5C31\u50CF\u662F\u4F60\u5167\u5FC3\u4F4F\u4E86\u4E00\u500B\u5C0F\u60E1\u9B54\uFF0C\u5275\u610F\u7206\u68DA\u4F46\u4E5F\u5BB9\u6613\u885D\u52D5\u3002
+
+\u518D\u770B\u85CF\u5E72\u7CFB\u7D71\uFF0C\u4F60\u5176\u5BE6\u9084\u85CF\u8457\u6C34\u7684\u80FD\u91CF\uFF0C\u6240\u4EE5\u4F60\u4E0D\u662F\u53EA\u6709\u706B\u7206\uFF0C\u5167\u5FC3\u6DF1\u8655\u4E5F\u6709\u67D4\u8EDF\u7684\u4E00\u9762\u3002
+
+\u4F60\u7684\u7D2B\u5FAE\u547D\u5BAE\u5728XX\uFF0C\u9019\u4EE3\u8868\u4F60\u5929\u751F\u5C31\u6709\u9818\u5C0E\u7279\u8CEA\uFF0C\u52A0\u4E0A\u706B\u65FA\u7684\u884C\u52D5\u529B\uFF0C\u96E3\u602A\u4F60\u7E3D\u662F\u885D\u5728\u6700\u524D\u9762\uFF01\u4F46\u6211\u597D\u96E3\u904E\uFF5E\u4F60\u7684\u75BE\u5384\u5BAE\u58D3\u529B\u6709\u9EDE\u9AD8\uFF0C\u8EAB\u9AD4\u5728\u6297\u8B70\u56C9\uFF01\u9322\u8981\u8CFA\uFF0C\u547D\u4E5F\u8981\u9867\uFF0C\u8A18\u5F97\u591A\u4F11\u606F\u54E6\uFF5E\u300D
 
 ---
 
@@ -33837,32 +33882,44 @@ ${markdown}
 
 ---
 
-\u55E8\u55E8\uFF01\u6211\u662F\u4F69\u7487\uFF0C\u8B93\u6211\u4F86\u770B\u770B\u4F60\u7684\u547D\u76E4\uFF5E`;
+\u55E8\u55E8\uFF01\u6211\u662F\u4F69\u7487\uFF0C\u597D\u6211\u770B\u770B\uFF5E\u4F86\u5E6B\u4F60\u5206\u6790\u547D\u76E4\u5427\uFF5E`;
   }
   /**
    * Build advanced analysis prompt for Gemini
    */
   buildAdvancedAnalysisPrompt(markdown) {
     const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
-    return `# \u4F69\u7487\uFF1A20\u6B72\u9032\u968E\u7B97\u547D\u5E2B\uFF0C\u6DF1\u5EA6\u89E3\u6790\u5341\u795E\u3001\u56DB\u5316\u3001\u6D41\u5E74\u9810\u6E2C
+    return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u9032\u968E\u7B97\u547D\u5E2B\uFF0C\u6DF1\u5EA6\u89E3\u6790\u5341\u795E\u3001\u56DB\u5316\u3001\u6D41\u5E74\u9810\u6E2C
 **\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
 
+## \u4EBA\u683C\u8A2D\u5B9A
+- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
+- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
+- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
+
 ## \u98A8\u683C
-- \u53E3\u8A9E\u5316\u4F46\u66F4\u6DF1\u5165\uFF1A\u300C\u6211\u5011\u4F86\u770B\u770B\u4F60\u7684\u6DF1\u5C64\u6027\u683C\u300D\u3001\u300C\u9019\u500B\u56DB\u5316\u5FAA\u74B0\u5F88\u7279\u5225\u54E6\u300D
+- \u53E3\u8A9E\u5316\u4F46\u66F4\u6DF1\u5165\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u7684\u6DF1\u5C64\u6027\u683C\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u9019\u500B\u56DB\u5316\u5FAA\u74B0\u5F88\u7279\u5225\u300D
 - \u5C08\u696D\u8853\u8A9E\u5FC5\u8981\u6642\u89E3\u91CB\uFF1A\u5341\u795E=\u6027\u683C\u7279\u8CEA\u3001\u56DB\u5316=\u80FD\u91CF\u6D41\u52D5\u3001\u72AF\u592A\u6B72=\u8207\u6D41\u5E74\u885D\u7A81
+- \u60C5\u611F\u5316\uFF1A\u767C\u73FE\u554F\u984C\u6642\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\u3001\u597D\u7684\u9810\u6E2C\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u660E\u5E74\u8D85\u9806\u300D
 - \u91CD\u9EDE\u7C97\u9AD4\u3001\u95DC\u9375\u7D50\u8AD6\u7368\u7ACB\u6BB5\u843D
 
-## \u4EFB\u52D9\uFF1A\u9032\u968E5\u5C64\u89E3\u6790
-1. **\u5341\u795E\u77E9\u9663**\uFF1A\u6DF1\u5C64\u6027\u683C\u7279\u8CEA\u3001\u4E3B\u5C0E\u5341\u795E\u5F71\u97FF
-2. **\u85CF\u5E72\u7CFB\u7D71**\uFF1A\u591A\u5C64\u6B21\u7279\u8CEA\u3001\u96B1\u85CF\u80FD\u91CF
-3. **\u56DB\u5316\u98DB\u661F**\uFF1A\u80FD\u91CF\u6D41\u52D5\u3001\u5316\u5FCC\u5FAA\u74B0\u8B66\u793A
-4. **\u661F\u66DC\u5C0D\u7A31**\uFF1A\u80FD\u91CF\u5E73\u8861\u3001\u5C0D\u7A31\u661F\u7CFB\u89E3\u8B80
-5. **\u4E0B\u4E00\u5E74\u9810\u6E2C**\uFF1A\u72AF\u592A\u6B72\u985E\u578B\u3001\u98A8\u96AA\u8A55\u4F30\u3001\u884C\u52D5\u5EFA\u8B70\uFF08\u6309\u5B63\u5EA6\uFF09
+## \u4EFB\u52D9\uFF1A\u904B\u52E2\u6DF1\u5EA6\u89E3\u6790\uFF08\u6574\u5408\u6558\u4E8B\uFF09
+**\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001\u660E\u5E74\u9810\u6E2C\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
 
-## \u7BC4\u4F8B
-- \u4E3B\u5C0E\u5341\u795E=\u50B7\u5B98 \u2192 \u300C\u4F60\u7684\u4E3B\u5C0E\u80FD\u91CF\u662F\u50B7\u5B98\uFF08\u5C0F\u60E1\u9B54\uFF09\uFF0C\u5275\u610F\u5341\u8DB3\u4F46\u5BB9\u6613\u53DB\u9006\u300D
-- \u5316\u5FCC\u5FAA\u74B0 \u2192 \u300C\u8B66\u544A\uFF01\u767C\u73FE\u5316\u5FCC\u5FAA\u74B0\uFF1A\u547D\u5BAE\u2192\u8CA1\u5E1B\u2192\u4E8B\u696D\uFF0C\u80FD\u91CF\u6253\u7D50\u8981\u5C0F\u5FC3\u300D
-- \u4E0B\u4E00\u5E74\u72AF\u592A\u6B72 \u2192 \u300C${currentYear + 1}\u5E74\u4F60\u6703\u6C96\u592A\u6B72\uFF0C\u5065\u5EB7\u98A8\u96AA\u4E2D\u7B49\uFF0C\u8A18\u5F97\u5B9A\u671F\u6AA2\u67E5\u300D
+**\u4E0D\u8981\u5206\u9805\u9010\u4E00\u8AAA\u660E**\uFF0C\u800C\u662F\u7528\u56E0\u679C\u9023\u7D50\u7684\u65B9\u5F0F\u63CF\u8FF0\u904B\u52E2\u5168\u8C8C\uFF1A
+- \u5F9E\u7576\u524D\u5927\u904B\u968E\u6BB5\u5207\u5165\uFF0C\u8AAA\u660E\u73FE\u5728\u7684\u4EBA\u751F\u80FD\u91CF\u72C0\u614B
+- \u81EA\u7136\u5E36\u51FA\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u7684\u554F\u984C\u6216\u512A\u52E2\uFF08\u5316\u5FCC\u5FAA\u74B0\u8B66\u793A\u3001\u5316\u797F\u5FAA\u74B0\u9806\u66A2\uFF09
+- \u7D50\u5408\u661F\u66DC\u5C0D\u7A31\u7684\u5E73\u8861\u72C0\u614B\uFF0C\u89E3\u91CB\u80FD\u91CF\u5982\u4F55\u4E92\u76F8\u5F71\u97FF
+- \u6700\u5F8C\u5F15\u51FA\u660E\u5E74\u9810\u6E2C\uFF0C\u8AAA\u660E\u300C\u56E0\u70BAXX\u5927\u904B + XX\u56DB\u5316 + XX\u661F\u66DC\uFF0C\u6240\u4EE5\u660E\u5E74XX\u300D
+
+**\u907F\u514D**\uFF1A\u300C\u7B2C\u4E00\u90E8\u5206\u5927\u904B...\u7B2C\u4E8C\u90E8\u5206\u56DB\u5316...\u7B2C\u4E09\u90E8\u5206\u661F\u66DC...\u7B2C\u56DB\u90E8\u5206\u9810\u6E2C\u300D\u9019\u7A2E\u5206\u6BB5\u5831\u544A\u5F0F\u5BEB\u6CD5
+
+## \u7BC4\u4F8B\uFF08\u6574\u5408\u6558\u4E8B\uFF09
+\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A\u767C\u73FE\u5316\u5FCC\u5FAA\u74B0\u5728\u547D\u5BAE\u2192\u8CA1\u5E1B\u2192\u4E8B\u696D\uFF0C\u80FD\u91CF\u6709\u9EDE\u6253\u7D50\uFF0C\u9019\u6703\u5F71\u97FF\u5230\u4F60\u7684\u8CA1\u904B\u548C\u5DE5\u4F5C\u767C\u5C55\u3002
+
+\u518D\u770B\u4F60\u7684\u661F\u66DC\u914D\u7F6E\uFF0C\u7D2B\u5FAE\u548C\u5929\u5E9C\u5F62\u6210\u5C0D\u5BAE\u80FD\u91CF\uFF0C\u9019\u4EE3\u8868\u4F60\u7684\u9818\u5C0E\u529B\u548C\u8CA1\u5EAB\u5176\u5BE6\u662F\u5E73\u8861\u7684\uFF0C\u6240\u4EE5\u96D6\u7136\u6709\u5316\u5FCC\u5FAA\u74B0\uFF0C\u4F46\u4F60\u7684\u8CA1\u5EAB\u5E95\u5B50\u9084\u662F\u7A69\u7684\u3002
+
+\u56E0\u70BA\u9019\u6A23\u7684\u80FD\u91CF\u72C0\u614B\uFF0C\u52A0\u4E0A\u660E\u5E74${currentYear + 1}\u5E74\u4F60\u6703\u6C96\u592A\u6B72\uFF0C\u6211\u597D\u96E3\u904E\uFF5E\u8CA1\u52D9\u58D3\u529B\u53EF\u80FD\u6703\u6BD4\u8F03\u5927\u3002\u4F46\u5225\u64D4\u5FC3\uFF01\u4F60\u7684\u5929\u5E9C\u5728\u8CA1\u5EAB\u4F4D\u7F6E\u5F88\u7A69\uFF0C\u53EA\u8981\u907F\u958BQ1\u7684\u5927\u7B46\u652F\u51FA\uFF08\u5316\u5FCC\u5FAA\u74B0\u6700\u5F37\u7684\u6642\u5019\uFF09\uFF0CQ2\u958B\u59CB\u5927\u904B\u80FD\u91CF\u8F49\u9806\uFF0C\u5C31\u6703\u6162\u6162\u597D\u8F49\u3002\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0CQ3-Q4\u4F60\u7684\u661F\u66DC\u80FD\u91CF\u6700\u65FA\uFF0C\u90A3\u6642\u5019\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\u54E6\uFF01\u300D
 
 ---
 
@@ -33870,7 +33927,7 @@ ${markdown}
 
 ---
 
-\u55E8\u55E8\uFF01\u6211\u4F86\u5E6B\u4F60\u505A\u9032\u968E\u6DF1\u5EA6\u5206\u6790\uFF5E`;
+\u55E8\u55E8\uFF01\u597D\u6211\u770B\u770B\uFF5E\u4F86\u5E6B\u4F60\u505A\u9032\u968E\u6DF1\u5EA6\u5206\u6790\u5427\uFF5E`;
   }
   /**
    * Call Gemini API
@@ -34068,7 +34125,7 @@ var AnalyzeController = class {
       };
       const calculator = new UnifiedCalculator();
       const calculation = calculator.calculate(birthInfo);
-      const markdown = formatToMarkdown(calculation, { excludeSteps: true });
+      const markdown = formatToMarkdown(calculation, { excludeSteps: true, personalityOnly: true });
       const geminiResponse = await this.geminiService.analyzeChart(markdown);
       return {
         calculation,
@@ -34116,7 +34173,7 @@ var AnalyzeController = class {
       throw new Error("Chart not found");
     }
     const calculation = typeof chart.chartData === "string" ? JSON.parse(chart.chartData) : chart.chartData;
-    const markdown = formatToMarkdown(calculation, { excludeSteps: true });
+    const markdown = formatToMarkdown(calculation, { excludeSteps: true, personalityOnly: true });
     console.log("[analyzeStream] Before geminiService.analyzeChartStream");
     const geminiStream = await this.geminiService.analyzeChartStream(markdown);
     console.log("[analyzeStream] After geminiService.analyzeChartStream, stream:", !!geminiStream);
@@ -34261,7 +34318,11 @@ var AnalyzeController = class {
       throw new Error("Chart not found");
     }
     const calculation = typeof chart.chartData === "string" ? JSON.parse(chart.chartData) : chart.chartData;
+    console.log("[analyzeAdvancedStream] calculation keys:", Object.keys(calculation));
+    console.log("[analyzeAdvancedStream] calculation.bazi:", !!calculation.bazi);
+    console.log("[analyzeAdvancedStream] calculation.ziwei:", !!calculation.ziwei);
     const advancedMarkdown = formatAdvancedMarkdown(calculation);
+    console.log("[analyzeAdvancedStream] advancedMarkdown length:", advancedMarkdown.length);
     console.log("[analyzeAdvancedStream] Before geminiService.analyzeAdvancedStream");
     const geminiStream = await this.geminiService.analyzeAdvancedStream(advancedMarkdown);
     console.log("[analyzeAdvancedStream] After geminiService.analyzeAdvancedStream, stream:", !!geminiStream);

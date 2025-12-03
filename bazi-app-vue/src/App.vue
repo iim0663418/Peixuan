@@ -95,7 +95,7 @@ onMounted(() => {
             {{ $t('astrology.unified') }}
           </router-link>
 
-          <!-- AI 分析按鈕 -->
+          <!-- 性格分析按鈕 -->
           <button
             class="nav-link ai-analysis-btn"
             :class="{
@@ -105,14 +105,18 @@ onMounted(() => {
             :disabled="!hasChartData"
             @click="handleAIAnalysis"
           >
-            <span>佩璇 AI 分析</span>
+            <span>佩璇性格分析</span>
           </button>
           <button
-            class="nav-btn"
+            class="nav-link advanced-analysis-btn"
+            :class="{
+              active: route?.path === '/advanced-analysis',
+              disabled: !hasChartData,
+            }"
             :disabled="!hasChartData"
             @click="handleAdvancedAnalysis"
           >
-            <span>佩璇進階分析</span>
+            <span>佩璇運勢分析</span>
           </button>
         </div>
 
@@ -151,7 +155,7 @@ onMounted(() => {
           {{ $t('astrology.unified') }}
         </router-link>
 
-        <!-- 移動版 AI 分析 -->
+        <!-- 移動版性格分析 -->
         <button
           class="mobile-nav-link mobile-ai-btn"
           :class="{
@@ -161,14 +165,18 @@ onMounted(() => {
           :disabled="!hasChartData"
           @click="handleAIAnalysis"
         >
-          <span>佩璇 AI 分析</span>
+          <span>佩璇性格分析</span>
         </button>
         <button
-          class="nav-btn"
+          class="mobile-nav-link advanced-analysis-btn"
+          :class="{
+            active: route?.path === '/advanced-analysis',
+            disabled: !hasChartData,
+          }"
           :disabled="!hasChartData"
           @click="handleAdvancedAnalysis"
         >
-          <span>佩璇進階分析</span>
+          <span>佩璇運勢分析</span>
         </button>
       </div>
     </header>
@@ -190,8 +198,8 @@ onMounted(() => {
             <router-link to="/unified">{{
               $t('astrology.unified')
             }}</router-link>
-            <router-link to="/ai-analysis">佩璇 AI 分析</router-link>
-            <router-link to="/advanced-analysis">佩璇進階分析</router-link>
+            <router-link to="/ai-analysis">佩璇性格分析</router-link>
+            <router-link to="/advanced-analysis">佩璇運勢分析</router-link>
             <router-link to="/">服務介紹</router-link>
           </div>
         </div>
@@ -343,6 +351,28 @@ onMounted(() => {
 }
 
 .ai-analysis-btn:not(.disabled):hover {
+  transform: translateY(-1px);
+}
+
+/* 進階分析按鈕 */
+.advanced-analysis-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.advanced-analysis-btn .icon {
+  font-size: 1.2rem;
+}
+
+.advanced-analysis-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.advanced-analysis-btn:not(.disabled):hover {
   transform: translateY(-1px);
 }
 

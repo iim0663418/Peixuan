@@ -116,6 +116,16 @@
   --line-height-tight: 1.25;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.75;
+  --line-height-loose: 1.9;
+
+  /* ===== 漸變色 Gradients ===== */
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-bg-subtle: linear-gradient(135deg, #fdfbfb 0%, #f7f8fa 100%);
+  --gradient-purple: linear-gradient(135deg, var(--purple-star) 0%, var(--purple-star-light) 100%);
+
+  /* ===== 文字陰影 Text Shadows ===== */
+  --text-shadow-sm: 0 1px 2px rgba(102, 126, 234, 0.1);
+  --text-shadow-md: 0 1px 2px rgba(102, 126, 234, 0.2);
 
   /* ===== 動畫 Animation ===== */
   --transition-fast: 0.15s ease-out;

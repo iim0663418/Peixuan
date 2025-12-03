@@ -55,10 +55,7 @@
       </el-input>
 
       <!-- 地址解析狀態顯示 -->
-      <div
-        v-if="geocodeStatus.message"
-        class="geocode-status"
-      >
+      <div v-if="geocodeStatus.message" class="geocode-status">
         <el-text :type="geocodeStatus.type" size="small">
           {{ geocodeStatus.message }}
         </el-text>
@@ -165,8 +162,8 @@
           type="primary"
           :disabled="hasCache"
           :icon="hasCache ? Lock : Check"
-          @click="submitForm"
           class="submit-btn"
+          @click="submitForm"
         >
           {{ hasCache ? '已有快取命盤' : '開始計算' }}
         </el-button>
@@ -178,8 +175,8 @@
           <el-button
             type="warning"
             :icon="Delete"
-            @click="clearCache"
             class="clear-btn"
+            @click="clearCache"
           >
             清除快取
           </el-button>
@@ -809,7 +806,8 @@ const submitForm = async () => {
 :deep(.el-button) {
   width: 100%;
   min-height: 48px;
-  padding: clamp(var(--space-md), 2vw, var(--space-lg)) clamp(var(--space-2xl), 3vw, var(--space-3xl));
+  padding: clamp(var(--space-md), 2vw, var(--space-lg))
+    clamp(var(--space-2xl), 3vw, var(--space-3xl));
   font-size: clamp(var(--font-size-base), 2.5vw, var(--font-size-lg));
   border-radius: var(--radius-sm);
   font-weight: var(--font-weight-medium);

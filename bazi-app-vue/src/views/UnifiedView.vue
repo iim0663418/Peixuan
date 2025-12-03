@@ -13,12 +13,7 @@
     </el-card>
 
     <el-card v-else-if="error" class="result-card error">
-      <el-alert
-        type="error"
-        :title="error"
-        show-icon
-        :closable="false"
-      />
+      <el-alert type="error" :title="error" show-icon :closable="false" />
     </el-card>
 
     <el-card v-else-if="result" class="result-card">
@@ -80,29 +75,32 @@ const handleSubmit = async (birthInfo: any) => {
 
 onMounted(async () => {
   const chartId = chartStore.loadFromLocalStorage();
-  
+
   console.log('[UnifiedView] onMounted - chartId:', chartId);
-  
+
   // Try to load cached chart result
   if (chartId) {
     try {
-      console.log('[UnifiedView] Found cached chartId, loading result:', chartId);
+      console.log(
+        '[UnifiedView] Found cached chartId, loading result:',
+        chartId,
+      );
       loading.value = true;
-      
+
       const url = `/api/charts/${chartId}`;
       console.log('[UnifiedView] Fetching from:', url);
-      
+
       const response = await fetch(url);
       console.log('[UnifiedView] Response status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('[UnifiedView] Received data:', data);
-        
+
         // 轉換後端格式為前端格式
-        const chartData = data.chartData;
+        const { chartData } = data;
         const backendWuxing = chartData.bazi.wuxingDistribution;
-        
+
         result.value = {
           input: chartData.input,
           bazi: {
@@ -128,11 +126,21 @@ onMounted(async () => {
             // 轉換 wuxingDistribution: 英文鍵 → 中文鍵
             wuxingDistribution: {
               raw: {
-                木: (backendWuxing.raw.tiangan?.Wood || 0) + (backendWuxing.raw.hiddenStems?.Wood || 0),
-                火: (backendWuxing.raw.tiangan?.Fire || 0) + (backendWuxing.raw.hiddenStems?.Fire || 0),
-                土: (backendWuxing.raw.tiangan?.Earth || 0) + (backendWuxing.raw.hiddenStems?.Earth || 0),
-                金: (backendWuxing.raw.tiangan?.Metal || 0) + (backendWuxing.raw.hiddenStems?.Metal || 0),
-                水: (backendWuxing.raw.tiangan?.Water || 0) + (backendWuxing.raw.hiddenStems?.Water || 0),
+                木:
+                  (backendWuxing.raw.tiangan?.Wood || 0) +
+                  (backendWuxing.raw.hiddenStems?.Wood || 0),
+                火:
+                  (backendWuxing.raw.tiangan?.Fire || 0) +
+                  (backendWuxing.raw.hiddenStems?.Fire || 0),
+                土:
+                  (backendWuxing.raw.tiangan?.Earth || 0) +
+                  (backendWuxing.raw.hiddenStems?.Earth || 0),
+                金:
+                  (backendWuxing.raw.tiangan?.Metal || 0) +
+                  (backendWuxing.raw.hiddenStems?.Metal || 0),
+                水:
+                  (backendWuxing.raw.tiangan?.Water || 0) +
+                  (backendWuxing.raw.hiddenStems?.Water || 0),
               },
               adjusted: {
                 木: backendWuxing.adjusted?.Wood || 0,
@@ -147,9 +155,9 @@ onMounted(async () => {
           annualFortune: chartData.annualFortune,
           timestamp: chartData.timestamp,
         } as any;
-        
+
         console.log('[UnifiedView] Set result.value:', result.value);
-        
+
         // 更新 chartStore 以啟用 AI 分析按鈕
         if (result.value) {
           chartStore.setCurrentChart({
@@ -159,10 +167,14 @@ onMounted(async () => {
             createdAt: new Date(data.createdAt),
           });
         }
-        
+
         ElMessage.success('已載入上次的命盤結果');
       } else {
-        console.warn('[UnifiedView] Response not OK:', response.status, response.statusText);
+        console.warn(
+          '[UnifiedView] Response not OK:',
+          response.status,
+          response.statusText,
+        );
       }
     } catch (err) {
       console.error('[UnifiedView] Failed to load cached chart:', err);

@@ -79,8 +79,8 @@ export class AnalyzeController {
       const calculator = new UnifiedCalculator();
       const calculation = calculator.calculate(birthInfo);
 
-      // Step 4: Convert to Markdown (exclude steps for AI)
-      const markdown = formatToMarkdown(calculation, { excludeSteps: true });
+      // Step 4: Convert to Markdown (exclude steps for AI, personality-only mode)
+      const markdown = formatToMarkdown(calculation, { excludeSteps: true, personalityOnly: true });
 
       // Step 5: Get AI analysis
       const geminiResponse = await this.geminiService.analyzeChart(markdown);
@@ -144,7 +144,7 @@ export class AnalyzeController {
     const calculation: CalculationResult = typeof chart.chartData === 'string'
       ? JSON.parse(chart.chartData)
       : chart.chartData;
-    const markdown = formatToMarkdown(calculation, { excludeSteps: true });
+    const markdown = formatToMarkdown(calculation, { excludeSteps: true, personalityOnly: true });
 
     // Step 3: Call Gemini Stream
     console.log('[analyzeStream] Before geminiService.analyzeChartStream');
@@ -331,7 +331,11 @@ export class AnalyzeController {
     const calculation: CalculationResult = typeof chart.chartData === 'string'
       ? JSON.parse(chart.chartData)
       : chart.chartData;
+    console.log('[analyzeAdvancedStream] calculation keys:', Object.keys(calculation));
+    console.log('[analyzeAdvancedStream] calculation.bazi:', !!calculation.bazi);
+    console.log('[analyzeAdvancedStream] calculation.ziwei:', !!calculation.ziwei);
     const advancedMarkdown = formatAdvancedMarkdown(calculation);
+    console.log('[analyzeAdvancedStream] advancedMarkdown length:', advancedMarkdown.length);
 
     // Step 3: Call Gemini Advanced Stream
     console.log('[analyzeAdvancedStream] Before geminiService.analyzeAdvancedStream');

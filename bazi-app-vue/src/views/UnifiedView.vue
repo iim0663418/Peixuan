@@ -106,10 +106,36 @@ onMounted(async () => {
         const data = await response.json();
         console.log('[UnifiedView] Received data:', data);
         
+        // 轉換後端格式 (stem/branch) 為前端格式 (gan/zhi)
+        const chartData = data.chartData;
         result.value = {
-          chartId: data.id,
-          ...data.chartData,
-        };
+          input: chartData.input,
+          bazi: {
+            ...chartData.bazi,
+            fourPillars: {
+              year: {
+                gan: chartData.bazi.fourPillars.year.stem,
+                zhi: chartData.bazi.fourPillars.year.branch,
+              },
+              month: {
+                gan: chartData.bazi.fourPillars.month.stem,
+                zhi: chartData.bazi.fourPillars.month.branch,
+              },
+              day: {
+                gan: chartData.bazi.fourPillars.day.stem,
+                zhi: chartData.bazi.fourPillars.day.branch,
+              },
+              hour: {
+                gan: chartData.bazi.fourPillars.hour.stem,
+                zhi: chartData.bazi.fourPillars.hour.branch,
+              },
+            },
+          },
+          ziwei: chartData.ziwei,
+          annualFortune: chartData.annualFortune,
+          timestamp: chartData.timestamp,
+        } as any;
+        
         console.log('[UnifiedView] Set result.value:', result.value);
         ElMessage.success('已載入上次的命盤結果');
       } else {

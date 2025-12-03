@@ -927,4 +927,45 @@ userId: 'anonymous', // 統一使用字串而非 null
 - 預估: 10min
 - 實際: 3min
 
+---
+
+## 🐛 Bug 修復：快取讀取欄位名稱不匹配 (2025-12-03 18:47)
+
+### 問題描述
+從 D1 讀取快取時，前端顯示異常。
+
+### 根本原因
+**欄位名稱不一致**：
+- 後端 D1 保存：`stem/branch`
+- 前端期望：`gan/zhi`
+- `unifiedApiService.calculate()` 有做轉換，但從 D1 讀取快取時沒有
+
+### 解決方案
+在 UnifiedView 讀取快取時，手動轉換欄位名稱：
+```typescript
+bazi: {
+  ...chartData.bazi,
+  fourPillars: {
+    year: {
+      gan: chartData.bazi.fourPillars.year.stem,   // stem → gan
+      zhi: chartData.bazi.fourPillars.year.branch, // branch → zhi
+    },
+    // ... month, day, hour 同樣轉換
+  },
+}
+```
+
+### 修改文件
+- `bazi-app-vue/src/views/UnifiedView.vue` (快取讀取邏輯)
+
+### 結果
+- ✅ 編譯成功
+- ✅ 欄位名稱一致
+- ✅ 快取資料可正常顯示
+
+### 實作時間
+- 預估: 30min
+- 實際: 10min
+
+
 

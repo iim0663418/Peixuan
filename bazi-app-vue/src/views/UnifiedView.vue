@@ -96,7 +96,7 @@ onMounted(async () => {
       console.log('[UnifiedView] Found cached chartId, loading result:', chartId);
       loading.value = true;
       
-      const url = `/api/v1/charts/${chartId}`;
+      const url = `/api/charts/${chartId}`;
       console.log('[UnifiedView] Fetching from:', url);
       
       const response = await fetch(url);

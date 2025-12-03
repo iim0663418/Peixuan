@@ -835,3 +835,31 @@ for (const line of lines) {
 - 歸檔核心資訊
 
 ### 執行中...
+
+
+---
+
+## 🐛 Bug 修復：Chart API 404 錯誤 (2025-12-03 18:30)
+
+### 問題描述
+前端請求 `/api/charts/:chartId` 返回 404，導致無法載入快取的命盤結果。
+
+### 根本原因
+`chartRoutes` 未在 Worker `index.ts` 中註冊，導致所有 `/api/charts/*` 端點不可用。
+
+### 解決方案
+在 `peixuan-worker/src/index.ts` 中：
+1. 添加 import：`import { createChartRoutes } from './routes/chartRoutes';`
+2. 註冊路由：`createChartRoutes(router);`
+
+### 修改文件
+- `peixuan-worker/src/index.ts` (2 處修改)
+
+### 結果
+- ✅ 編譯成功 (1.2mb)
+- ✅ `/api/charts/:id` 端點可用
+- ✅ 前端可正常載入快取命盤
+
+### 實作時間
+- 預估: 15min
+- 實際: 5min

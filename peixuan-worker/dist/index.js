@@ -33242,21 +33242,6 @@ var ChartCacheService = class {
     const results = await db.select().from(chartRecords).orderBy(desc(chartRecords.createdAt)).limit(limit);
     return results;
   }
-  /**
-   * Find chart by birth parameters (for cache lookup)
-   * @param params - Birth parameters to match
-   * @param env - Cloudflare Worker environment containing DB binding
-   * @returns The matching chart record or null if not found
-   */
-  async findChartByParams(params, env) {
-    const db = drizzle(env.DB);
-    const results = await db.select().from(chartRecords).orderBy(desc(chartRecords.createdAt)).limit(100);
-    const match = results.find((record2) => {
-      const meta3 = record2.metadata;
-      return meta3.birthDate === params.birthDate && meta3.birthTime === params.birthTime && meta3.gender === params.gender && (params.longitude === void 0 || meta3.longitude === params.longitude);
-    });
-    return match || null;
-  }
 };
 
 // src/controllers/unifiedController.ts
@@ -33275,33 +33260,6 @@ var UnifiedController = class {
    */
   async calculate(requestData, format = "json", env) {
     try {
-      if (env) {
-        try {
-          console.log("[UnifiedController] Checking cache for existing calculation...");
-          const cachedChart = await this.chartCacheService.findChartByParams(
-            {
-              birthDate: requestData.birthDate,
-              birthTime: requestData.birthTime,
-              gender: requestData.gender,
-              longitude: requestData.longitude
-            },
-            env
-          );
-          if (cachedChart) {
-            console.log("[UnifiedController] Cache hit! Returning cached result:", cachedChart.id);
-            if (format === "markdown") {
-              return formatToMarkdown(cachedChart.chartData);
-            }
-            return {
-              chartId: cachedChart.id,
-              ...cachedChart.chartData
-            };
-          }
-          console.log("[UnifiedController] Cache miss, proceeding with calculation...");
-        } catch (cacheError) {
-          console.error("[UnifiedController] Cache lookup failed:", cacheError);
-        }
-      }
       const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
       const solarDate = new Date(birthDateTime);
       if (isNaN(solarDate.getTime())) {
@@ -33330,8 +33288,6 @@ var UnifiedController = class {
               name: requestData.name,
               birthDate: requestData.birthDate,
               birthTime: requestData.birthTime,
-              gender: requestData.gender,
-              longitude: requestData.longitude || 121.5,
               location: requestData.location || "Unknown"
             },
             env
@@ -33899,6 +33855,64 @@ function createAnalyzeRoutes(router, env) {
   });
 }
 
+// src/routes/chartRoutes.ts
+function createChartRoutes(router) {
+  router.get("/api/charts", async (req, env) => {
+    const controller = new ChartController(env.CACHE);
+    const userId = req.userId || "anonymous";
+    const url2 = new URL(req.url);
+    const page = parseInt(url2.searchParams.get("page") || "1");
+    const limit = parseInt(url2.searchParams.get("limit") || "10");
+    const type = url2.searchParams.get("type") || void 0;
+    const result = await controller.getChartHistory(env.DB, userId, page, limit, type);
+    return Response.json(result);
+  });
+  router.post("/api/charts", async (req, env) => {
+    const controller = new ChartController(env.CACHE);
+    const userId = req.userId || "anonymous";
+    const data = await req.json();
+    const chart = await controller.saveChart(env.DB, userId, data);
+    return Response.json({ message: "\u547D\u76E4\u4FDD\u5B58\u6210\u529F", chart }, { status: 201 });
+  });
+  router.get("/api/charts/:id", async (req, env) => {
+    const controller = new ChartController(env.CACHE);
+    const userId = req.userId || "anonymous";
+    const chart = await controller.getChart(env.DB, req.params.id, userId);
+    if (!chart) {
+      return Response.json({ error: "\u547D\u76E4\u8A18\u9304\u4E0D\u5B58\u5728" }, { status: 404 });
+    }
+    return Response.json({ chart });
+  });
+  router.delete("/api/charts/:id", async (req, env) => {
+    const controller = new ChartController(env.CACHE);
+    const { userId } = req;
+    if (!userId) {
+      return Response.json({ error: "\u9700\u8981\u767B\u5165" }, { status: 401 });
+    }
+    const deleted = await controller.deleteChart(env.DB, req.params.id, userId);
+    if (!deleted) {
+      return Response.json({ error: "\u8A18\u9304\u4E0D\u5B58\u5728\u6216\u7121\u6B0A\u9650\u522A\u9664" }, { status: 404 });
+    }
+    return Response.json({ message: "\u522A\u9664\u6210\u529F" });
+  });
+  router.get("/api/analyses", async (req, env) => {
+    const controller = new ChartController(env.CACHE);
+    const userId = req.userId || "anonymous";
+    const url2 = new URL(req.url);
+    const page = parseInt(url2.searchParams.get("page") || "1");
+    const limit = parseInt(url2.searchParams.get("limit") || "10");
+    const result = await controller.getAnalysisHistory(env.DB, userId, page, limit);
+    return Response.json(result);
+  });
+  router.post("/api/analyses", async (req, env) => {
+    const controller = new ChartController(env.CACHE);
+    const userId = req.userId || "anonymous";
+    const data = await req.json();
+    const analysis = await controller.saveAnalysis(env.DB, userId, data);
+    return Response.json({ message: "\u5206\u6790\u4FDD\u5B58\u6210\u529F", analysis }, { status: 201 });
+  });
+}
+
 // node_modules/itty-router/index.mjs
 var t = ({ base: e = "", routes: t2 = [], ...r2 } = {}) => ({ __proto__: new Proxy({}, { get: (r3, o2, a2, s2) => (r4, ...c2) => t2.push([o2.toUpperCase?.(), RegExp(`^${(s2 = (e + r4).replace(/\/+(\/|$)/g, "$1")).replace(/(\/?\.?):(\w+)\+/g, "($1(?<$2>*))").replace(/(\/?\.?):(\w+)/g, "($1(?<$2>[^$1/]+?))").replace(/\./g, "\\.").replace(/(\/?)\*/g, "($1.*)?")}/*$`), c2, s2]) && a2 }), routes: t2, ...r2, async fetch(e2, ...o2) {
   let a2, s2, c2 = new URL(e2.url), n2 = e2.query = { __proto__: null };
@@ -33970,6 +33984,7 @@ async function handleAPI(request, env) {
   const router = n();
   createUnifiedRoutes(router);
   createAnalyzeRoutes(router, env);
+  createChartRoutes(router);
   try {
     const unifiedResponse = await router.fetch(request, env);
     if (unifiedResponse && unifiedResponse.status !== 404) {

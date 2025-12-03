@@ -49,6 +49,24 @@ const handleAIAnalysis = () => {
   closeMobileMenu();
 };
 
+const handleAdvancedAnalysis = () => {
+  if (!hasChartData.value) {
+    // 嘗試從 localStorage 載入
+    const chartId = chartStore.loadFromLocalStorage();
+
+    if (!chartId) {
+      // 提示用戶先進行計算
+      alert('請先進行命盤計算');
+      router.push('/unified');
+      return;
+    }
+  }
+
+  // 跳轉到進階分析頁面
+  router.push('/advanced-analysis');
+  closeMobileMenu();
+};
+
 onMounted(() => {
   console.log('應用初始化完成');
   // 嘗試從 localStorage 載入歷史記錄
@@ -88,6 +106,13 @@ onMounted(() => {
             @click="handleAIAnalysis"
           >
             <span>佩璇 AI 分析</span>
+          </button>
+          <button
+            class="nav-btn"
+            :disabled="!chartStore.currentChartId"
+            @click="handleAdvancedAnalysis"
+          >
+            <span>佩璇進階分析</span>
           </button>
         </div>
 
@@ -138,6 +163,13 @@ onMounted(() => {
         >
           <span>佩璇 AI 分析</span>
         </button>
+        <button
+          class="nav-btn"
+          :disabled="!chartStore.currentChartId"
+          @click="handleAdvancedAnalysis"
+        >
+          <span>佩璇進階分析</span>
+        </button>
       </div>
     </header>
 
@@ -159,6 +191,7 @@ onMounted(() => {
               $t('astrology.unified')
             }}</router-link>
             <router-link to="/ai-analysis">佩璇 AI 分析</router-link>
+            <router-link to="/advanced-analysis">佩璇進階分析</router-link>
             <router-link to="/">服務介紹</router-link>
           </div>
         </div>

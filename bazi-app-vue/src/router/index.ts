@@ -26,6 +26,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'ai-analysis',
     component: () => import('../views/AIAnalysisView.vue'),
   },
+  {
+    path: '/advanced-analysis',
+    name: 'advanced-analysis',
+    component: () => import('../views/AdvancedAnalysisView.vue'),
+  },
 ];
 
 const router = createRouter({

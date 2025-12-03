@@ -25,16 +25,15 @@ export function createChartRoutes(router: Router) {
     return Response.json({ message: '命盤保存成功', chart }, { status: 201 });
   });
 
-  // GET /api/charts/:id - 獲取單一命盤
+  // GET /api/charts/:id - 獲取單一命盤（只用 chartId）
   router.get('/api/charts/:id', async (req: any, env: any) => {
     const controller = new ChartController(env.CACHE);
-    const userId = req.userId || 'anonymous';
-    const chart = await controller.getChart(env.DB, req.params.id, userId);
+    const chart = await controller.getChart(env.DB, req.params.id);
     
     if (!chart) {
       return Response.json({ error: '命盤記錄不存在' }, { status: 404 });
     }
-    return Response.json({ chart });
+    return Response.json(chart);
   });
 
   // DELETE /api/charts/:id - 刪除命盤

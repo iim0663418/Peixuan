@@ -52,17 +52,17 @@ export class ChartController {
     return record;
   }
 
-  async getChart(db: D1Database, id: string, userId: string) {
+  async getChart(db: D1Database, id: string) {
     const cacheKey = CacheKeys.chart(id);
     
     // 嘗試從快取取得
     const cached = await this.cache.get(cacheKey);
     if (cached) {return cached;}
 
-    // 查詢資料庫
+    // 查詢資料庫（只用 chartId，不檢查 userId）
     const orm = drizzle(db);
     const [record] = await orm.select().from(chartRecords)
-      .where(and(eq(chartRecords.id, id), eq(chartRecords.userId, userId)));
+      .where(eq(chartRecords.id, id));
 
     if (record) {
       // 存入快取

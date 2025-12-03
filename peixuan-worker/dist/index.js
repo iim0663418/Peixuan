@@ -32839,14 +32839,14 @@ var ChartController = class {
     await this.cache.deletePattern(`charts:${userId}`);
     return record2;
   }
-  async getChart(db, id, userId) {
+  async getChart(db, id) {
     const cacheKey = CacheKeys.chart(id);
     const cached2 = await this.cache.get(cacheKey);
     if (cached2) {
       return cached2;
     }
     const orm = drizzle(db);
-    const [record2] = await orm.select().from(chartRecords).where(and(eq(chartRecords.id, id), eq(chartRecords.userId, userId)));
+    const [record2] = await orm.select().from(chartRecords).where(eq(chartRecords.id, id));
     if (record2) {
       await this.cache.set(cacheKey, record2, CacheTTL.chart);
     }
@@ -33876,12 +33876,11 @@ function createChartRoutes(router) {
   });
   router.get("/api/charts/:id", async (req, env) => {
     const controller = new ChartController(env.CACHE);
-    const userId = req.userId || "anonymous";
-    const chart = await controller.getChart(env.DB, req.params.id, userId);
+    const chart = await controller.getChart(env.DB, req.params.id);
     if (!chart) {
       return Response.json({ error: "\u547D\u76E4\u8A18\u9304\u4E0D\u5B58\u5728" }, { status: 404 });
     }
-    return Response.json({ chart });
+    return Response.json(chart);
   });
   router.delete("/api/charts/:id", async (req, env) => {
     const controller = new ChartController(env.CACHE);

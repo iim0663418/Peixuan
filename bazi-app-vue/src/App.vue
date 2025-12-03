@@ -109,7 +109,7 @@ onMounted(() => {
           </button>
           <button
             class="nav-btn"
-            :disabled="!chartStore.currentChartId"
+            :disabled="!hasChartData"
             @click="handleAdvancedAnalysis"
           >
             <span>佩璇進階分析</span>
@@ -165,7 +165,7 @@ onMounted(() => {
         </button>
         <button
           class="nav-btn"
-          :disabled="!chartStore.currentChartId"
+          :disabled="!hasChartData"
           @click="handleAdvancedAnalysis"
         >
           <span>佩璇進階分析</span>

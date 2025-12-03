@@ -156,6 +156,17 @@ onMounted(async () => {
         } as any;
         
         console.log('[UnifiedView] Set result.value:', result.value);
+        
+        // 更新 chartStore 以啟用 AI 分析按鈕
+        if (result.value) {
+          chartStore.setCurrentChart({
+            chartId: data.id,
+            calculation: result.value,
+            metadata: data.metadata,
+            createdAt: new Date(data.createdAt),
+          });
+        }
+        
         ElMessage.success('已載入上次的命盤結果');
       } else {
         console.warn('[UnifiedView] Response not OK:', response.status, response.statusText);

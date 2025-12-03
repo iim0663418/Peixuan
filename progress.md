@@ -1020,6 +1020,78 @@ wuxingDistribution: {
 - 預估: 20min
 - 實際: 8min
 
+---
+
+## 🐛 Bug 修復：AI 分析按鈕鎖定 (2025-12-03 19:02)
+
+### 問題描述
+快取載入成功後，AI 分析按鈕仍然被鎖定（disabled）。
+
+### 根本原因
+AI 按鈕的啟用條件是 `chartStore.hasChart`，但從 D1 讀取快取時只更新了 `result.value`，**沒有更新 chartStore 狀態**。
+
+### 解決方案
+在成功載入快取後，更新 chartStore：
+```typescript
+if (result.value) {
+  chartStore.setCurrentChart({
+    chartId: data.id,
+    calculation: result.value,
+    metadata: data.metadata,
+    createdAt: new Date(data.createdAt),
+  });
+}
+```
+
+### 修改文件
+- `bazi-app-vue/src/views/UnifiedView.vue` (快取讀取邏輯)
+
+### 結果
+- ✅ 編譯成功
+- ✅ chartStore 狀態正確更新
+- ✅ AI 分析按鈕可正常使用
+
+### 實作時間
+- 預估: 10min
+- 實際: 5min
+
+---
+
+## 🎨 UX 優化：快取管理與表單鎖定 (2025-12-03 19:08)
+
+### 變更內容
+1. **移除 currentChartMetadata 設計**
+   - 不再保存 metadata 到 localStorage
+   - chartStore 只保存 currentChartId
+   - 簡化狀態管理
+
+2. **表單鎖定機制**
+   - 當 currentChartId 存在時鎖定提交按鈕
+   - 防止重複計算
+   - 提示「已有快取命盤」
+
+3. **清除快取功能**
+   - 添加「清除快取」按鈕
+   - 清除 currentChartId
+   - 解鎖表單允許重新計算
+
+### 修改文件
+- `bazi-app-vue/src/stores/chartStore.ts` (移除 metadata 邏輯)
+- `bazi-app-vue/src/views/UnifiedView.vue` (移除 savedMetadata)
+- `bazi-app-vue/src/components/UnifiedInputForm.vue` (添加鎖定和清除功能)
+
+### 結果
+- ✅ 編譯成功
+- ✅ 狀態管理簡化
+- ✅ 防止重複計算
+- ✅ 用戶可清除快取重新計算
+
+### 實作時間
+- 預估: 20min
+- 實際: 15min
+
+
+
 
 
 

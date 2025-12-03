@@ -161,19 +161,47 @@
     </el-form-item>
 
     <el-form-item>
-      <el-button type="primary" @click="submitForm">提交</el-button>
+      <div style="display: flex; gap: 12px; width: 100%;">
+        <el-button 
+          type="primary" 
+          :disabled="hasCache"
+          @click="submitForm"
+          style="flex: 1;"
+        >
+          {{ hasCache ? '已有快取命盤' : '提交' }}
+        </el-button>
+        <el-button 
+          v-if="hasCache"
+          type="warning"
+          @click="clearCache"
+        >
+          清除快取
+        </el-button>
+      </div>
     </el-form-item>
   </el-form>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from 'vue';
+import { ref, reactive, onMounted, watch, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { saveTimeZoneInfo, getTimeZoneInfo } from '../utils/storageService';
 import {
   GeocodeService,
   type GeocodeCandidate,
 } from '../services/geocodeService';
+import { useChartStore } from '../stores/chartStore';
+
+const chartStore = useChartStore();
+
+// 檢查是否有快取（鎖定表單）
+const hasCache = computed(() => !!chartStore.chartId);
+
+// 清除快取
+const clearCache = () => {
+  chartStore.clearCurrentChart();
+  ElMessage.success('已清除快取，可以重新計算');
+};
 
 const props = defineProps<{
   initialData?: {

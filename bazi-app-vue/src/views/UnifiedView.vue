@@ -5,7 +5,7 @@
         <h2>統一命盤計算</h2>
       </template>
 
-      <UnifiedInputForm :initial-data="savedMetadata" @submit="handleSubmit" />
+      <UnifiedInputForm @submit="handleSubmit" />
     </el-card>
 
     <el-card v-if="loading" class="result-card">
@@ -46,7 +46,6 @@ const chartStore = useChartStore();
 const loading = ref(false);
 const error = ref('');
 const result = ref<CalculationResult | null>(null);
-const savedMetadata = ref<any>(null);
 
 const handleSubmit = async (birthInfo: any) => {
   loading.value = true;
@@ -80,15 +79,9 @@ const handleSubmit = async (birthInfo: any) => {
 };
 
 onMounted(async () => {
-  const { chartId, metadata } = chartStore.loadFromLocalStorage();
+  const chartId = chartStore.loadFromLocalStorage();
   
-  console.log('[UnifiedView] onMounted - chartId:', chartId, 'metadata:', metadata);
-  
-  // Load saved metadata for form autofill
-  if (metadata) {
-    savedMetadata.value = metadata;
-    console.log('[UnifiedView] Loaded saved metadata:', metadata);
-  }
+  console.log('[UnifiedView] onMounted - chartId:', chartId);
   
   // Try to load cached chart result
   if (chartId) {

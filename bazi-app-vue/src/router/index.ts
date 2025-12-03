@@ -21,6 +21,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/UnifiedView.vue'),
     meta: { title: 'astrology.unified' },
   },
+  {
+    path: '/ai-analysis',
+    name: 'ai-analysis',
+    component: () => import('../views/AIAnalysisView.vue'),
+  },
 ];
 
 const router = createRouter({

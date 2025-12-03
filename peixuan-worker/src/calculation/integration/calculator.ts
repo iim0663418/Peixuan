@@ -6,7 +6,7 @@
  */
 
 import { Solar, Lunar, ShouXingUtil } from 'lunar-typescript';
-import {
+import type {
   BirthInfo,
   CalculationResult,
   BaZiResult,
@@ -14,8 +14,10 @@ import {
   CalculationStep,
   CalculationMetadata,
   HiddenStems,
-  TenGod,
   StarSymmetry
+} from '../types';
+import {
+  TenGod
 } from '../types';
 import { validateBirthInfo } from './validator';
 import { calculateTrueSolarTime, dateToJulianDay, getLichunTime } from '../core/time';
@@ -37,7 +39,7 @@ import { calculateWuXingDistribution } from '../wuXing/distribution';
 import { determineFortuneDirection, calculateQiYunDate } from '../fortune/qiyun';
 import { generateDaYunList, getCurrentDaYun } from '../fortune/dayun';
 import { getAnnualPillar } from '../annual/liuchun';
-import { locateAnnualLifePalace, Palace, createPalaceArray } from '../annual/palace';
+import { locateAnnualLifePalace, createPalaceArray } from '../annual/palace';
 import {
   detectStemCombinations,
   detectBranchClashes,
@@ -46,7 +48,7 @@ import {
 import { analyzeTaiSui } from '../../services/annual/taiSuiAnalysis';
 import { aggregateSiHua } from '../ziwei/sihua/aggregator';
 import { calculateCurrentDecade } from '../ziwei/decade';
-import type { Star } from '../annual/palace';
+import type { Star , Palace} from '../annual/palace';
 
 /**
  * Hidden stems mapping for earthly branches
@@ -355,7 +357,7 @@ export class UnifiedCalculator {
 
     // Calculate true solar time
     const trueSolarTimeResult = calculateTrueSolarTime(solarDate, longitude);
-    const trueSolarTime = trueSolarTimeResult.trueSolarTime;
+    const {trueSolarTime} = trueSolarTimeResult;
     calculationSteps.push({
       step: 'trueSolarTime',
       input: { solarDate: solarDate.toISOString(), longitude },

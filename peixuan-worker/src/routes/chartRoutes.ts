@@ -1,4 +1,4 @@
-import { Router } from 'itty-router';
+import type { Router } from 'itty-router';
 import { ChartController } from '../controllers/chartController';
 
 export function createChartRoutes(router: Router) {
@@ -40,7 +40,7 @@ export function createChartRoutes(router: Router) {
   // DELETE /api/charts/:id - 刪除命盤
   router.delete('/api/charts/:id', async (req: any, env: any) => {
     const controller = new ChartController(env.CACHE);
-    const userId = req.userId;
+    const {userId} = req;
     if (!userId) {
       return Response.json({ error: '需要登入' }, { status: 401 });
     }

@@ -8,7 +8,8 @@
  * Decision: 2025-12-01 採用 lunar-typescript 替換自實作四柱算法
  */
 
-import { GanZhi, indexToGanZhi, HEAVENLY_STEMS, EARTHLY_BRANCHES, stemModulo } from '../core/ganZhi';
+import type { GanZhi} from '../core/ganZhi';
+import { indexToGanZhi, HEAVENLY_STEMS, EARTHLY_BRANCHES, stemModulo } from '../core/ganZhi';
 import { getFourPillarsFromLunar } from './lunarAdapter';
 
 /**

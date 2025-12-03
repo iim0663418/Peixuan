@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, defineAsyncComponent } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, onMounted, defineAsyncComponent } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useChartStore } from '@/stores/chartStore';
 
 // 動態導入組件以提升效能
 const LanguageSelector = defineAsyncComponent(
@@ -8,14 +9,39 @@ const LanguageSelector = defineAsyncComponent(
 );
 
 const route = useRoute();
+const router = useRouter();
+const chartStore = useChartStore();
 const showMobileMenu = ref(false);
+
+// 檢查是否有可用的命盤數據
+const hasChartData = computed(() => chartStore.hasChart);
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value;
 };
 
+const handleAIAnalysis = () => {
+  if (!hasChartData.value) {
+    // 嘗試從 localStorage 載入
+    const chartId = chartStore.loadFromLocalStorage();
+
+    if (!chartId) {
+      // 提示用戶先進行計算
+      alert('請先進行命盤計算');
+      router.push('/unified');
+      return;
+    }
+  }
+
+  // 跳轉到 AI 分析頁面
+  router.push('/ai-analysis');
+  showMobileMenu.value = false;
+};
+
 onMounted(() => {
   console.log('應用初始化完成');
+  // 嘗試從 localStorage 載入歷史記錄
+  chartStore.loadFromLocalStorage();
 });
 </script>
 
@@ -39,6 +65,20 @@ onMounted(() => {
           >
             {{ $t('astrology.unified') }}
           </router-link>
+
+          <!-- AI 分析按鈕 -->
+          <button
+            class="nav-link ai-analysis-btn"
+            :class="{
+              active: route.path === '/ai-analysis',
+              disabled: !hasChartData,
+            }"
+            :disabled="!hasChartData"
+            @click="handleAIAnalysis"
+          >
+            <span class="icon">🤖</span>
+            <span>AI 分析</span>
+          </button>
         </div>
 
         <div class="nav-controls">
@@ -75,6 +115,20 @@ onMounted(() => {
         >
           {{ $t('astrology.unified') }}
         </router-link>
+
+        <!-- 移動版 AI 分析 -->
+        <button
+          class="mobile-nav-link mobile-ai-btn"
+          :class="{
+            active: route.path === '/ai-analysis',
+            disabled: !hasChartData,
+          }"
+          :disabled="!hasChartData"
+          @click="handleAIAnalysis"
+        >
+          <span class="icon">🤖</span>
+          <span>AI 分析</span>
+        </button>
       </div>
     </header>
 
@@ -107,29 +161,25 @@ onMounted(() => {
               href="https://vuejs.org"
               target="_blank"
               rel="noopener noreferrer"
-              >Vue.js</a
-            >
+              >Vue.js</a>
             (MIT),
             <a
               href="https://element-plus.org"
               target="_blank"
               rel="noopener noreferrer"
-              >Element Plus</a
-            >
+              >Element Plus</a>
             (MIT),
             <a
               href="https://workers.cloudflare.com"
               target="_blank"
               rel="noopener noreferrer"
-              >Cloudflare Workers</a
-            >
+              >Cloudflare Workers</a>
             (Apache-2.0),
             <a
               href="https://github.com/6tail/lunar-typescript"
               target="_blank"
               rel="noopener noreferrer"
-              >lunar-typescript</a
-            >
+              >lunar-typescript</a>
             (MIT)
           </p>
         </div>
@@ -226,6 +276,28 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(210, 105, 30, 0.3);
 }
 
+/* AI 分析按鈕 */
+.ai-analysis-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.ai-analysis-btn .icon {
+  font-size: 1.2rem;
+}
+
+.ai-analysis-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-analysis-btn:not(.disabled):hover {
+  transform: translateY(-1px);
+}
+
 .nav-controls {
   display: flex;
   align-items: center;
@@ -295,6 +367,27 @@ onMounted(() => {
 
 .mobile-nav-link:last-child {
   border-bottom: none;
+}
+
+/* 移動版 AI 按鈕 */
+.mobile-ai-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mobile-ai-btn .icon {
+  font-size: 1.2rem;
+}
+
+.mobile-ai-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* 主要內容區域 */

@@ -6,8 +6,8 @@
  * Reference: doc/SIHUA_IMPLEMENTATION_PLAN.md §3 Task 4
  */
 
-import { Palace } from '../../annual/palace';
-import { SiHuaAggregation } from './types';
+import type { Palace } from '../../annual/palace';
+import type { SiHuaAggregation } from './types';
 import {
   generateNatalEdges,
   generateDecadeEdges,

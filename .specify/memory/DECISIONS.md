@@ -1,5 +1,40 @@
 # 決策記錄
 
+## 2025-12-03: AI Streaming 與 Gemini 整合
+
+### 決策：啟用 Gemini Streaming + D1 快取 + SSE
+- **背景**: 需要即時 AI 分析並避免重算
+- **影響**:
+  - 後端新增 `analyzeChartStream`（Gemini streamGenerateContent → SSE），`transformToSSE` 修正陣列 chunk 解析
+  - /api/v1/analyze/stream 路由 + D1 chart/analysis 快取（ChartCacheService/AnalysisCacheService，TTL 24h）
+  - UnifiedController 總是返回 chartId，SSE 27 chunks/19s 內完成
+- **風險**: SSE 相容性需持續驗證；若 Gemini 失敗可回退同步 analyze
+- **狀態**: 完成 ✓
+
+### 決策：前端導入 AI 串流分析體驗
+- **原因**: 需要顯示逐段分析並保存 chartId
+- **影響**:
+  - 新增 chartStore (Pinia) + localStorage 同步
+  - 新增 AIAnalysisView + /ai-analysis 路由 + Navbar AI 按鈕
+  - EventSource 串 SSE，marked 渲染 Markdown，錯誤處理修正
+- **替代**: 保持同步 API（放棄，無串流體驗）
+- **狀態**: 完成 ✓
+
+### 決策：Prompt 精簡與年份保護
+- **原因**: 降成本並避免 AI 誤判年份（預設 2024）
+- **影響**:
+  - Prompt 縮減 ~200 tokens/req（-57%），合併風格/執行準則，範例 3 → 2
+  - Max Output Tokens 1024 → 2048；注入 currentYear，測試確認輸出 2025
+  - 佩璇語氣保留（口語化/粗體/比喻/情感化）
+- **狀態**: 完成 ✓
+
+### 決策：啟用 Gemini 成本/性能監控
+- **原因**: 需要即時計費/延遲/錯誤可觀測
+- **影響**:
+  - geminiService 日誌：Prompt/Completion/Total tokens + cost、Response time、Error 追蹤
+  - 預估成本可見，便於限流與預算控管
+- **狀態**: 完成 ✓
+
 ## 2025-12-02: 開源專案整合策略確立
 
 ### 決策：Phase B/C 評估完成，決定保留現有實作

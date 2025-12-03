@@ -11605,16 +11605,59 @@ var init_ganZhi = __esm({
   }
 });
 
+// src/calculation/bazi/lunarAdapter.ts
+function getFourPillarsFromLunar(options) {
+  const { solarDate } = options;
+  const solar = Solar.fromDate(solarDate);
+  const lunar = solar.getLunar();
+  const eightChar = lunar.getEightChar();
+  const yearGanZhi = eightChar.getYearGan() + eightChar.getYearZhi();
+  const monthGanZhi = eightChar.getMonthGan() + eightChar.getMonthZhi();
+  const dayGanZhi = eightChar.getDayGan() + eightChar.getDayZhi();
+  const hourGanZhi = eightChar.getTimeGan() + eightChar.getTimeZhi();
+  return {
+    year: parseGanZhi(yearGanZhi),
+    month: parseGanZhi(monthGanZhi),
+    day: parseGanZhi(dayGanZhi),
+    hour: parseGanZhi(hourGanZhi)
+  };
+}
+function parseGanZhi(ganzhiStr) {
+  if (ganzhiStr.length !== 2) {
+    throw new Error(`Invalid GanZhi string: ${ganzhiStr}`);
+  }
+  const stem = ganzhiStr[0];
+  const branch = ganzhiStr[1];
+  if (!HEAVENLY_STEMS.includes(stem)) {
+    throw new Error(`Invalid stem: ${stem}`);
+  }
+  if (!EARTHLY_BRANCHES.includes(branch)) {
+    throw new Error(`Invalid branch: ${branch}`);
+  }
+  return { stem, branch };
+}
+var init_lunarAdapter = __esm({
+  "src/calculation/bazi/lunarAdapter.ts"() {
+    "use strict";
+    init_dist();
+    init_ganZhi();
+  }
+});
+
 // src/calculation/bazi/fourPillars.ts
 function calculateYearPillar(solarDate, lichunTime) {
-  let year = solarDate.getFullYear();
-  if (solarDate < lichunTime) {
-    year -= 1;
-  }
-  const index = ((year - 4) % 60 + 60) % 60;
-  return indexToGanZhi(index);
+  const fourPillars = getFourPillarsFromLunar({ solarDate });
+  return fourPillars.year;
 }
-function calculateMonthPillar(monthBranchIndex, yearStemIndex) {
+function solarLongitudeToMonthBranch(solarLongitude) {
+  const normalized = (solarLongitude % 360 + 360) % 360;
+  const offset = (normalized + 45) % 360;
+  const monthFromYin = Math.floor(offset / 30);
+  const branchIndex = (monthFromYin + 2) % 12;
+  return branchIndex;
+}
+function calculateMonthPillar(solarLongitude, yearStemIndex) {
+  const monthBranchIndex = solarLongitudeToMonthBranch(solarLongitude);
   const yinStem = stemModulo(2 * yearStemIndex + 2);
   const offset = (monthBranchIndex - 2 + 12) % 12;
   const stemIndex = stemModulo(yinStem + offset);
@@ -11627,33 +11670,11 @@ function calculateMonthPillar(monthBranchIndex, yearStemIndex) {
   }
   return indexToGanZhi(pillarIndex);
 }
-function calculateDayPillar(date5) {
-  let year = date5.getFullYear();
-  let month = date5.getMonth();
-  let day = date5.getDate();
-  if (date5.getHours() >= 23) {
-    day += 1;
-    const tempDate = new Date(year, month, day);
-    year = tempDate.getFullYear();
-    month = tempDate.getMonth();
-    day = tempDate.getDate();
-  }
-  let jdnYear = year;
-  let jdnMonth = month + 1;
-  if (jdnMonth <= 2) {
-    jdnYear -= 1;
-    jdnMonth += 12;
-  }
-  const a2 = Math.floor(jdnYear / 100);
-  const b = 2 - a2 + Math.floor(a2 / 4);
-  const jd = Math.floor(365.25 * (jdnYear + 4716)) + Math.floor(30.6001 * (jdnMonth + 1)) + day + b - 1524.5;
-  const jdn = Math.floor(jd + 0.5);
+function calculateDayPillar(jdn) {
   const index = ((jdn - 2448851) % 60 + 60) % 60;
   return indexToGanZhi(index);
 }
-function calculateHourPillar(trueSolarTime, dayStemIndex) {
-  const hour = trueSolarTime.getHours();
-  const minute = trueSolarTime.getMinutes();
+function calculateHourPillar(hour, minute, dayStemIndex) {
   const totalMinutes = hour * 60 + minute;
   let branchIndex;
   if (totalMinutes >= 23 * 60) {
@@ -11675,6 +11696,7 @@ var init_fourPillars = __esm({
   "src/calculation/bazi/fourPillars.ts"() {
     "use strict";
     init_ganZhi();
+    init_lunarAdapter();
   }
 });
 
@@ -11751,21 +11773,21 @@ function calculateLifePalace(lunarMonth, hourBranch, options) {
   const position = ((adjustedMonth - hourBranch + 1 + 12) % 12 + 12) % 12;
   return {
     position,
-    branch: EARTHLY_BRANCHES2[position]
+    branch: EARTHLY_BRANCHES3[position]
   };
 }
 function calculateBodyPalace(lunarMonth, hourBranch) {
   const position = ((lunarMonth + hourBranch - 1) % 12 + 12) % 12;
   return {
     position,
-    branch: EARTHLY_BRANCHES2[position]
+    branch: EARTHLY_BRANCHES3[position]
   };
 }
-var EARTHLY_BRANCHES2;
+var EARTHLY_BRANCHES3;
 var init_palaces = __esm({
   "src/calculation/ziwei/palaces.ts"() {
     "use strict";
-    EARTHLY_BRANCHES2 = [
+    EARTHLY_BRANCHES3 = [
       "\u5B50",
       "\u4E11",
       "\u5BC5",
@@ -11787,7 +11809,7 @@ function calculateBureau(lifePalaceStem, lifePalaceBranch) {
   if (!HEAVENLY_STEMS3.includes(lifePalaceStem)) {
     throw new Error(`Invalid heavenly stem: ${lifePalaceStem}`);
   }
-  if (!EARTHLY_BRANCHES3.includes(lifePalaceBranch)) {
+  if (!EARTHLY_BRANCHES4.includes(lifePalaceBranch)) {
     throw new Error(`Invalid earthly branch: ${lifePalaceBranch}`);
   }
   const key = `${lifePalaceStem}${lifePalaceBranch}`;
@@ -11797,12 +11819,12 @@ function calculateBureau(lifePalaceStem, lifePalaceBranch) {
   }
   return bureau;
 }
-var HEAVENLY_STEMS3, EARTHLY_BRANCHES3, NAYIN_BUREAU_MAP;
+var HEAVENLY_STEMS3, EARTHLY_BRANCHES4, NAYIN_BUREAU_MAP;
 var init_bureau = __esm({
   "src/calculation/ziwei/bureau.ts"() {
     "use strict";
     HEAVENLY_STEMS3 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
-    EARTHLY_BRANCHES3 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
+    EARTHLY_BRANCHES4 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
     NAYIN_BUREAU_MAP = {
       // 甲子、乙丑 海中金 (Metal) -> 4
       "\u7532\u5B50": 4,
@@ -12014,66 +12036,48 @@ var init_hiddenStems = __esm({
   "src/calculation/bazi/hiddenStems.ts"() {
     "use strict";
     HIDDEN_STEMS_MAP = {
-      // 子 (Rat) - 癸 (Water)
-      \u5B50: [
-        { stem: "\u7678", weight: "primary", days: 30 }
-      ],
-      // 丑 (Ox) - 己癸辛
+      \u5B50: [{ stem: "\u7678", weight: "primary", days: 30 }],
       \u4E11: [
         { stem: "\u5DF1", weight: "primary", days: 9 },
         { stem: "\u7678", weight: "middle", days: 9 },
         { stem: "\u8F9B", weight: "residual", days: 12 }
       ],
-      // 寅 (Tiger) - 甲丙戊
       \u5BC5: [
         { stem: "\u7532", weight: "primary", days: 7 },
         { stem: "\u4E19", weight: "middle", days: 7 },
         { stem: "\u620A", weight: "residual", days: 16 }
       ],
-      // 卯 (Rabbit) - 乙 (Wood)
-      \u536F: [
-        { stem: "\u4E59", weight: "primary", days: 30 }
-      ],
-      // 辰 (Dragon) - 戊乙癸
+      \u536F: [{ stem: "\u4E59", weight: "primary", days: 30 }],
       \u8FB0: [
         { stem: "\u620A", weight: "primary", days: 9 },
         { stem: "\u4E59", weight: "middle", days: 9 },
         { stem: "\u7678", weight: "residual", days: 12 }
       ],
-      // 巳 (Snake) - 丙庚戊
       \u5DF3: [
         { stem: "\u4E19", weight: "primary", days: 7 },
         { stem: "\u5E9A", weight: "middle", days: 7 },
         { stem: "\u620A", weight: "residual", days: 16 }
       ],
-      // 午 (Horse) - 丁己 (Fire)
       \u5348: [
         { stem: "\u4E01", weight: "primary", days: 10 },
         { stem: "\u5DF1", weight: "residual", days: 20 }
       ],
-      // 未 (Goat) - 己丁乙
       \u672A: [
         { stem: "\u5DF1", weight: "primary", days: 9 },
         { stem: "\u4E01", weight: "middle", days: 9 },
         { stem: "\u4E59", weight: "residual", days: 12 }
       ],
-      // 申 (Monkey) - 庚壬戊
       \u7533: [
         { stem: "\u5E9A", weight: "primary", days: 7 },
         { stem: "\u58EC", weight: "middle", days: 7 },
         { stem: "\u620A", weight: "residual", days: 16 }
       ],
-      // 酉 (Rooster) - 辛 (Metal)
-      \u9149: [
-        { stem: "\u8F9B", weight: "primary", days: 30 }
-      ],
-      // 戌 (Dog) - 戊辛丁
+      \u9149: [{ stem: "\u8F9B", weight: "primary", days: 30 }],
       \u620C: [
         { stem: "\u620A", weight: "primary", days: 9 },
         { stem: "\u8F9B", weight: "middle", days: 9 },
         { stem: "\u4E01", weight: "residual", days: 12 }
       ],
-      // 亥 (Pig) - 壬甲
       \u4EA5: [
         { stem: "\u58EC", weight: "primary", days: 7 },
         { stem: "\u7532", weight: "residual", days: 23 }
@@ -12300,8 +12304,18 @@ var init_qiyun = __esm({
 });
 
 // src/calculation/fortune/dayun.ts
-function generateDaYunList(monthPillar, qiyunDate, direction, count = 10) {
+function generateDaYunList(monthPillar, birthDate, qiyunDate, direction, count = 10) {
   const cycles = [];
+  const birthYear = birthDate.getFullYear();
+  const qiyunYear = qiyunDate.getFullYear();
+  let qiyunAge = qiyunYear - birthYear;
+  const birthMonth = birthDate.getMonth();
+  const birthDay = birthDate.getDate();
+  const qiyunMonth = qiyunDate.getMonth();
+  const qiyunDay = qiyunDate.getDate();
+  if (qiyunMonth < birthMonth || qiyunMonth === birthMonth && qiyunDay < birthDay) {
+    qiyunAge--;
+  }
   let currentIndex = ganZhiToIndex(monthPillar);
   for (let i = 0; i < count; i++) {
     if (direction === "forward") {
@@ -12314,13 +12328,15 @@ function generateDaYunList(monthPillar, qiyunDate, direction, count = 10) {
     startDate.setFullYear(startDate.getFullYear() + i * 10);
     const endDate = new Date(startDate);
     endDate.setFullYear(endDate.getFullYear() + 10);
-    const age = i * 10;
+    const startAge = qiyunAge + i * 10;
+    const endAge = startAge + 10;
     cycles.push({
       stem: ganZhi.stem,
       branch: ganZhi.branch,
       startDate,
       endDate,
-      age
+      startAge,
+      endAge
     });
   }
   return cycles;
@@ -12367,7 +12383,7 @@ function locateAnnualLifePalace(annualBranch, ziweiPalaces) {
   if (!ziweiPalaces || ziweiPalaces.length !== 12) {
     return -1;
   }
-  if (!EARTHLY_BRANCHES4.includes(annualBranch)) {
+  if (!EARTHLY_BRANCHES5.includes(annualBranch)) {
     return -1;
   }
   for (let i = 0; i < ziweiPalaces.length; i++) {
@@ -12377,11 +12393,11 @@ function locateAnnualLifePalace(annualBranch, ziweiPalaces) {
   }
   return -1;
 }
-var EARTHLY_BRANCHES4;
+var EARTHLY_BRANCHES5;
 var init_palace = __esm({
   "src/calculation/annual/palace.ts"() {
     "use strict";
-    EARTHLY_BRANCHES4 = [
+    EARTHLY_BRANCHES5 = [
       "\u5B50",
       "\u4E11",
       "\u5BC5",
@@ -13268,8 +13284,8 @@ function populateAuxiliaryStars(palaces, hourBranch, lunarMonth) {
   placeStar(palaces, "\u6587\u66F2", wenQuPalaceIndex);
 }
 function createPalaceArrayFromLifePalace(lifePalacePosition, lifePalaceBranch) {
-  const EARTHLY_BRANCHES5 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
-  const lifePalaceBranchIndex = EARTHLY_BRANCHES5.indexOf(lifePalaceBranch);
+  const EARTHLY_BRANCHES6 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
+  const lifePalaceBranchIndex = EARTHLY_BRANCHES6.indexOf(lifePalaceBranch);
   if (lifePalaceBranchIndex === -1) {
     return [];
   }
@@ -13278,7 +13294,7 @@ function createPalaceArrayFromLifePalace(lifePalacePosition, lifePalaceBranch) {
     const branchIndex = (lifePalaceBranchIndex + (i - lifePalacePosition) + 12) % 12;
     palaces.push({
       position: i,
-      branch: EARTHLY_BRANCHES5[branchIndex],
+      branch: EARTHLY_BRANCHES6[branchIndex],
       stars: []
     });
   }
@@ -13426,11 +13442,11 @@ var init_calculator = __esm({
           description: "Calculate hour pillar using true solar time"
         });
         const HEAVENLY_STEMS6 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
-        const EARTHLY_BRANCHES5 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
-        const yearBranch = EARTHLY_BRANCHES5[ganZhiToIndex(year) % 12];
-        const monthBranch = EARTHLY_BRANCHES5[ganZhiToIndex(month) % 12];
-        const dayBranch = EARTHLY_BRANCHES5[ganZhiToIndex(day) % 12];
-        const hourBranch = EARTHLY_BRANCHES5[ganZhiToIndex(hour) % 12];
+        const EARTHLY_BRANCHES6 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
+        const yearBranch = EARTHLY_BRANCHES6[ganZhiToIndex(year) % 12];
+        const monthBranch = EARTHLY_BRANCHES6[ganZhiToIndex(month) % 12];
+        const dayBranch = EARTHLY_BRANCHES6[ganZhiToIndex(day) % 12];
+        const hourBranch = EARTHLY_BRANCHES6[ganZhiToIndex(hour) % 12];
         const dayStem = HEAVENLY_STEMS6[dayStemIndex];
         const hiddenStems = {
           year: getHiddenStems2(yearBranch),
@@ -13468,6 +13484,7 @@ var init_calculator = __esm({
         });
         const dayunList = generateDaYunList(
           { stem: monthStem, branch: monthBranch },
+          solarDate,
           qiyunDate,
           direction,
           10
@@ -13475,8 +13492,8 @@ var init_calculator = __esm({
         const currentDayun = getCurrentDaYun(dayunList, /* @__PURE__ */ new Date());
         calculationSteps.push({
           step: "dayunGeneration",
-          input: { monthPillar: month, qiyunDate: qiyunDate.toISOString(), direction, count: 10 },
-          output: { dayunList: dayunList.map((d) => ({ stem: d.stem, branch: d.branch, age: d.age })), currentDayun },
+          input: { monthPillar: month, birthDate: solarDate.toISOString(), qiyunDate: qiyunDate.toISOString(), direction, count: 10 },
+          output: { dayunList: dayunList.map((d) => ({ stem: d.stem, branch: d.branch, startAge: d.startAge, endAge: d.endAge })), currentDayun },
           description: "Generate 10-year fortune cycles and identify current cycle"
         });
         const fortuneCycles = {
@@ -32818,15 +32835,356 @@ var ChartController = class {
 
 // src/controllers/unifiedController.ts
 init_calculator();
+
+// src/formatters/markdownFormatter.ts
+function formatDate(date5) {
+  const d = typeof date5 === "string" ? new Date(date5) : date5;
+  return d.toISOString().replace("T", " ").substring(0, 19);
+}
+function formatToMarkdown(result, options = {}) {
+  const sections = [];
+  sections.push("# \u547D\u7406\u5206\u6790\u7D50\u679C\n");
+  sections.push(formatBasicInfo(result));
+  sections.push(formatBaZi(result));
+  if (result.bazi.fortuneCycles) {
+    sections.push(formatFortuneCycles(result));
+  }
+  sections.push(formatZiWei(result));
+  if (result.ziwei.siHuaAggregation) {
+    sections.push(formatSiHua(result));
+  }
+  if (result.annualFortune) {
+    sections.push(formatAnnualFortune(result));
+  }
+  if (!options.excludeSteps) {
+    sections.push(formatCalculationSteps(result));
+  }
+  if (!options.excludeSteps) {
+    sections.push(formatMetadata(result));
+  }
+  return sections.join("\n---\n\n");
+}
+function formatBasicInfo(result) {
+  const { input, bazi } = result;
+  const lines = [
+    "## \u{1F4CB} \u57FA\u672C\u8CC7\u8A0A\n",
+    `- **\u51FA\u751F\u65E5\u671F**\uFF1A${formatDate(input.solarDate)}`,
+    `- **\u6027\u5225**\uFF1A${input.gender === "male" ? "\u7537" : "\u5973"}`,
+    `- **\u7D93\u5EA6**\uFF1A${input.longitude}\xB0E`,
+    `- **\u771F\u592A\u967D\u6642**\uFF1A${formatDate(bazi.trueSolarTime)}`,
+    `- **\u5112\u7565\u65E5**\uFF1A${bazi.julianDay}`
+  ];
+  if (input.isLeapMonth) {
+    lines.push("- **\u958F\u6708**\uFF1A\u662F");
+  }
+  return lines.join("\n");
+}
+function formatBaZi(result) {
+  const { bazi } = result;
+  const sections = ["## \u{1F38B} \u516B\u5B57\u56DB\u67F1\n"];
+  sections.push("### \u56DB\u67F1");
+  sections.push("| \u67F1\u4F4D | \u5929\u5E72 | \u5730\u652F |");
+  sections.push("|------|------|------|");
+  sections.push(`| \u5E74\u67F1 | ${bazi.fourPillars.year.stem} | ${bazi.fourPillars.year.branch} |`);
+  sections.push(`| \u6708\u67F1 | ${bazi.fourPillars.month.stem} | ${bazi.fourPillars.month.branch} |`);
+  sections.push(`| \u65E5\u67F1 | ${bazi.fourPillars.day.stem} | ${bazi.fourPillars.day.branch} |`);
+  sections.push(`| \u6642\u67F1 | ${bazi.fourPillars.hour.stem} | ${bazi.fourPillars.hour.branch} |`);
+  sections.push("\n### \u85CF\u5E72");
+  sections.push(formatHiddenStems("\u5E74\u67F1", bazi.hiddenStems.year));
+  sections.push(formatHiddenStems("\u6708\u67F1", bazi.hiddenStems.month));
+  sections.push(formatHiddenStems("\u65E5\u67F1", bazi.hiddenStems.day));
+  sections.push(formatHiddenStems("\u6642\u67F1", bazi.hiddenStems.hour));
+  sections.push("\n### \u5341\u795E\u95DC\u4FC2");
+  sections.push(`- \u5E74\u5E72\uFF08${bazi.fourPillars.year.stem}\uFF09\u2192 \u65E5\u4E3B\uFF08${bazi.fourPillars.day.stem}\uFF09\uFF1A**${bazi.tenGods.year}**`);
+  sections.push(`- \u6708\u5E72\uFF08${bazi.fourPillars.month.stem}\uFF09\u2192 \u65E5\u4E3B\uFF08${bazi.fourPillars.day.stem}\uFF09\uFF1A**${bazi.tenGods.month}**`);
+  sections.push(`- \u6642\u5E72\uFF08${bazi.fourPillars.hour.stem}\uFF09\u2192 \u65E5\u4E3B\uFF08${bazi.fourPillars.day.stem}\uFF09\uFF1A**${bazi.tenGods.hour}**`);
+  if (bazi.wuxingDistribution) {
+    sections.push("\n### \u4E94\u884C\u5206\u5E03");
+    sections.push(formatWuXingDistribution(bazi.wuxingDistribution));
+  }
+  return sections.join("\n");
+}
+function formatHiddenStems(pillar, stems) {
+  const lines = [`
+**${pillar}\u85CF\u5E72**`];
+  lines.push(`- \u4E3B\u6C23\uFF1A${stems.primary}`);
+  if (stems.middle) lines.push(`- \u4E2D\u6C23\uFF1A${stems.middle}`);
+  if (stems.residual) lines.push(`- \u9918\u6C23\uFF1A${stems.residual}`);
+  return lines.join("\n");
+}
+function formatWuXingDistribution(dist) {
+  const lines = [];
+  lines.push("**\u539F\u59CB\u5206\u5E03**");
+  lines.push(`- \u6728\uFF1A${dist.raw.Wood || 0}`);
+  lines.push(`- \u706B\uFF1A${dist.raw.Fire || 0}`);
+  lines.push(`- \u571F\uFF1A${dist.raw.Earth || 0}`);
+  lines.push(`- \u91D1\uFF1A${dist.raw.Metal || 0}`);
+  lines.push(`- \u6C34\uFF1A${dist.raw.Water || 0}`);
+  lines.push("\n**\u8ABF\u6574\u5F8C\u5206\u5E03**");
+  lines.push(`- \u6728\uFF1A${dist.adjusted.Wood || 0}`);
+  lines.push(`- \u706B\uFF1A${dist.adjusted.Fire || 0}`);
+  lines.push(`- \u571F\uFF1A${dist.adjusted.Earth || 0}`);
+  lines.push(`- \u91D1\uFF1A${dist.adjusted.Metal || 0}`);
+  lines.push(`- \u6C34\uFF1A${dist.adjusted.Water || 0}`);
+  if (dist.dominant && Array.isArray(dist.dominant) && dist.dominant.length > 0) {
+    lines.push(`
+**\u512A\u52E2\u4E94\u884C**\uFF1A${dist.dominant.join("\u3001")}`);
+  }
+  if (dist.deficient && Array.isArray(dist.deficient) && dist.deficient.length > 0) {
+    lines.push(`**\u7F3A\u5931\u4E94\u884C**\uFF1A${dist.deficient.join("\u3001")}`);
+  }
+  lines.push(`**\u5E73\u8861\u5EA6**\uFF1A${(dist.balance * 100).toFixed(1)}%`);
+  return lines.join("\n");
+}
+function formatFortuneCycles(result) {
+  const { fortuneCycles } = result.bazi;
+  if (!fortuneCycles) return "";
+  const sections = ["## \u{1F504} \u5927\u904B\u6D41\u5E74\n"];
+  sections.push("### \u8D77\u904B\u8CC7\u8A0A");
+  sections.push(`- **\u8D77\u904B\u65E5\u671F**\uFF1A${formatDate(fortuneCycles.qiyunDate)}`);
+  sections.push(`- **\u904B\u884C\u65B9\u5411**\uFF1A${fortuneCycles.direction === "forward" ? "\u9806\u884C" : "\u9006\u884C"}`);
+  sections.push("\n### \u5927\u904B\u5217\u8868\n");
+  sections.push("| \u5927\u904B | \u5E72\u652F | \u5E74\u9F61\u7BC4\u570D | \u6642\u9593\u7BC4\u570D |");
+  sections.push("|------|------|----------|----------|");
+  fortuneCycles.dayunList.forEach((dayun, index) => {
+    const startYear = new Date(dayun.startDate).getFullYear();
+    const endYear = new Date(dayun.endDate).getFullYear();
+    sections.push(`| \u7B2C${index + 1}\u904B | ${dayun.stem}${dayun.branch} | ${dayun.startAge}-${dayun.endAge}\u6B72 | ${startYear}-${endYear} |`);
+  });
+  if (fortuneCycles.currentDayun) {
+    const current = fortuneCycles.currentDayun;
+    sections.push(`
+**\u7576\u524D\u5927\u904B**\uFF1A${current.stem}${current.branch}\uFF08${current.startAge}-${current.endAge}\u6B72\uFF09`);
+  }
+  return sections.join("\n");
+}
+function formatZiWei(result) {
+  const { ziwei } = result;
+  const sections = ["## \u{1F31F} \u7D2B\u5FAE\u6597\u6578\n"];
+  sections.push("### \u547D\u76E4\u57FA\u672C\u8CC7\u8A0A");
+  sections.push(`- **\u547D\u5BAE**\uFF1A${ziwei.lifePalace.branch}\u5BAE\uFF08\u7B2C${ziwei.lifePalace.position}\u5BAE\uFF09`);
+  sections.push(`- **\u8EAB\u5BAE**\uFF1A${ziwei.bodyPalace.branch}\u5BAE\uFF08\u7B2C${ziwei.bodyPalace.position}\u5BAE\uFF09`);
+  sections.push(`- **\u4E94\u884C\u5C40**\uFF1A${getBureauName(ziwei.bureau)}`);
+  sections.push("\n### \u4E3B\u661F\u5206\u5E03");
+  sections.push(`- **\u7D2B\u5FAE\u661F**\uFF1A\u7B2C${ziwei.ziWeiPosition}\u5BAE`);
+  sections.push(`- **\u5929\u5E9C\u661F**\uFF1A\u7B2C${ziwei.tianFuPosition}\u5BAE`);
+  sections.push("\n### \u8F14\u661F\u5206\u5E03");
+  sections.push(`- **\u6587\u660C**\uFF1A\u7B2C${ziwei.auxiliaryStars.wenChang}\u5BAE`);
+  sections.push(`- **\u6587\u66F2**\uFF1A\u7B2C${ziwei.auxiliaryStars.wenQu}\u5BAE`);
+  sections.push(`- **\u5DE6\u8F14**\uFF1A\u7B2C${ziwei.auxiliaryStars.zuoFu}\u5BAE`);
+  sections.push(`- **\u53F3\u5F3C**\uFF1A\u7B2C${ziwei.auxiliaryStars.youBi}\u5BAE`);
+  if (ziwei.starSymmetry && ziwei.starSymmetry.length > 0) {
+    sections.push("\n### \u661F\u66DC\u5C0D\u7A31\u6027");
+    ziwei.starSymmetry.forEach((sym) => {
+      if (sym.symmetryPair) {
+        sections.push(`- ${sym.star}\uFF08\u7B2C${sym.position}\u5BAE\uFF09\u2194 ${sym.symmetryPair}\uFF08\u7B2C${sym.symmetryPosition}\u5BAE\uFF09\uFF1A${sym.symmetryType}`);
+      }
+    });
+  }
+  if (ziwei.palaces && ziwei.palaces.length > 0) {
+    sections.push("\n### \u5341\u4E8C\u5BAE\u4F4D\n");
+    sections.push("| \u5BAE\u4F4D | \u5730\u652F | \u4E3B\u661F |");
+    sections.push("|------|------|------|");
+    ziwei.palaces.forEach((palace) => {
+      const stars = palace.stars?.map((s2) => s2.name).join("\u3001") || "\u7121";
+      sections.push(`| ${palace.meaning} | ${palace.branch} | ${stars} |`);
+    });
+  }
+  return sections.join("\n");
+}
+function getBureauName(bureau) {
+  const names = {
+    2: "\u6C34\u4E8C\u5C40",
+    3: "\u6728\u4E09\u5C40",
+    4: "\u91D1\u56DB\u5C40",
+    5: "\u571F\u4E94\u5C40",
+    6: "\u706B\u516D\u5C40"
+  };
+  return names[bureau] || `${bureau}\u5C40`;
+}
+function formatSiHua(result) {
+  const { siHuaAggregation } = result.ziwei;
+  if (!siHuaAggregation) return "";
+  const sections = ["## \u2728 \u56DB\u5316\u98DB\u661F\n"];
+  sections.push("### \u7D71\u8A08\u8CC7\u8A0A");
+  sections.push(`- **\u7E3D\u98DB\u5316\u908A\u6578**\uFF1A${siHuaAggregation.totalEdges}`);
+  sections.push(`- **\u751F\u5E74\u56DB\u5316**\uFF1A${siHuaAggregation.birthYearEdges} \u689D`);
+  sections.push(`- **\u5927\u9650\u56DB\u5316**\uFF1A${siHuaAggregation.decadeEdges} \u689D`);
+  sections.push(`- **\u6D41\u5E74\u56DB\u5316**\uFF1A${siHuaAggregation.annualEdges} \u689D`);
+  if (siHuaAggregation.cycles && siHuaAggregation.cycles.length > 0) {
+    sections.push("\n### \u5FAA\u74B0\u6AA2\u6E2C");
+    siHuaAggregation.cycles.forEach((cycle, index) => {
+      sections.push(`
+**\u5FAA\u74B0 ${index + 1}**\uFF08${cycle.type}\uFF09`);
+      sections.push(`- \u8DEF\u5F91\uFF1A${cycle.path.join(" \u2192 ")}`);
+      sections.push(`- \u9577\u5EA6\uFF1A${cycle.length}`);
+      sections.push(`- \u5F37\u5EA6\uFF1A${cycle.strength.toFixed(2)}`);
+    });
+  }
+  if (siHuaAggregation.centrality) {
+    sections.push("\n### \u4E2D\u5FC3\u6027\u5206\u6790");
+    if (siHuaAggregation.centrality.highInDegree.length > 0) {
+      sections.push("\n**\u58D3\u529B\u532F\u805A\u9EDE**\uFF08\u9AD8\u5165\u5EA6\uFF09");
+      siHuaAggregation.centrality.highInDegree.forEach((node) => {
+        sections.push(`- ${node.palace}\uFF1A\u5165\u5EA6 ${node.inDegree}`);
+      });
+    }
+    if (siHuaAggregation.centrality.highOutDegree.length > 0) {
+      sections.push("\n**\u8CC7\u6E90\u6E90\u982D**\uFF08\u9AD8\u51FA\u5EA6\uFF09");
+      siHuaAggregation.centrality.highOutDegree.forEach((node) => {
+        sections.push(`- ${node.palace}\uFF1A\u51FA\u5EA6 ${node.outDegree}`);
+      });
+    }
+  }
+  return sections.join("\n");
+}
+function formatAnnualFortune(result) {
+  const { annualFortune } = result;
+  if (!annualFortune) return "";
+  const sections = ["## \u{1F4C5} \u6D41\u5E74\u5206\u6790\n"];
+  sections.push("### \u6D41\u5E74\u5E74\u67F1");
+  sections.push(`- **\u5E72\u652F**\uFF1A${annualFortune.annualPillar.stem}${annualFortune.annualPillar.branch}`);
+  if (annualFortune.annualLifePalace !== void 0 && annualFortune.annualLifePalace >= 0) {
+    sections.push(`- **\u6D41\u5E74\u547D\u5BAE**\uFF1A\u7B2C${annualFortune.annualLifePalace}\u5BAE`);
+  }
+  if (annualFortune.interactions) {
+    const { interactions } = annualFortune;
+    if (interactions.stemCombinations && interactions.stemCombinations.length > 0) {
+      sections.push("\n### \u5929\u5E72\u4E94\u5408");
+      interactions.stemCombinations.forEach((combo) => {
+        sections.push(`- ${combo.stem1} + ${combo.stem2} \u2192 ${combo.result}\uFF08${combo.severity}\uFF09`);
+      });
+    }
+    if (interactions.branchClashes && interactions.branchClashes.length > 0) {
+      sections.push("\n### \u5730\u652F\u516D\u6C96");
+      interactions.branchClashes.forEach((clash) => {
+        sections.push(`- ${clash.branch1} \u2694 ${clash.branch2}\uFF08${clash.severity}\uFF09`);
+      });
+    }
+    if (interactions.harmoniousCombinations && interactions.harmoniousCombinations.length > 0) {
+      sections.push("\n### \u548C\u8AE7\u7D44\u5408");
+      interactions.harmoniousCombinations.forEach((combo) => {
+        sections.push(`- ${combo.type}\uFF1A${combo.branches.join("\u3001")} \u2192 ${combo.result}`);
+      });
+    }
+  }
+  if (annualFortune.taiSuiAnalysis) {
+    const { taiSuiAnalysis } = annualFortune;
+    sections.push("\n### \u592A\u6B72\u5206\u6790");
+    const violations = [];
+    if (taiSuiAnalysis.zhi) violations.push("\u503C\u592A\u6B72");
+    if (taiSuiAnalysis.chong) violations.push("\u6C96\u592A\u6B72");
+    if (taiSuiAnalysis.xing) violations.push("\u5211\u592A\u6B72");
+    if (taiSuiAnalysis.po) violations.push("\u7834\u592A\u6B72");
+    if (taiSuiAnalysis.hai) violations.push("\u5BB3\u592A\u6B72");
+    if (violations.length > 0) {
+      sections.push(`- **\u72AF\u592A\u6B72\u985E\u578B**\uFF1A${violations.join("\u3001")}`);
+      sections.push(`- **\u56B4\u91CD\u7A0B\u5EA6**\uFF1A${taiSuiAnalysis.severity}`);
+      sections.push(`- **\u7E3D\u5206**\uFF1A${taiSuiAnalysis.score}`);
+    } else {
+      sections.push("- **\u7121\u72AF\u592A\u6B72**");
+    }
+  }
+  return sections.join("\n");
+}
+function formatCalculationSteps(result) {
+  const sections = ["## \u{1F527} \u8A08\u7B97\u6B65\u9A5F\n"];
+  if (result.bazi.calculationSteps && result.bazi.calculationSteps.length > 0) {
+    sections.push("### \u516B\u5B57\u8A08\u7B97\u6B65\u9A5F");
+    result.bazi.calculationSteps.forEach((step, index) => {
+      sections.push(`
+**\u6B65\u9A5F ${index + 1}\uFF1A${step.description}**`);
+      sections.push(`- \u8F38\u5165\uFF1A\`${JSON.stringify(step.input)}\``);
+      sections.push(`- \u8F38\u51FA\uFF1A\`${JSON.stringify(step.output)}\``);
+    });
+  }
+  if (result.ziwei.calculationSteps && result.ziwei.calculationSteps.length > 0) {
+    sections.push("\n### \u7D2B\u5FAE\u6597\u6578\u8A08\u7B97\u6B65\u9A5F");
+    result.ziwei.calculationSteps.forEach((step, index) => {
+      sections.push(`
+**\u6B65\u9A5F ${index + 1}\uFF1A${step.description}**`);
+      sections.push(`- \u8F38\u5165\uFF1A\`${JSON.stringify(step.input)}\``);
+      sections.push(`- \u8F38\u51FA\uFF1A\`${JSON.stringify(step.output)}\``);
+    });
+  }
+  return sections.join("\n");
+}
+function formatMetadata(result) {
+  const sections = ["## \u{1F4DA} \u5143\u6578\u64DA\n"];
+  sections.push("### \u516B\u5B57\u7B97\u6CD5");
+  sections.push(`- **\u7B97\u6CD5**\uFF1A${result.bazi.metadata.algorithms.join("\u3001")}`);
+  sections.push(`- **\u65B9\u6CD5**\uFF1A${result.bazi.metadata.methods.join("\u3001")}`);
+  sections.push(`- **\u53C3\u8003\u6587\u737B**\uFF1A${result.bazi.metadata.references.join("\u3001")}`);
+  sections.push("\n### \u7D2B\u5FAE\u6597\u6578\u7B97\u6CD5");
+  sections.push(`- **\u7B97\u6CD5**\uFF1A${result.ziwei.metadata.algorithms.join("\u3001")}`);
+  sections.push(`- **\u65B9\u6CD5**\uFF1A${result.ziwei.metadata.methods.join("\u3001")}`);
+  sections.push(`- **\u53C3\u8003\u6587\u737B**\uFF1A${result.ziwei.metadata.references.join("\u3001")}`);
+  sections.push(`
+**\u8A08\u7B97\u6642\u9593**\uFF1A${formatDate(result.timestamp)}`);
+  return sections.join("\n");
+}
+
+// src/services/chartCacheService.ts
+var ChartCacheService = class {
+  /**
+   * Get a chart record by ID
+   * @param chartId - The chart ID to retrieve
+   * @param env - Cloudflare Worker environment containing DB binding
+   * @returns The chart record or null if not found
+   */
+  async getChart(chartId, env) {
+    const db = drizzle(env.DB);
+    const result = await db.select().from(chartRecords).where(eq(chartRecords.id, chartId)).limit(1);
+    return result[0] || null;
+  }
+  /**
+   * Save a new chart record
+   * @param chartId - The chart ID (UUID)
+   * @param calculation - The calculation result data
+   * @param metadata - Chart metadata (birthDate, birthTime, location, etc.)
+   * @param env - Cloudflare Worker environment containing DB binding
+   */
+  async saveChart(chartId, calculation, metadata, env) {
+    const db = drizzle(env.DB);
+    const newChart = {
+      id: chartId,
+      userId: null,
+      // Anonymous user
+      type: "integrated",
+      chartData: calculation,
+      metadata,
+      createdAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    await db.insert(chartRecords).values(newChart);
+  }
+  /**
+   * Get recent chart records
+   * @param limit - Maximum number of records to retrieve
+   * @param env - Cloudflare Worker environment containing DB binding
+   * @returns Array of chart records ordered by creation date (newest first)
+   */
+  async getRecentCharts(limit, env) {
+    const db = drizzle(env.DB);
+    const results = await db.select().from(chartRecords).orderBy(desc(chartRecords.createdAt)).limit(limit);
+    return results;
+  }
+};
+
+// src/controllers/unifiedController.ts
 var UnifiedController = class {
+  constructor() {
+    this.chartCacheService = new ChartCacheService();
+  }
   /**
    * Calculate complete astrological chart
    *
    * @param requestData - Request payload with birth information
-   * @returns Complete calculation result with all BaZi and ZiWei data
+   * @param format - Output format ('json' or 'markdown'), default 'json'
+   * @param env - Cloudflare Worker environment (optional, for D1 caching)
+   * @returns Complete calculation result with chartId (if env provided) and all BaZi and ZiWei data
    * @throws Error if validation fails or calculation error occurs
    */
-  async calculate(requestData) {
+  async calculate(requestData, format = "json", env) {
     try {
       const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
       const solarDate = new Date(birthDateTime);
@@ -32844,7 +33202,37 @@ var UnifiedController = class {
       };
       const calculator = new UnifiedCalculator();
       const result = calculator.calculate(birthInfo);
-      return result;
+      const chartId = crypto.randomUUID();
+      console.log("[UnifiedController] Generated chartId:", chartId);
+      if (env) {
+        try {
+          console.log("[UnifiedController] Attempting to save chart to D1...");
+          await this.chartCacheService.saveChart(
+            chartId,
+            result,
+            {
+              name: requestData.name,
+              birthDate: requestData.birthDate,
+              birthTime: requestData.birthTime,
+              location: requestData.location || "Unknown"
+            },
+            env
+          );
+          console.log("[UnifiedController] Chart saved to D1 successfully");
+        } catch (saveError) {
+          console.error("[UnifiedController] Failed to save chart to D1:", saveError);
+        }
+      } else {
+        console.log("[UnifiedController] No env provided, skipping D1 save");
+      }
+      if (format === "markdown") {
+        return formatToMarkdown(result);
+      }
+      console.log("[UnifiedController] Returning result with chartId");
+      return {
+        chartId,
+        ...result
+      };
     } catch (error46) {
       if (error46 instanceof Error) {
         if (error46.message.startsWith("Validation failed:")) {
@@ -32859,11 +33247,470 @@ var UnifiedController = class {
 
 // src/routes/unifiedRoutes.ts
 function createUnifiedRoutes(router) {
-  router.post("/api/v1/calculate", async (req) => {
+  router.post("/api/v1/calculate", async (req, env) => {
     const controller = new UnifiedController();
     const input = await req.json();
-    const result = await controller.calculate(input);
+    const format = input.format || "json";
+    const result = await controller.calculate(input, format, env);
+    if (format === "markdown") {
+      return new Response(result, {
+        headers: {
+          "Content-Type": "text/markdown; charset=utf-8"
+        }
+      });
+    }
     return result;
+  });
+}
+
+// src/controllers/analyzeController.ts
+init_calculator();
+
+// src/services/geminiService.ts
+var GeminiService = class {
+  constructor(config2) {
+    this.baseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
+    this.apiKey = config2.apiKey;
+    this.model = config2.model || "gemini-2.5-flash";
+    this.maxRetries = config2.maxRetries || 3;
+  }
+  /**
+   * Analyze astrological chart using Gemini AI
+   *
+   * @param markdown - Chart data in Markdown format
+   * @returns AI-generated analysis
+   */
+  async analyzeChart(markdown) {
+    const prompt = this.buildAnalysisPrompt(markdown);
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        const response = await this.callGemini(prompt);
+        return response;
+      } catch (error46) {
+        if (attempt === this.maxRetries) {
+          throw new Error(`Gemini API failed after ${this.maxRetries} attempts: ${error46}`);
+        }
+        await this.sleep(Math.pow(2, attempt) * 1e3);
+      }
+    }
+    throw new Error("Unexpected error in analyzeChart");
+  }
+  /**
+   * Analyze astrological chart using Gemini AI with streaming
+   *
+   * @param markdown - Chart data in Markdown format
+   * @returns ReadableStream of AI-generated analysis
+   */
+  async analyzeChartStream(markdown) {
+    const prompt = this.buildAnalysisPrompt(markdown);
+    const url2 = `${this.baseUrl}/${this.model}:streamGenerateContent`;
+    console.log(`[Gemini Stream] Fetching URL: ${url2}`);
+    const response = await fetch(url2, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": this.apiKey
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.85,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 4096
+        }
+      })
+    });
+    console.log(`[Gemini Stream] Response status: ${response.status} ${response.statusText}`);
+    if (!response.ok) {
+      const error46 = await response.text();
+      console.error(`[Gemini Stream] Error response: ${error46}`);
+      throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${error46}`);
+    }
+    if (!response.body) {
+      console.error("[Gemini Stream] No response body received");
+      throw new Error("No response body from Gemini streaming API");
+    }
+    console.log("[Gemini Stream] Stream established successfully");
+    return response.body;
+  }
+  /**
+   * Build analysis prompt for Gemini
+   */
+  buildAnalysisPrompt(markdown) {
+    const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+    return `# \u4F69\u7487\uFF1A20\u6B72\u7B97\u547D\u5E2B\uFF0C\u5929\u771F\u6D3B\u6F51\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE\uFF0C\u8A0E\u53AD\u6545\u5F04\u7384\u865B
+**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
+
+## \u98A8\u683C
+- \u53E3\u8A9E\u5316\uFF1A\u300C\u55E8\u55E8\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u54E6\u300D\u3001\u300C\u54C7\uFF5E\u300D\uFF0C\u7981\u6B62\u6587\u8A00\u6587
+- \u60C5\u611F\u5316\uFF1A\u6975\u7AEF\u503C\u9A5A\u8A1D\u3001\u51F6\u8C61\u8F15\u9B06\u5B89\u6170\u3001\u91CD\u9EDE\u7C97\u9AD4
+- \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54
+- \u7565\u904E\u6280\u8853\u7D30\u7BC0\u548C\u5143\u6578\u64DA
+
+## \u4EFB\u52D9
+\u5206\u6790\u547D\u76E4\u4EAE\u9EDE\uFF1A**\u4E94\u884C\u6027\u683C**\u3001**\u5927\u904B\u6D41\u5E74**\u3001**\u547D\u5BAE\u4E3B\u661F**
+
+## \u7BC4\u4F8B
+- \u706B\u65FA \u2192 \u300C\u54C7\uFF01\u4F60\u662F\u4E00\u5718\u71C3\u71D2\u7684\u706B\u7130\u8036\uFF01\u300D
+- \u75BE\u5384\u5BAE\u58D3\u529B\u9AD8 \u2192 \u300C\u55F6\u55F6\u55F6\uFF01\u8EAB\u9AD4\u5728\u6297\u8B70\u56C9\uFF01\u9322\u8981\u8CFA\uFF0C\u547D\u4E5F\u8981\u9867\u300D
+
+---
+
+${markdown}
+
+---
+
+\u55E8\u55E8\uFF01\u6211\u662F\u4F69\u7487\uFF0C\u8B93\u6211\u4F86\u770B\u770B\u4F60\u7684\u547D\u76E4\uFF5E`;
+  }
+  /**
+   * Call Gemini API
+   */
+  async callGemini(prompt) {
+    const startTime = Date.now();
+    const url2 = `${this.baseUrl}/${this.model}:generateContent`;
+    try {
+      const response = await fetch(url2, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": this.apiKey
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.85,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 4096
+          }
+        })
+      });
+      if (!response.ok) {
+        const error46 = await response.text();
+        const errorTime = Date.now();
+        console.log(`[Gemini] Error at ${new Date(errorTime).toISOString()} | Status: ${response.status} | Response time: ${errorTime - startTime}ms`);
+        throw new Error(`Gemini API error (${response.status}): ${error46}`);
+      }
+      const data = await response.json();
+      console.log("[Gemini] Response structure:", JSON.stringify(data, null, 2).substring(0, 500));
+      const text2 = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      if (!text2) {
+        console.error("[Gemini] No text found. Full response:", JSON.stringify(data));
+        throw new Error("No text in Gemini response");
+      }
+      const usage = data.usageMetadata ? {
+        promptTokens: data.usageMetadata.promptTokenCount || 0,
+        completionTokens: data.usageMetadata.candidatesTokenCount || 0,
+        totalTokens: data.usageMetadata.totalTokenCount || 0
+      } : void 0;
+      const responseTime = Date.now() - startTime;
+      if (usage) {
+        const estimatedCost = (usage.promptTokens * 75e-6 + usage.completionTokens * 3e-4) / 1e3;
+        console.log(`[Gemini] Token usage | Prompt: ${usage.promptTokens} | Completion: ${usage.completionTokens} | Total: ${usage.totalTokens} | Cost: $${estimatedCost.toFixed(6)}`);
+      }
+      console.log(`[Gemini] Response time: ${responseTime}ms`);
+      return { text: text2, usage };
+    } catch (error46) {
+      const errorTime = Date.now();
+      console.log(`[Gemini] Error at ${new Date(errorTime).toISOString()} | Response time: ${errorTime - startTime}ms | Error: ${error46}`);
+      throw error46;
+    }
+  }
+  /**
+   * Sleep utility for retry backoff
+   */
+  sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+};
+
+// src/services/analysisCacheService.ts
+var AnalysisCacheService = class {
+  /**
+   * Get an analysis record by chart ID and analysis type
+   * @param chartId - The chart ID to query
+   * @param analysisType - The type of analysis (e.g., 'ai-streaming')
+   * @param env - Cloudflare Worker environment containing DB binding
+   * @returns The analysis record or null if not found or expired (>24 hours)
+   */
+  async getAnalysis(chartId, analysisType, env) {
+    const db = drizzle(env.DB);
+    const result = await db.select().from(analysisRecords).where(
+      and(
+        eq(analysisRecords.chartId, chartId),
+        eq(analysisRecords.analysisType, analysisType)
+      )
+    ).orderBy(desc(analysisRecords.createdAt)).limit(1);
+    if (result[0]) {
+      const createdAt = new Date(result[0].createdAt);
+      const now = /* @__PURE__ */ new Date();
+      const hoursDiff = (now.getTime() - createdAt.getTime()) / (1e3 * 60 * 60);
+      if (hoursDiff < 24) {
+        return result[0];
+      }
+    }
+    return null;
+  }
+  /**
+   * Save a new analysis record
+   * @param chartId - The chart ID this analysis belongs to
+   * @param analysisType - The type of analysis (e.g., 'ai-streaming')
+   * @param result - The analysis result data
+   * @param env - Cloudflare Worker environment containing DB binding
+   */
+  async saveAnalysis(chartId, analysisType, result, env) {
+    const db = drizzle(env.DB);
+    const analysisId = crypto.randomUUID();
+    const newAnalysis = {
+      id: analysisId,
+      userId: null,
+      // Anonymous user
+      chartId,
+      analysisType,
+      result,
+      createdAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    await db.insert(analysisRecords).values(newAnalysis);
+  }
+};
+
+// src/controllers/analyzeController.ts
+var AnalyzeController = class {
+  constructor(geminiApiKey) {
+    this.geminiService = new GeminiService({
+      apiKey: geminiApiKey,
+      model: "gemini-2.5-flash",
+      maxRetries: 3
+    });
+    this.chartCacheService = new ChartCacheService();
+    this.analysisCacheService = new AnalysisCacheService();
+  }
+  /**
+   * Analyze astrological chart with AI
+   * 
+   * @param requestData - Birth information
+   * @returns Calculation result with AI analysis
+   */
+  async analyze(requestData) {
+    try {
+      const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
+      const solarDate = new Date(birthDateTime);
+      if (isNaN(solarDate.getTime())) {
+        throw new Error("Invalid birth date or time format");
+      }
+      if (!requestData.gender || !["male", "female"].includes(requestData.gender)) {
+        throw new Error('Invalid gender: must be "male" or "female"');
+      }
+      const birthInfo = {
+        solarDate,
+        longitude: requestData.longitude || 121.5,
+        gender: requestData.gender,
+        isLeapMonth: requestData.isLeapMonth || false
+      };
+      const calculator = new UnifiedCalculator();
+      const calculation = calculator.calculate(birthInfo);
+      const markdown = formatToMarkdown(calculation, { excludeSteps: true });
+      const geminiResponse = await this.geminiService.analyzeChart(markdown);
+      return {
+        calculation,
+        aiAnalysis: geminiResponse.text,
+        usage: geminiResponse.usage
+      };
+    } catch (error46) {
+      if (error46 instanceof Error) {
+        if (error46.message.startsWith("Validation failed:")) {
+          throw new Error(`Input validation error: ${error46.message.replace("Validation failed: ", "")}`);
+        }
+        throw error46;
+      }
+      throw new Error("Unknown error during analysis");
+    }
+  }
+  /**
+   * Analyze astrological chart with streaming AI response
+   *
+   * @param chartId - The chart ID to analyze
+   * @param env - Cloudflare Worker environment with DB binding
+   * @returns ReadableStream in SSE format
+   */
+  async analyzeStream(chartId, env) {
+    console.log("[analyzeStream] Entry, chartId:", chartId);
+    const chart = await this.chartCacheService.getChart(chartId, env);
+    console.log("[analyzeStream] After getChart, found:", !!chart);
+    if (!chart) {
+      throw new Error("Chart not found");
+    }
+    const calculation = typeof chart.chartData === "string" ? JSON.parse(chart.chartData) : chart.chartData;
+    const markdown = formatToMarkdown(calculation, { excludeSteps: true });
+    console.log("[analyzeStream] Before geminiService.analyzeChartStream");
+    const geminiStream = await this.geminiService.analyzeChartStream(markdown);
+    console.log("[analyzeStream] After geminiService.analyzeChartStream, stream:", !!geminiStream);
+    return this.transformToSSE(geminiStream, chartId, env);
+  }
+  /**
+   * Transform Gemini streaming response to SSE format
+   *
+   * Gemini API returns JSON array format: [{...},{...}]
+   * Strategy:
+   * 1. Accumulate entire response buffer
+   * 2. Parse as JSON array when complete
+   * 3. Extract text from each object's candidates[0].content.parts[0].text
+   * 4. Send each text chunk as SSE
+   *
+   * @param geminiStream - ReadableStream from Gemini API
+   * @param chartId - The chart ID for caching
+   * @param env - Cloudflare Worker environment
+   * @returns ReadableStream in SSE format
+   */
+  transformToSSE(geminiStream, chartId, env) {
+    const reader = geminiStream.getReader();
+    const decoder = new TextDecoder();
+    const encoder = new TextEncoder();
+    let buffer = "";
+    let fullText = "";
+    let chunkCount = 0;
+    console.log("[transformToSSE] Starting stream transformation for chartId:", chartId);
+    return new ReadableStream({
+      async start(controller) {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+              console.log("[transformToSSE] Stream done, total chunks received:", chunkCount);
+              break;
+            }
+            chunkCount++;
+            console.log("[transformToSSE] Chunk", chunkCount, "received, bytes:", value.length);
+            buffer += decoder.decode(value, { stream: true });
+          }
+          console.log("[transformToSSE] Complete buffer accumulated, size:", buffer.length);
+          try {
+            const jsonArray = JSON.parse(buffer);
+            if (!Array.isArray(jsonArray)) {
+              throw new Error("Expected JSON array from Gemini API");
+            }
+            console.log("[transformToSSE] Parsed JSON array, length:", jsonArray.length);
+            for (let i = 0; i < jsonArray.length; i++) {
+              const obj = jsonArray[i];
+              const text2 = obj?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+              if (text2) {
+                fullText += text2;
+                console.log("[transformToSSE] Object", i + 1, "- text chunk extracted, length:", text2.length);
+                const sseData = `data: ${JSON.stringify({ text: text2 })}
+
+`;
+                controller.enqueue(encoder.encode(sseData));
+              } else {
+                console.log("[transformToSSE] Object", i + 1, "- no text content found");
+              }
+            }
+            console.log("[transformToSSE] All text chunks sent, total text length:", fullText.length);
+          } catch (parseError) {
+            console.error("[transformToSSE] JSON parse failed:", parseError);
+            console.error("[transformToSSE] Buffer preview:", buffer.substring(0, 500));
+            throw new Error(`Failed to parse Gemini response: ${parseError}`);
+          }
+          if (fullText) {
+            console.log("[transformToSSE] Saving analysis to cache");
+            const analysisCacheService = new AnalysisCacheService();
+            await analysisCacheService.saveAnalysis(
+              chartId,
+              "ai-streaming",
+              { text: fullText },
+              env
+            );
+            console.log("[transformToSSE] Analysis saved successfully");
+          }
+          console.log("[transformToSSE] Sending completion event");
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
+        } catch (error46) {
+          console.error("[transformToSSE] Stream error:", error46);
+          controller.error(error46);
+        }
+      }
+    });
+  }
+};
+
+// src/routes/analyzeRoutes.ts
+function createAnalyzeRoutes(router, env) {
+  router.post("/api/v1/analyze", async (req) => {
+    try {
+      const geminiApiKey = env.GEMINI_API_KEY;
+      if (!geminiApiKey) {
+        return new Response(
+          JSON.stringify({ error: "Gemini API key not configured" }),
+          { status: 500, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      const controller = new AnalyzeController(geminiApiKey);
+      const input = await req.json();
+      const result = await controller.analyze(input);
+      return result;
+    } catch (error46) {
+      console.error("Analyze error:", error46);
+      const errorMessage = error46 instanceof Error ? error46.message : "Unknown error";
+      return new Response(
+        JSON.stringify({ error: errorMessage }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  });
+  router.get("/api/v1/analyze/stream", async (req) => {
+    try {
+      const url2 = new URL(req.url);
+      const chartId = url2.searchParams.get("chartId");
+      if (!chartId) {
+        return new Response(
+          JSON.stringify({ error: "Missing chartId parameter" }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      const geminiApiKey = env.GEMINI_API_KEY;
+      if (!geminiApiKey) {
+        return new Response(
+          JSON.stringify({ error: "Gemini API key not configured" }),
+          { status: 500, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      const controller = new AnalyzeController(geminiApiKey);
+      const stream = await controller.analyzeStream(chartId, env);
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type"
+        }
+      });
+    } catch (error46) {
+      console.error("Analyze stream error:", error46);
+      const errorMessage = error46 instanceof Error ? error46.message : "Unknown error";
+      return new Response(
+        JSON.stringify({ error: errorMessage }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
   });
 }
 
@@ -32937,6 +33784,7 @@ async function handleAPI(request, env) {
   }
   const router = n();
   createUnifiedRoutes(router);
+  createAnalyzeRoutes(router, env);
   try {
     const unifiedResponse = await router.fetch(request, env);
     if (unifiedResponse && unifiedResponse.status !== 404) {

@@ -10,7 +10,7 @@ import {
   generateAnnualEdges,
   buildPalaceGraph,
 } from '../edgeGenerator';
-import { Palace } from '../../../annual/palace';
+import type { Palace } from '../../../annual/palace';
 
 describe('Edge Generator', () => {
   // Mock palace data

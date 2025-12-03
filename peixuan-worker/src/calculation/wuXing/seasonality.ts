@@ -5,7 +5,7 @@
  * 基於: 八字命理後端模組研究.md §2.3.1
  */
 
-import { WuXing } from '../core/wuXing/relations';
+import type { WuXing } from '../core/wuXing/relations';
 
 export type Season = 'Spring' | 'Summer' | 'Autumn' | 'Winter' | 'Transitional';
 

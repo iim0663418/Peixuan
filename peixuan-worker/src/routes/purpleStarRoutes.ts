@@ -1,4 +1,4 @@
-import { Router } from 'itty-router';
+import type { Router } from 'itty-router';
 import { ChartController } from '../controllers/chartController';
 
 /**

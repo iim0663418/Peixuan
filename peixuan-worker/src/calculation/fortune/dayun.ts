@@ -3,7 +3,8 @@
  * Implements 10-year fortune cycle generation and current cycle detection
  */
 
-import { GanZhi, indexToGanZhi, ganZhiToIndex } from '../core/ganZhi/conversion';
+import type { GanZhi} from '../core/ganZhi/conversion';
+import { indexToGanZhi, ganZhiToIndex } from '../core/ganZhi/conversion';
 
 /**
  * DaYun (大運) - 10-year fortune cycle
@@ -53,7 +54,7 @@ export function generateDaYunList(
   birthDate: Date,
   qiyunDate: Date,
   direction: DaYunDirection,
-  count: number = 10
+  count = 10
 ): DaYun[] {
   const cycles: DaYun[] = [];
 

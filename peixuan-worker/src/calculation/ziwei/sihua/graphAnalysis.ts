@@ -5,7 +5,7 @@
  * Reference: doc/SIHUA_IMPLEMENTATION_PLAN.md §3 Task 3
  */
 
-import { PalaceGraph, SiHuaCycle, CentralityNode } from './types';
+import type { PalaceGraph, SiHuaCycle, CentralityNode } from './types';
 
 /**
  * Palace names array (0-11 indices)
@@ -40,14 +40,14 @@ function calculateCycleSeverity(
 
   // Ji (忌) cycles are most severe
   if (sihuaType === '忌') {
-    if (cycleLength >= 4) return 'high';
-    if (cycleLength === 3) return 'medium';
+    if (cycleLength >= 4) {return 'high';}
+    if (cycleLength === 3) {return 'medium';}
     return 'low';
   }
 
   // Other types
-  if (cycleLength >= 5) return 'high';
-  if (cycleLength >= 3) return 'medium';
+  if (cycleLength >= 5) {return 'high';}
+  if (cycleLength >= 3) {return 'medium';}
   return 'low';
 }
 
@@ -107,7 +107,7 @@ export function detectCycles(
     const filteredEdges = edges.filter((e) => e.sihuaType === sihuaType);
 
     for (const edge of filteredEdges) {
-      const target = edge.target;
+      const {target} = edge;
 
       if (!visited.has(target)) {
         // Continue DFS

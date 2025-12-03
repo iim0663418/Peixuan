@@ -72,7 +72,7 @@ function calculateEquationOfTime(date: Date): number {
 export function calculateTrueSolarTime(
   clockTime: Date,
   longitude: number,
-  standardMeridian: number = 120
+  standardMeridian = 120
 ): TrueSolarTimeResult {
   // Longitude correction: (L_local - L_std) × 4 minutes
   const longitudeCorrection = (longitude - standardMeridian) * 4;

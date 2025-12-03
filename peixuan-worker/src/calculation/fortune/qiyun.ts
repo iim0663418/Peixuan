@@ -97,14 +97,14 @@ function findNearestJie(birthDate: Date, direction: FortuneDirection): Date {
       throw new Error('Cannot find next Jie solar term');
     }
     return nextJie;
-  } else {
+  } 
     // Find last Jie before birth
     const prevJie = allJieDates.reverse().find(jie => jie < birthDate);
     if (!prevJie) {
       throw new Error('Cannot find previous Jie solar term');
     }
     return prevJie;
-  }
+  
 }
 
 /**

@@ -13,7 +13,10 @@
     </el-card>
 
     <el-card v-else-if="error" class="result-card error">
-      <el-alert type="error" :title="error" show-icon :closable="false" />
+      <el-alert
+type="error"
+:title="error" show-icon :closable="false"
+/>
     </el-card>
 
     <el-card v-else-if="result" class="result-card">
@@ -27,13 +30,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import UnifiedInputForm from '../components/UnifiedInputForm.vue';
 import UnifiedResultView from '../components/UnifiedResultView.vue';
 import unifiedApiService, {
   type CalculationResult,
 } from '../services/unifiedApiService';
+import { useChartStore } from '../stores/chartStore';
+
+const chartStore = useChartStore();
 
 const loading = ref(false);
 const error = ref('');
@@ -46,6 +52,21 @@ const handleSubmit = async (birthInfo: any) => {
 
   try {
     result.value = await unifiedApiService.calculate(birthInfo);
+
+    // Save to chartStore
+    const chartId = `chart_${Date.now()}`;
+    chartStore.setCurrentChart({
+      chartId,
+      calculation: result.value,
+      metadata: {
+        birthDate: birthInfo.birthDate,
+        birthTime: birthInfo.birthTime,
+        gender: birthInfo.gender,
+        longitude: birthInfo.longitude,
+      },
+      createdAt: new Date(),
+    });
+
     ElMessage.success('計算完成');
   } catch (err: any) {
     error.value = err.message || '計算失敗，請稍後再試';
@@ -54,6 +75,10 @@ const handleSubmit = async (birthInfo: any) => {
     loading.value = false;
   }
 };
+
+onMounted(() => {
+  chartStore.loadFromLocalStorage();
+});
 </script>
 
 <style scoped>

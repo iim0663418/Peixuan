@@ -5,7 +5,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { UnifiedCalculator } from '../calculator';
-import { BirthInfo } from '../../types';
+import type { BirthInfo } from '../../types';
 
 describe('UnifiedCalculator', () => {
   const calculator = new UnifiedCalculator();

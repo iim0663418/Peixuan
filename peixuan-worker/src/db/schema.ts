@@ -1,7 +1,7 @@
 import { sql, relations } from 'drizzle-orm';
 import { sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import type { z } from 'zod';
 
 // ---- Users Table ----
 export const users = sqliteTable('users', {

@@ -45,7 +45,7 @@ export function findTimeStars(hourBranch: number): TimeStars {
   // 文昌: Start at 戌 (index 10) for 子時, move counterclockwise
   // Formula: (10 - hourBranch) mod 12
   let wenChang = (10 - hourBranch) % 12;
-  if (wenChang < 0) wenChang += 12;
+  if (wenChang < 0) {wenChang += 12;}
 
   // 文曲: Start at 辰 (index 4) for 子時, move clockwise
   // Formula: (4 + hourBranch) mod 12
@@ -82,7 +82,7 @@ export function findMonthStars(lunarMonth: number): MonthStars {
   // 右弼: Start at 戌 (index 10) for month 1, move counterclockwise
   // Formula: (10 - monthIndex) mod 12
   let youBi = (10 - monthIndex) % 12;
-  if (youBi < 0) youBi += 12;
+  if (youBi < 0) {youBi += 12;}
 
   return { zuoFu, youBi };
 }

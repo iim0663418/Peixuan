@@ -81,11 +81,11 @@ export function analyzeTaiSui(
 
   // 收集犯太歲類型
   const types: string[] = [];
-  if (zhi) types.push('值太歲');
-  if (chong) types.push('沖太歲');
-  if (xing.hasXing) types.push(`刑太歲（${xing.description}）`);
-  if (po) types.push('破太歲');
-  if (hai) types.push('害太歲');
+  if (zhi) {types.push('值太歲');}
+  if (chong) {types.push('沖太歲');}
+  if (xing.hasXing) {types.push(`刑太歲（${xing.description}）`);}
+  if (po) {types.push('破太歲');}
+  if (hai) {types.push('害太歲');}
 
   // 計算綜合嚴重度
   const severity = calculateSeverity(zhi, chong, xing.hasXing, po, hai);
@@ -131,16 +131,16 @@ function calculateSeverity(
 ): 'none' | 'low' | 'medium' | 'high' | 'critical' {
   let score = 0;
   
-  if (zhi) score += 3;
-  if (chong) score += 3;
-  if (xing) score += 2;
-  if (po) score += 1;
-  if (hai) score += 1;
+  if (zhi) {score += 3;}
+  if (chong) {score += 3;}
+  if (xing) {score += 2;}
+  if (po) {score += 1;}
+  if (hai) {score += 1;}
 
-  if (score === 0) return 'none';
-  if (score <= 2) return 'low';
-  if (score <= 4) return 'medium';
-  if (score <= 6) return 'high';
+  if (score === 0) {return 'none';}
+  if (score <= 2) {return 'low';}
+  if (score <= 4) {return 'medium';}
+  if (score <= 6) {return 'high';}
   return 'critical';
 }
 

@@ -22,6 +22,7 @@
 - 大運計歲：使用真實歲數（startAge/endAge），從出生日期開始計算
 - 流年模組: `getAnnualPillar`/`hasPassedLiChun`（立春界、year-4 mod 60）、`locateAnnualLifePalace`/`rotateAnnualPalaces`（地支定位+意義旋轉）、`detectStemCombinations`/`detectBranchClashes`/`detectHarmoniousCombinations`（五合/六沖/三合三會+大運）
 - Hybrid API: Unified (core) + Legacy (palaces) 並行，`/api/v1/purple-star/calculate` 返回 PurpleStarApiResponse；`/api/v1/calculate` 返回完整 CalculationResult（前端 UnifiedView/UnifiedResultView 已接入）
+- AI/Markdown 輸出: `/api/v1/calculate` 支援 `format=markdown`（markdownFormatter 完整覆蓋輸出）；`/api/v1/analyze` 產生計算+AI 分析（Gemini 2.5 Flash）；`/api/v1/analyze/stream` SSE 串流輸出，chartId + D1 chart/analysis 快取；Prompt 口語化佩璇風格，Max Output Tokens 2048，加入 currentYear 防止年份誤判
 - Worker 測試：對齊 `/health` 端點並啟用 `nodejs_compat`；保留單元測試 33 項，暫停 workerd 集成測試
 
 ## 架構決策
@@ -32,11 +33,11 @@
 - 前端八字計算 + 後端紫微計算
 
 ## 程式碼品質基線
-- **ESLint 當前狀態**: 22 warnings / 0 errors (更新於 2025-12-01 10:46)
-  - 警告: 22（6 any、1 complexity、其餘風格類；prettier 已清）
-  - 可自動修復: Prettier 警告已清；剩餘警告待後續批次
-  - 處理策略: 警告後置，先補測試與四化飛星/流年太歲缺口
-- **改善進度**: 從 1,142 → 22 (-98.1%)；錯誤 725 → 0 (-100%)、警告 417 → 22 (-94.7%)
+- **ESLint 當前狀態**: 前端 6 errors / 120 warnings；後端 3597 issues（新建配置）
+  - 前端：233 → 126 總問題（12 errors → 6 errors）；剩餘多為 @typescript-eslint/no-explicit-any/風格類
+  - 後端：新增 ESLint 配置，初始基線 3597 issues，後續批次清理
+  - 處理策略：先封頂同步功能與測試，分批處理前端 6 errors → 0；後端逐步收斂
+- **改善進度**: 前端從 1,142 → 126 (-88.9%)；錯誤 725 → 6 (-99.2%)、警告 417 → 120 (-71.2%)
 - **v-for :key 覆蓋率**: 100% (68/68)
 - **TypeScript 嚴格模式**: 部分啟用（測試檔案排除）
 - **設計系統套用**: 100% (12/13 組件使用 CSS 變數，1 組件保留語意色彩)
@@ -53,42 +54,20 @@
 ## 當前狀態
 - **版本**: v1.0
 - **狀態**: 生產運行中；Phase 1-4 + Task A1/A2 完成；Sprint R5 前端統一遷移完成；設計系統套用完成；四化飛星頂層彙總完成；lunar-typescript 整合完成；Phase A 藏干/十神替換完成；大運計歲修正完成
-- **優化階段**: Week 2 技術債務清理完成 + 開源專案整合評估完成 + Bug 修復
-- **最後更新**: 2025-12-02 18:06（大運計歲修正）
+- **優化階段**: Week 2 技術債務清理 + 開源整合評估 + Bug 修復 + AI Streaming/監控完成
+- **最後更新**: 2025-12-03 15:30（AI Streaming + Prompt 精簡 + 性能監控）
 - **最新成果**:
-  - **大運計歲修正** ✓
-    - DaYun 介面：age → startAge + endAge
-    - generateDaYunList：新增 birthDate 參數，計算真實歲數
-    - 測試結果：22/22 通過
-    - 前端無需修改：直接使用後端返回的 startAge/endAge
-  - **開源專案整合策略確立** ✓
-    - Phase A (藏干/十神 274 行): ✅ 已完成替換，測試 34/34 通過
-    - Phase B (核心時間/干支 428 行): ❌ 評估完成，決定保留（成本高，收益低）
-    - Phase C (紫微斗數 1614 行): ❌ 評估完成，決定保留（缺失核心競爭力功能）
-    - 驗算測試套件: verification.test.ts 建立，10/10 測試通過
-    - 最終成果: 減少 274 行維護代碼，保留 2042 行核心代碼
-  - **Phase A 藏干/十神替換**：減少維護代碼 274 行；hiddenStems 19/19 通過、tenGods 15/15 通過；採用 lunar-typescript 社群驗證算法；實際時間 2.5h ✓
-  - **lunar-typescript 整合**：採用 Hybrid Approach，年柱使用 lunar-typescript（社群驗證），月/日/時柱保留 Legacy 數學公式（API 相容性）；測試 11/16 通過（年柱/月柱/時柱 100%）；實際時間 2.5h ✓
-  - 四化飛星頂層彙總：數據結構、飛化邊生成器、圖論分析、大限計算、星曜定位整合
-  - 前端顯示組件：SiHuaAggregationCard（統計/循環/中心性）
-  - Worker 部署：完整前端應用 + API 後端
-  - API 驗證：56條飛化邊（生年48+大限4+流年4）
-  - 循環檢測：1個化忌循環、3個化祿循環
-  - 中心性分析：壓力匯聚點、資源源頭識別
-  - 後端整合檢查：CalculationResult 契約 100% (28/28)，ZiWeiResult.palaces 已修復
-  - 清理 19 個重複 .js 檔保留 .ts 單一來源
-  - 完成前端服務層對 `wuxingDistribution/fortuneCycles/annualFortune` 的最小適配（含 Date 解析）
-  - ESLint 錯誤清零（0 errors/22 warnings）
-  - 前端 7 組件接軌 Unified API 並移除舊 `baziCalc.ts`/視圖/表單
-  - 清除 50 個編譯產物、保留 11 個核心 .vue
-  - Worker 單元測試對齊 `/health` 並啟用 `nodejs_compat`
-  - Hybrid API 持續運行，FortuneCycles/流年模組穩定
-  - 12 組件套用設計 token，視覺優化完成
+  - **AI 整合/Streaming** ✓：`/api/v1/analyze` + `/api/v1/analyze/stream`（Gemini 2.5 Flash），Markdown Formatter + AI 分析輸出，SSE 27 chunks/19s，chartId + D1 快取，前端 AIAnalysisView/路由/ChartStore + EventSource 串流
+  - **Prompt 精簡 + 年份保護** ✓：佩璇 Prompt -57% tokens，範例 2 個，Max Output Tokens 2048，注入 currentYear，語氣/比喻/粗體保留，AI 年份誤判修正
+  - **性能監控** ✓：geminiService 日誌 tokens/cost/latency/errors；成本計算 (prompt/completion rates) 即時可視；Response time 18-25s
+  - **測試/品質** ✓：markdownFormatter.test.ts 14/14 通過；大運/日柱測試 20/20；AI Streaming 實測 20+ chunks；npm 漏洞 7→0；後端 ESLint 配置新增
+  - **Lint/債務狀態**：前端 ESLint 6 errors/120 warnings（233→126）；後端 ESLint 3597 issues 基線；前端 EventSource 錯誤修復
+  - **既有成果延續**：開源整合策略確立（Phase A 完成，Phase B/C 保留 2042 行核心）、大運計歲真實歲數、四化飛星頂層彙總、Unified API/設計系統/部署穩定
 
 ## 已知缺口
-- 日柱測試更新（匹配新 JDN API）(1h)
+- 日柱測試更新（匹配新 JDN API）(1h) — 已更新，但可再補充覆蓋率
 - 補齊測試覆蓋 (3-4h)
 - 依賴升級與警告清理 (2-3h)
-- API 文件更新 (1-2h)
-- ESLint 剩餘 22 warnings 待清理
-- npm 依賴警告 4 項（Week 2 後期處理）
+- API/Streaming 文件更新 (1-2h)
+- 前端 ESLint 剩餘 6 errors/120 warnings；後端 ESLint 3597 issues 需分批清理
+- npm 依賴警告：目前 0（持續監控）

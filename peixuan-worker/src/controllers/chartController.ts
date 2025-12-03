@@ -16,14 +16,14 @@ export class ChartController {
     
     // 嘗試從快取取得
     const cached = await this.cache.get(cacheKey);
-    if (cached) return cached;
+    if (cached) {return cached;}
 
     // 查詢資料庫
     const orm = drizzle(db);
     const offset = (page - 1) * limit;
     
     let query = orm.select().from(chartRecords).where(eq(chartRecords.userId, userId));
-    if (type) query = query.where(eq(chartRecords.type, type as any));
+    if (type) {query = query.where(eq(chartRecords.type, type as any));}
     
     const records = await query.orderBy(desc(chartRecords.createdAt)).limit(limit).offset(offset);
     const result = { data: records, page, limit };
@@ -57,7 +57,7 @@ export class ChartController {
     
     // 嘗試從快取取得
     const cached = await this.cache.get(cacheKey);
-    if (cached) return cached;
+    if (cached) {return cached;}
 
     // 查詢資料庫
     const orm = drizzle(db);
@@ -89,7 +89,7 @@ export class ChartController {
     
     // 嘗試從快取取得
     const cached = await this.cache.get(cacheKey);
-    if (cached) return cached;
+    if (cached) {return cached;}
 
     // 查詢資料庫
     const orm = drizzle(db);

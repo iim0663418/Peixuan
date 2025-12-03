@@ -1,4 +1,6 @@
 import { UnifiedCalculator } from '../calculation/integration/calculator';
+import { formatToMarkdown } from '../formatters/markdownFormatter';
+import { ChartCacheService } from '../services/chartCacheService';
 import type { BirthInfo, CalculationResult } from '../calculation/types';
 
 /**
@@ -6,18 +8,26 @@ import type { BirthInfo, CalculationResult } from '../calculation/types';
  *
  * Provides unified API endpoint that returns complete CalculationResult
  * including BaZi (fourPillars, hiddenStems, tenGods) and ZiWei (palaces, bureau, stars, symmetry).
+ * Supports multiple output formats (JSON, Markdown).
  *
  * Reference: IMPLEMENTATION_PLAN_PHASE1.md Sprint A Task A2
  */
 export class UnifiedController {
+  private chartCacheService: ChartCacheService;
+
+  constructor() {
+    this.chartCacheService = new ChartCacheService();
+  }
   /**
    * Calculate complete astrological chart
    *
    * @param requestData - Request payload with birth information
-   * @returns Complete calculation result with all BaZi and ZiWei data
+   * @param format - Output format ('json' or 'markdown'), default 'json'
+   * @param env - Cloudflare Worker environment (optional, for D1 caching)
+   * @returns Complete calculation result with chartId (if env provided) and all BaZi and ZiWei data
    * @throws Error if validation fails or calculation error occurs
    */
-  async calculate(requestData: any): Promise<CalculationResult> {
+  async calculate(requestData: any, format: 'json' | 'markdown' = 'json', env?: { DB: D1Database }): Promise<CalculationResult | string | { chartId: string; [key: string]: any }> {
     try {
       // Step 1: Validate and parse input
       const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
@@ -43,8 +53,45 @@ export class UnifiedController {
       const calculator = new UnifiedCalculator();
       const result = calculator.calculate(birthInfo);
 
-      // Step 4: Return complete result
-      return result;
+      // Step 4: Always generate chartId
+      const chartId = crypto.randomUUID();
+      console.log('[UnifiedController] Generated chartId:', chartId);
+
+      // Step 5: Try to save to D1 if env is provided (with error handling)
+      if (env) {
+        try {
+          console.log('[UnifiedController] Attempting to save chart to D1...');
+          await this.chartCacheService.saveChart(
+            chartId,
+            result,
+            {
+              name: requestData.name,
+              birthDate: requestData.birthDate,
+              birthTime: requestData.birthTime,
+              location: requestData.location || 'Unknown'
+            },
+            env
+          );
+          console.log('[UnifiedController] Chart saved to D1 successfully');
+        } catch (saveError) {
+          console.error('[UnifiedController] Failed to save chart to D1:', saveError);
+          // Continue execution even if save fails
+        }
+      } else {
+        console.log('[UnifiedController] No env provided, skipping D1 save');
+      }
+
+      // Step 6: Format output based on requested format
+      if (format === 'markdown') {
+        return formatToMarkdown(result);
+      }
+
+      // Step 7: Always return with chartId for JSON format
+      console.log('[UnifiedController] Returning result with chartId');
+      return {
+        chartId,
+        ...result
+      };
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.startsWith('Validation failed:')) {

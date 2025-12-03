@@ -205,7 +205,10 @@ class UnifiedApiService {
       const backendResult = response.data as unknown as any;
 
       // Debug: Log wuxingDistribution structure
-      console.log('Backend wuxingDistribution:', backendResult.bazi?.wuxingDistribution);
+      console.log(
+        'Backend wuxingDistribution:',
+        backendResult.bazi?.wuxingDistribution,
+      );
 
       // Adapt backend format to frontend format
       const result: CalculationResult = {
@@ -232,69 +235,136 @@ class UnifiedApiService {
           },
           // Adapt wuxingDistribution: merge tiangan + hiddenStems into flat structure
           // Backend uses English keys (Wood/Fire/Earth/Metal/Water), convert to Chinese
-          wuxingDistribution: backendResult.bazi.wuxingDistribution ? {
-            raw: {
-              木: (backendResult.bazi.wuxingDistribution.raw.tiangan['Wood'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Wood'] || 0),
-              火: (backendResult.bazi.wuxingDistribution.raw.tiangan['Fire'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Fire'] || 0),
-              土: (backendResult.bazi.wuxingDistribution.raw.tiangan['Earth'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Earth'] || 0),
-              金: (backendResult.bazi.wuxingDistribution.raw.tiangan['Metal'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Metal'] || 0),
-              水: (backendResult.bazi.wuxingDistribution.raw.tiangan['Water'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Water'] || 0),
-            },
-            adjusted: {
-              木: backendResult.bazi.wuxingDistribution.adjusted['Wood'] || 0,
-              火: backendResult.bazi.wuxingDistribution.adjusted['Fire'] || 0,
-              土: backendResult.bazi.wuxingDistribution.adjusted['Earth'] || 0,
-              金: backendResult.bazi.wuxingDistribution.adjusted['Metal'] || 0,
-              水: backendResult.bazi.wuxingDistribution.adjusted['Water'] || 0,
-            },
-            dominant: backendResult.bazi.wuxingDistribution.dominant,
-            deficient: backendResult.bazi.wuxingDistribution.deficient,
-            balance: backendResult.bazi.wuxingDistribution.balance,
-          } : undefined,
+          wuxingDistribution: backendResult.bazi.wuxingDistribution
+            ? {
+                raw: {
+                  木:
+                    (backendResult.bazi.wuxingDistribution.raw.tiangan[
+                      'Wood'
+                    ] || 0) +
+                    (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
+                      'Wood'
+                    ] || 0),
+                  火:
+                    (backendResult.bazi.wuxingDistribution.raw.tiangan[
+                      'Fire'
+                    ] || 0) +
+                    (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
+                      'Fire'
+                    ] || 0),
+                  土:
+                    (backendResult.bazi.wuxingDistribution.raw.tiangan[
+                      'Earth'
+                    ] || 0) +
+                    (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
+                      'Earth'
+                    ] || 0),
+                  金:
+                    (backendResult.bazi.wuxingDistribution.raw.tiangan[
+                      'Metal'
+                    ] || 0) +
+                    (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
+                      'Metal'
+                    ] || 0),
+                  水:
+                    (backendResult.bazi.wuxingDistribution.raw.tiangan[
+                      'Water'
+                    ] || 0) +
+                    (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
+                      'Water'
+                    ] || 0),
+                },
+                adjusted: {
+                  木:
+                    backendResult.bazi.wuxingDistribution.adjusted['Wood'] || 0,
+                  火:
+                    backendResult.bazi.wuxingDistribution.adjusted['Fire'] || 0,
+                  土:
+                    backendResult.bazi.wuxingDistribution.adjusted['Earth'] ||
+                    0,
+                  金:
+                    backendResult.bazi.wuxingDistribution.adjusted['Metal'] ||
+                    0,
+                  水:
+                    backendResult.bazi.wuxingDistribution.adjusted['Water'] ||
+                    0,
+                },
+                dominant: backendResult.bazi.wuxingDistribution.dominant,
+                deficient: backendResult.bazi.wuxingDistribution.deficient,
+                balance: backendResult.bazi.wuxingDistribution.balance,
+              }
+            : undefined,
           // Debug: Log adapted wuxingDistribution
-          ...(backendResult.bazi.wuxingDistribution && console.log('Adapted wuxingDistribution:', {
-            raw: {
-              木: (backendResult.bazi.wuxingDistribution.raw.tiangan['Wood'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Wood'] || 0),
-              火: (backendResult.bazi.wuxingDistribution.raw.tiangan['Fire'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Fire'] || 0),
-              土: (backendResult.bazi.wuxingDistribution.raw.tiangan['Earth'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Earth'] || 0),
-              金: (backendResult.bazi.wuxingDistribution.raw.tiangan['Metal'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Metal'] || 0),
-              水: (backendResult.bazi.wuxingDistribution.raw.tiangan['Water'] || 0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems['Water'] || 0),
-            },
-            adjusted: {
-              木: backendResult.bazi.wuxingDistribution.adjusted['Wood'] || 0,
-              火: backendResult.bazi.wuxingDistribution.adjusted['Fire'] || 0,
-              土: backendResult.bazi.wuxingDistribution.adjusted['Earth'] || 0,
-              金: backendResult.bazi.wuxingDistribution.adjusted['Metal'] || 0,
-              水: backendResult.bazi.wuxingDistribution.adjusted['Water'] || 0,
-            },
-          })),
-          // Parse Date strings in fortuneCycles
-          fortuneCycles: backendResult.bazi.fortuneCycles ? {
-            ...backendResult.bazi.fortuneCycles,
-            qiyunDate: new Date(backendResult.bazi.fortuneCycles.qiyunDate),
-            dayunList: backendResult.bazi.fortuneCycles.dayunList.map((dayun: any) => ({
-              ...dayun,
-              startDate: new Date(dayun.startDate),
-              endDate: new Date(dayun.endDate),
+          ...(backendResult.bazi.wuxingDistribution &&
+            console.log('Adapted wuxingDistribution:', {
+              raw: {
+                木:
+                  (backendResult.bazi.wuxingDistribution.raw.tiangan['Wood'] ||
+                    0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
+                    'Wood'
+                  ] || 0),
+                火:
+                  (backendResult.bazi.wuxingDistribution.raw.tiangan['Fire'] ||
+                    0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
+                    'Fire'
+                  ] || 0),
+                土:
+                  (backendResult.bazi.wuxingDistribution.raw.tiangan['Earth'] ||
+                    0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
+                    'Earth'
+                  ] || 0),
+                金:
+                  (backendResult.bazi.wuxingDistribution.raw.tiangan['Metal'] ||
+                    0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
+                    'Metal'
+                  ] || 0),
+                水:
+                  (backendResult.bazi.wuxingDistribution.raw.tiangan['Water'] ||
+                    0) +
+                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
+                    'Water'
+                  ] || 0),
+              },
+              adjusted: {
+                木: backendResult.bazi.wuxingDistribution.adjusted['Wood'] || 0,
+                火: backendResult.bazi.wuxingDistribution.adjusted['Fire'] || 0,
+                土:
+                  backendResult.bazi.wuxingDistribution.adjusted['Earth'] || 0,
+                金:
+                  backendResult.bazi.wuxingDistribution.adjusted['Metal'] || 0,
+                水:
+                  backendResult.bazi.wuxingDistribution.adjusted['Water'] || 0,
+              },
             })),
-            currentDayun: backendResult.bazi.fortuneCycles.currentDayun
-              ? {
-                  ...backendResult.bazi.fortuneCycles.currentDayun,
-                  startDate: new Date(backendResult.bazi.fortuneCycles.currentDayun.startDate),
-                  endDate: new Date(backendResult.bazi.fortuneCycles.currentDayun.endDate),
-                }
-              : null,
-          } : undefined,
+          // Parse Date strings in fortuneCycles
+          fortuneCycles: backendResult.bazi.fortuneCycles
+            ? {
+                ...backendResult.bazi.fortuneCycles,
+                qiyunDate: new Date(backendResult.bazi.fortuneCycles.qiyunDate),
+                dayunList: backendResult.bazi.fortuneCycles.dayunList.map(
+                  (dayun: any) => ({
+                    ...dayun,
+                    startDate: new Date(dayun.startDate),
+                    endDate: new Date(dayun.endDate),
+                  }),
+                ),
+                currentDayun: backendResult.bazi.fortuneCycles.currentDayun
+                  ? {
+                      ...backendResult.bazi.fortuneCycles.currentDayun,
+                      startDate: new Date(
+                        backendResult.bazi.fortuneCycles.currentDayun.startDate,
+                      ),
+                      endDate: new Date(
+                        backendResult.bazi.fortuneCycles.currentDayun.endDate,
+                      ),
+                    }
+                  : null,
+              }
+            : undefined,
         },
         ziwei: {
           ...backendResult.ziwei,
@@ -310,16 +380,21 @@ class UnifiedApiService {
           },
         },
         // Pass through annualFortune with element-to-Chinese mapping
-        annualFortune: backendResult.annualFortune ? {
-          ...backendResult.annualFortune,
-          interactions: {
-            ...backendResult.annualFortune.interactions,
-            harmoniousCombinations: backendResult.annualFortune.interactions.harmoniousCombinations.map((combo: any) => ({
-              ...combo,
-              result: this.elementToChinese(combo.element),
-            })),
-          },
-        } : undefined,
+        annualFortune: backendResult.annualFortune
+          ? {
+              ...backendResult.annualFortune,
+              interactions: {
+                ...backendResult.annualFortune.interactions,
+                harmoniousCombinations:
+                  backendResult.annualFortune.interactions.harmoniousCombinations.map(
+                    (combo: any) => ({
+                      ...combo,
+                      result: this.elementToChinese(combo.element),
+                    }),
+                  ),
+              },
+            }
+          : undefined,
       };
 
       // Store in cache
@@ -422,11 +497,11 @@ class UnifiedApiService {
    */
   private elementToChinese(element: string): string {
     const map: Record<string, string> = {
-      'Wood': '木局',
-      'Fire': '火局',
-      'Earth': '土局',
-      'Metal': '金局',
-      'Water': '水局',
+      Wood: '木局',
+      Fire: '火局',
+      Earth: '土局',
+      Metal: '金局',
+      Water: '水局',
     };
     return map[element] || element;
   }

@@ -6,8 +6,8 @@
  * Reference: 八字命理後端模組研究.md §4.3
  */
 
-import { HeavenlyStem, EarthlyBranch } from '../core/ganZhi';
-import { WuXing } from '../core/wuXing/relations';
+import type { HeavenlyStem, EarthlyBranch } from '../core/ganZhi';
+import type { WuXing } from '../core/wuXing/relations';
 
 /**
  * Four Pillars structure (simplified for interaction analysis)

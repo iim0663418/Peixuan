@@ -13,7 +13,7 @@ import {
   identifyPowerNodes,
   identifyFameNodes,
 } from '../graphAnalysis';
-import { PalaceGraph, FlyingStarEdge } from '../types';
+import type { PalaceGraph, FlyingStarEdge } from '../types';
 
 describe('Graph Analysis', () => {
   // Mock edges for testing

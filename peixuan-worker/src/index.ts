@@ -7,11 +7,13 @@ import { drizzle } from 'drizzle-orm/d1';
 import { users } from './db/schema';
 import { eq } from 'drizzle-orm';
 import { createUnifiedRoutes } from './routes/unifiedRoutes';
+import { createAnalyzeRoutes } from './routes/analyzeRoutes';
 import { AutoRouter } from 'itty-router';
 
 export interface Env {
 	DB: D1Database;
 	CACHE?: KVNamespace;
+	GEMINI_API_KEY?: string;
 }
 
 // 確保 anonymous 用戶存在
@@ -32,7 +34,7 @@ async function ensureAnonymousUser(db: D1Database): Promise<void> {
 async function handleAPI(request: Request, env: Env): Promise<Response> {
 	const url = new URL(request.url);
 	const path = url.pathname;
-	const method = request.method;
+	const {method} = request;
 
 	// 健康檢查
 	if (path === '/health' && method === 'GET') {
@@ -44,6 +46,7 @@ async function handleAPI(request: Request, env: Env): Promise<Response> {
 	// Register unified routes with AutoRouter
 	const router = AutoRouter();
 	createUnifiedRoutes(router);
+	createAnalyzeRoutes(router, env);
 
 	// Try unified routes first using fetch() instead of handle()
 	try {

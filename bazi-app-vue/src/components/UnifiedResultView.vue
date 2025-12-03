@@ -78,9 +78,15 @@
                 result.ziwei.bodyPalace.position
               }}宮)
             </el-descriptions-item>
-            <el-descriptions-item label="五行局">{{ result.ziwei.bureau }}局</el-descriptions-item>
-            <el-descriptions-item label="紫微星">{{ result.ziwei.ziWeiPosition }}宮</el-descriptions-item>
-            <el-descriptions-item label="天府星">{{ result.ziwei.tianFuPosition }}宮</el-descriptions-item>
+            <el-descriptions-item label="五行局"
+              >{{ result.ziwei.bureau }}局</el-descriptions-item
+            >
+            <el-descriptions-item label="紫微星"
+              >{{ result.ziwei.ziWeiPosition }}宮</el-descriptions-item
+            >
+            <el-descriptions-item label="天府星"
+              >{{ result.ziwei.tianFuPosition }}宮</el-descriptions-item
+            >
           </el-descriptions>
         </div>
 
@@ -105,7 +111,9 @@
         </div>
 
         <div v-if="result.ziwei.sihuaAggregation" class="section">
-          <SiHuaAggregationCard :sihua-aggregation="result.ziwei.sihuaAggregation" />
+          <SiHuaAggregationCard
+            :sihua-aggregation="result.ziwei.sihuaAggregation"
+          />
         </div>
       </el-tab-pane>
 

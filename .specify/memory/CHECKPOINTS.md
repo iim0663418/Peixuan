@@ -1,5 +1,31 @@
 # 檢查點記錄
 
+## Checkpoint: ai-streaming-2025-12-03
+**時間**: 2025-12-03 15:30
+**狀態**: ✅ 完成
+
+### 完成的任務
+- 後端 AI Streaming：`analyzeChartStream` (Gemini streamGenerateContent) + SSE 轉換 + chartId 保存，新增 `ChartCacheService`/`AnalysisCacheService` (D1, 24h TTL)，路由 `/api/v1/analyze/stream`
+- 前端整合：`chartStore` (Pinia + localStorage) + `AIAnalysisView` + `/ai-analysis` 路由 + Navbar AI 按鈕，EventSource 串流顯示 Markdown (marked)，錯誤處理修正
+- Prompt/配置：佩璇 Prompt 精簡 (-57%，~200 tokens/req)，Max Output Tokens 2048，注入 currentYear 避免 2024 誤判
+- 監控：geminiService 新增 token/cost/latency/error 日誌（Prompt/Completion/Total tokens + cost, response time, errors）
+- 測試/修復：markdownFormatter.test.ts 14/14 綠燈；大運/日柱測試 20/20 綠燈；AI Streaming 實測 20+ chunks，響應 ~18-19s，佩璇風格保留
+- 技術債務：前端 ESLint 233 → 126 (12 errors → 6 errors)；後端 ESLint 配置新增；npm 漏洞 7 → 0；日柱測試對齊新 JDN API
+
+### 關鍵成果
+- AI Integration Branch `feature/ai-integration` 完成，Markdown/AI 分析 API 上線（/api/v1/calculate format=markdown；/api/v1/analyze 同步 + /analyze/stream SSE）
+- SSE 27 chunks/19s 內完成，D1 快取避免重算，佩璇語氣/格式完整
+- 成本與性能可觀測：每次呼叫輸出 tokens/cost/latency，便於限流
+- 前端可視化串流體驗：狀態保存 chartId，Markdown 渲染，錯誤修復
+
+### 總進度
+- 70/62 小時 (113%)
+
+### 下一步
+- 清理前端 ESLint 剩餘 6 errors/120 warnings；後端 ESLint 3597 issues 需後續批次
+- 文件更新（API/Streaming UX），可選優化 Prompt/Streaming 體驗
+- 繼續監控 Gemini 成本/延遲，必要時調整溫度/Top-P/重試策略
+
 ## Checkpoint: opensource-integration-strategy-complete-2025-12-02
 **時間**: 2025-12-02 00:10
 **狀態**: ✅ 完成

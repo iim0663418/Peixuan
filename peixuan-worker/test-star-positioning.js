@@ -54,7 +54,7 @@ try {
   ];
 
   console.log('Verifying required stars:');
-  let missingStars = [];
+  const missingStars = [];
   requiredStars.forEach(star => {
     const found = starMap.has(star);
     if (!found) {

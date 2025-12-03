@@ -70,10 +70,10 @@ function getElementRelation(
   dayElement: WuXing,
   targetElement: WuXing
 ): 'same' | 'produces' | 'produced-by' | 'controls' | 'controlled-by' {
-  if (dayElement === targetElement) return 'same';
-  if (PRODUCES_MAP[dayElement] === targetElement) return 'produces';
-  if (PRODUCES_MAP[targetElement] === dayElement) return 'produced-by';
-  if (CONTROLS_MAP[dayElement] === targetElement) return 'controls';
+  if (dayElement === targetElement) {return 'same';}
+  if (PRODUCES_MAP[dayElement] === targetElement) {return 'produces';}
+  if (PRODUCES_MAP[targetElement] === dayElement) {return 'produced-by';}
+  if (CONTROLS_MAP[dayElement] === targetElement) {return 'controls';}
   return 'controlled-by';
 }
 

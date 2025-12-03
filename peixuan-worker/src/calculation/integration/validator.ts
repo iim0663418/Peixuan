@@ -5,7 +5,7 @@
  * Reference: IMPLEMENTATION_PLAN_PHASE1.md Task 4.1
  */
 
-import { BirthInfo, ValidationResult } from '../types';
+import type { BirthInfo, ValidationResult } from '../types';
 
 /**
  * Validate birth information input

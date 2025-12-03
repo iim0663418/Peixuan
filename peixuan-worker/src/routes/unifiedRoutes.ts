@@ -1,10 +1,11 @@
-import { AutoRouter } from 'itty-router';
+import type { AutoRouter } from 'itty-router';
 import { UnifiedController } from '../controllers/unifiedController';
 
 /**
  * Unified Routes
  *
  * Provides POST /api/v1/calculate endpoint for unified calculations.
+ * Supports multiple output formats (JSON, Markdown).
  *
  * Reference: IMPLEMENTATION_PLAN_PHASE1.md Sprint A Task A2
  */
@@ -23,12 +24,25 @@ export function createUnifiedRoutes(router: ReturnType<typeof AutoRouter>) {
    *   gender: 'male' | 'female'
    *   longitude?: number (default: 121.5)
    *   isLeapMonth?: boolean (default: false)
+   *   format?: 'json' | 'markdown' (default: 'json')
    * }
    */
-  router.post('/api/v1/calculate', async (req: any) => {
+  router.post('/api/v1/calculate', async (req: any, env: any) => {
     const controller = new UnifiedController();
     const input = await req.json();
-    const result = await controller.calculate(input);
+    const format = input.format || 'json';
+    const result = await controller.calculate(input, format, env);
+
+    // Return appropriate response based on format
+    if (format === 'markdown') {
+      return new Response(result as string, {
+        headers: {
+          'Content-Type': 'text/markdown; charset=utf-8',
+        },
+      });
+    }
+
+    // Default JSON response
     return result; // AutoRouter will automatically convert to JSON Response
   });
 }

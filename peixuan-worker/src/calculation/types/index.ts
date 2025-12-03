@@ -5,18 +5,18 @@
  * Reference: IMPLEMENTATION_PLAN_PHASE1.md Task 4.1
  */
 
-import { GanZhi } from '../core/ganZhi';
-import { PalacePosition } from '../ziwei/palaces';
-import { Bureau } from '../ziwei/bureau';
-import { WuXingDistribution } from '../wuXing/distribution';
-import { DaYun } from '../fortune/dayun';
-import {
+import type { GanZhi } from '../core/ganZhi';
+import type { PalacePosition } from '../ziwei/palaces';
+import type { Bureau } from '../ziwei/bureau';
+import type { WuXingDistribution } from '../wuXing/distribution';
+import type { DaYun } from '../fortune/dayun';
+import type {
   StemCombination,
   BranchClash,
   HarmoniousCombination,
 } from '../annual/interaction';
-import { Palace } from '../annual/palace';
-import { SiHuaAggregation } from '../ziwei/sihua/types';
+import type { Palace } from '../annual/palace';
+import type { SiHuaAggregation } from '../ziwei/sihua/types';
 
 /**
  * Birth information input

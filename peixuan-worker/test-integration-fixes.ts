@@ -23,7 +23,7 @@ for (const { target, expected } of testCases) {
   const result = calculateTenGod(dayStem, target);
   const passed = result === expected;
   console.log(`  ${dayStem}土 -> ${target}: ${result} ${passed ? '✓' : `✗ (expected ${expected})`}`);
-  if (!passed) allPassed = false;
+  if (!passed) {allPassed = false;}
 }
 
 // Test 2: Verify createPalaceArrayFromLifePalace for 酉命宮
@@ -67,7 +67,7 @@ palaces.forEach(p => {
 // Verify life palace is correct
 const lifePalaceCheck = palaces[lifePalacePosition].branch === lifePalaceBranch;
 console.log(`\n  Life palace check: Position ${lifePalacePosition} = ${palaces[lifePalacePosition].branch} ${lifePalaceCheck ? '✓' : '✗'}`);
-if (!lifePalaceCheck) allPassed = false;
+if (!lifePalaceCheck) {allPassed = false;}
 
 // Find 巳 branch
 const siPosition = palaces.find(p => p.branch === '巳');

@@ -7,7 +7,8 @@
  * Reference: IMPLEMENTATION_PLAN_PHASE1.md Task 2.1
  */
 
-import { GanZhi, indexToGanZhi, HEAVENLY_STEMS, stemModulo } from '../core/ganZhi';
+import type { GanZhi} from '../core/ganZhi';
+import { indexToGanZhi, HEAVENLY_STEMS, stemModulo } from '../core/ganZhi';
 import { dateToJulianDay, getLichunTime } from '../core/time';
 
 /**

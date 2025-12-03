@@ -1,7 +1,7 @@
 <template>
   <div v-if="sihuaAggregation" class="sihua-aggregation">
     <h4>四化飛星分析</h4>
-    
+
     <!-- 統計資訊 -->
     <el-card class="section-card">
       <template #header>
@@ -21,9 +21,9 @@
           {{ sihuaAggregation.edgesByLayer.annual }}
         </el-descriptions-item>
       </el-descriptions>
-      
+
       <el-divider />
-      
+
       <el-descriptions :column="4" border size="small">
         <el-descriptions-item label="化祿">
           {{ sihuaAggregation.edgesByType['祿'] || 0 }}
@@ -45,7 +45,7 @@
       <template #header>
         <span>能量循環</span>
       </template>
-      
+
       <!-- 化忌循環（業力迴圈） -->
       <div v-if="sihuaAggregation.jiCycles.length > 0" class="cycle-section">
         <h5>
@@ -93,7 +93,7 @@
       <template #header>
         <span>能量中心</span>
       </template>
-      
+
       <el-row :gutter="16">
         <el-col :span="12">
           <div class="centrality-box">
@@ -112,7 +112,7 @@
             <div v-else class="no-data">無明顯壓力匯聚</div>
           </div>
         </el-col>
-        
+
         <el-col :span="12">
           <div class="centrality-box">
             <h5>
@@ -145,8 +145,18 @@ interface Props {
 const props = defineProps<Props>();
 
 const PALACE_NAMES = [
-  '命宮', '兄弟宮', '夫妻宮', '子女宮', '財帛宮', '疾厄宮',
-  '遷移宮', '奴僕宮', '官祿宮', '田宅宮', '福德宮', '父母宮'
+  '命宮',
+  '兄弟宮',
+  '夫妻宮',
+  '子女宮',
+  '財帛宮',
+  '疾厄宮',
+  '遷移宮',
+  '奴僕宮',
+  '官祿宮',
+  '田宅宮',
+  '福德宮',
+  '父母宮',
 ];
 
 const hasCycles = computed(() => {
@@ -165,14 +175,14 @@ const topResourceNodes = computed(() => {
 });
 
 function formatPalaces(palaces: number[]): string {
-  return palaces.map(p => PALACE_NAMES[p]).join(' → ');
+  return palaces.map((p) => PALACE_NAMES[p]).join(' → ');
 }
 
 function formatSeverity(severity: string): string {
   const map: Record<string, string> = {
     low: '低',
     medium: '中',
-    high: '高'
+    high: '高',
   };
   return map[severity] || severity;
 }
@@ -181,7 +191,7 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'danger' {
   const map: Record<string, 'success' | 'warning' | 'danger'> = {
     low: 'success',
     medium: 'warning',
-    high: 'danger'
+    high: 'danger',
   };
   return map[severity] || 'warning';
 }

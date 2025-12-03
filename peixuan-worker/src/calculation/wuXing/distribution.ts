@@ -5,7 +5,8 @@
  * Reference: 八字命理後端模組研究.md §2.1-2.3
  */
 
-import { WuXing, stemToWuXing } from '../core/wuXing/relations';
+import type { WuXing} from '../core/wuXing/relations';
+import { stemToWuXing } from '../core/wuXing/relations';
 import { getHiddenStems } from '../bazi/hiddenStems';
 import { applySeasonalityAdjustment } from './seasonality';
 

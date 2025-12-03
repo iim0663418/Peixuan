@@ -8,13 +8,18 @@
 		"deploy": "npm run build && wrangler deploy dist/index.js",
 		"deploy:direct": "wrangler deploy",
 		"test": "vitest run",
+		"lint": "eslint . --fix",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "wrangler d1 migrations apply peixuan-db --local",
 		"db:push": "wrangler d1 migrations apply peixuan-db --remote"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.8.19",
+		"@eslint/js": "^9.17.0",
+		"@typescript-eslint/eslint-plugin": "^8.18.2",
+		"@typescript-eslint/parser": "^8.18.2",
 		"esbuild": "^0.27.0",
+		"eslint": "^9.17.0",
 		"typescript": "^5.5.2",
 		"vitest": "~3.2.0",
 		"wrangler": "^4.51.0"

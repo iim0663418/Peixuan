@@ -44,11 +44,11 @@ export function getWuXingRelation(from: WuXing, to: WuXing): WuXingRelation {
   const fromIndex = WUXING_ORDER.indexOf(from);
   const toIndex = WUXING_ORDER.indexOf(to);
 
-  if (fromIndex === toIndex) return 'same';
-  if (toIndex === (fromIndex + 1) % 5) return 'produce';
-  if (toIndex === (fromIndex + 2) % 5) return 'overcome';
-  if (toIndex === (fromIndex + 4) % 5) return 'produced';
-  if (toIndex === (fromIndex + 3) % 5) return 'overcomed';
+  if (fromIndex === toIndex) {return 'same';}
+  if (toIndex === (fromIndex + 1) % 5) {return 'produce';}
+  if (toIndex === (fromIndex + 2) % 5) {return 'overcome';}
+  if (toIndex === (fromIndex + 4) % 5) {return 'produced';}
+  if (toIndex === (fromIndex + 3) % 5) {return 'overcomed';}
 
   throw new Error(`Invalid WuXing relation: ${from} -> ${to}`);
 }

@@ -53,14 +53,14 @@ describe('fourPillars', () => {
   });
 
   describe('calculateDayPillar', () => {
-    it('should calculate day pillar for 1984-02-02 (丙寅日)', () => {
-      const date = new Date(1984, 1, 2); // Feb 2, 1984 (丙寅日)
+    it('should calculate day pillar for 1984-02-02 (乙丑日)', () => {
+      const date = new Date(1984, 1, 2); // Feb 2, 1984 (乙丑日)
       const jdn = dateToJulianDay(date);
 
       const result = calculateDayPillar(jdn);
 
-      expect(result.stem).toBe('丙');
-      expect(result.branch).toBe('寅');
+      expect(result.stem).toBe('乙');
+      expect(result.branch).toBe('丑');
     });
 
     it('should calculate day pillar for 2024-01-01', () => {
@@ -69,9 +69,9 @@ describe('fourPillars', () => {
 
       const result = calculateDayPillar(jdn);
 
-      // Verified with lunar-typescript: 甲子日
-      expect(result.stem).toBe('甲');
-      expect(result.branch).toBe('子');
+      // Verified with lunar-typescript: 癸亥日
+      expect(result.stem).toBe('癸');
+      expect(result.branch).toBe('亥');
     });
 
     it('should calculate day pillar for 2000-01-01', () => {
@@ -80,9 +80,9 @@ describe('fourPillars', () => {
 
       const result = calculateDayPillar(jdn);
 
-      // Verified with lunar-typescript: 戊午日
-      expect(result.stem).toBe('戊');
-      expect(result.branch).toBe('午');
+      // Verified with lunar-typescript: 丁巳日
+      expect(result.stem).toBe('丁');
+      expect(result.branch).toBe('巳');
     });
   });
 
@@ -180,11 +180,11 @@ describe('fourPillars', () => {
       expect(yearPillar.stem).toBe('癸');
       expect(yearPillar.branch).toBe('亥');
 
-      // Day pillar (丙寅日)
+      // Day pillar (乙丑日)
       const jdn = dateToJulianDay(birthDate);
       const dayPillar = calculateDayPillar(jdn);
-      expect(dayPillar.stem).toBe('丙');
-      expect(dayPillar.branch).toBe('寅');
+      expect(dayPillar.stem).toBe('乙');
+      expect(dayPillar.branch).toBe('丑');
 
       // Hour pillar (00:00 is 子時, 丙日)
       const yearStemIndex = HEAVENLY_STEMS.indexOf(yearPillar.stem);
@@ -224,11 +224,11 @@ describe('fourPillars', () => {
       expect(yearPillar.stem).toBe('己');
       expect(yearPillar.branch).toBe('卯');
 
-      // Day pillar (戊午日)
+      // Day pillar (丁巳日)
       const jdn = dateToJulianDay(birthDate);
       const dayPillar = calculateDayPillar(jdn);
-      expect(dayPillar.stem).toBe('戊');
-      expect(dayPillar.branch).toBe('午');
+      expect(dayPillar.stem).toBe('丁');
+      expect(dayPillar.branch).toBe('巳');
 
       // Hour pillar (12:00 is 午時)
       const dayStemIndex = HEAVENLY_STEMS.indexOf(dayPillar.stem);

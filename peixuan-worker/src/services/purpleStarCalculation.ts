@@ -1,7 +1,8 @@
 // peixuan-worker/src/services/purpleStarCalculation.ts
 // Ported from bazi-app-vue/src/utils/ziweiCalc.ts
 
-import { Solar, Lunar } from 'lunar-typescript';
+import type { Lunar } from 'lunar-typescript';
+import { Solar } from 'lunar-typescript';
 
 // 定義星曜和宮位的基本類型 (可以後續擴展)
 export interface Star {

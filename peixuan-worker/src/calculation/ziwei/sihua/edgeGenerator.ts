@@ -5,8 +5,8 @@
  * Reference: doc/SIHUA_IMPLEMENTATION_PLAN.md §3 Task 2
  */
 
-import { Palace } from '../../annual/palace';
-import { FlyingStarEdge, PalaceGraph } from './types';
+import type { Palace } from '../../annual/palace';
+import type { FlyingStarEdge, PalaceGraph } from './types';
 
 /**
  * Four Transformations Mapping Table
@@ -50,7 +50,7 @@ function findStarPalace(palaces: Palace[], starName: string): number {
     const palace = palaces[i];
     // Check if palace has stars array and contains the target star
     if (palace && Array.isArray((palace as any).stars)) {
-      const stars = (palace as any).stars;
+      const {stars} = (palace as any);
       if (stars.some((star: any) => star.name === starName || star === starName)) {
         return i;
       }

@@ -6,11 +6,13 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import type {
+  Palace
+} from '../palace';
 import {
   locateAnnualLifePalace,
   rotateAnnualPalaces,
-  createPalaceArray,
-  Palace
+  createPalaceArray
 } from '../palace';
 
 describe('Annual Palace Calculations', () => {

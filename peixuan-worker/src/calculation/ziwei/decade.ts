@@ -7,7 +7,7 @@
  * - Current age determines which decade palace
  */
 
-import { Bureau } from './bureau';
+import type { Bureau } from './bureau';
 
 /** Heavenly stems */
 const HEAVENLY_STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
@@ -48,9 +48,9 @@ function determineDecadeDirection(yearStem: string, gender: 'male' | 'female'): 
   // 陰男陽女逆行 (yin male, yang female: backward/counterclockwise)
   if ((isYang && gender === 'male') || (!isYang && gender === 'female')) {
     return 'forward';
-  } else {
+  } 
     return 'backward';
-  }
+  
 }
 
 /**

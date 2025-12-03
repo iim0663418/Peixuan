@@ -5,7 +5,7 @@
  */
 
 import { aggregateSiHua } from '../aggregator';
-import { Palace } from '../../../annual/palace';
+import type { Palace } from '../../../annual/palace';
 
 describe('SiHua Aggregator', () => {
   // Mock palace data for testing

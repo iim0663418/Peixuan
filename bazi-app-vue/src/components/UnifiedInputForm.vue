@@ -3,6 +3,7 @@
     ref="unifiedForm"
     :model="formData"
     :rules="formRules"
+    label-position="top"
     @submit.prevent="submitForm"
   >
     <el-form-item label="出生資訊" />
@@ -957,6 +958,40 @@ const submitForm = async () => {
 
 /* Mobile responsive button layout (< 768px) */
 @media (max-width: 767px) {
+  /* Force vertical layout for form items */
+  :deep(.el-form-item) {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: var(--space-lg);
+  }
+
+  :deep(.el-form-item__label) {
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-bottom: var(--space-sm);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    padding: 0;
+  }
+
+  :deep(.el-form-item__content) {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+
+  /* Ensure inputs take full width */
+  :deep(.el-input),
+  :deep(.el-select),
+  :deep(.el-date-picker) {
+    width: 100%;
+  }
+
+  :deep(.el-input__wrapper) {
+    width: 100%;
+  }
+
+  /* Button group vertical layout */
   .button-group {
     flex-direction: column;
   }

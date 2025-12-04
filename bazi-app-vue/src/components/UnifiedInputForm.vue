@@ -171,9 +171,14 @@
       </div>
     </el-form-item>
 
-    <!-- 閏月標記（可選） -->
-    <el-form-item label="是否閏月">
-      <el-checkbox v-model="formData.isLeapMonth">此月為閏月</el-checkbox>
+    <!-- 閏月提示（自動判斷） -->
+    <el-form-item v-if="formData.isLeapMonth">
+      <el-alert
+        :title="`此日期為農曆 ${leapMonthInfo}`"
+        type="info"
+        :closable="false"
+        show-icon
+      />
     </el-form-item>
 
     <el-form-item>
@@ -227,8 +232,12 @@ import {
   type GeocodeCandidate,
 } from '../services/geocodeService';
 import { useChartStore } from '../stores/chartStore';
+import { Solar } from 'lunar-typescript';
 
 const chartStore = useChartStore();
+
+// 閏月資訊
+const leapMonthInfo = ref('');
 
 // 檢查是否有快取(鎖定表單)
 const hasCache = computed(() => !!chartStore.chartId);
@@ -727,6 +736,35 @@ watch(
     }
   },
 );
+
+// 自動判斷閏月
+const detectLeapMonth = () => {
+  if (!formData.birthDate) {
+    formData.isLeapMonth = false;
+    leapMonthInfo.value = '';
+    return;
+  }
+
+  try {
+    const solar = Solar.fromYmd(
+      parseInt(formData.birthDate.split('-')[0]),
+      parseInt(formData.birthDate.split('-')[1]),
+      parseInt(formData.birthDate.split('-')[2])
+    );
+    const lunar = solar.getLunar();
+    const month = lunar.getMonth();
+
+    formData.isLeapMonth = month < 0;
+    leapMonthInfo.value = month < 0 ? `閏${Math.abs(month)}月` : '';
+  } catch (error) {
+    console.error('閏月判斷失敗:', error);
+    formData.isLeapMonth = false;
+    leapMonthInfo.value = '';
+  }
+};
+
+// 監聽出生日期變化，自動判斷閏月
+watch(() => formData.birthDate, detectLeapMonth);
 
 const submitForm = async () => {
   if (!unifiedForm.value) {

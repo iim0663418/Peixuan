@@ -8,8 +8,7 @@
  * Decision: 2025-12-01 採用 lunar-typescript 替換自實作四柱算法
  */
 
-import type { GanZhi} from '../core/ganZhi';
-import { indexToGanZhi, HEAVENLY_STEMS, EARTHLY_BRANCHES, stemModulo } from '../core/ganZhi';
+import { type GanZhi, indexToGanZhi, stemModulo } from '../core/ganZhi';
 import { getFourPillarsFromLunar } from './lunarAdapter';
 
 /**
@@ -31,7 +30,8 @@ export interface FourPillars {
  * @param lichunTime - 立春 time for the birth year (maintained for API compatibility)
  * @returns Year pillar GanZhi
  */
-export function calculateYearPillar(solarDate: Date, lichunTime: Date): GanZhi {
+// eslint-disable-next-line no-unused-vars
+export function calculateYearPillar(solarDate: Date, _lichunTime: Date): GanZhi {
   const fourPillars = getFourPillarsFromLunar({ solarDate });
   return fourPillars.year;
 }
@@ -129,7 +129,25 @@ export function calculateDayPillar(jdn: number): GanZhi {
 }
 
 /**
- * Calculate Hour Pillar (時柱) using 五鼠遁日法
+ * Calculate Hour Pillar (時柱) using 五鼠遁日法 - Date overload
+ *
+ * This overload accepts a Date object representing true solar time and extracts
+ * the hour and minute components for calculation.
+ *
+ * @param trueSolarTime - True solar time as Date object
+ * @param dayStemIndex - Index of day stem [0-9]
+ * @returns Hour pillar GanZhi
+ *
+ * @example
+ * const trueSolarTime = new Date(1992, 8, 10, 5, 56);
+ * const hourPillar = calculateHourPillar(trueSolarTime, 5); // 己日 05:56 (卯時)
+ * // Returns: 丁卯
+ */
+// eslint-disable-next-line no-unused-vars
+export function calculateHourPillar(_trueSolarTime: Date, _dayStemIndex: number): GanZhi;
+
+/**
+ * Calculate Hour Pillar (時柱) using 五鼠遁日法 - Time components overload
  *
  * Formula: hourStem = (2 × dayStem + hourBranch) mod 10
  * Hour boundaries are based on true solar time, not clock time.
@@ -148,7 +166,31 @@ export function calculateDayPillar(jdn: number): GanZhi {
  * const hourPillar = calculateHourPillar(5, 56, 5); // 己日 05:56 (卯時)
  * // Returns: 丁卯 (using 五鼠遁日法: (2*5 + 3) mod 10 = 3 → 丁)
  */
-export function calculateHourPillar(hour: number, minute: number, dayStemIndex: number): GanZhi {
+// eslint-disable-next-line no-unused-vars, no-redeclare
+export function calculateHourPillar(_hour: number, _minute: number, _dayStemIndex: number): GanZhi;
+
+/**
+ * Implementation of calculateHourPillar
+ */
+// eslint-disable-next-line no-redeclare
+export function calculateHourPillar(
+  hourOrDate: number | Date,
+  minuteOrDayStemIndex: number,
+  dayStemIndex?: number
+): GanZhi {
+  // Handle Date overload
+  if (hourOrDate instanceof Date) {
+    const trueSolarTime = hourOrDate;
+    const hour = trueSolarTime.getHours();
+    const minute = trueSolarTime.getMinutes();
+    const stemIndex = minuteOrDayStemIndex; // In this overload, second param is dayStemIndex
+    return calculateHourPillar(hour, minute, stemIndex);
+  }
+
+  // Handle number overload (original implementation)
+  const hour = hourOrDate;
+  const minute = minuteOrDayStemIndex;
+  const actualDayStemIndex = dayStemIndex ?? 0;
   const totalMinutes = hour * 60 + minute;
 
   // Map to hour branch (子=0, 丑=1, ...)
@@ -164,7 +206,7 @@ export function calculateHourPillar(hour: number, minute: number, dayStemIndex: 
 
   // 五鼠遁日法: Calculate hour stem from day stem and hour branch
   // Formula: idx = (2 × dayStem + hourBranch) mod 10
-  const stemIndex = stemModulo(2 * dayStemIndex + branchIndex);
+  const stemIndex = stemModulo(2 * actualDayStemIndex + branchIndex);
 
   // Combine stem and branch into 60 Jiazi index
   let pillarIndex = 0;

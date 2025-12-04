@@ -1,5 +1,48 @@
 # 檢查點記錄
 
+## Checkpoint: progress-core-2025-12-04-19-14
+**時間**: 2025-12-04 19:14  
+**狀態**: ✅ 完成（真太陽時模組補齊 + 狀態快照）
+
+### 完成的任務
+- 真太陽時模組完成：經度校正 + 均時差，calculateHourPillar 新增 Date 重載；符合 `doc/八字四柱演算法研究與開源專案.md`
+- 測試：真太陽時計算 6 測試通過（北京/烏魯木齊時差驗證）
+- 部署/健康：生產版本 b42e8091/28efc232/ff462e5a 健康，快取命中 0.118s 策略維持
+
+### 關鍵成果
+- Hour pillar 與其他柱位簽名一致，真太陽時計算進入正式版本
+- Week 2 進度維持 71.5/62h (115%)，P1 Code Quality 完結狀態未變
+
+### 已知問題
+- 服務介紹頁待建立；前端 ESLint 6 errors / 120 warnings；後端 ESLint 3597 issues；LanguageSelector 歷史 6 失敗；DST/歷史時區增強未做；後端 npm 4 moderate 漏洞
+
+### 下一步
+- 補 DST/歷史時區處理並更新文件/測試
+- 推進 RWD Phase2、服務介紹頁與前後端 ESLint/漏洞清理
+- 維持 Staging→PR→main/Prod 流程與快取監控
+
+## Checkpoint: progress-core-2025-12-04-15-00
+**時間**: 2025-12-04 15:00  
+**狀態**: ✅ 完成（Week 2 收束 + 部署治理強化）
+
+### 完成的任務
+- Week 2 維持 71.5/62h (115%)，P1 Code Quality Domain 關閉；ESLint **0 errors / 126 warnings**，構建驗證通過
+- 部署：Staging 7a89f251-c4d7-417e-9095-463520d990e2 健康；生產 b42e8091-1f60-42e8-b52a-96e86893f943、28efc232-c24b-4ad4-98e2-48abe71a49db、ff462e5a-2a7e-4c0e-9702-8e7581d365d0 皆健康（15-25s 部署，含新檔/快取上傳）
+- Prompt/UX：運勢分析移除制式化風險評級與行動建議，下一年預測僅干支/立春/犯太歲；等待提示依快取狀態切換（有快取「馬上就好！」、無快取「大概需要半分鐘」）
+- 治理：部署策略強制 Staging 先行，Prod 僅走 CI/CD；緊急手動需補 PR 並記錄 CHECKPOINTS/DECISIONS
+
+### 關鍵成果
+- 產品體驗與 Prompt 更新已在 Staging/Prod 生效，快取命中 0.118s 策略持續
+- 部署與等待文案一致化，避免生產手動直推風險
+
+### 已知問題
+- 前端 ESLint 126 warnings；後端 ESLint 3597 issues；後端 npm 4 moderate 漏洞
+- RWD Phase2-6、圖表/表格精煉、觸控手勢、wrangler dev 文件化、服務介紹頁面待辦；LanguageSelector 歷史 6 失敗紀錄需持續監控
+
+### 下一步
+- 推進 RWD Phase2（2.2 即時驗證、3.1/3.2 圖表精煉、4.x 表格模式、5.3 手勢、6.x 測試）與服務介紹頁
+- 分批清理前端 warnings 與後端 ESLint/依賴漏洞；維持 Staging→PR→main/Prod 流程
+
 ## Checkpoint: rwd-plan-and-deploy-2025-12-04-14-56
 **時間**: 2025-12-04 14:56  
 **狀態**: ✅ 完成（Staging/Prod 部署 + RWD 路線圖確認）

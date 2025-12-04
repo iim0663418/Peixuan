@@ -3,6 +3,8 @@
     ref="unifiedForm"
     :model="formData"
     :rules="formRules"
+    :validate-on-rule-change="true"
+    label-position="top"
     @submit.prevent="submitForm"
   >
     <el-form-item label="出生資訊" />
@@ -34,10 +36,10 @@
     </el-form-item>
 
     <!-- 中文地址輸入 -->
-    <el-form-item label="出生地址（自動轉換座標）">
+    <el-form-item label="出生地址或地標">
       <el-input
         v-model="addressInput"
-        placeholder="請輸入中文地址，例如：雲林縣虎尾鎮新生路74號"
+        placeholder="請輸入地址或地標，例如：台北101、台中火車站、高雄85大樓"
         :loading="geocoding"
         clearable
         @input="handleAddressInput"
@@ -53,6 +55,13 @@
           </el-button>
         </template>
       </el-input>
+
+      <!-- 說明文字 -->
+      <div class="field-hint">
+        <el-text type="info" size="small">
+          💡 支援地標、完整地址或郵遞區號，系統會自動查詢座標
+        </el-text>
+      </div>
 
       <!-- 地址解析狀態顯示 -->
       <div v-if="geocodeStatus.message" class="geocode-status">
@@ -86,30 +95,34 @@
     >
       <div class="coordinate-inputs">
         <div class="coordinate-field">
-          <el-input
-            v-model.number="formData.longitude"
-            placeholder="經度（必填）"
-            type="number"
-            :min="-180"
-            :max="180"
-            :step="0.000001"
-            class="coordinate-input"
-          >
-            <template #prepend>經度</template>
-          </el-input>
+          <el-form-item prop="longitude">
+            <el-input
+              v-model.number="formData.longitude"
+              placeholder="經度（必填）"
+              type="number"
+              :min="-180"
+              :max="180"
+              :step="0.000001"
+              class="coordinate-input"
+            >
+              <template #prepend>經度</template>
+            </el-input>
+          </el-form-item>
         </div>
         <div class="coordinate-field">
-          <el-input
-            v-model.number="formData.latitude"
-            placeholder="緯度"
-            type="number"
-            :min="-90"
-            :max="90"
-            :step="0.000001"
-            class="coordinate-input"
-          >
-            <template #prepend>緯度</template>
-          </el-input>
+          <el-form-item prop="latitude">
+            <el-input
+              v-model.number="formData.latitude"
+              placeholder="緯度"
+              type="number"
+              :min="-90"
+              :max="90"
+              :step="0.000001"
+              class="coordinate-input"
+            >
+              <template #prepend>緯度</template>
+            </el-input>
+          </el-form-item>
         </div>
         <div class="coordinate-field timezone-field">
           <el-select
@@ -133,7 +146,7 @@
     </el-form-item>
 
     <!-- 快速城市選擇（可選） -->
-    <el-form-item label="或選擇常用城市（自動填入座標）">
+    <el-form-item label="快速選擇：常用城市">
       <el-select
         v-model="selectedCity"
         filterable
@@ -149,11 +162,23 @@
           :value="city.value"
         />
       </el-select>
+
+      <!-- 說明文字 -->
+      <div class="field-hint">
+        <el-text type="info" size="small">
+          💡 不確定地址？可以先選擇最接近的城市
+        </el-text>
+      </div>
     </el-form-item>
 
-    <!-- 閏月標記（可選） -->
-    <el-form-item label="是否閏月">
-      <el-checkbox v-model="formData.isLeapMonth">此月為閏月</el-checkbox>
+    <!-- 閏月提示（自動判斷） -->
+    <el-form-item v-if="formData.isLeapMonth">
+      <el-alert
+        :title="`此日期為農曆 ${leapMonthInfo}`"
+        type="info"
+        :closable="false"
+        show-icon
+      />
     </el-form-item>
 
     <el-form-item>
@@ -207,8 +232,12 @@ import {
   type GeocodeCandidate,
 } from '../services/geocodeService';
 import { useChartStore } from '../stores/chartStore';
+import { Solar } from 'lunar-typescript';
 
 const chartStore = useChartStore();
+
+// 閏月資訊
+const leapMonthInfo = ref('');
 
 // 檢查是否有快取(鎖定表單)
 const hasCache = computed(() => !!chartStore.chartId);
@@ -570,7 +599,43 @@ const formRules = {
       trigger: ['change', 'blur'],
     },
   ],
-  gender: [{ required: true, message: '請選擇性別', trigger: 'change' }],
+  gender: [{ required: true, message: '請選擇性別', trigger: ['change', 'blur'] }],
+  longitude: [
+    { required: true, message: '請輸入經度', trigger: ['change', 'blur'] },
+    { type: 'number', message: '經度必須是數字', trigger: ['change', 'blur'] },
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value === null || value === undefined) {
+          callback();
+          return;
+        }
+        if (value < -180 || value > 180) {
+          callback(new Error('經度必須在 -180 到 180 之間'));
+          return;
+        }
+        callback();
+      },
+      trigger: ['change', 'blur'],
+    },
+  ],
+  latitude: [
+    { required: true, message: '請輸入緯度', trigger: ['change', 'blur'] },
+    { type: 'number', message: '緯度必須是數字', trigger: ['change', 'blur'] },
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value === null || value === undefined) {
+          callback();
+          return;
+        }
+        if (value < -90 || value > 90) {
+          callback(new Error('緯度必須在 -90 到 90 之間'));
+          return;
+        }
+        callback();
+      },
+      trigger: ['change', 'blur'],
+    },
+  ],
   location: [
     {
       validator: (_rule: any, _value: any, callback: any) => {
@@ -672,6 +737,35 @@ watch(
   },
 );
 
+// 自動判斷閏月
+const detectLeapMonth = () => {
+  if (!formData.birthDate) {
+    formData.isLeapMonth = false;
+    leapMonthInfo.value = '';
+    return;
+  }
+
+  try {
+    const solar = Solar.fromYmd(
+      parseInt(formData.birthDate.split('-')[0]),
+      parseInt(formData.birthDate.split('-')[1]),
+      parseInt(formData.birthDate.split('-')[2])
+    );
+    const lunar = solar.getLunar();
+    const month = lunar.getMonth();
+
+    formData.isLeapMonth = month < 0;
+    leapMonthInfo.value = month < 0 ? `閏${Math.abs(month)}月` : '';
+  } catch (error) {
+    console.error('閏月判斷失敗:', error);
+    formData.isLeapMonth = false;
+    leapMonthInfo.value = '';
+  }
+};
+
+// 監聽出生日期變化，自動判斷閏月
+watch(() => formData.birthDate, detectLeapMonth);
+
 const submitForm = async () => {
   if (!unifiedForm.value) {
     return;
@@ -763,16 +857,27 @@ const submitForm = async () => {
 /* Input fields - WCAG AA compliant 44px touch targets */
 :deep(.el-input__inner) {
   min-height: 44px;
-  min-width: 44px;
-  font-size: 16px !important; /* Prevent iOS zoom */
-  padding: var(--space-md) var(--space-lg);
-  border-radius: var(--radius-sm);
 }
 
+/* Field hint text */
+.field-hint {
+  margin-top: var(--space-xs);
+  padding: var(--space-xs) 0;
+}
+
+.field-hint :deep(.el-text) {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--text-tertiary);
+}
+
+:deep(.el-input__inner),
 :deep(.el-textarea__inner) {
+  min-width: 44px;
   min-height: 44px;
   font-size: 16px !important; /* Prevent iOS zoom */
   padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-sm);
 }
 
 /* Date and time pickers - full width on mobile */
@@ -957,6 +1062,40 @@ const submitForm = async () => {
 
 /* Mobile responsive button layout (< 768px) */
 @media (max-width: 767px) {
+  /* Force vertical layout for form items */
+  :deep(.el-form-item) {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: var(--space-lg);
+  }
+
+  :deep(.el-form-item__label) {
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-bottom: var(--space-sm);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    padding: 0;
+  }
+
+  :deep(.el-form-item__content) {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+
+  /* Ensure inputs take full width */
+  :deep(.el-input),
+  :deep(.el-select),
+  :deep(.el-date-picker) {
+    width: 100%;
+  }
+
+  :deep(.el-input__wrapper) {
+    width: 100%;
+  }
+
+  /* Button group vertical layout */
   .button-group {
     flex-direction: column;
   }
@@ -1008,14 +1147,15 @@ const submitForm = async () => {
 /* Mobile-specific validation styles */
 @media (max-width: 767px) {
   :deep(.el-form-item__error) {
-    font-size: 0.875rem;
-    padding-top: 0.5rem;
-    margin-top: 0.25rem;
+    font-size: var(--font-size-sm);
+    padding: var(--space-sm);
+    margin-top: var(--space-xs);
+    margin-bottom: var(--space-sm);
     position: relative;
     background: rgba(245, 108, 108, 0.1);
-    padding: 0.5rem;
-    border-radius: 4px;
-    margin-bottom: 0.5rem;
+    border-radius: var(--radius-sm);
+    color: var(--error-color, var(--el-color-danger));
+    line-height: var(--line-height-normal);
   }
 
   /* Ensure error messages don't overlap with inputs */

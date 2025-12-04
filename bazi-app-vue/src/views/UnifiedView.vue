@@ -13,7 +13,8 @@
     </el-card>
 
     <el-card v-else-if="error" class="result-card error">
-      <el-alert type="error" :title="error" show-icon :closable="false" />
+      <el-alert type="error" :title="error" show-icon
+:closable="false" />
     </el-card>
 
     <el-card v-else-if="result" class="result-card">

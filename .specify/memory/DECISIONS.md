@@ -1,5 +1,57 @@
 # 決策記錄
 
+## 2025-12-04: 產品定位、Prompt 重構與 RWD Phase1
+
+### 決策：性格/運勢分析分工與敘事式 Prompt
+- **背景**: 性格與運勢提示詞混雜，輸出割裂
+- **影響**:
+  - 功能命名：佩璇 AI 分析 → 佩璇性格分析；佩璇進階分析 → 佩璇運勢分析；全站文案同步
+  - Prompt 分工：性格分析聚焦基本資訊+八字+十神+藏干+紫微；運勢分析聚焦四化飛星+星曜對稱+下一年預測
+  - 敘事化輸出：移除條列 4 層架構，改為大運→四化→星曜→下一年預測的連貫故事；新增 personalityOnly 選項與敘事範例
+  - Token 調整：性格分析上限 6144、運勢預算 ~400；清除舊快取確保新 prompt 呈現
+- **狀態**: 完成 ✓
+
+### 決策：下一年預測與因果說明強化
+- **背景**: 需要讓預測與能量狀態對應，避免制式條件句
+- **影響**:
+  - 預測邏輯改為「因為四化循環/星曜能量 → 所以預測結果」，強化因果連結
+  - 運勢預測流程保持四化→星曜→下一年遞進，保留敘事一致性
+  - 清除分析快取避免舊邏輯殘留
+- **狀態**: 完成 ✓
+
+### 決策：RWD Phase1（導航/佈局/互動基線）
+- **背景**: 行動端觸控與設計一致性需求提升
+- **影響**:
+  - Navbar/Footer 觸控目標放大、1024px 斷點微調、品牌區縮放、移動關閉按鈕與滑入動畫
+  - Grid/Flex 佈局基線 + design-tokens 斷點定義；表單強制單欄、44px 觸控目標
+  - Hover 依賴剝離：popover 改點擊觸發、@media (hover: none) 停用 hover；圖表 will-change + prefers-reduced-motion 性能與無障礙支持
+- **狀態**: 完成 ✓（Phase1 收尾，進入 Phase2）
+
+### 決策：ESLint 清理與 enum 標準化
+- **背景**: errorHandler.ts 保留 4 個 ESLint 錯誤與多餘 eslint-disable 標註，enum 定義偏離 TypeScript 標準
+- **影響**:
+  - 移除 12 條無效 eslint-disable(-next-line) 註解，恢復正常檢查
+  - 修復 errorHandler.ts 4 個 ESLint 錯誤，恢復標準 enum 寫法
+  - 提升可讀性與靜態檢查可信度，避免錯誤被遮蔽
+- **狀態**: 完成 ✓
+
+### 決策：生產環境治理與回復策略
+- **背景**: 直接在生產測試曾導致不穩定
+- **影響**:
+  - 發布流程：feature → staging → main/production，禁止將測試端點/調試碼推上生產
+  - 部署前重新編譯前端並複製到 Worker；保留 wrangler dev 本地驗證；建議建立 CI/CD 自動化測試
+  - 若誤部署：立即 reset 至 main、清理未追蹤檔、重建前端並重部署穩定版
+- **狀態**: 執行中（治理規範）
+
+### 決策：Code Quality Domain 收尾與重複檔案移除
+- **背景**: 前端 ESLint 剩餘 errors 及重複 .js/.map 檔遮蔽型別/品質問題；LanguageSelector 測試失敗
+- **影響**:
+  - 移除 yearlyInteractionUtils.js、geocodeService.js、layeredReading.js 及 .js.map，保留 TypeScript 單一真實來源
+  - eslint.config.js 新增 MouseEvent 全域宣告；確認 baziCalculators.ts 無殘餘 var
+  - LanguageSelector 改用 sessionStorage mock，新增 fallback/繁簡轉換測試；測試綠燈
+  - ESLint 收斂至 **0 errors / 126 warnings**，P1 Code Quality Domain 關閉
+- **狀態**: 完成 ✓
+
 ## 2025-12-03: AI Streaming 與 Gemini 整合
 
 ### 決策：啟用 Gemini Streaming + D1 快取 + SSE

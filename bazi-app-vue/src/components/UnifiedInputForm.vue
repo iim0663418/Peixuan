@@ -167,20 +167,29 @@
         >
           {{ hasCache ? '已有快取命盤' : '開始計算' }}
         </el-button>
-        <el-tooltip
+        <el-popover
           v-if="hasCache"
-          content="清除快取後可重新計算"
+          :visible="showClearCachePopover"
           placement="top"
+          :width="200"
+          trigger="manual"
         >
-          <el-button
-            type="warning"
-            :icon="Delete"
-            class="clear-btn"
-            @click="clearCache"
-          >
-            清除快取
-          </el-button>
-        </el-tooltip>
+          <template #reference>
+            <el-button
+              type="warning"
+              :icon="Delete"
+              class="clear-btn"
+              aria-label="清除快取"
+              :aria-describedby="showClearCachePopover ? 'clear-cache-popover' : undefined"
+              @click="toggleClearCachePopover"
+            >
+              清除快取
+            </el-button>
+          </template>
+          <div id="clear-cache-popover" role="tooltip">
+            清除快取後可重新計算
+          </div>
+        </el-popover>
       </div>
     </el-form-item>
   </el-form>
@@ -199,11 +208,44 @@ import { useChartStore } from '../stores/chartStore';
 
 const chartStore = useChartStore();
 
-// 檢查是否有快取（鎖定表單）
+// 檢查是否有快取(鎖定表單)
 const hasCache = computed(() => !!chartStore.chartId);
+
+// 清除快取 Popover 狀態
+const showClearCachePopover = ref(false);
+
+// 切換清除快取 Popover
+const toggleClearCachePopover = (event?: MouseEvent) => {
+  // 防止事件冒泡導致立即關閉
+  if (event) {
+    event.stopPropagation();
+  }
+
+  // 如果顯示 popover,則執行清除並隱藏;否則顯示 popover
+  if (showClearCachePopover.value) {
+    clearCache();
+  } else {
+    showClearCachePopover.value = true;
+
+    // 點擊外部關閉 popover
+    const closePopover = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.clear-btn') && !target.closest('.el-popover')) {
+        showClearCachePopover.value = false;
+        document.removeEventListener('click', closePopover);
+      }
+    };
+
+    // 延遲添加事件監聽器,避免立即觸發
+    setTimeout(() => {
+      document.addEventListener('click', closePopover);
+    }, 0);
+  }
+};
 
 // 清除快取
 const clearCache = () => {
+  showClearCachePopover.value = false;
   chartStore.clearCurrentChart();
   ElMessage.success('已清除快取，可以重新計算');
 };
@@ -629,18 +671,23 @@ const submitForm = async () => {
 }
 
 :deep(.el-form-item__content) {
+  display: flex;
+  flex-direction: column;
   flex: 1;
+  align-items: stretch;
 }
 
-/* Input fields - minimum 44px touch targets */
+/* Input fields - WCAG AA compliant 44px touch targets */
 :deep(.el-input__inner) {
   min-height: 44px;
+  min-width: 44px;
   font-size: 16px !important; /* Prevent iOS zoom */
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-sm);
 }
 
 :deep(.el-textarea__inner) {
+  min-height: 44px;
   font-size: 16px !important; /* Prevent iOS zoom */
   padding: var(--space-md) var(--space-lg);
 }
@@ -657,18 +704,23 @@ const submitForm = async () => {
   min-height: 44px;
 }
 
-/* Radio buttons - vertical stack on mobile with touch-friendly spacing */
+/* Radio buttons - WCAG AA compliant touch targets with padding */
 :deep(.el-radio-group) {
   display: flex;
   flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
   gap: clamp(var(--space-md), 2vw, var(--space-lg));
 }
 
 :deep(.el-radio) {
   margin-right: 0;
   min-height: 44px;
+  min-width: 44px;
   display: flex;
   align-items: center;
+  padding: var(--space-xs) var(--space-sm);
+  cursor: pointer;
 }
 
 :deep(.el-radio__input) {
@@ -677,8 +729,9 @@ const submitForm = async () => {
 
 :deep(.el-radio__label) {
   font-size: var(--font-size-base);
-  padding-left: var(--space-sm);
+  padding: var(--space-sm);
   line-height: var(--line-height-normal);
+  cursor: pointer;
 }
 
 /* Select dropdowns - full width with touch targets */
@@ -690,26 +743,32 @@ const submitForm = async () => {
   min-height: 44px;
 }
 
-/* Address input with append button */
+/* Address input with append button - WCAG AA compliant */
 :deep(.el-input-group__append) {
   padding: 0;
 }
 
 :deep(.el-input-group__append .el-button) {
   min-height: 44px;
+  min-width: 44px;
   padding: 0 var(--space-lg);
 }
 
-/* Coordinate inputs - mobile-first stacked layout */
+/* Coordinate inputs - mobile-first stacked layout with Flexbox */
 .coordinate-inputs {
   display: flex;
   flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
   gap: clamp(var(--space-md), 2vw, var(--space-lg));
   width: 100%;
 }
 
 .coordinate-field {
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  max-width: 100%;
 }
 
 .coordinate-input,
@@ -748,21 +807,30 @@ const submitForm = async () => {
   width: 100%;
 }
 
-/* Checkbox - touch-friendly */
+/* Checkbox - WCAG AA compliant touch targets */
 :deep(.el-checkbox) {
   min-height: 44px;
+  min-width: 44px;
   display: flex;
   align-items: center;
+  padding: var(--space-xs) var(--space-sm);
+  cursor: pointer;
 }
 
 :deep(.el-checkbox__label) {
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
+  padding: var(--space-sm);
+  cursor: pointer;
 }
 
-/* Button group - flexible layout */
+/* Button group - flexible layout with Flexbox */
 .button-group {
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
   gap: var(--space-md);
   width: 100%;
 }
@@ -791,6 +859,19 @@ const submitForm = async () => {
   box-shadow: 0 4px 12px rgba(230, 162, 60, 0.3);
 }
 
+/* Disable hover effects on touch devices */
+@media (hover: none) {
+  .submit-btn:not(:disabled):hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .clear-btn:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
 /* Mobile responsive button layout (< 768px) */
 @media (max-width: 767px) {
   .button-group {
@@ -802,10 +883,11 @@ const submitForm = async () => {
   }
 }
 
-/* Submit button - full width on mobile with proper touch targets */
+/* Submit button - WCAG AA compliant touch targets */
 :deep(.el-button) {
   width: 100%;
   min-height: 48px;
+  min-width: 44px;
   padding: clamp(var(--space-md), 2vw, var(--space-lg))
     clamp(var(--space-2xl), 3vw, var(--space-3xl));
   font-size: clamp(var(--font-size-base), 2.5vw, var(--font-size-lg));
@@ -826,10 +908,10 @@ const submitForm = async () => {
 }
 
 /* ==========================================
-   Tablet and above (≥ 480px)
+   Tablet and above (≥ 768px)
    ========================================== */
-@media (min-width: 480px) {
-  /* Coordinate inputs - 2 column layout */
+@media (min-width: 768px) {
+  /* Coordinate inputs - 2 column layout (Grid for page-level) */
   .coordinate-inputs {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -840,17 +922,19 @@ const submitForm = async () => {
     grid-column: 1 / -1;
   }
 
-  /* Radio buttons - horizontal on larger screens */
+  /* Radio buttons - horizontal on larger screens with Flexbox */
   :deep(.el-radio-group) {
     flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
     gap: clamp(var(--space-lg), 2vw, var(--space-2xl));
   }
 }
 
 /* ==========================================
-   Tablet (≥ 768px)
+   Desktop (≥ 1024px)
    ========================================== */
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   /* Coordinate inputs - 3 column layout */
   .coordinate-inputs {
     grid-template-columns: 2fr 2fr 1.5fr;
@@ -880,9 +964,9 @@ const submitForm = async () => {
 }
 
 /* ==========================================
-   Desktop (≥ 1024px)
+   Large Desktop (≥ 1440px)
    ========================================== */
-@media (min-width: 1024px) {
+@media (min-width: 1440px) {
   :deep(.el-form-item__label) {
     font-size: var(--font-size-base);
   }

@@ -137,6 +137,13 @@ onMounted(() => {
 
       <!-- 移動版導航菜單 -->
       <div class="mobile-menu" :class="{ show: showMobileMenu }">
+        <button
+          class="mobile-menu-close"
+          @click="closeMobileMenu"
+          aria-label="關閉菜單"
+        >
+          <span>×</span>
+        </button>
         <router-link
           to="/"
           class="mobile-nav-link"
@@ -248,8 +255,8 @@ onMounted(() => {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
 }
 
 /* 頁眉樣式 */
@@ -431,6 +438,7 @@ onMounted(() => {
   box-shadow: 0 4px 30px rgba(139, 69, 19, 0.2);
   z-index: 999;
   overflow-y: auto;
+  /* Initial state: hidden with slide-in animation */
   opacity: 0;
   visibility: hidden;
   transform: translateX(-100%);
@@ -440,6 +448,34 @@ onMounted(() => {
     visibility 0.3s;
 }
 
+.mobile-menu-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8b4513;
+  font-size: 2rem;
+  font-weight: 300;
+  transition: all 0.3s ease-in-out;
+  z-index: 1001;
+}
+
+.mobile-menu-close:hover {
+  color: #d2691e;
+  background: rgba(210, 105, 30, 0.1);
+  border-radius: 50%;
+}
+
+/* Active state: slide in from left with full opacity */
 .mobile-menu.show {
   opacity: 1;
   visibility: visible;
@@ -453,7 +489,7 @@ onMounted(() => {
   color: #8b4513;
   font-weight: 600;
   padding: 1rem;
-  min-height: 56px;
+  min-height: 60px;
   border-bottom: 1px solid #f0f0f0;
   transition: all 0.3s ease-in-out;
   font-size: 1.1rem;
@@ -505,7 +541,6 @@ onMounted(() => {
 
 /* 主要內容區域 */
 main {
-  flex: 1;
   padding: 0;
   max-width: 100%;
   margin: 0;
@@ -518,7 +553,6 @@ main {
   background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
   color: white;
   padding: 3rem 2rem 2rem;
-  margin-top: auto;
 }
 
 .footer-content {
@@ -596,6 +630,13 @@ main {
   }
 }
 
+/* 中型手機和平板 (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+  .desktop-menu {
+    gap: 1.5rem;
+  }
+}
+
 /* 平板 (768px+) */
 @media (min-width: 768px) {
   .navbar {
@@ -618,6 +659,11 @@ main {
     display: none;
   }
 
+  /* Hide mobile menu on desktop - animation only for mobile */
+  .mobile-menu {
+    display: none;
+  }
+
   .app-footer {
     padding: 3rem 2rem 2rem;
   }
@@ -629,6 +675,13 @@ main {
   }
 }
 
+/* 桌面 (1024px+) - 優化導航間距 */
+@media (min-width: 1024px) {
+  .desktop-menu {
+    gap: 2.5rem;
+  }
+}
+
 /* 小螢幕手機特定樣式 */
 @media (max-width: 479px) {
   .navbar {
@@ -636,17 +689,30 @@ main {
   }
 
   .nav-brand h1 {
-    font-size: clamp(1.2rem, 4vw, 1.3rem);
+    font-size: 1.1rem;
   }
 
   .brand-subtitle {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
 
   .mobile-menu {
     padding: clamp(0.75rem, 2vw, 1rem);
   }
 
+  .app-footer {
+    padding: clamp(1.5rem, 3vw, 2rem) clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    text-align: center;
+  }
+}
+
+/* 手機版 Footer 簡化 (<768px) */
+@media (max-width: 767px) {
   .app-footer {
     padding: clamp(1.5rem, 3vw, 2rem) clamp(1rem, 2vw, 1.5rem);
   }

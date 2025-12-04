@@ -95,6 +95,8 @@ const tenGodsForPillars = computed(() => {
 <style scoped>
 /* Design tokens applied - 2025-11-30 */
 /* RWD optimization - 2025-12-03 */
+/* Task 3.3: Responsive chart sizing - 2025-12-04 */
+/* Task 3.4: Mobile performance optimization - 2025-12-04 */
 
 .bazi-chart {
   margin-top: clamp(16px, 4vw, 20px);
@@ -102,6 +104,8 @@ const tenGodsForPillars = computed(() => {
   border: 1px solid var(--border-light);
   border-radius: 6px;
   background-color: var(--bg-secondary);
+  max-width: 100%; /* Ensure container responsiveness */
+  width: 100%;
 }
 
 .bazi-chart h4 {
@@ -114,6 +118,7 @@ const tenGodsForPillars = computed(() => {
 }
 
 /* Mobile-first: Normal order, stack vertically if needed */
+/* Responsive sizing with flex optimization */
 .pillars-container {
   display: flex;
   justify-content: space-around;
@@ -121,16 +126,22 @@ const tenGodsForPillars = computed(() => {
   flex-wrap: wrap; /* 移動端允許換行 */
   gap: clamp(8px, 2vw, 10px);
   text-align: center;
+  width: 100%; /* Full width within parent */
+  max-width: 100%;
 }
 
 .pillar-card-display {
-  flex: 1;
+  flex: 1 1 auto; /* Allow flexible growth/shrink */
   padding: clamp(8px, 2vw, 10px);
   border: 1px solid var(--border-medium);
   border-radius: 4px;
   background-color: var(--bg-primary);
   min-width: 80px; /* 移動端增大最小寬度 */
   min-height: 44px; /* 觸控目標 */
+  max-width: calc(25% - clamp(8px, 2vw, 10px)); /* 4 columns max */
+  aspect-ratio: 0.8 / 1; /* Maintain vertical aspect ratio */
+  /* Performance optimization: hint browser for potential transforms */
+  will-change: auto;
 }
 
 .pillar-card-display.highlighted {

@@ -15,6 +15,17 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
 });
 
+// 模擬 sessionStorage
+const sessionStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+};
+Object.defineProperty(window, 'sessionStorage', {
+  value: sessionStorageMock,
+});
+
 // 創建測試用的 i18n 實例
 const createTestI18n = (locale = 'en') => {
   return createI18n({
@@ -78,16 +89,16 @@ describe('LanguageSelector', () => {
     // 驗證 locale 已更改
     expect(i18n.global.locale.value).toBe('zh_TW');
 
-    // 驗證 localStorage 被調用
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+    // 驗證 sessionStorage 被調用
+    expect(sessionStorageMock.setItem).toHaveBeenCalledWith(
       'preferred-language',
       'zh_TW',
     );
   });
 
-  it('loads saved language preference from localStorage', () => {
-    // 模擬 localStorage 返回保存的語言設定
-    localStorageMock.getItem.mockReturnValue('zh_TW');
+  it('loads saved language preference from sessionStorage', () => {
+    // 模擬 sessionStorage 返回保存的語言設定
+    sessionStorageMock.getItem.mockReturnValue('zh_TW');
 
     const i18n = createTestI18n('en');
     const wrapper = mount(LanguageSelector, {
@@ -96,16 +107,36 @@ describe('LanguageSelector', () => {
       },
     });
 
-    // 驗證 localStorage 被調用
-    expect(localStorageMock.getItem).toHaveBeenCalledWith('preferred-language');
+    // 驗證 sessionStorage 被調用
+    expect(sessionStorageMock.getItem).toHaveBeenCalledWith('preferred-language');
 
     // 驗證語言已設定為保存的值
     expect(i18n.global.locale.value).toBe('zh_TW');
   });
 
-  it('handles invalid localStorage values gracefully', () => {
-    // 模擬 localStorage 返回無效值
-    localStorageMock.getItem.mockReturnValue('invalid-locale');
+  it('falls back to localStorage when sessionStorage is empty', () => {
+    // 模擬 sessionStorage 為空，但 localStorage 有值
+    sessionStorageMock.getItem.mockReturnValue(null);
+    localStorageMock.getItem.mockReturnValue('en');
+
+    const i18n = createTestI18n('zh_TW');
+    const wrapper = mount(LanguageSelector, {
+      global: {
+        plugins: [i18n],
+      },
+    });
+
+    // 驗證兩者都被調用
+    expect(sessionStorageMock.getItem).toHaveBeenCalledWith('preferred-language');
+    expect(localStorageMock.getItem).toHaveBeenCalledWith('preferred-language');
+
+    // 驗證語言設定為 localStorage 的值
+    expect(i18n.global.locale.value).toBe('en');
+  });
+
+  it('converts simplified Chinese (zh) to traditional Chinese (zh_TW)', () => {
+    // 模擬 sessionStorage 返回簡體中文
+    sessionStorageMock.getItem.mockReturnValue('zh');
 
     const i18n = createTestI18n('en');
     const wrapper = mount(LanguageSelector, {
@@ -114,14 +145,30 @@ describe('LanguageSelector', () => {
       },
     });
 
-    // 應該回退到預設語言
-    expect(i18n.global.locale.value).toBe('en');
+    // 驗證語言已轉換為繁體中文
+    expect(i18n.global.locale.value).toBe('zh_TW');
   });
 
-  it('handles localStorage errors gracefully', () => {
-    // 模擬 localStorage 拋出錯誤
-    localStorageMock.getItem.mockImplementation(() => {
-      throw new Error('localStorage not available');
+  it('handles invalid storage values gracefully', () => {
+    // 模擬 sessionStorage 返回無效值
+    sessionStorageMock.getItem.mockReturnValue('invalid-locale');
+    localStorageMock.getItem.mockReturnValue(null);
+
+    const i18n = createTestI18n('en');
+    const wrapper = mount(LanguageSelector, {
+      global: {
+        plugins: [i18n],
+      },
+    });
+
+    // 應該回退到預設語言 (zh_TW)
+    expect(i18n.global.locale.value).toBe('zh_TW');
+  });
+
+  it('handles storage errors gracefully', () => {
+    // 模擬 sessionStorage 拋出錯誤
+    sessionStorageMock.getItem.mockImplementation(() => {
+      throw new Error('sessionStorage not available');
     });
 
     const consoleWarnSpy = vi
@@ -135,12 +182,12 @@ describe('LanguageSelector', () => {
       },
     });
 
-    // 應該記錄警告並使用預設語言
+    // 應該記錄警告並使用預設語言 (zh_TW)
     expect(consoleWarnSpy).toHaveBeenCalledWith(
-      'Failed to load language preference from localStorage:',
+      'Failed to load language preference from sessionStorage:',
       expect.any(Error),
     );
-    expect(i18n.global.locale.value).toBe('en');
+    expect(i18n.global.locale.value).toBe('zh_TW');
 
     consoleWarnSpy.mockRestore();
   });
@@ -159,17 +206,17 @@ describe('LanguageSelector', () => {
     await select.setValue('zh_TW');
     await select.trigger('change');
 
-    // 驗證 localStorage 保存了新的語言偏好
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+    // 驗證 sessionStorage 保存了新的語言偏好
+    expect(sessionStorageMock.setItem).toHaveBeenCalledWith(
       'preferred-language',
       'zh_TW',
     );
   });
 
   it('handles save errors gracefully', async () => {
-    // 模擬 localStorage.setItem 拋出錯誤
-    localStorageMock.setItem.mockImplementation(() => {
-      throw new Error('localStorage quota exceeded');
+    // 模擬 sessionStorage.setItem 拋出錯誤
+    sessionStorageMock.setItem.mockImplementation(() => {
+      throw new Error('sessionStorage quota exceeded');
     });
 
     const consoleWarnSpy = vi
@@ -191,7 +238,7 @@ describe('LanguageSelector', () => {
 
     // 應該記錄警告但不影響語言切換
     expect(consoleWarnSpy).toHaveBeenCalledWith(
-      'Failed to save language preference to localStorage:',
+      'Failed to save language preference to sessionStorage:',
       expect.any(Error),
     );
     expect(i18n.global.locale.value).toBe('zh_TW');

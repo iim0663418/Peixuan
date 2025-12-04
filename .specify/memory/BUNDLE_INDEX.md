@@ -1,6 +1,6 @@
 # Memory Bundle Index
 
-- `.specify/memory/audit_trail.log`: Full SSCI audit；最新 session `ui-optimization-complete-2025-12-03-17:32`（Week 2 完整收尾：AI Streaming 完整鏈路 + 快取命中 0.118s/180x 提速 + UI 設計系統整合 + 表單鎖定與清除 + Bug 修復系列 + 技術債償還；總進度 70/62h/113%）。
-- `.specify/memory/DECISIONS.md`: Decision log updated 2025-12-03（新增快取優先策略與預檢查、SSE 排版一致化、表單回填改為鎖定機制、UI 設計系統整合、Bug 修復系列決策；既有 AI Streaming、Prompt 精簡、年份保護、Gemini 成本監控等）。
-- `.specify/memory/CHECKPOINTS.md`: Timeline updated through `week2-complete-2025-12-03-17:32`（專案進度 70/62h/113%，Week 2 目標達成；核心成果：AI Streaming + 快取 0.118s + UI 設計系統 + 表單鎖定 + Bug 修復 + 技術債償還）。
-- `.specify/memory/constitution.md`: Project traits 更新於 2025-12-03（含 Markdown/AI 分析 API + SSE、快取優先策略 + 命中 0.118s、Gemini 監控、Prompt 精簡、UI 設計系統整合、表單鎖定機制；品質狀態：前端 ESLint 6 errors/120 warnings、後端 3597 issues，待補 ESLint/LanguageSelector 測試）。
+- `.specify/memory/audit_trail.log`: Full SSCI audit；最新 session `week2-wrap-2025-12-04-10-47`（P1 Code Quality 關閉、ESLint 0 errors/126 warnings、重複 .js/.map 移除、LanguageSelector 測試修復、雙版生產穩定）。
+- `.specify/memory/DECISIONS.md`: Decision log updated 2025-12-04（新增 Code Quality 收尾/重複檔移除決策；包含性格/運勢敘事化、RWD Phase1、ESLint 清理、製程治理等）。
+- `.specify/memory/CHECKPOINTS.md`: Timeline updated through `week2-wrap-2025-12-04-10-47`（Week 2 完成 115%，P1 Code Quality 關閉、ESLint 0 errors/126 warnings、LanguageSelector 測試穩定、快取 0.118s 持續）。
+- `.specify/memory/constitution.md`: Project traits 更新於 2025-12-04 10:47（AI/SSE/快取、Prompt 敘事化與功能改名、RWD Phase1 基線；品質現況：前端 ESLint 0 errors/126 warnings、後端 3597 issues、後端 npm 4 moderate 漏洞；LanguageSelector 測試已修復）。

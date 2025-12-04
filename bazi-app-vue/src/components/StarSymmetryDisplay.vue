@@ -92,6 +92,14 @@ h4 {
   transform: translateY(-2px);
 }
 
+/* Disable hover effects on touch devices */
+@media (hover: none) {
+  .symmetry-item:hover {
+    box-shadow: none;
+    transform: none;
+  }
+}
+
 .symmetry-opposite {
   border-left: 3px solid var(--info);
 }

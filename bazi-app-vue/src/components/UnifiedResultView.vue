@@ -312,6 +312,9 @@ const formatStarName = (key: string): string => {
 }
 
 .section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
   background: var(--bg-secondary);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
@@ -327,8 +330,12 @@ h4 {
   font-weight: var(--font-weight-semibold);
 }
 
-/* Mobile: Stack hidden stems vertically */
+/* Mobile: Stack hidden stems vertically with Flexbox */
 .hidden-stems {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: var(--space-md);
   background: var(--bg-primary);
   border: 1px solid var(--border-light);
@@ -374,7 +381,10 @@ h4 {
 
 .stem-list {
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   gap: var(--space-sm);
   font-size: var(--font-size-sm);
 }
@@ -392,8 +402,12 @@ h4 {
   color: var(--text-tertiary);
 }
 
-/* Mobile: Larger star cards */
+/* Mobile: Larger star cards with Flexbox alignment */
 .star-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   padding: var(--space-md);
   background: var(--bg-secondary);
@@ -402,9 +416,6 @@ h4 {
   box-shadow: var(--shadow-sm);
   margin-bottom: var(--space-md);
   min-height: 44px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
 @media (min-width: 768px) {

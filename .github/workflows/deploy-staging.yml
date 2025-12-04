@@ -1,0 +1,96 @@
+name: Deploy to Cloudflare Workers (Staging)
+
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    name: Build Frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: bazi-app-vue/package-lock.json
+
+      - name: Build Frontend
+        run: |
+          cd bazi-app-vue
+          npm ci
+          npm run build
+
+      - name: Upload Frontend Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: bazi-app-vue/dist/
+          retention-days: 1
+
+  deploy-worker:
+    runs-on: ubuntu-latest
+    name: Deploy Worker (Staging)
+    needs: build-frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: peixuan-worker/package-lock.json
+
+      - name: Download Frontend Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: peixuan-worker/public/
+
+      - name: Verify Downloaded Files
+        run: |
+          echo "=== Checking downloaded files ==="
+          ls -lah peixuan-worker/public/ || echo "Public directory not found"
+
+      - name: Install Worker Dependencies
+        run: |
+          cd peixuan-worker
+          echo "=== Installing dependencies ==="
+          npm ci
+          echo "=== Dependencies installed ==="
+
+      - name: Build Worker
+        run: |
+          cd peixuan-worker
+          echo "=== Building worker ==="
+          npm run build
+          echo "=== Build complete ==="
+
+      - name: Verify Worker Files
+        run: |
+          echo "=== Checking worker files ==="
+          ls -lah peixuan-worker/
+          echo "=== Checking dist directory ==="
+          ls -lah peixuan-worker/dist/ || echo "Dist directory not found"
+
+      - name: Apply D1 Migrations (Staging)
+        run: |
+          cd peixuan-worker
+          echo "=== Applying D1 migrations to staging ==="
+          npm run db:push -- --env staging || echo "Migration failed or already applied"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy Worker (Staging)
+        run: |
+          cd peixuan-worker
+          echo "=== Starting deployment to staging ==="
+          npx wrangler deploy --env staging
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

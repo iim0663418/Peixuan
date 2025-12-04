@@ -1,5 +1,91 @@
 # 決策記錄
 
+## 2025-12-04: 產品定位、Prompt 重構與 RWD Phase1
+
+### 決策：性格/運勢分析分工與敘事式 Prompt
+- **背景**: 性格與運勢提示詞混雜，輸出割裂
+- **影響**:
+  - 功能命名：佩璇 AI 分析 → 佩璇性格分析；佩璇進階分析 → 佩璇運勢分析；全站文案同步
+  - Prompt 分工：性格分析聚焦基本資訊+八字+十神+藏干+紫微；運勢分析聚焦四化飛星+星曜對稱+下一年預測
+  - 敘事化輸出：移除條列 4 層架構，改為大運→四化→星曜→下一年預測的連貫故事；新增 personalityOnly 選項與敘事範例
+  - Token 調整：性格分析上限 6144、運勢預算 ~400；清除舊快取確保新 prompt 呈現
+- **狀態**: 完成 ✓
+
+### 決策：下一年預測與因果說明強化
+- **背景**: 需要讓預測與能量狀態對應，避免制式條件句
+- **影響**:
+  - 預測邏輯改為「因為四化循環/星曜能量 → 所以預測結果」，強化因果連結
+  - 運勢預測流程保持四化→星曜→下一年遞進，保留敘事一致性
+  - 清除分析快取避免舊邏輯殘留
+- **狀態**: 完成 ✓
+
+### 決策：RWD Phase1（導航/佈局/互動基線）
+- **背景**: 行動端觸控與設計一致性需求提升
+- **影響**:
+  - Navbar/Footer 觸控目標放大、1024px 斷點微調、品牌區縮放、移動關閉按鈕與滑入動畫
+  - Grid/Flex 佈局基線 + design-tokens 斷點定義；表單強制單欄、44px 觸控目標
+  - Hover 依賴剝離：popover 改點擊觸發、@media (hover: none) 停用 hover；圖表 will-change + prefers-reduced-motion 性能與無障礙支持
+- **狀態**: 完成 ✓（Phase1 收尾，進入 Phase2）
+
+### 決策：ESLint 清理與 enum 標準化
+- **背景**: errorHandler.ts 保留 4 個 ESLint 錯誤與多餘 eslint-disable 標註，enum 定義偏離 TypeScript 標準
+- **影響**:
+  - 移除 12 條無效 eslint-disable(-next-line) 註解，恢復正常檢查
+  - 修復 errorHandler.ts 4 個 ESLint 錯誤，恢復標準 enum 寫法
+  - 提升可讀性與靜態檢查可信度，避免錯誤被遮蔽
+- **狀態**: 完成 ✓
+
+### 決策：生產環境治理與回復策略
+- **背景**: 直接在生產測試曾導致不穩定
+- **影響**:
+  - 發布流程：feature → staging → main/production，禁止將測試端點/調試碼推上生產
+  - 部署前重新編譯前端並複製到 Worker；保留 wrangler dev 本地驗證；建議建立 CI/CD 自動化測試
+  - 若誤部署：立即 reset 至 main、清理未追蹤檔、重建前端並重部署穩定版
+- **狀態**: 執行中（治理規範）
+
+### 決策：強制 Staging 先行，生產環境走 CI/CD（2025-12-04）
+- **背景**: 需要建立更嚴格的部署流程，避免直接手動部署到生產環境
+- **影響**:
+  - **禁止手動部署生產環境**：所有變更必須先部署到 Staging 驗證
+  - **Staging 部署**：`cd peixuan-worker && npx wrangler deploy --env staging`
+  - **生產部署**：僅透過 GitHub Actions CI/CD 自動觸發（merge to main）
+  - **驗證流程**：Staging 測試通過 → PR 審查 → Merge to main → 自動部署生產
+- **例外情況**：緊急修復可手動部署，但必須立即補 PR 並記錄於 CHECKPOINTS.md
+- **狀態**: 強制執行 ✅
+
+### 決策：Code Quality Domain 收尾與重複檔案移除
+- **背景**: 前端 ESLint 剩餘 errors 及重複 .js/.map 檔遮蔽型別/品質問題；LanguageSelector 測試失敗
+- **影響**:
+  - 移除 yearlyInteractionUtils.js、geocodeService.js、layeredReading.js 及 .js.map，保留 TypeScript 單一真實來源
+  - eslint.config.js 新增 MouseEvent 全域宣告；確認 baziCalculators.ts 無殘餘 var
+  - LanguageSelector 改用 sessionStorage mock，新增 fallback/繁簡轉換測試；測試綠燈
+  - ESLint 收斂至 **0 errors / 126 warnings**，P1 Code Quality Domain 關閉
+- **狀態**: 完成 ✓
+
+### 決策：Prompt 去制式化與犯太歲預測收斂（2025-12-04 13:18）
+- **背景**: 運勢分析過度模板化，風險評級/行動建議失去個別性
+- **影響**:
+  - 移除制式化風險評級與行動建議，改由 AI 依能量參數自由推敲
+  - 下一年預測僅保留干支、立春邊界、犯太歲類型，避免冗餘評級
+  - 清除 Staging 快取確保新 prompt 呈現
+- **狀態**: 完成 ✓
+
+### 決策：快取等待提示動態化（2025-12-04 14:38）
+- **背景**: 需要在快取命中與冷啟時給予不同等待心智模型
+- **影響**:
+  - 有快取顯示「馬上就好！✨」，無快取顯示「讓我仔細看看～大概需要半分鐘喔 ⏰」
+  - 與 `/api/v1/analyze/check` 預檢查一致，減少使用者等待焦慮
+  - 部署到生產 (28efc232-c24b-4ad4-98e2-48abe71a49db) 後已生效
+- **狀態**: 完成 ✓
+
+### 決策：RWD Roadmap Phase 0-VI 優先序與回滾
+- **背景**: Week 2 完成 Phase1 後需鎖定後續節奏與風險控管
+- **影響**:
+  - 優先順序：Phase0 Navbar → Phase1 佈局 → Phase2 表單 → Phase3 圖表 → Phase4 表格 → Phase5 觸控 → Phase6 測試
+  - 已完成: 0.1/0.5/0.6/1.1/1.2/1.3/2.1/2.3/3.3/3.4/5.1/5.2；待辦: 2.2/2.4/3.1/3.2/4.x/5.3/6.x
+  - 風險/回滾：Task4.4 高風險，回滾保留完整表格+橫向滾動；圖表精煉/即時驗證中風險，可回到完整數據或提交後驗證；所有變更保留 `.legacy.vue` 備份，分支 RWD優化→staging→main
+- **狀態**: 執行中（進入 Phase2 準備）
+
 ## 2025-12-03: AI Streaming 與 Gemini 整合
 
 ### 決策：啟用 Gemini Streaming + D1 快取 + SSE

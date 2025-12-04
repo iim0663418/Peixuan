@@ -54,7 +54,7 @@ export function formatToMarkdown(result: CalculationResult, options: MarkdownOpt
   }
 
   // 6. ZiWei Purple Star
-  sections.push(formatZiWei(result));
+  sections.push(formatZiWei(result, options));
 
   // 7. SiHua Flying Stars (exclude in personality-only mode)
   if (result.ziwei.siHuaAggregation && !options.personalityOnly) {
@@ -217,7 +217,7 @@ function formatFortuneCycles(result: CalculationResult): string {
 /**
  * Format ZiWei purple star section
  */
-function formatZiWei(result: CalculationResult): string {
+function formatZiWei(result: CalculationResult, options: FormatOptions): string {
   const { ziwei } = result;
   const sections: string[] = ['## 🌟 紫微斗數\n'];
 
@@ -239,8 +239,9 @@ function formatZiWei(result: CalculationResult): string {
   sections.push(`- **左輔**：第${ziwei.auxiliaryStars.zuoFu}宮`);
   sections.push(`- **右弼**：第${ziwei.auxiliaryStars.youBi}宮`);
 
-  // Star Symmetry (if available)
-  if (ziwei.starSymmetry && ziwei.starSymmetry.length > 0) {
+  // Star Symmetry (if available) - Skip in personality-only mode
+  // Star symmetry is dynamic data, better suited for fortune analysis
+  if (ziwei.starSymmetry && ziwei.starSymmetry.length > 0 && !options.personalityOnly) {
     sections.push('\n### 星曜對稱性');
     ziwei.starSymmetry.forEach(sym => {
       if (sym.symmetryPair) {

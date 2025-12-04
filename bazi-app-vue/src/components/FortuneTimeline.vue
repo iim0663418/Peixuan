@@ -106,11 +106,15 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
 <style scoped>
 /* Design tokens applied - 2025-11-30 */
 /* RWD optimization - 2025-12-03 */
+/* Task 3.3: Responsive chart sizing - 2025-12-04 */
+/* Task 3.4: Mobile performance optimization - 2025-12-04 */
 
 .fortune-timeline {
   padding: clamp(12px, 3vw, 16px);
   background: var(--bg-primary);
   border-radius: 8px;
+  max-width: 100%; /* Ensure container responsiveness */
+  width: 100%;
 }
 
 .qiyun-info {
@@ -121,11 +125,14 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
 }
 
 /* Mobile: Add scroll hint */
+/* Responsive sizing with horizontal scroll optimization */
 .timeline-container {
   overflow-x: auto;
   margin-bottom: clamp(16px, 4vw, 20px);
   position: relative;
   -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+  width: 100%; /* Auto-resize with container */
+  max-width: 100%;
 }
 
 /* Scroll hint for mobile */
@@ -166,15 +173,23 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
   background: var(--text-tertiary);
 }
 
+/* Disable scrollbar hover on touch devices */
+@media (hover: none) {
+  .timeline-container::-webkit-scrollbar-thumb:hover {
+    background: var(--border-medium);
+  }
+}
+
 .timeline-track {
   display: flex;
   gap: clamp(6px, 1.5vw, 8px);
   min-width: max-content;
   padding: clamp(6px, 1.5vw, 8px) 0;
+  width: auto; /* Allow track to expand beyond container */
 }
 
 .dayun-segment {
-  flex: 1;
+  flex: 0 0 auto; /* Prevent flex shrinking, maintain fixed width */
   min-width: 100px; /* 移動端減小寬度 */
   padding: clamp(10px, 2.5vw, 12px);
   background: var(--bg-secondary);
@@ -183,6 +198,19 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
   transition: all 0.3s ease;
   cursor: pointer;
   min-height: 44px; /* 觸控目標 */
+  aspect-ratio: 1.2 / 1; /* Maintain consistent aspect ratio */
+  will-change: transform; /* Performance hint for animations */
+}
+
+/* Reduce animations on mobile if user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .dayun-segment {
+    transition: none;
+  }
+
+  .dayun-segment:hover {
+    transform: none;
+  }
 }
 
 .dayun-segment:hover {
@@ -190,6 +218,16 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
   border-color: var(--info-lighter);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Disable segment hover effects on touch devices */
+@media (hover: none) {
+  .dayun-segment:hover {
+    background: var(--bg-secondary);
+    border-color: var(--border-light);
+    transform: none;
+    box-shadow: none;
+  }
 }
 
 .dayun-segment.current {
@@ -247,6 +285,93 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
 @media (min-width: 1024px) {
   .dayun-segment {
     min-width: 140px;
+  }
+}
+
+/* Mobile-specific data refinement (< 768px) */
+@media (max-width: 767px) {
+  /* P2.3 Task 1: Mobile card layout */
+
+  /* 1) Change timeline-container to vertical card layout */
+  .timeline-container {
+    overflow-x: visible; /* Remove horizontal scrolling on mobile */
+    overflow-y: visible;
+  }
+
+  .timeline-container::after {
+    display: none; /* Remove scroll hint */
+  }
+
+  .timeline-track {
+    flex-direction: column; /* Vertical card layout */
+    gap: 1rem;
+    min-width: auto;
+    width: 100%;
+    padding: 0;
+  }
+
+  /* 2) Transform dayun-segment to card style */
+  .dayun-segment {
+    flex: 1 1 auto;
+    min-width: auto;
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-light);
+    aspect-ratio: auto; /* Remove aspect ratio for card layout */
+    min-height: auto;
+  }
+
+  /* 3) Hide non-current dayun segments on mobile (already filtered in P2.2) */
+  .dayun-segment:not(.current) {
+    opacity: 0.3;
+    filter: blur(1px);
+    pointer-events: none;
+  }
+
+  /* Show only current dayun prominently */
+  .dayun-segment.current {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+  }
+
+  /* 5) Simplify dayun-header to vertical stack */
+  .dayun-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .dayun-age {
+    font-size: 0.875rem;
+    order: 2;
+  }
+
+  .dayun-ganzhi {
+    font-size: 1.5rem;
+    order: 1;
+  }
+
+  .dayun-period {
+    text-align: left;
+    font-size: 0.75rem;
+  }
+
+  /* Simplify current fortune display on mobile */
+  .current-fortune :deep(.el-descriptions) {
+    font-size: 0.875rem;
+  }
+
+  .current-fortune :deep(.el-descriptions-item__label) {
+    width: 60px;
   }
 }
 </style>

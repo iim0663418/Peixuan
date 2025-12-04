@@ -96,6 +96,9 @@ function formatSihuaAggregation(result: CalculationResult): string {
   // Lu Cycles
   if (agg.luCycles.length > 0) {
     lines.push(`\n### 化祿循環（${agg.luCycles.length} 個）`);
+    agg.luCycles.forEach((cycle: SiHuaCycle, idx: number) => {
+      lines.push(`- 循環 ${idx + 1}：${cycle.description || cycle.palaces.join(' → ')}`);
+    });
   }
 
   return lines.join('\n');
@@ -103,6 +106,7 @@ function formatSihuaAggregation(result: CalculationResult): string {
 
 /**
  * Format star symmetry for energy balance analysis
+ * Optimized: Only show main stars to reduce token usage and focus on fortune prediction
  */
 function formatStarSymmetry(result: CalculationResult): string {
   const lines: string[] = ['## ⚖️ 星曜對稱（能量平衡）\n'];
@@ -119,8 +123,19 @@ function formatStarSymmetry(result: CalculationResult): string {
     return lines.join('\n');
   }
 
-  lines.push('### 對稱星系');
-  symmetricPairs.slice(0, 5).forEach((pair: StarSymmetry) => {
+  // Filter to main stars only to reduce token usage
+  const mainStars = ['紫微', '天府', '太陽', '太陰', '天機', '天梁'];
+  const mainSymmetry = symmetricPairs.filter((pair: StarSymmetry) => 
+    mainStars.includes(pair.star)
+  ).slice(0, 3); // Limit to top 3 main star pairs
+
+  if (mainSymmetry.length === 0) {
+    lines.push('主星對稱：紫微、天府等主星形成能量平衡結構');
+    return lines.join('\n');
+  }
+
+  lines.push('### 主星對稱');
+  mainSymmetry.forEach((pair: StarSymmetry) => {
     lines.push(`- ${pair.star}（第${pair.position + 1}宮）↔ ${pair.symmetryPair}（第${(pair.symmetryPosition ?? 0) + 1}宮）：${pair.symmetryType}`);
   });
 
@@ -129,6 +144,7 @@ function formatStarSymmetry(result: CalculationResult): string {
 
 /**
  * Format next year prediction using NextYearCalculator module
+ * Simplified to provide only basic facts, letting AI interpret freely
  */
 function formatNextYearBasic(result: CalculationResult): string {
   const { input, annualFortune } = result;
@@ -155,10 +171,10 @@ function formatNextYearBasic(result: CalculationResult): string {
     lines.push(`- **下一年**：${nextYearFortune.year}（${nextYearFortune.stemBranch.stem}${nextYearFortune.stemBranch.branch}）`);
     lines.push(`- **立春時間**：${nextYearFortune.lichunDate.toISOString().split('T')[0]}`);
 
-    // Tai Sui analysis
+    // Tai Sui analysis (facts only, no severity rating)
     const { taiSuiTypes } = nextYearFortune;
     if (taiSuiTypes.severity !== 'NONE') {
-      lines.push('\n### 犯太歲預測');
+      lines.push('\n### 犯太歲');
       const taiSuiList: string[] = [];
       if (taiSuiTypes.zhi) {
         taiSuiList.push('值太歲');
@@ -176,39 +192,10 @@ function formatNextYearBasic(result: CalculationResult): string {
         taiSuiList.push('害太歲');
       }
       lines.push(`- **類型**：${taiSuiList.join('、')}`);
-      lines.push(`- **嚴重度**：${taiSuiTypes.severity}`);
     } else {
-      lines.push('\n### 犯太歲預測');
-      lines.push('- **無犯太歲**：流年順遂');
+      lines.push('\n### 犯太歲');
+      lines.push('- **無犯太歲**');
     }
-
-    // Risk assessment
-    const { risks } = nextYearFortune;
-    lines.push('\n### 風險評估');
-    lines.push(`- **健康**：${risks.health}`);
-    lines.push(`- **財富**：${risks.wealth}`);
-    lines.push(`- **事業**：${risks.career}`);
-    lines.push(`- **關係**：${risks.relationship}`);
-
-    // Action recommendations (quarterly)
-    const { actionPlan } = nextYearFortune;
-    lines.push('\n### 行動建議');
-
-    lines.push('\n**Q1（立春～清明）**');
-    lines.push(`- 宜：${actionPlan.q1.suitable.join('、')}`);
-    lines.push(`- 忌：${actionPlan.q1.avoid.join('、')}`);
-
-    lines.push('\n**Q2（立夏～小暑）**');
-    lines.push(`- 宜：${actionPlan.q2.suitable.join('、')}`);
-    lines.push(`- 忌：${actionPlan.q2.avoid.join('、')}`);
-
-    lines.push('\n**Q3（立秋～寒露）**');
-    lines.push(`- 宜：${actionPlan.q3.suitable.join('、')}`);
-    lines.push(`- 忌：${actionPlan.q3.avoid.join('、')}`);
-
-    lines.push('\n**Q4（立冬～小寒）**');
-    lines.push(`- 宜：${actionPlan.q4.suitable.join('、')}`);
-    lines.push(`- 忌：${actionPlan.q4.avoid.join('、')}`);
 
   } catch (error) {
     // Fallback if calculation fails

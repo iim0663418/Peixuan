@@ -119,6 +119,13 @@ watch(locale, (newLocale) => {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+/* Disable hover effects on touch devices */
+@media (hover: none) {
+  .language-select:hover {
+    border-color: var(--border-medium);
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

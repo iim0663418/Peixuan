@@ -111,11 +111,15 @@ const getBarWidth = (score: number): string => {
 <style scoped>
 /* Design tokens applied - 2025-11-30 */
 /* RWD optimization - 2025-12-03 */
+/* Task 3.3: Responsive chart sizing - 2025-12-04 */
+/* Task 3.4: Mobile performance optimization - 2025-12-04 */
 
 .wuxing-chart {
   padding: clamp(12px, 3vw, 16px);
   background: var(--bg-primary);
   border-radius: 8px;
+  max-width: 100%; /* Ensure container responsiveness */
+  width: 100%;
 }
 
 .chart-container {
@@ -123,6 +127,8 @@ const getBarWidth = (score: number): string => {
   flex-direction: column;
   gap: clamp(12px, 3vw, 16px);
   margin-bottom: clamp(16px, 4vw, 20px);
+  width: 100%; /* Full width within parent */
+  max-width: 100%; /* Prevent overflow */
 }
 
 .element-bar {
@@ -163,6 +169,7 @@ const getBarWidth = (score: number): string => {
 }
 
 /* Mobile: Taller bars for better visibility */
+/* Responsive sizing with aspect ratio optimization */
 .bar-track {
   position: relative;
   height: clamp(28px, 7vw, 32px); /* 移動端增加高度 */
@@ -170,6 +177,8 @@ const getBarWidth = (score: number): string => {
   border-radius: 6px;
   overflow: hidden;
   min-height: 28px; /* 確保最小高度 */
+  width: 100%; /* Auto-resize with container */
+  max-width: 100%;
 }
 
 .bar-fill {
@@ -179,6 +188,14 @@ const getBarWidth = (score: number): string => {
   height: 100%;
   transition: width 0.5s ease;
   border-radius: 6px;
+  will-change: transform; /* Performance hint for GPU acceleration */
+}
+
+/* Reduce animations on mobile if user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .bar-fill {
+    transition: none;
+  }
 }
 
 .bar-fill.raw {
@@ -231,6 +248,35 @@ const getBarWidth = (score: number): string => {
 @media (min-width: 768px) {
   .bar-track {
     height: 32px;
+  }
+}
+
+/* Mobile-specific data refinement (< 768px) */
+@media (max-width: 767px) {
+  /* Hide raw scores on mobile - show only adjusted */
+  .raw-score,
+  .separator {
+    display: none;
+  }
+
+  /* Hide legend on mobile - focus on core KPIs */
+  .legend {
+    display: none;
+  }
+
+  /* Hide raw bar on mobile - show only adjusted */
+  .bar-fill.raw {
+    display: none;
+  }
+
+  /* Emphasize summary tags on mobile */
+  .summary {
+    margin-bottom: var(--space-lg);
+  }
+
+  .summary .el-tag {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
   }
 }
 

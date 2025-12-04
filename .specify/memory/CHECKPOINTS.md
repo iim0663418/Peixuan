@@ -1,5 +1,105 @@
 # 檢查點記錄
 
+## Checkpoint: rwd-plan-and-deploy-2025-12-04-14-56
+**時間**: 2025-12-04 14:56  
+**狀態**: ✅ 完成（Staging/Prod 部署 + RWD 路線圖確認）
+
+### 完成的任務
+- 部署：Staging 7a89f251-c4d7-417e-9095-463520d990e2 (10.38s) 健康通過；生產 28efc232-c24b-4ad4-98e2-48abe71a49db (15.43s，10 新檔 + 105 快取) 健康；既有 b42e8091-1f60-42e8-b52a-96e86893f943 持續穩定
+- Prompt/運勢：移除制式化風險評級與行動建議；下一年預測僅干支/立春/犯太歲類型；強調能量參數自由推敲；清除 Staging 快取
+- UX：快取等待提示動態化（有快取「馬上就好！」、無快取「大概需要半分鐘」）並已部署生效
+- RWD 路線圖：Phase1 收尾，已完成 0.1/0.5/0.6/1.1/1.2/1.3/2.1/2.3/3.3/3.4/5.1/5.2；待辦 2.2/2.4/3.1/3.2/4.x/5.3/6.x；分支策略 RWD優化→staging→main，保留 `.legacy.vue` 備份
+
+### 關鍵成果
+- 進度維持 71.5/62h (115%)，Week 2 收尾後準備進入 RWD Phase2
+- 部署鏈路健康：快取命中 0.118s 策略維持，等待文案與 prompt 更新已上線
+
+### 已知問題
+- 前端 ESLint 0 errors / 126 warnings；後端 ESLint 3597 issues；後端 npm 4 moderate 漏洞
+- RWD Phase2-6、表格/圖表精煉、觸控手勢、實機/性能測試尚未啟動
+
+### 下一步
+- 快速完成 Task 0.2/0.3/0.4 後切入 Phase2：2.2 即時驗證、3.1/3.2 圖表精煉、4.1-4.5 表格模式設計、5.3 手勢、6.x 測試
+- 持續監控部署健康與快取命中，保持 staging 先行 + CI/CD 生產
+
+## Checkpoint: week2-wrap-2025-12-04-10:47
+**時間**: 2025-12-04 10:47  
+**狀態**: ✅ 完成（Week 2 收尾 + Code Quality Domain 關閉）
+
+### 完成的任務
+- P1 Code Quality 全數完成：移除重複 .js/.js.map（yearlyInteractionUtils, geocodeService, layeredReading）、MouseEvent 全域宣告、確認 baziCalculators 無殘餘 var
+- 語言切換測試修復：LanguageSelector 改用 sessionStorage mock，新增 fallback/繁簡轉換測試，錯誤訊息期望更新為 sessionStorage；測試綠燈
+- ESLint 收斂至 **0 errors / 126 warnings**（主要為 @typescript-eslint/no-explicit-any）；構建驗證通過
+- 部署狀態維持：生產版本 8880b8b2、ff462e5a 健康檢查 ok；快取命中 0.118s 持續
+
+### 關鍵成果
+- Week 2 完成度 115%（71.5/62h）；P1 Code Quality Domain 關閉，RWD/DevOps 可進入下一階段
+- 品質基線：重複檔清除、LanguageSelector 測試穩定、ESLint 無 errors，僅剩 126 warnings
+
+### 已知問題
+- 前端 ESLint 警告 126；後端 ESLint 3597 issues；後端 npm 4 moderate 漏洞
+- RWD Phase2-6、服務介紹頁面、Staging/CI/CD 尚未啟動；後端 workerd 集成測試仍暫停
+
+### 下一步
+- 推進 RWD Phase2（表單即時驗證、圖表/表格行動模式）與服務介紹頁面
+- 設立 staging 環境與 CI 測試流程；持續監控快取命中與部署健康
+- 分批處理後端 ESLint 3597 issues 與 npm 漏洞
+
+## Checkpoint: week2-wrap-2025-12-04-06:00
+**時間**: 2025-12-04 06:00  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- ESLint 清理：修復 errorHandler.ts 4 個錯誤，移除 12 條無效 eslint-disable(-next-line) 註解，enum 定義恢復標準寫法
+- 生產部署：version ff462e5a（14.94s）健康檢查通過，25 新檔 + 51 快取檔上傳；前一版 8880b8b2 已在線
+- 前端一致性：性格/運勢頁面全面套用設計系統，間距/圓角/字體/陰影改為 CSS 變數，hover 動畫統一
+- 日誌優化：移除 19 個 console.log（保留 error/warn），重新編譯並同步 Worker
+- Prompt 與輸出：性格分析敘事化與 personalityOnly 模式、運勢預測強化因果敘事、token 預算提升；清除舊快取
+
+### 關鍵成果
+- 專案進度：71/62h (115%)，Week 2 收尾 + RWD Phase1 完成
+- 生產環境穩定：雙版部署健康檢查 ok，快取命中 0.118s（180x 提速）維持
+- 品質基線：errorHandler.ts 不再被 eslint-disable 遮蔽，enum 定義符合 TypeScript 最佳實踐
+
+### 已知問題
+- 前端 ESLint: 6 errors / 120 warnings
+- 後端 ESLint: 3597 issues
+- LanguageSelector 測試: 6 失敗（localStorage mock）
+- 後端 npm: 4 moderate 漏洞 (drizzle-kit 開發依賴)
+- 待辦：服務介紹頁面、RWD Phase2-6
+
+### 下一步
+- 優先清理前端 ESLint 6 errors 與 LanguageSelector 測試；規劃後端 ESLint 分批收斂
+- 推進 RWD Phase2（表單即時驗證、圖表/表格行動模式）與服務介紹頁面
+- 監控快取命中率與部署健康檢查
+
+## Checkpoint: week2-rwd-phase1-2025-12-04-05:29
+**時間**: 2025-12-04 05:29  
+**狀態**: ✅ 完成
+
+### 完成的任務
+- 生產部署兩次（Version 8880b8b2、ff462e5a），健康檢查通過；部署約 15s，25 新檔 + 51 快取檔上傳
+- 性格/運勢分析 Prompt 重構：功能改名、敘事化輸出、personalityOnly 選項、token 上限調整；清除舊快取保證新輸出
+- 運勢預測邏輯強化：四化→星曜→下一年預測的因果敘事；大運流年加入背景
+- RWD Phase1 落地：Navbar/Footer 觸控放大與關閉按鈕、1024px 斷點調整、Grid/Flex 佈局基線、表單單欄與 44px 觸控、design-tokens 斷點定義
+- 互動與性能優化：hover 依賴剝離（popover 點擊、@media (hover:none) 停用 hover）、console.log 清理 19 項、圖表 will-change + prefers-reduced-motion
+
+### 關鍵成果
+- 專案進度：71/62h (115%)，Week 2 收尾 + RWD Phase1 完成
+- 生產環境穩定：健康檢查 ok，部署時間 ~14.9s，快取清除後輸出一致
+- 效能：快取命中 0.118s（180x 提速）；SSE 保持逐行 Markdown 格式
+
+### 已知問題
+- 前端 ESLint: 6 errors / 120 warnings
+- 後端 ESLint: 3597 issues
+- LanguageSelector 測試: 6 失敗（localStorage mock）
+- 待辦：服務介紹頁面、RWD Phase2-6、後端 npm 4 moderate 漏洞
+
+### 下一步
+- 建立 staging/CI 並避免在生產直接測試；wrangler dev 作為本地驗證
+- 優先修復 ESLint 與 LanguageSelector 測試；推進 RWD Phase2（佈局/表單）與圖表/表格優化
+- 持續監控快取命中與部署健康檢查
+
 ## Checkpoint: week2-complete-2025-12-03-17:32
 **時間**: 2025-12-03 17:32
 **狀態**: ✅ 完成

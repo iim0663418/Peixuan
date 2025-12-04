@@ -18,7 +18,9 @@
 		"enabled": true
 	},
 	"triggers": {
-		"crons": ["0 2 * * *"]
+		"crons": [
+			"0 2 * * *"
+		]
 	},
 	"d1_databases": [
 		{
@@ -36,7 +38,7 @@
 	/**
 	 * KV Cache (Optional)
 	 * Uncomment to enable KV-based caching
-	 * 
+	 *
 	 * Steps to enable:
 	 * 1. Create KV namespace: npx wrangler kv:namespace create CACHE
 	 * 2. Copy the namespace ID and update below
@@ -47,5 +49,28 @@
 	// 		"binding": "CACHE",
 	// 		"id": "your-kv-namespace-id"
 	// 	}
-	// ]
+	// ],
+	/**
+	 * Staging Environment
+	 * Used for pre-production testing
+	 * Note: Create D1 database manually and update database_id
+	 * Command: npx wrangler d1 create peixuan-db-staging
+	 */
+	"env": {
+		"staging": {
+			"name": "peixuan-worker-staging",
+			"compatibility_date": "2025-09-06",
+			"compatibility_flags": [
+				"nodejs_compat"
+			],
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "peixuan-db-staging",
+					"database_id": "4ae1044f-a63d-4677-961f-0b3efb7078e4",
+					"migrations_dir": "drizzle"
+				}
+			]
+		}
+	}
 }

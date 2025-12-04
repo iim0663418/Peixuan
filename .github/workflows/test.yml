@@ -1,0 +1,83 @@
+name: CI Tests
+
+on:
+  pull_request:
+    branches: [main, staging]
+  push:
+    branches: [main, staging]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: ESLint Check
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: bazi-app-vue/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd bazi-app-vue
+          npm ci
+
+      - name: Run ESLint
+        run: |
+          cd bazi-app-vue
+          npm run lint
+
+  test:
+    runs-on: ubuntu-latest
+    name: Unit Tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: bazi-app-vue/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd bazi-app-vue
+          npm ci
+
+      - name: Run Tests
+        run: |
+          cd bazi-app-vue
+          npm test -- --run
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build Check
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: bazi-app-vue/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd bazi-app-vue
+          npm ci
+
+      - name: Build Frontend
+        run: |
+          cd bazi-app-vue
+          npm run build
+
+      - name: Verify Build Output
+        run: |
+          cd bazi-app-vue
+          if [ ! -d "dist" ]; then
+            echo "Build failed: dist directory not found"
+            exit 1
+          fi
+          echo "Build successful: dist directory exists"

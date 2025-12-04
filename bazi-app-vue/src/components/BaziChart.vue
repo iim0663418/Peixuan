@@ -195,4 +195,53 @@ const tenGodsForPillars = computed(() => {
     font-size: 1.4em;
   }
 }
+
+/* Mobile-specific data refinement (< 768px) */
+@media (max-width: 767px) {
+  /* Single column layout on mobile for better readability */
+  .pillars-container {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .pillar-card-display {
+    max-width: 100%;
+    min-width: 100%;
+    aspect-ratio: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+  }
+
+  /* Horizontal layout within each pillar */
+  .pillar-card-display h5 {
+    margin: 0;
+    min-width: 60px;
+    text-align: left;
+  }
+
+  .stem-branch {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  /* Simplify labels on mobile - hide element labels */
+  .label {
+    display: none;
+  }
+
+  /* Emphasize characters */
+  .char {
+    font-size: 1.5rem;
+  }
+
+  .ten-god {
+    display: inline;
+    margin-left: 0.5rem;
+    font-size: 0.875rem;
+  }
+}
 </style>

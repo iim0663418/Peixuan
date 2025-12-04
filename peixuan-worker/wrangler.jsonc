@@ -28,12 +28,6 @@
 			"database_name": "peixuan-db",
 			"database_id": "5164090a-702e-4fc4-9336-f5012cd36b28",
 			"migrations_dir": "drizzle"
-		},
-		{
-			"binding": "peixuan_db_staging",
-			"database_name": "peixuan-db-staging",
-			"database_id": "4ae1044f-a63d-4677-961f-0b3efb7078e4",
-			"remote": true
 		}
 	],
 	/**

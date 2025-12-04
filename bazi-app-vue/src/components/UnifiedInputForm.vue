@@ -530,8 +530,44 @@ onMounted(() => {
 });
 
 const formRules = {
-  birthDate: [{ required: true, message: '請選擇出生日期', trigger: 'change' }],
-  birthTime: [{ required: true, message: '請選擇出生時間', trigger: 'change' }],
+  birthDate: [
+    { required: true, message: '請選擇出生日期', trigger: 'change' },
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (!value) {
+          callback();
+          return;
+        }
+        const selectedDate = new Date(value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (selectedDate > today) {
+          callback(new Error('出生日期不能是未來日期'));
+          return;
+        }
+        callback();
+      },
+      trigger: ['change', 'blur'],
+    },
+  ],
+  birthTime: [
+    { required: true, message: '請選擇出生時間', trigger: 'change' },
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (!value) {
+          callback();
+          return;
+        }
+        const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+        if (!timeRegex.test(value)) {
+          callback(new Error('時間格式錯誤，請使用 HH:mm 格式（例如：14:30）'));
+          return;
+        }
+        callback();
+      },
+      trigger: ['change', 'blur'],
+    },
+  ],
   gender: [{ required: true, message: '請選擇性別', trigger: 'change' }],
   location: [
     {
@@ -543,6 +579,10 @@ const formRules = {
           );
           return;
         }
+        if (isNaN(formData.longitude)) {
+          callback(new Error('經度必須是有效的數字'));
+          return;
+        }
         if (formData.longitude < -180 || formData.longitude > 180) {
           callback(new Error('經度必須在 -180 到 180 之間'));
           return;
@@ -550,6 +590,10 @@ const formRules = {
 
         // 驗證緯度（可選，但若提供則需檢查範圍）
         if (formData.latitude !== null && formData.latitude !== undefined) {
+          if (isNaN(formData.latitude)) {
+            callback(new Error('緯度必須是有效的數字'));
+            return;
+          }
           if (formData.latitude < -90 || formData.latitude > 90) {
             callback(new Error('緯度必須在 -90 到 90 之間'));
             return;
@@ -564,7 +608,7 @@ const formRules = {
 
         callback();
       },
-      trigger: 'blur',
+      trigger: ['change', 'blur'],
     },
   ],
 };
@@ -587,6 +631,43 @@ watch(
     }
   },
   { immediate: true },
+);
+
+// Real-time validation for form fields
+watch(
+  () => formData.birthDate,
+  () => {
+    if (unifiedForm.value) {
+      unifiedForm.value.validateField('birthDate');
+    }
+  },
+);
+
+watch(
+  () => formData.birthTime,
+  () => {
+    if (unifiedForm.value) {
+      unifiedForm.value.validateField('birthTime');
+    }
+  },
+);
+
+watch(
+  () => formData.gender,
+  () => {
+    if (unifiedForm.value) {
+      unifiedForm.value.validateField('gender');
+    }
+  },
+);
+
+watch(
+  () => [formData.longitude, formData.latitude, formData.timezone],
+  () => {
+    if (unifiedForm.value) {
+      unifiedForm.value.validateField('location');
+    }
+  },
 );
 
 const submitForm = async () => {
@@ -905,6 +986,49 @@ const submitForm = async () => {
   line-height: var(--line-height-normal);
   padding-top: var(--space-xs);
   margin-top: var(--space-xs);
+}
+
+/* Success state for validated fields */
+:deep(.el-form-item.is-success .el-input__wrapper) {
+  border-color: var(--el-color-success);
+}
+
+:deep(.el-form-item.is-success .el-input__wrapper:hover) {
+  border-color: var(--el-color-success);
+}
+
+/* Error state enhancement */
+:deep(.el-form-item.is-error .el-input__wrapper) {
+  border-color: var(--el-color-danger);
+  box-shadow: 0 0 0 1px var(--el-color-danger) inset;
+}
+
+/* Mobile-specific validation styles */
+@media (max-width: 767px) {
+  :deep(.el-form-item__error) {
+    font-size: 0.875rem;
+    padding-top: 0.5rem;
+    margin-top: 0.25rem;
+    position: relative;
+    background: rgba(245, 108, 108, 0.1);
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Ensure error messages don't overlap with inputs */
+  :deep(.el-form-item) {
+    margin-bottom: 1.5rem;
+  }
+
+  /* Larger touch targets for validation feedback */
+  :deep(.el-input__wrapper) {
+    min-height: 48px;
+  }
+
+  :deep(.el-select .el-input__wrapper) {
+    min-height: 48px;
+  }
 }
 
 /* ==========================================

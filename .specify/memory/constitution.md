@@ -22,8 +22,8 @@
 - 大運計歲：使用真實歲數（startAge/endAge），從出生日期開始計算
 - 流年模組: `getAnnualPillar`/`hasPassedLiChun`（立春界、year-4 mod 60）、`locateAnnualLifePalace`/`rotateAnnualPalaces`（地支定位+意義旋轉）、`detectStemCombinations`/`detectBranchClashes`/`detectHarmoniousCombinations`（五合/六沖/三合三會+大運）
 - Hybrid API: Unified (core) + Legacy (palaces) 並行，`/api/v1/purple-star/calculate` 返回 PurpleStarApiResponse；`/api/v1/calculate` 返回完整 CalculationResult（前端 UnifiedView/UnifiedResultView 已接入）
-- AI/Markdown 輸出: `/api/v1/calculate` 支援 `format=markdown`（markdownFormatter 完整覆蓋輸出）；`/api/v1/analyze` 產生計算+AI 分析（Gemini 2.5 Flash）；`/api/v1/analyze/stream` SSE 串流輸出，chartId + D1 chart/analysis 快取；Prompt 敘事化且分工明確（佩璇性格分析：基本+八字+十神+藏干+紫微，token 上限 6144；佩璇運勢分析：四化飛星+星曜對稱+下一年預測，預算 ~400），新增 personalityOnly 選項與 currentYear 注入；Max Output Tokens 2048；新增 GET `/api/v1/analyze/check` 快取預檢查
-- 快取體驗: analyzeStream 先查 analysis_records，命中直接返回 SSE（0.118s，180x 提速）；快取 SSE 逐行輸出保留 Markdown，loading 文案依 cached 狀態切換；表單鎖定機制（currentChartId 存在時鎖定提交防重複計算）；移除 chartHistory；部署前清除舊快取以呈現最新 Prompt
+- AI/Markdown 輸出: `/api/v1/calculate` 支援 `format=markdown`（markdownFormatter 完整覆蓋輸出）；`/api/v1/analyze` 產生計算+AI 分析（Gemini 2.5 Flash）；`/api/v1/analyze/stream` SSE 串流輸出，chartId + D1 chart/analysis 快取；Prompt 敘事化且分工明確（佩璇性格分析：基本+八字+十神+藏干+紫微，token 上限 6144；佩璇運勢分析：四化飛星+星曜對稱+下一年預測，預算 ~400），新增 personalityOnly 選項與 currentYear 注入；Max Output Tokens 2048；新增 GET `/api/v1/analyze/check` 快取預檢查；移除制式風險評級/行動建議，下一年預測收斂為干支/立春/犯太歲，Staging 快取清空
+- 快取體驗: analyzeStream 先查 analysis_records，命中直接返回 SSE（0.118s，180x 提速）；快取 SSE 逐行輸出保留 Markdown，loading 文案依 cached 狀態切換（有快取「馬上就好！」，無快取「大概需要半分鐘」）；表單鎖定機制（currentChartId 存在時鎖定提交防重複計算）；移除 chartHistory；部署前清除舊快取以呈現最新 Prompt
 - UI 設計系統: UnifiedInputForm/UnifiedResultView 完整 CSS 變數化（--space-*/--font-size-*/--radius-*/--bg-*/--text-*），移除所有硬編碼與內聯樣式；移動端響應式優化（<768px Tab 44px 觸控目標、水平滾動、無痕滾動條）；按鈕圖標與 hover 動畫（Lock/Check/Delete + Tooltip）；RWD Phase1 完成 Navbar/Footer 觸控放大與移動關閉、1024px 斷點微調、Grid/Flex 佈局基線、設計斷點 tokens 定義、hover 依賴剝離（popover 點擊、@media hover:none）、圖表 will-change + prefers-reduced-motion 性能/無障礙強化
 - 資料維護: Cloudflare Workers Cron 清理 chart_records 6 個月前舊資料；部署保持 `/health` 檢查通過
 - Bug 修復: Chart API 404（chartRoutes 註冊）、userId null≠'anonymous'、chartId 為唯一識別符、欄位轉換層（stem/branch↔gan/zhi、Wood/Fire↔木/火）、wuxingDistribution 英文鍵轉中文鍵、balance NaN 防護（?? 0）、AI 按鈕鎖定（chartStore 狀態同步）
@@ -58,15 +58,17 @@
 ## 當前狀態
 - **版本**: v1.0
  - **狀態**: 生產運行中；Week 2 完成 ✅（進度 71.5/62h, 115%）
-- **最後更新**: 2025-12-04 10:47
+- **最後更新**: 2025-12-04 14:56
+- **部署策略**: 強制 Staging 先行，生產環境僅透過 CI/CD 部署（2025-12-04 起）
 - **Week 2 核心成就（更新）**:
   - **AI Streaming + 快取體驗**：Gemini SSE → D1 快取 → EventSource，命中 0.118s（180x）；逐行 Markdown 排版一致；快取預檢查 `/analyze/check`
   - **Prompt 敘事化與分工**：佩璇性格分析 vs 佩璇運勢分析，敘事式輸出（大運→四化→星曜→下一年預測），personalityOnly 模式，token 上限調整
   - **RWD Phase1**：Navbar/Footer 觸控放大與移動關閉、1024px 斷點微調、Grid/Flex 佈局基線、design-tokens 斷點定義、表單單欄與 44px 觸控、hover 依賴剝離（popover 點擊、@media hover:none）
   - **性能/無障礙/程式碼衛生**：圖表 will-change + prefers-reduced-motion；console.log 清理 19 項；errorHandler.ts ESLint 4 errors 修復、移除 12 條無效 eslint-disable、enum 定義回歸標準
   - **Code Quality 收尾**：移除重複 .js/.js.map（yearlyInteractionUtils, geocodeService, layeredReading）、MouseEvent 全域宣告、LanguageSelector 測試修復；ESLint 0 errors / 126 warnings，構建驗證通過
-  - **部署**：生產版本 8880b8b2、ff462e5a 已部署，健康檢查通過（~14.9s），25 新檔 + 51 快取檔上傳；快取/資源清理完成
+  - **部署**：生產版本 28efc232-c24b-4ad4-98e2-48abe71a49db 上線（15.43s，10 新檔 + 105 快取），既有 ff462e5a/8880b8b2 穩定；Staging 7a89f251-c4d7-417e-9095-463520d990e2 健康；快取/資源清理完成
   - **Bug 修復與品質**：前端 ESLint 233→126（0 errors/126 warnings）、npm 漏洞 7→0；日柱測試 20/20 通過；後端 ESLint 基線 3597 issues 待清理
+  - **RWD 路線圖**：Phase1 收尾；完成 0.1/0.5/0.6/1.1/1.2/1.3/2.1/2.3/3.3/3.4/5.1/5.2，待辦 2.2/2.4/3.1/3.2/4.x/5.3/6.x；高風險 Task4.4 需可回滾至完整表格+橫向滾動，所有變更保留 `.legacy.vue` 備份
 - **架構決策記錄**:
   1. chartId 為唯一識別符：移除 userId AND 條件（類 URL shortener）
   2. 快取策略：chart_records 永久 + analysis_records 24h TTL；預檢查 /analyze/check 端點改善提示 UX；部署前清除舊快取

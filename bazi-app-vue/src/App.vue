@@ -682,18 +682,40 @@ main {
   }
 }
 
+/* 確保小解析度下隱藏桌面選單 */
+@media (max-width: 767px) {
+  .desktop-menu {
+    display: none !important;
+  }
+  
+  .mobile-menu-button {
+    display: flex !important;
+  }
+}
+
+/* 中型解析度優化 (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+  .navbar {
+    padding: 0.875rem 1.25rem;
+  }
+  
+  .nav-brand h1 {
+    font-size: 1.2rem;
+  }
+}
+
 /* 小螢幕手機特定樣式 */
 @media (max-width: 479px) {
   .navbar {
-    padding: clamp(0.75rem, 2vw, 1rem);
+    padding: 0.75rem 1rem;
   }
 
   .nav-brand h1 {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .brand-subtitle {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   .mobile-menu {

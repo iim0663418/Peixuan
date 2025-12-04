@@ -287,4 +287,91 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
     min-width: 140px;
   }
 }
+
+/* Mobile-specific data refinement (< 768px) */
+@media (max-width: 767px) {
+  /* P2.3 Task 1: Mobile card layout */
+
+  /* 1) Change timeline-container to vertical card layout */
+  .timeline-container {
+    overflow-x: visible; /* Remove horizontal scrolling on mobile */
+    overflow-y: visible;
+  }
+
+  .timeline-container::after {
+    display: none; /* Remove scroll hint */
+  }
+
+  .timeline-track {
+    flex-direction: column; /* Vertical card layout */
+    gap: 1rem;
+    min-width: auto;
+    width: 100%;
+    padding: 0;
+  }
+
+  /* 2) Transform dayun-segment to card style */
+  .dayun-segment {
+    flex: 1 1 auto;
+    min-width: auto;
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-light);
+    aspect-ratio: auto; /* Remove aspect ratio for card layout */
+    min-height: auto;
+  }
+
+  /* 3) Hide non-current dayun segments on mobile (already filtered in P2.2) */
+  .dayun-segment:not(.current) {
+    opacity: 0.3;
+    filter: blur(1px);
+    pointer-events: none;
+  }
+
+  /* Show only current dayun prominently */
+  .dayun-segment.current {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+  }
+
+  /* 5) Simplify dayun-header to vertical stack */
+  .dayun-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .dayun-age {
+    font-size: 0.875rem;
+    order: 2;
+  }
+
+  .dayun-ganzhi {
+    font-size: 1.5rem;
+    order: 1;
+  }
+
+  .dayun-period {
+    text-align: left;
+    font-size: 0.75rem;
+  }
+
+  /* Simplify current fortune display on mobile */
+  .current-fortune :deep(.el-descriptions) {
+    font-size: 0.875rem;
+  }
+
+  .current-fortune :deep(.el-descriptions-item__label) {
+    width: 60px;
+  }
+}
 </style>

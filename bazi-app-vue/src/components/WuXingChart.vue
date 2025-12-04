@@ -251,6 +251,35 @@ const getBarWidth = (score: number): string => {
   }
 }
 
+/* Mobile-specific data refinement (< 768px) */
+@media (max-width: 767px) {
+  /* Hide raw scores on mobile - show only adjusted */
+  .raw-score,
+  .separator {
+    display: none;
+  }
+
+  /* Hide legend on mobile - focus on core KPIs */
+  .legend {
+    display: none;
+  }
+
+  /* Hide raw bar on mobile - show only adjusted */
+  .bar-fill.raw {
+    display: none;
+  }
+
+  /* Emphasize summary tags on mobile */
+  .summary {
+    margin-bottom: var(--space-lg);
+  }
+
+  .summary .el-tag {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
 /* Desktop: Larger display */
 @media (min-width: 1024px) {
   .bar-track {

@@ -12,6 +12,7 @@ const isLoading = ref(true);
 const error = ref<string | null>(null);
 const progress = ref(0);
 const loadingMessage = ref('佩璇正在分析你的運勢...');
+const loadingHint = ref('讓我仔細看看～大概需要半分鐘喔 ⏰');
 
 let eventSource: EventSource | null = null;
 
@@ -46,6 +47,9 @@ const startStreaming = async () => {
   loadingMessage.value = hasCached
     ? '正在載入運勢分析結果...'
     : '佩璇正在分析你的運勢...';
+  loadingHint.value = hasCached
+    ? '馬上就好！✨'
+    : '讓我仔細看看～大概需要半分鐘喔 ⏰';
 
   const apiUrl = `/api/v1/analyze/advanced/stream?chartId=${chartId}`;
 
@@ -133,7 +137,7 @@ onUnmounted(() => {
       <div v-if="isLoading" class="loading">
         <div class="spinner" />
         <p class="loading-text">{{ loadingMessage }}</p>
-        <p class="loading-hint">這可能需要 15-20 秒</p>
+        <p class="loading-hint">{{ loadingHint }}</p>
       </div>
 
       <!-- 錯誤狀態 -->

@@ -832,16 +832,14 @@ const submitForm = async () => {
   line-height: var(--line-height-normal);
   color: var(--text-tertiary);
 }
-  min-width: 44px;
-  font-size: 16px !important; /* Prevent iOS zoom */
-  padding: var(--space-md) var(--space-lg);
-  border-radius: var(--radius-sm);
-}
 
+:deep(.el-input__inner),
 :deep(.el-textarea__inner) {
+  min-width: 44px;
   min-height: 44px;
   font-size: 16px !important; /* Prevent iOS zoom */
   padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-sm);
 }
 
 /* Date and time pickers - full width on mobile */

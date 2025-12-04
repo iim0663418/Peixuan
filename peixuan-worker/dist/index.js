@@ -11645,7 +11645,7 @@ var init_lunarAdapter = __esm({
 });
 
 // src/calculation/bazi/fourPillars.ts
-function calculateYearPillar(solarDate, lichunTime) {
+function calculateYearPillar(solarDate, _lichunTime) {
   const fourPillars = getFourPillarsFromLunar({ solarDate });
   return fourPillars.year;
 }
@@ -11684,7 +11684,7 @@ function calculateHourPillar(hourOrDate, minuteOrDayStemIndex, dayStemIndex) {
   }
   const hour = hourOrDate;
   const minute = minuteOrDayStemIndex;
-  const actualDayStemIndex = dayStemIndex;
+  const actualDayStemIndex = dayStemIndex ?? 0;
   const totalMinutes = hour * 60 + minute;
   let branchIndex;
   if (totalMinutes >= 23 * 60) {
@@ -11791,21 +11791,21 @@ function calculateLifePalace(lunarMonth, hourBranch, options) {
   const position = ((adjustedMonth - hourBranch + 1 + 12) % 12 + 12) % 12;
   return {
     position,
-    branch: EARTHLY_BRANCHES3[position]
+    branch: EARTHLY_BRANCHES2[position]
   };
 }
 function calculateBodyPalace(lunarMonth, hourBranch) {
   const position = ((lunarMonth + hourBranch - 1) % 12 + 12) % 12;
   return {
     position,
-    branch: EARTHLY_BRANCHES3[position]
+    branch: EARTHLY_BRANCHES2[position]
   };
 }
-var EARTHLY_BRANCHES3;
+var EARTHLY_BRANCHES2;
 var init_palaces = __esm({
   "src/calculation/ziwei/palaces.ts"() {
     "use strict";
-    EARTHLY_BRANCHES3 = [
+    EARTHLY_BRANCHES2 = [
       "\u5B50",
       "\u4E11",
       "\u5BC5",
@@ -11824,10 +11824,10 @@ var init_palaces = __esm({
 
 // src/calculation/ziwei/bureau.ts
 function calculateBureau(lifePalaceStem, lifePalaceBranch) {
-  if (!HEAVENLY_STEMS3.includes(lifePalaceStem)) {
+  if (!HEAVENLY_STEMS2.includes(lifePalaceStem)) {
     throw new Error(`Invalid heavenly stem: ${lifePalaceStem}`);
   }
-  if (!EARTHLY_BRANCHES4.includes(lifePalaceBranch)) {
+  if (!EARTHLY_BRANCHES3.includes(lifePalaceBranch)) {
     throw new Error(`Invalid earthly branch: ${lifePalaceBranch}`);
   }
   const key = `${lifePalaceStem}${lifePalaceBranch}`;
@@ -11837,12 +11837,12 @@ function calculateBureau(lifePalaceStem, lifePalaceBranch) {
   }
   return bureau;
 }
-var HEAVENLY_STEMS3, EARTHLY_BRANCHES4, NAYIN_BUREAU_MAP;
+var HEAVENLY_STEMS2, EARTHLY_BRANCHES3, NAYIN_BUREAU_MAP;
 var init_bureau = __esm({
   "src/calculation/ziwei/bureau.ts"() {
     "use strict";
-    HEAVENLY_STEMS3 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
-    EARTHLY_BRANCHES4 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
+    HEAVENLY_STEMS2 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+    EARTHLY_BRANCHES3 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
     NAYIN_BUREAU_MAP = {
       // 甲子、乙丑 海中金 (Metal) -> 4
       "\u7532\u5B50": 4,
@@ -12404,7 +12404,7 @@ function locateAnnualLifePalace(annualBranch, ziweiPalaces) {
   if (!ziweiPalaces || ziweiPalaces.length !== 12) {
     return -1;
   }
-  if (!EARTHLY_BRANCHES5.includes(annualBranch)) {
+  if (!EARTHLY_BRANCHES4.includes(annualBranch)) {
     return -1;
   }
   for (let i = 0; i < ziweiPalaces.length; i++) {
@@ -12414,11 +12414,11 @@ function locateAnnualLifePalace(annualBranch, ziweiPalaces) {
   }
   return -1;
 }
-var EARTHLY_BRANCHES5;
+var EARTHLY_BRANCHES4;
 var init_palace = __esm({
   "src/calculation/annual/palace.ts"() {
     "use strict";
-    EARTHLY_BRANCHES5 = [
+    EARTHLY_BRANCHES4 = [
       "\u5B50",
       "\u4E11",
       "\u5BC5",
@@ -12790,11 +12790,11 @@ function findStarPalace(palaces, starName) {
   return -1;
 }
 function getPalaceStem(lifePalaceStem, palaceIndex) {
-  const lifePalaceStemIndex = HEAVENLY_STEMS4.indexOf(lifePalaceStem);
+  const lifePalaceStemIndex = HEAVENLY_STEMS3.indexOf(lifePalaceStem);
   if (lifePalaceStemIndex === -1) {
     return "";
   }
-  return HEAVENLY_STEMS4[(lifePalaceStemIndex + palaceIndex) % 10];
+  return HEAVENLY_STEMS3[(lifePalaceStemIndex + palaceIndex) % 10];
 }
 function generateNatalEdges(palaces, lifePalaceStem) {
   const edges = [];
@@ -12898,7 +12898,7 @@ function buildPalaceGraph(edges) {
     adjacencyList
   };
 }
-var FOUR_TRANSFORMATIONS_MAP, TYPE_MAP, HEAVENLY_STEMS4;
+var FOUR_TRANSFORMATIONS_MAP, TYPE_MAP, HEAVENLY_STEMS3;
 var init_edgeGenerator = __esm({
   "src/calculation/ziwei/sihua/edgeGenerator.ts"() {
     "use strict";
@@ -12920,7 +12920,7 @@ var init_edgeGenerator = __esm({
       ke: "\u79D1",
       ji: "\u5FCC"
     };
-    HEAVENLY_STEMS4 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+    HEAVENLY_STEMS3 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
   }
 });
 
@@ -13230,19 +13230,19 @@ function calculateCurrentDecade(birthDate, bureau, yearStem, gender, palaces) {
   if (!decadePalace) {
     return void 0;
   }
-  const yearStemIndex = HEAVENLY_STEMS5.indexOf(yearStem);
+  const yearStemIndex = HEAVENLY_STEMS4.indexOf(yearStem);
   if (yearStemIndex === -1) {
     return void 0;
   }
   const decadePalaceStemIndex = (2 * yearStemIndex + 2 + decadePalacePosition) % 10;
-  const decadePalaceStem = HEAVENLY_STEMS5[decadePalaceStemIndex];
+  const decadePalaceStem = HEAVENLY_STEMS4[decadePalaceStemIndex];
   return decadePalaceStem;
 }
-var HEAVENLY_STEMS5;
+var HEAVENLY_STEMS4;
 var init_decade = __esm({
   "src/calculation/ziwei/decade.ts"() {
     "use strict";
-    HEAVENLY_STEMS5 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+    HEAVENLY_STEMS4 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
   }
 });
 
@@ -13340,8 +13340,8 @@ function populateAuxiliaryStars(palaces, hourBranch, lunarMonth) {
   placeStar(palaces, "\u6587\u66F2", wenQuPalaceIndex);
 }
 function createPalaceArrayFromLifePalace(lifePalacePosition, lifePalaceBranch) {
-  const EARTHLY_BRANCHES6 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
-  const lifePalaceBranchIndex = EARTHLY_BRANCHES6.indexOf(lifePalaceBranch);
+  const EARTHLY_BRANCHES5 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
+  const lifePalaceBranchIndex = EARTHLY_BRANCHES5.indexOf(lifePalaceBranch);
   if (lifePalaceBranchIndex === -1) {
     return [];
   }
@@ -13350,7 +13350,7 @@ function createPalaceArrayFromLifePalace(lifePalacePosition, lifePalaceBranch) {
     const branchIndex = (lifePalaceBranchIndex + (i - lifePalacePosition) + 12) % 12;
     palaces.push({
       position: i,
-      branch: EARTHLY_BRANCHES6[branchIndex],
+      branch: EARTHLY_BRANCHES5[branchIndex],
       stars: []
     });
   }
@@ -13497,22 +13497,22 @@ var init_calculator = __esm({
           output: hour,
           description: "Calculate hour pillar using true solar time"
         });
-        const HEAVENLY_STEMS6 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
-        const EARTHLY_BRANCHES6 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
-        const yearBranch = EARTHLY_BRANCHES6[ganZhiToIndex(year) % 12];
-        const monthBranch = EARTHLY_BRANCHES6[ganZhiToIndex(month) % 12];
-        const dayBranch = EARTHLY_BRANCHES6[ganZhiToIndex(day) % 12];
-        const hourBranch = EARTHLY_BRANCHES6[ganZhiToIndex(hour) % 12];
-        const dayStem = HEAVENLY_STEMS6[dayStemIndex];
+        const HEAVENLY_STEMS5 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+        const EARTHLY_BRANCHES5 = ["\u5B50", "\u4E11", "\u5BC5", "\u536F", "\u8FB0", "\u5DF3", "\u5348", "\u672A", "\u7533", "\u9149", "\u620C", "\u4EA5"];
+        const yearBranch = EARTHLY_BRANCHES5[ganZhiToIndex(year) % 12];
+        const monthBranch = EARTHLY_BRANCHES5[ganZhiToIndex(month) % 12];
+        const dayBranch = EARTHLY_BRANCHES5[ganZhiToIndex(day) % 12];
+        const hourBranch = EARTHLY_BRANCHES5[ganZhiToIndex(hour) % 12];
+        const dayStem = HEAVENLY_STEMS5[dayStemIndex];
         const hiddenStems = {
           year: getHiddenStems2(yearBranch),
           month: getHiddenStems2(monthBranch),
           day: getHiddenStems2(dayBranch),
           hour: getHiddenStems2(hourBranch)
         };
-        const yearStem = HEAVENLY_STEMS6[yearStemIndex];
-        const monthStem = HEAVENLY_STEMS6[ganZhiToIndex(month) % 10];
-        const hourStem = HEAVENLY_STEMS6[ganZhiToIndex(hour) % 10];
+        const yearStem = HEAVENLY_STEMS5[yearStemIndex];
+        const monthStem = HEAVENLY_STEMS5[ganZhiToIndex(month) % 10];
+        const hourStem = HEAVENLY_STEMS5[ganZhiToIndex(hour) % 10];
         const tenGods = {
           year: calculateTenGod(dayStem, yearStem),
           month: calculateTenGod(dayStem, monthStem),
@@ -13623,8 +13623,8 @@ var init_calculator = __esm({
         const lifePalaceIndex = lifePalace.position;
         const yearStemIndex = ganZhiToIndex(bazi.fourPillars.year) % 10;
         const lifePalaceStemIndex = (2 * yearStemIndex + 2 + lifePalaceIndex) % 10;
-        const HEAVENLY_STEMS6 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
-        const lifePalaceStem = HEAVENLY_STEMS6[lifePalaceStemIndex];
+        const HEAVENLY_STEMS5 = ["\u7532", "\u4E59", "\u4E19", "\u4E01", "\u620A", "\u5DF1", "\u5E9A", "\u8F9B", "\u58EC", "\u7678"];
+        const lifePalaceStem = HEAVENLY_STEMS5[lifePalaceStemIndex];
         const bureau = calculateBureau(lifePalaceStem, lifePalace.branch);
         calculationSteps.push({
           step: "bureau",
@@ -13678,7 +13678,7 @@ var init_calculator = __esm({
           output: { totalStars: palaces.reduce((sum, p2) => sum + (p2.stars?.length || 0), 0) },
           description: "Populate palaces with main stars (ZiWei + TianFu systems) and auxiliary stars"
         });
-        const yearStem = HEAVENLY_STEMS6[yearStemIndex];
+        const yearStem = HEAVENLY_STEMS5[yearStemIndex];
         const decadeStem = calculateCurrentDecade(
           solarDate,
           bureau,
@@ -33643,6 +33643,29 @@ function formatSihuaAggregation(result) {
       lines.push(`- \u5FAA\u74B0 ${idx + 1}\uFF1A${cycle.description || cycle.palaces.join(" \u2192 ")}`);
     });
   }
+  lines.push("\n### \u4E2D\u5FC3\u6027\u5206\u6790");
+  if (agg.stressNodes.length > 0) {
+    lines.push("**\u58D3\u529B\u532F\u805A\u9EDE**\uFF1A");
+    agg.stressNodes.forEach((node) => {
+      lines.push(`- ${node.palaceName}\uFF08\u5165\u5EA6 ${node.inDegree}\uFF09\uFF1A\u80FD\u91CF\u58D3\u529B\u96C6\u4E2D`);
+    });
+  }
+  if (agg.resourceNodes.length > 0) {
+    lines.push("\n**\u8CC7\u6E90\u6E90\u982D**\uFF1A");
+    agg.resourceNodes.forEach((node) => {
+      lines.push(`- ${node.palaceName}\uFF08\u51FA\u5EA6 ${node.outDegree}\uFF09\uFF1A\u80FD\u91CF\u8F38\u51FA\u4E2D\u5FC3`);
+    });
+  }
+  lines.push("\n### \u80FD\u91CF\u7D71\u8A08");
+  lines.push(`- \u7E3D\u98DB\u5316\u908A\uFF1A${agg.totalEdges} \u689D`);
+  const jiCount = agg.edgesByType["\u5FCC"] || 0;
+  const luCount = agg.edgesByType["\u797F"] || 0;
+  const quanCount = agg.edgesByType["\u6B0A"] || 0;
+  const keCount = agg.edgesByType["\u79D1"] || 0;
+  lines.push(`- \u5316\u5FCC\uFF1A${jiCount} \u689D | \u5316\u797F\uFF1A${luCount} \u689D | \u5316\u6B0A\uFF1A${quanCount} \u689D | \u5316\u79D1\uFF1A${keCount} \u689D`);
+  const maxStressPalaceName = result.ziwei.palaces[agg.maxStressPalace]?.name || "\u672A\u77E5";
+  const maxResourcePalaceName = result.ziwei.palaces[agg.maxResourcePalace]?.name || "\u672A\u77E5";
+  lines.push(`- \u6700\u5927\u58D3\u529B\u5BAE\uFF1A${maxStressPalaceName} | \u6700\u5927\u8CC7\u6E90\u5BAE\uFF1A${maxResourcePalaceName}`);
   return lines.join("\n");
 }
 function formatStarSymmetry(result) {
@@ -33824,7 +33847,8 @@ var GeminiService = class {
           temperature: 0.85,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 4096
+          maxOutputTokens: 6144
+          // Increased to match personality analysis
         }
       })
     });
@@ -33908,18 +33932,22 @@ ${markdown}
 
 **\u4F60\u6703\u6536\u5230\u7684\u8CC7\u6599**\uFF1A
 1. \u7576\u524D\u5927\u904B\u968E\u6BB5\uFF08XX-XX\u6B72\uFF0C\u5E72\u652F\uFF0C\u65B9\u5411\uFF09
-2. \u56DB\u5316\u80FD\u91CF\u6D41\u52D5\uFF08\u5316\u5FCC/\u5316\u797F\u5FAA\u74B0\uFF09
+2. \u56DB\u5316\u80FD\u91CF\u6D41\u52D5\uFF08\u5316\u5FCC/\u5316\u797F\u5FAA\u74B0 + \u4E2D\u5FC3\u6027\u5206\u6790 + \u80FD\u91CF\u7D71\u8A08\uFF09
 3. **\u661F\u66DC\u5C0D\u7A31\u72C0\u614B**\uFF08\u50C5\u4E3B\u661F\uFF0C\u5982\u7D2B\u5FAE\u2194\u5929\u5E9C\u5C0D\u5BAE\uFF09
 4. \u4E0B\u4E00\u5E74\u5E72\u652F + \u72AF\u592A\u6B72\u985E\u578B\uFF08\u50C5\u4E8B\u5BE6\uFF0C\u7121\u8A55\u7D1A\uFF09
 
-**\u7BC7\u5E45\u5206\u914D\uFF08\u91CD\u8981\uFF09**\uFF08\u7E3D\u9810\u7B97\u7D04 800 tokens\uFF09\uFF1A
-- \u{1F539} \u661F\u66DC\u5C0D\u7A31\uFF1A**\u7C21\u55AE\u5E36\u904E**\uFF08~50 tokens\uFF0C1-2 \u53E5\u8A71\u7E3D\u7D50\u80FD\u91CF\u5E73\u8861\u72C0\u614B\uFF0C\u4E0D\u8981\u9010\u4E00\u89E3\u91CB\u6BCF\u9846\u661F\uFF09
-- \u{1F538} \u56DB\u5316\u98DB\u661F\uFF1A**\u91CD\u9EDE\u5206\u6790**\uFF08~300 tokens\uFF0C\u627E\u51FA\u95DC\u9375\u5FAA\u74B0\u548C\u58D3\u529B\u9EDE\uFF0C\u9019\u662F\u904B\u52E2\u6838\u5FC3\uFF09
-- \u{1F53A} \u4E0B\u4E00\u5E74\u9810\u6E2C\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~450 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF0C\u9019\u662F\u7528\u6236\u6700\u9700\u8981\u7684\uFF09
+**\u7BC7\u5E45\u5206\u914D\uFF08\u91CD\u8981\uFF09**\uFF08\u7E3D\u9810\u7B97\u7D04 1500-2000 tokens\uFF0C\u5145\u5206\u5C55\u958B\uFF09\uFF1A
+- \u{1F539} \u661F\u66DC\u5C0D\u7A31\uFF1A**\u7C21\u55AE\u5E36\u904E**\uFF08~100 tokens\uFF0C1-2 \u53E5\u8A71\u7E3D\u7D50\u80FD\u91CF\u5E73\u8861\u72C0\u614B\uFF09
+- \u{1F538} \u56DB\u5316\u98DB\u661F\uFF1A**\u91CD\u9EDE\u5206\u6790**\uFF08~600 tokens\uFF0C\u6DF1\u5165\u5206\u6790\u95DC\u9375\u5FAA\u74B0\u548C\u58D3\u529B\u9EDE\uFF09
+- \u{1F53A} \u4E0B\u4E00\u5E74\u9810\u6E2C\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~800-1200 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF09
 
 **\u8ACB\u6839\u64DA\u9019\u4E9B\u80FD\u91CF\u53C3\u6578\u81EA\u7531\u63A8\u6572**\uFF1A
 - \u5F9E\u7576\u524D\u5927\u904B\u968E\u6BB5\u5207\u5165\uFF0C\u8AAA\u660E\u73FE\u5728\u7684\u4EBA\u751F\u80FD\u91CF\u72C0\u614B
 - \u81EA\u7136\u5E36\u51FA\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u7684\u554F\u984C\u6216\u512A\u52E2\uFF08\u5316\u5FCC\u5FAA\u74B0\u8B66\u793A\u3001\u5316\u797F\u5FAA\u74B0\u9806\u66A2\uFF09
+- **\u5229\u7528\u4E2D\u5FC3\u6027\u5206\u6790\u627E\u51FA\u95DC\u9375\u5BAE\u4F4D**\uFF1A
+  - \u58D3\u529B\u532F\u805A\u9EDE\uFF08stress nodes\uFF09\uFF1A\u54EA\u4E9B\u5BAE\u4F4D\u627F\u53D7\u6700\u591A\u5316\u5FCC\u80FD\u91CF\uFF08\u5165\u5EA6\u9AD8\uFF09
+  - \u8CC7\u6E90\u6E90\u982D\uFF08resource nodes\uFF09\uFF1A\u54EA\u4E9B\u5BAE\u4F4D\u8F38\u51FA\u6700\u591A\u5316\u797F\u80FD\u91CF\uFF08\u51FA\u5EA6\u9AD8\uFF09
+  - \u80FD\u91CF\u7D71\u8A08\uFF1A\u7E3D\u98DB\u5316\u908A\u6578\u3001\u5404\u985E\u578B\u5206\u5E03\uFF08\u5316\u797F/\u5316\u6B0A/\u5316\u79D1/\u5316\u5FCC\u7684\u6578\u91CF\u548C\u6BD4\u4F8B\uFF09
 - **\u661F\u66DC\u5C0D\u7A31\u53EA\u9700\u4E00\u53E5\u8A71\u5E36\u904E**\uFF08\u4F8B\u5982\uFF1A\u300C\u4F60\u7684\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\u5F62\u6210\u7A69\u5B9A\u7D50\u69CB\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u300D\uFF09
 - **\u91CD\u9EDE\u653E\u5728\u660E\u5E74\u9810\u6E2C**\uFF1A\u5177\u9AD4\u8AAA\u660E\u8981\u6CE8\u610F\u4EC0\u9EBC\u3001\u4EC0\u9EBC\u6642\u5019\u8981\u5C0F\u5FC3\u3001\u4EC0\u9EBC\u6642\u5019\u662F\u597D\u6642\u6A5F
 
@@ -33931,9 +33959,11 @@ ${markdown}
 - \u2705 \u660E\u5E74\u9810\u6E2C\u8981\u8A73\u7D30\uFF0C\u7D66\u51FA\u5177\u9AD4\u5EFA\u8B70\u548C\u6642\u6A5F
 
 ## \u7BC4\u4F8B\uFF08\u6574\u5408\u6558\u4E8B\uFF09
-\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A\u767C\u73FE\u5316\u5FCC\u5FAA\u74B0\u5728\u547D\u5BAE\u2192\u8CA1\u5E1B\u2192\u4E8B\u696D\uFF0C\u80FD\u91CF\u6709\u9EDE\u6253\u7D50\uFF0C\u9019\u6703\u5F71\u97FF\u5230\u4F60\u7684\u8CA1\u904B\u548C\u5DE5\u4F5C\u767C\u5C55\u3002
+\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A**\u547D\u5BAE\u662F\u6700\u5927\u7684\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u5165\u5EA63\uFF09**\uFF0C\u8CA1\u5E1B\u5BAE\u548C\u4E8B\u696D\u5BAE\u7684\u5316\u5FCC\u80FD\u91CF\u90FD\u5F80\u9019\u88E1\u96C6\u4E2D\uFF0C\u9019\u6703\u8B93\u4F60\u611F\u89BA\u58D3\u529B\u5C71\u5927\u3002\u4F46\u597D\u6D88\u606F\u662F\uFF0C**\u4F60\u7684\u798F\u5FB7\u5BAE\u662F\u8CC7\u6E90\u6E90\u982D\uFF08\u51FA\u5EA63\uFF09**\uFF0C\u80FD\u91CF\u53EF\u4EE5\u5F9E\u9019\u88E1\u8F38\u51FA\uFF0C\u6240\u4EE5\u8981\u591A\u57F9\u990A\u5167\u5FC3\u7684\u5E73\u975C\u548C\u798F\u5831\u3002
 
-\u4F60\u7684\u661F\u66DC\u914D\u7F6E\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u3002\u4F46\u56E0\u70BA\u5316\u5FCC\u5FAA\u74B0\u7684\u95DC\u4FC2\uFF0C\u52A0\u4E0A\u660E\u5E74${currentYear + 1}\u5E74\u4F60\u6703\u6C96\u592A\u6B72\uFF0C\u6211\u597D\u96E3\u904E\uFF5E\u8CA1\u52D9\u58D3\u529B\u53EF\u80FD\u6703\u6BD4\u8F03\u5927\u3002
+\u6574\u9AD4\u4F86\u770B\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u670912\u689D\u98DB\u5316\u908A\uFF0C\u5176\u4E2D\u5316\u5FCC\u4F54\u4E864\u689D\u3001\u5316\u797F3\u689D\u3001\u5316\u6B0A3\u689D\u3001\u5316\u79D12\u689D\uFF0C\u9019\u4EE3\u8868\u4F60\u7684\u547D\u76E4\u80FD\u91CF\u6D41\u52D5\u6D3B\u8E8D\uFF0C\u4F46\u58D3\u529B\u548C\u8CC7\u6E90\u4E26\u5B58\u3002
+
+\u4F60\u7684\u661F\u66DC\u914D\u7F6E\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u3002\u4F46\u56E0\u70BA\u547D\u5BAE\u7684\u58D3\u529B\u532F\u805A\uFF0C\u52A0\u4E0A\u660E\u5E74${currentYear + 1}\u5E74\u4F60\u6703\u6C96\u592A\u6B72\uFF0C\u6211\u597D\u96E3\u904E\uFF5E\u5FC3\u7406\u58D3\u529B\u548C\u8CA1\u52D9\u58D3\u529B\u53EF\u80FD\u90FD\u6703\u6BD4\u8F03\u5927\u3002
 
 **\u660E\u5E74\u8981\u7279\u5225\u6CE8\u610F**\uFF1A\u4E0A\u534A\u5E74\uFF081-6\u6708\uFF09\u5316\u5FCC\u5FAA\u74B0\u6700\u5F37\uFF0C\u907F\u958B\u5927\u7B46\u6295\u8CC7\u548C\u652F\u51FA\u3002\u4E0B\u534A\u5E74\uFF087-12\u6708\uFF09\u80FD\u91CF\u958B\u59CB\u8F49\u9806\uFF0C\u7279\u5225\u662F 9-10 \u6708\uFF0C\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\uFF01\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u9019\u6642\u5019\u53EF\u4EE5\u7A4D\u6975\u4E00\u9EDE\uFF0C\u628A\u63E1\u6A5F\u6703\u54E6\uFF5E\u300D
 
@@ -33972,7 +34002,8 @@ ${markdown}
             temperature: 0.85,
             topK: 40,
             topP: 0.95,
-            maxOutputTokens: 4096
+            maxOutputTokens: 6144
+            // Increased to match streaming config
           }
         })
       });

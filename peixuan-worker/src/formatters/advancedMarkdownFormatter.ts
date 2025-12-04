@@ -101,6 +101,41 @@ function formatSihuaAggregation(result: CalculationResult): string {
     });
   }
 
+  // Centrality Analysis
+  lines.push('\n### 中心性分析');
+
+  // Stress Nodes (high Ji in-degree)
+  if (agg.stressNodes.length > 0) {
+    lines.push('**壓力匯聚點**：');
+    agg.stressNodes.forEach(node => {
+      lines.push(`- ${node.palaceName}（入度 ${node.inDegree}）：能量壓力集中`);
+    });
+  }
+
+  // Resource Nodes (high Lu out-degree)
+  if (agg.resourceNodes.length > 0) {
+    lines.push('\n**資源源頭**：');
+    agg.resourceNodes.forEach(node => {
+      lines.push(`- ${node.palaceName}（出度 ${node.outDegree}）：能量輸出中心`);
+    });
+  }
+
+  // Graph Statistics
+  lines.push('\n### 能量統計');
+  lines.push(`- 總飛化邊：${agg.totalEdges} 條`);
+
+  // Edge counts by type
+  const jiCount = agg.edgesByType['忌'] || 0;
+  const luCount = agg.edgesByType['祿'] || 0;
+  const quanCount = agg.edgesByType['權'] || 0;
+  const keCount = agg.edgesByType['科'] || 0;
+  lines.push(`- 化忌：${jiCount} 條 | 化祿：${luCount} 條 | 化權：${quanCount} 條 | 化科：${keCount} 條`);
+
+  // Max stress and resource palaces
+  const maxStressPalaceName = result.ziwei.palaces[agg.maxStressPalace]?.name || '未知';
+  const maxResourcePalaceName = result.ziwei.palaces[agg.maxResourcePalace]?.name || '未知';
+  lines.push(`- 最大壓力宮：${maxStressPalaceName} | 最大資源宮：${maxResourcePalaceName}`);
+
   return lines.join('\n');
 }
 

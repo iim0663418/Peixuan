@@ -139,8 +139,8 @@ onMounted(() => {
       <div class="mobile-menu" :class="{ show: showMobileMenu }">
         <button
           class="mobile-menu-close"
-          @click="closeMobileMenu"
           aria-label="關閉菜單"
+          @click="closeMobileMenu"
         >
           <span>×</span>
         </button>
@@ -219,25 +219,29 @@ onMounted(() => {
               href="https://vuejs.org"
               target="_blank"
               rel="noopener noreferrer"
-              >Vue.js</a>
+              >Vue.js</a
+            >
             (MIT),
             <a
               href="https://element-plus.org"
               target="_blank"
               rel="noopener noreferrer"
-              >Element Plus</a>
+              >Element Plus</a
+            >
             (MIT),
             <a
               href="https://workers.cloudflare.com"
               target="_blank"
               rel="noopener noreferrer"
-              >Cloudflare Workers</a>
+              >Cloudflare Workers</a
+            >
             (Apache-2.0),
             <a
               href="https://github.com/6tail/lunar-typescript"
               target="_blank"
               rel="noopener noreferrer"
-              >lunar-typescript</a>
+              >lunar-typescript</a
+            >
             (MIT)
           </p>
         </div>
@@ -687,7 +691,7 @@ main {
   .desktop-menu {
     display: none !important;
   }
-  
+
   .mobile-menu-button {
     display: flex !important;
   }
@@ -698,7 +702,7 @@ main {
   .navbar {
     padding: 0.875rem 1.25rem;
   }
-  
+
   .nav-brand h1 {
     font-size: 1.2rem;
   }

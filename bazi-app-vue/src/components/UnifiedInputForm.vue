@@ -180,7 +180,9 @@
               :icon="Delete"
               class="clear-btn"
               aria-label="清除快取"
-              :aria-describedby="showClearCachePopover ? 'clear-cache-popover' : undefined"
+              :aria-describedby="
+                showClearCachePopover ? 'clear-cache-popover' : undefined
+              "
               @click="toggleClearCachePopover"
             >
               清除快取

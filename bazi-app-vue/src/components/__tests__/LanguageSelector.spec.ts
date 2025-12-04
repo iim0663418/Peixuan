@@ -108,7 +108,9 @@ describe('LanguageSelector', () => {
     });
 
     // 驗證 sessionStorage 被調用
-    expect(sessionStorageMock.getItem).toHaveBeenCalledWith('preferred-language');
+    expect(sessionStorageMock.getItem).toHaveBeenCalledWith(
+      'preferred-language',
+    );
 
     // 驗證語言已設定為保存的值
     expect(i18n.global.locale.value).toBe('zh_TW');
@@ -127,7 +129,9 @@ describe('LanguageSelector', () => {
     });
 
     // 驗證兩者都被調用
-    expect(sessionStorageMock.getItem).toHaveBeenCalledWith('preferred-language');
+    expect(sessionStorageMock.getItem).toHaveBeenCalledWith(
+      'preferred-language',
+    );
     expect(localStorageMock.getItem).toHaveBeenCalledWith('preferred-language');
 
     // 驗證語言設定為 localStorage 的值

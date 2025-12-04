@@ -27,32 +27,48 @@
 
     <el-dialog
       v-model="showAnalysisDialog"
-      title="選擇分析類型"
+      title="✨ 計算完成！"
       width="90%"
-      :style="{ maxWidth: '500px' }"
+      :style="{ maxWidth: '600px' }"
+      center
+      :close-on-click-modal="false"
     >
+      <template #header>
+        <div class="dialog-header">
+          <h3 class="dialog-title">✨ 計算完成！</h3>
+          <p class="dialog-subtitle">選擇您想要的分析類型</p>
+        </div>
+      </template>
+      
       <div class="analysis-choices">
-        <el-button
-          type="primary"
-          class="choice-btn"
+        <div
+          class="choice-card"
           @click="handleAnalysisChoice('/ai-analysis')"
         >
-          <div class="choice-content">
-            <span class="choice-title">佩璇性格分析</span>
-            <span class="choice-desc">深入了解性格特質</span>
+          <div class="choice-icon">🌟</div>
+          <div class="choice-info">
+            <h4 class="choice-title">佩璇性格分析</h4>
+            <p class="choice-desc">深入了解你的性格特質與天賦</p>
           </div>
-        </el-button>
-        <el-button
-          type="success"
-          class="choice-btn"
+          <div class="choice-arrow">→</div>
+        </div>
+
+        <div
+          class="choice-card"
           @click="handleAnalysisChoice('/advanced-analysis')"
         >
-          <div class="choice-content">
-            <span class="choice-title">佩璇運勢分析</span>
-            <span class="choice-desc">查看流年運勢</span>
+          <div class="choice-icon">🔮</div>
+          <div class="choice-info">
+            <h4 class="choice-title">佩璇運勢分析</h4>
+            <p class="choice-desc">查看流年運勢與未來趨勢</p>
           </div>
-        </el-button>
+          <div class="choice-arrow">→</div>
+        </div>
       </div>
+
+      <template #footer>
+        <el-button @click="showAnalysisDialog = false">稍後再說</el-button>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -424,11 +440,139 @@ h4 {
   }
 }
 
+/* ==========================================
+   Dialog Styles
+   ========================================== */
+
+/* Dialog header */
+.dialog-header {
+  text-align: center;
+  padding: var(--space-md) 0;
+}
+
+.dialog-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-sm) 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dialog-subtitle {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Analysis choices */
+.analysis-choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-md) 0;
+}
+
+.choice-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.choice-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: var(--primary-color);
+  background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+}
+
+.choice-card:active {
+  transform: translateY(-2px);
+}
+
+.choice-icon {
+  font-size: 3rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.choice-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.choice-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.choice-desc {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.choice-arrow {
+  font-size: var(--font-size-2xl);
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.choice-card:hover .choice-arrow {
+  transform: translateX(4px);
+  color: var(--primary-color);
+}
+
+/* Mobile optimization */
+@media (max-width: 767px) {
+  .dialog-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .choice-card {
+    padding: var(--space-lg);
+    gap: var(--space-md);
+  }
+
+  .choice-icon {
+    font-size: 2.5rem;
+  }
+
+  .choice-title {
+    font-size: var(--font-size-base);
+  }
+
+  .choice-desc {
+    font-size: var(--font-size-xs);
+  }
+}
+
 /* Disable hover effects on touch devices */
 @media (hover: none) {
   .choice-btn:hover {
     transform: none;
     box-shadow: none;
+  }
+  
+  .choice-card:hover {
+    transform: none;
+  }
+  
+  .choice-card:active {
+    transform: scale(0.98);
   }
 }
 </style>

@@ -20,6 +20,7 @@
 - UnifiedCalculator: 八字+紫微統一計算，CalculationResult 包含 hiddenStems、tenGods、starSymmetry、steps、metadata
 - FortuneCycles: 起運/大運計算（determineFortuneDirection、calculateQiYunDate、generateDaYunList、自動當前大運偵測）整合於 BaZiResult.fortuneCycles
 - 大運計歲：使用真實歲數（startAge/endAge），從出生日期開始計算
+- 真太陽時模組：經度校正 + 均時差，calculateHourPillar 提供 Date 重載，對齊 `doc/八字四柱演算法研究與開源專案.md`
 - 流年模組: `getAnnualPillar`/`hasPassedLiChun`（立春界、year-4 mod 60）、`locateAnnualLifePalace`/`rotateAnnualPalaces`（地支定位+意義旋轉）、`detectStemCombinations`/`detectBranchClashes`/`detectHarmoniousCombinations`（五合/六沖/三合三會+大運）
 - Hybrid API: Unified (core) + Legacy (palaces) 並行，`/api/v1/purple-star/calculate` 返回 PurpleStarApiResponse；`/api/v1/calculate` 返回完整 CalculationResult（前端 UnifiedView/UnifiedResultView 已接入）
 - AI/Markdown 輸出: `/api/v1/calculate` 支援 `format=markdown`（markdownFormatter 完整覆蓋輸出）；`/api/v1/analyze` 產生計算+AI 分析（Gemini 2.5 Flash）；`/api/v1/analyze/stream` SSE 串流輸出，chartId + D1 chart/analysis 快取；Prompt 敘事化且分工明確（佩璇性格分析：基本+八字+十神+藏干+紫微，token 上限 6144；佩璇運勢分析：四化飛星+星曜對稱+下一年預測，預算 ~400），新增 personalityOnly 選項與 currentYear 注入；Max Output Tokens 2048；新增 GET `/api/v1/analyze/check` 快取預檢查；移除制式風險評級/行動建議，下一年預測收斂為干支/立春/犯太歲，Staging 快取清空
@@ -57,15 +58,16 @@
 
 ## 當前狀態
 - **版本**: v1.0
- - **狀態**: 生產運行中；Week 2 完成 ✅（進度 71.5/62h, 115%）
-- **最後更新**: 2025-12-04 14:56
-- **部署策略**: 強制 Staging 先行，生產環境僅透過 CI/CD 部署（2025-12-04 起）
+- **狀態**: 生產運行中；Week 2 完成 ✅（進度 71.5/62h, 115%）
+- **最後更新**: 2025-12-04 19:14
+- **部署策略**: 強制 Staging 先行，生產環境僅透過 CI/CD 部署（2025-12-04 起；緊急手動需補 PR 並記錄 CHECKPOINTS/DECISIONS）
 - **Week 2 核心成就（更新）**:
   - **AI Streaming + 快取體驗**：Gemini SSE → D1 快取 → EventSource，命中 0.118s（180x）；逐行 Markdown 排版一致；快取預檢查 `/analyze/check`
   - **Prompt 敘事化與分工**：佩璇性格分析 vs 佩璇運勢分析，敘事式輸出（大運→四化→星曜→下一年預測），personalityOnly 模式，token 上限調整
   - **RWD Phase1**：Navbar/Footer 觸控放大與移動關閉、1024px 斷點微調、Grid/Flex 佈局基線、design-tokens 斷點定義、表單單欄與 44px 觸控、hover 依賴剝離（popover 點擊、@media hover:none）
   - **性能/無障礙/程式碼衛生**：圖表 will-change + prefers-reduced-motion；console.log 清理 19 項；errorHandler.ts ESLint 4 errors 修復、移除 12 條無效 eslint-disable、enum 定義回歸標準
   - **Code Quality 收尾**：移除重複 .js/.js.map（yearlyInteractionUtils, geocodeService, layeredReading）、MouseEvent 全域宣告、LanguageSelector 測試修復；ESLint 0 errors / 126 warnings，構建驗證通過
+  - **演算法校正**：真太陽時模組完成（經度校正 + 均時差），calculateHourPillar 增加 Date 重載；6 測試涵蓋北京/烏魯木齊時差驗證
   - **部署**：生產版本 28efc232-c24b-4ad4-98e2-48abe71a49db 上線（15.43s，10 新檔 + 105 快取），既有 ff462e5a/8880b8b2 穩定；Staging 7a89f251-c4d7-417e-9095-463520d990e2 健康；快取/資源清理完成
   - **Bug 修復與品質**：前端 ESLint 233→126（0 errors/126 warnings）、npm 漏洞 7→0；日柱測試 20/20 通過；後端 ESLint 基線 3597 issues 待清理
   - **RWD 路線圖**：Phase1 收尾；完成 0.1/0.5/0.6/1.1/1.2/1.3/2.1/2.3/3.3/3.4/5.1/5.2，待辦 2.2/2.4/3.1/3.2/4.x/5.3/6.x；高風險 Task4.4 需可回滾至完整表格+橫向滾動，所有變更保留 `.legacy.vue` 備份
@@ -78,6 +80,7 @@
 - **既有成果延續**：開源整合策略確立（Phase A 完成，Phase B/C 保留 2042 行核心）、大運計歲真實歲數、四化飛星頂層彙總、Unified API/設計系統/部署穩定
 
 ## 已知缺口
+- DST/歷史時區處理尚未增強（真太陽時後續需補齊）
 - 日柱測試已綠燈，可補充更多覆蓋率
 - 補齊測試覆蓋 (3-4h)、API/Streaming 文件更新 (1-2h)
 - 前端 ESLint 警告 126；後端 ESLint 3597 issues 需分批清理；後端 npm 4 moderate 漏洞（drizzle-kit 開發依賴）

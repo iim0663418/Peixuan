@@ -24,11 +24,42 @@
 
       <UnifiedResultView :result="result" />
     </el-card>
+
+    <el-dialog
+      v-model="showAnalysisDialog"
+      title="選擇分析類型"
+      width="90%"
+      :style="{ maxWidth: '500px' }"
+    >
+      <div class="analysis-choices">
+        <el-button
+          type="primary"
+          class="choice-btn"
+          @click="handleAnalysisChoice('/ai-analysis')"
+        >
+          <div class="choice-content">
+            <span class="choice-title">佩璇性格分析</span>
+            <span class="choice-desc">深入了解性格特質</span>
+          </div>
+        </el-button>
+        <el-button
+          type="success"
+          class="choice-btn"
+          @click="handleAnalysisChoice('/advanced-analysis')"
+        >
+          <div class="choice-content">
+            <span class="choice-title">佩璇運勢分析</span>
+            <span class="choice-desc">查看流年運勢</span>
+          </div>
+        </el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import UnifiedInputForm from '../components/UnifiedInputForm.vue';
 import UnifiedResultView from '../components/UnifiedResultView.vue';
@@ -38,10 +69,12 @@ import unifiedApiService, {
 import { useChartStore } from '../stores/chartStore';
 
 const chartStore = useChartStore();
+const router = useRouter();
 
 const loading = ref(false);
 const error = ref('');
 const result = ref<CalculationResult | null>(null);
+const showAnalysisDialog = ref(false);
 
 const handleSubmit = async (birthInfo: any) => {
   loading.value = true;
@@ -66,12 +99,18 @@ const handleSubmit = async (birthInfo: any) => {
     });
 
     ElMessage.success('計算完成');
+    showAnalysisDialog.value = true;
   } catch (err: any) {
     error.value = err.message || '計算失敗，請稍後再試';
     ElMessage.error(error.value);
   } finally {
     loading.value = false;
   }
+};
+
+const handleAnalysisChoice = (route: string) => {
+  showAnalysisDialog.value = false;
+  router.push(route);
 };
 
 onMounted(async () => {
@@ -323,6 +362,73 @@ h4 {
   .form-card,
   .result-card {
     margin-bottom: 2rem;
+  }
+}
+
+/* ==========================================
+   Analysis Choice Dialog
+   ========================================== */
+.analysis-choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-md);
+}
+
+.choice-btn {
+  min-height: 80px;
+  height: auto;
+  width: 100%;
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.choice-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.choice-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.choice-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.choice-desc {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-normal);
+}
+
+/* Mobile optimization for choice buttons */
+@media (max-width: 767px) {
+  .choice-btn {
+    min-height: 60px;
+    padding: var(--space-md);
+  }
+
+  .choice-title {
+    font-size: var(--font-size-base);
+  }
+
+  .choice-desc {
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* Disable hover effects on touch devices */
+@media (hover: none) {
+  .choice-btn:hover {
+    transform: none;
+    box-shadow: none;
   }
 }
 </style>

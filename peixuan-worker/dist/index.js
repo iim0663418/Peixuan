@@ -11674,7 +11674,17 @@ function calculateDayPillar(jdn) {
   const index = ((jdn - 2448851) % 60 + 60) % 60;
   return indexToGanZhi(index);
 }
-function calculateHourPillar(hour, minute, dayStemIndex) {
+function calculateHourPillar(hourOrDate, minuteOrDayStemIndex, dayStemIndex) {
+  if (hourOrDate instanceof Date) {
+    const trueSolarTime = hourOrDate;
+    const hour2 = trueSolarTime.getHours();
+    const minute2 = trueSolarTime.getMinutes();
+    const stemIndex2 = minuteOrDayStemIndex;
+    return calculateHourPillar(hour2, minute2, stemIndex2);
+  }
+  const hour = hourOrDate;
+  const minute = minuteOrDayStemIndex;
+  const actualDayStemIndex = dayStemIndex;
   const totalMinutes = hour * 60 + minute;
   let branchIndex;
   if (totalMinutes >= 23 * 60) {
@@ -11682,7 +11692,7 @@ function calculateHourPillar(hour, minute, dayStemIndex) {
   } else {
     branchIndex = Math.floor((totalMinutes + 60) / 120) % 12;
   }
-  const stemIndex = stemModulo(2 * dayStemIndex + branchIndex);
+  const stemIndex = stemModulo(2 * actualDayStemIndex + branchIndex);
   let pillarIndex = 0;
   for (let n2 = 0; n2 < 60; n2++) {
     if (n2 % 10 === stemIndex && n2 % 12 === branchIndex) {

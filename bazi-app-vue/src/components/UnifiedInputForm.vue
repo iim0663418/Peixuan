@@ -3,6 +3,7 @@
     ref="unifiedForm"
     :model="formData"
     :rules="formRules"
+    :validate-on-rule-change="true"
     label-position="top"
     @submit.prevent="submitForm"
   >
@@ -35,10 +36,10 @@
     </el-form-item>
 
     <!-- 中文地址輸入 -->
-    <el-form-item label="出生地址（自動轉換座標）">
+    <el-form-item label="出生地址或地標">
       <el-input
         v-model="addressInput"
-        placeholder="請輸入中文地址，例如：雲林縣虎尾鎮新生路74號"
+        placeholder="請輸入地址或地標，例如：台北101、台中火車站、高雄85大樓"
         :loading="geocoding"
         clearable
         @input="handleAddressInput"
@@ -54,6 +55,13 @@
           </el-button>
         </template>
       </el-input>
+
+      <!-- 說明文字 -->
+      <div class="field-hint">
+        <el-text type="info" size="small">
+          💡 支援地標、完整地址或郵遞區號，系統會自動查詢座標
+        </el-text>
+      </div>
 
       <!-- 地址解析狀態顯示 -->
       <div v-if="geocodeStatus.message" class="geocode-status">
@@ -87,30 +95,34 @@
     >
       <div class="coordinate-inputs">
         <div class="coordinate-field">
-          <el-input
-            v-model.number="formData.longitude"
-            placeholder="經度（必填）"
-            type="number"
-            :min="-180"
-            :max="180"
-            :step="0.000001"
-            class="coordinate-input"
-          >
-            <template #prepend>經度</template>
-          </el-input>
+          <el-form-item prop="longitude">
+            <el-input
+              v-model.number="formData.longitude"
+              placeholder="經度（必填）"
+              type="number"
+              :min="-180"
+              :max="180"
+              :step="0.000001"
+              class="coordinate-input"
+            >
+              <template #prepend>經度</template>
+            </el-input>
+          </el-form-item>
         </div>
         <div class="coordinate-field">
-          <el-input
-            v-model.number="formData.latitude"
-            placeholder="緯度"
-            type="number"
-            :min="-90"
-            :max="90"
-            :step="0.000001"
-            class="coordinate-input"
-          >
-            <template #prepend>緯度</template>
-          </el-input>
+          <el-form-item prop="latitude">
+            <el-input
+              v-model.number="formData.latitude"
+              placeholder="緯度"
+              type="number"
+              :min="-90"
+              :max="90"
+              :step="0.000001"
+              class="coordinate-input"
+            >
+              <template #prepend>緯度</template>
+            </el-input>
+          </el-form-item>
         </div>
         <div class="coordinate-field timezone-field">
           <el-select
@@ -134,7 +146,7 @@
     </el-form-item>
 
     <!-- 快速城市選擇（可選） -->
-    <el-form-item label="或選擇常用城市（自動填入座標）">
+    <el-form-item label="快速選擇：常用城市">
       <el-select
         v-model="selectedCity"
         filterable
@@ -150,6 +162,13 @@
           :value="city.value"
         />
       </el-select>
+
+      <!-- 說明文字 -->
+      <div class="field-hint">
+        <el-text type="info" size="small">
+          💡 不確定地址？可以先選擇最接近的城市
+        </el-text>
+      </div>
     </el-form-item>
 
     <!-- 閏月標記（可選） -->
@@ -571,7 +590,43 @@ const formRules = {
       trigger: ['change', 'blur'],
     },
   ],
-  gender: [{ required: true, message: '請選擇性別', trigger: 'change' }],
+  gender: [{ required: true, message: '請選擇性別', trigger: ['change', 'blur'] }],
+  longitude: [
+    { required: true, message: '請輸入經度', trigger: ['change', 'blur'] },
+    { type: 'number', message: '經度必須是數字', trigger: ['change', 'blur'] },
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value === null || value === undefined) {
+          callback();
+          return;
+        }
+        if (value < -180 || value > 180) {
+          callback(new Error('經度必須在 -180 到 180 之間'));
+          return;
+        }
+        callback();
+      },
+      trigger: ['change', 'blur'],
+    },
+  ],
+  latitude: [
+    { required: true, message: '請輸入緯度', trigger: ['change', 'blur'] },
+    { type: 'number', message: '緯度必須是數字', trigger: ['change', 'blur'] },
+    {
+      validator: (_rule: any, value: any, callback: any) => {
+        if (value === null || value === undefined) {
+          callback();
+          return;
+        }
+        if (value < -90 || value > 90) {
+          callback(new Error('緯度必須在 -90 到 90 之間'));
+          return;
+        }
+        callback();
+      },
+      trigger: ['change', 'blur'],
+    },
+  ],
   location: [
     {
       validator: (_rule: any, _value: any, callback: any) => {
@@ -764,6 +819,19 @@ const submitForm = async () => {
 /* Input fields - WCAG AA compliant 44px touch targets */
 :deep(.el-input__inner) {
   min-height: 44px;
+}
+
+/* Field hint text */
+.field-hint {
+  margin-top: var(--space-xs);
+  padding: var(--space-xs) 0;
+}
+
+.field-hint :deep(.el-text) {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--text-tertiary);
+}
   min-width: 44px;
   font-size: 16px !important; /* Prevent iOS zoom */
   padding: var(--space-md) var(--space-lg);
@@ -1043,14 +1111,15 @@ const submitForm = async () => {
 /* Mobile-specific validation styles */
 @media (max-width: 767px) {
   :deep(.el-form-item__error) {
-    font-size: 0.875rem;
-    padding-top: 0.5rem;
-    margin-top: 0.25rem;
+    font-size: var(--font-size-sm);
+    padding: var(--space-sm);
+    margin-top: var(--space-xs);
+    margin-bottom: var(--space-sm);
     position: relative;
     background: rgba(245, 108, 108, 0.1);
-    padding: 0.5rem;
-    border-radius: 4px;
-    margin-bottom: 0.5rem;
+    border-radius: var(--radius-sm);
+    color: var(--error-color, var(--el-color-danger));
+    line-height: var(--line-height-normal);
   }
 
   /* Ensure error messages don't overlap with inputs */

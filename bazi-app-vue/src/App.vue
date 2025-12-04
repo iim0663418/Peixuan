@@ -137,13 +137,6 @@ onMounted(() => {
 
       <!-- 移動版導航菜單 -->
       <div class="mobile-menu" :class="{ show: showMobileMenu }">
-        <button
-          class="mobile-menu-close"
-          aria-label="關閉菜單"
-          @click="closeMobileMenu"
-        >
-          <span>×</span>
-        </button>
         <router-link
           to="/"
           class="mobile-nav-link"
@@ -450,33 +443,6 @@ onMounted(() => {
     opacity 0.3s ease-in-out,
     transform 0.3s ease-in-out,
     visibility 0.3s;
-}
-
-.mobile-menu-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #8b4513;
-  font-size: 2rem;
-  font-weight: 300;
-  transition: all 0.3s ease-in-out;
-  z-index: 1001;
-}
-
-.mobile-menu-close:hover {
-  color: #d2691e;
-  background: rgba(210, 105, 30, 0.1);
-  border-radius: 50%;
 }
 
 /* Active state: slide in from left with full opacity */

@@ -203,8 +203,6 @@ onMounted(async () => {
           timestamp: chartData.timestamp,
         } as any;
 
-        console.log('[UnifiedView] Set result.value:', result.value);
-
         // 更新 chartStore 以啟用 AI 分析按鈕
         if (result.value) {
           chartStore.setCurrentChart({

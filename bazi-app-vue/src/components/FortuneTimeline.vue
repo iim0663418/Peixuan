@@ -108,6 +108,13 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
 /* RWD optimization - 2025-12-03 */
 /* Task 3.3: Responsive chart sizing - 2025-12-04 */
 /* Task 3.4: Mobile performance optimization - 2025-12-04 */
+/* Task: Fix mobile card overflow issues - 2025-12-05 */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 .fortune-timeline {
   padding: clamp(12px, 3vw, 16px);
@@ -115,6 +122,8 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
   border-radius: 8px;
   max-width: 100%; /* Ensure container responsiveness */
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .qiyun-info {
@@ -181,16 +190,17 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
 }
 
 .timeline-track {
-  display: flex;
+  display: inline-flex;
   gap: clamp(6px, 1.5vw, 8px);
-  min-width: max-content;
   padding: clamp(6px, 1.5vw, 8px) 0;
   width: auto; /* Allow track to expand beyond container */
+  box-sizing: border-box;
 }
 
 .dayun-segment {
   flex: 0 0 auto; /* Prevent flex shrinking, maintain fixed width */
-  min-width: 100px; /* 移動端減小寬度 */
+  min-width: 90px; /* Reduced from 100px */
+  max-width: 140px;
   padding: clamp(10px, 2.5vw, 12px);
   background: var(--bg-secondary);
   border: 2px solid var(--border-light);
@@ -199,6 +209,7 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
   cursor: pointer;
   min-height: 44px; /* 觸控目標 */
   aspect-ratio: 1.2 / 1; /* Maintain consistent aspect ratio */
+  box-sizing: border-box;
   will-change: transform; /* Performance hint for animations */
 }
 
@@ -305,7 +316,6 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
   .timeline-track {
     flex-direction: column; /* Vertical card layout */
     gap: 1rem;
-    min-width: auto;
     width: 100%;
     padding: 0;
   }
@@ -313,7 +323,8 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
   /* 2) Transform dayun-segment to card style */
   .dayun-segment {
     flex: 1 1 auto;
-    min-width: auto;
+    min-width: 80px; /* Reduced from 90px for mobile */
+    max-width: 100%;
     width: 100%;
     background: white;
     border-radius: 8px;
@@ -322,6 +333,7 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
     border: 1px solid var(--border-light);
     aspect-ratio: auto; /* Remove aspect ratio for card layout */
     min-height: auto;
+    box-sizing: border-box;
   }
 
   /* 3) Hide non-current dayun segments on mobile (already filtered in P2.2) */

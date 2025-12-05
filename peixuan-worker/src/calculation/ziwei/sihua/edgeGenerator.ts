@@ -137,10 +137,12 @@ export function generateNatalEdges(
  * Generate decade (大限) SiHua edges
  *
  * Creates flying star edges based on decade fortune transformations.
+ * Iterates through all 12 palaces, calculating each palace's stem relative
+ * to the decade stem, and generates 4 transformation edges per palace.
  *
  * @param palaces - Array of 12 palaces with stars
- * @param decadeStem - Decade fortune's heavenly stem
- * @returns Array of flying star edges (decade layer, weight 0.7)
+ * @param decadeStem - Decade fortune's heavenly stem (acts as base stem)
+ * @returns Array of flying star edges (decade layer, weight 0.7), max 48 edges
  */
 export function generateDecadeEdges(
   palaces: Palace[],
@@ -152,30 +154,38 @@ export function generateDecadeEdges(
     return edges;
   }
 
-  if (!FOUR_TRANSFORMATIONS_MAP[decadeStem]) {
-    return edges;
-  }
+  // Iterate through all 12 palaces
+  for (let sourceIdx = 0; sourceIdx < 12; sourceIdx++) {
+    // Calculate palace stem relative to decade stem
+    const sourceStem = getPalaceStem(decadeStem, sourceIdx);
 
-  const transforms = FOUR_TRANSFORMATIONS_MAP[decadeStem];
-
-  // Generate edges for decade transformations
-  ['lu', 'quan', 'ke', 'ji'].forEach((type) => {
-    const starName = transforms[type as keyof typeof transforms];
-    const targetIdx = findStarPalace(palaces, starName);
-
-    if (targetIdx !== -1) {
-      // Decade edges have lower weight (0.7)
-      edges.push({
-        source: -1, // Decade stem doesn't have specific palace
-        target: targetIdx,
-        sihuaType: TYPE_MAP[type],
-        starName,
-        layer: 'decade',
-        weight: 0.7,
-        sourceStem: decadeStem,
-      });
+    // Skip if no stem found or no transformation mapping
+    if (!sourceStem || !FOUR_TRANSFORMATIONS_MAP[sourceStem]) {
+      continue;
     }
-  });
+
+    const sourceTransforms = FOUR_TRANSFORMATIONS_MAP[sourceStem];
+
+    // Generate edges for all four transformation types
+    ['lu', 'quan', 'ke', 'ji'].forEach((type) => {
+      const starName = sourceTransforms[type as keyof typeof sourceTransforms];
+      const targetIdx = findStarPalace(palaces, starName);
+
+      // Only create edge if target palace found
+      if (targetIdx !== -1) {
+        // Decade edges have lower weight (0.7)
+        edges.push({
+          source: sourceIdx,
+          target: targetIdx,
+          sihuaType: TYPE_MAP[type],
+          starName,
+          layer: 'decade',
+          weight: 0.7,
+          sourceStem,
+        });
+      }
+    });
+  }
 
   return edges;
 }
@@ -184,10 +194,12 @@ export function generateDecadeEdges(
  * Generate annual (流年) SiHua edges
  *
  * Creates flying star edges based on annual fortune transformations.
+ * Iterates through all 12 palaces, calculating each palace's stem relative
+ * to the annual stem, and generates 4 transformation edges per palace.
  *
  * @param palaces - Array of 12 palaces with stars
- * @param annualStem - Annual fortune's heavenly stem
- * @returns Array of flying star edges (annual layer, weight 0.5)
+ * @param annualStem - Annual fortune's heavenly stem (acts as base stem)
+ * @returns Array of flying star edges (annual layer, weight 0.5), max 48 edges
  */
 export function generateAnnualEdges(
   palaces: Palace[],
@@ -199,30 +211,38 @@ export function generateAnnualEdges(
     return edges;
   }
 
-  if (!FOUR_TRANSFORMATIONS_MAP[annualStem]) {
-    return edges;
-  }
+  // Iterate through all 12 palaces
+  for (let sourceIdx = 0; sourceIdx < 12; sourceIdx++) {
+    // Calculate palace stem relative to annual stem
+    const sourceStem = getPalaceStem(annualStem, sourceIdx);
 
-  const transforms = FOUR_TRANSFORMATIONS_MAP[annualStem];
-
-  // Generate edges for annual transformations
-  ['lu', 'quan', 'ke', 'ji'].forEach((type) => {
-    const starName = transforms[type as keyof typeof transforms];
-    const targetIdx = findStarPalace(palaces, starName);
-
-    if (targetIdx !== -1) {
-      // Annual edges have lowest weight (0.5)
-      edges.push({
-        source: -1, // Annual stem doesn't have specific palace
-        target: targetIdx,
-        sihuaType: TYPE_MAP[type],
-        starName,
-        layer: 'annual',
-        weight: 0.5,
-        sourceStem: annualStem,
-      });
+    // Skip if no stem found or no transformation mapping
+    if (!sourceStem || !FOUR_TRANSFORMATIONS_MAP[sourceStem]) {
+      continue;
     }
-  });
+
+    const sourceTransforms = FOUR_TRANSFORMATIONS_MAP[sourceStem];
+
+    // Generate edges for all four transformation types
+    ['lu', 'quan', 'ke', 'ji'].forEach((type) => {
+      const starName = sourceTransforms[type as keyof typeof sourceTransforms];
+      const targetIdx = findStarPalace(palaces, starName);
+
+      // Only create edge if target palace found
+      if (targetIdx !== -1) {
+        // Annual edges have lowest weight (0.5)
+        edges.push({
+          source: sourceIdx,
+          target: targetIdx,
+          sihuaType: TYPE_MAP[type],
+          starName,
+          layer: 'annual',
+          weight: 0.5,
+          sourceStem,
+        });
+      }
+    });
+  }
 
   return edges;
 }
@@ -249,7 +269,7 @@ export function buildPalaceGraph(edges: FlyingStarEdge[]): PalaceGraph {
 
   // Populate adjacency list
   edges.forEach((edge) => {
-    // Skip edges with invalid source (-1 for decade/annual)
+    // Skip edges with invalid source (should always be 0-11)
     if (edge.source >= 0 && edge.source < 12) {
       const existing = adjacencyList.get(edge.source) || [];
       existing.push(edge);

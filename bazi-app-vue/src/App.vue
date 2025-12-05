@@ -138,14 +138,6 @@ onMounted(() => {
       <!-- 移動版導航菜單 -->
       <div class="mobile-menu" :class="{ show: showMobileMenu }">
         <router-link
-          to="/"
-          class="mobile-nav-link"
-          :class="{ active: route?.name === 'home' }"
-          @click="closeMobileMenu"
-        >
-          {{ $t('common.home') }}
-        </router-link>
-        <router-link
           to="/unified"
           class="mobile-nav-link"
           :class="{ active: route?.path?.startsWith('/unified') }"
@@ -507,6 +499,28 @@ onMounted(() => {
 .mobile-ai-btn.disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* 移動版進階分析按鈕 */
+.mobile-menu .advanced-analysis-btn {
+  width: 100%;
+  text-align: left;
+  justify-content: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mobile-menu .advanced-analysis-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mobile-menu .advanced-analysis-btn:not(.disabled):hover {
+  transform: translateX(8px);
 }
 
 /* 主要內容區域 */

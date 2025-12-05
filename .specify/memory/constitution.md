@@ -59,18 +59,20 @@
 ## 當前狀態
 - **版本**: v1.0
 - **狀態**: 生產運行中；Week 2 完成 ✅（進度 71.5/62h, 115%）
-- **最後更新**: 2025-12-04 19:14
+- **最後更新**: 2025-12-04 20:26
 - **部署策略**: 強制 Staging 先行，生產環境僅透過 CI/CD 部署（2025-12-04 起；緊急手動需補 PR 並記錄 CHECKPOINTS/DECISIONS）
 - **Week 2 核心成就（更新）**:
   - **AI Streaming + 快取體驗**：Gemini SSE → D1 快取 → EventSource，命中 0.118s（180x）；逐行 Markdown 排版一致；快取預檢查 `/analyze/check`
   - **Prompt 敘事化與分工**：佩璇性格分析 vs 佩璇運勢分析，敘事式輸出（大運→四化→星曜→下一年預測），personalityOnly 模式，token 上限調整
   - **RWD Phase1**：Navbar/Footer 觸控放大與移動關閉、1024px 斷點微調、Grid/Flex 佈局基線、design-tokens 斷點定義、表單單欄與 44px 觸控、hover 依賴剝離（popover 點擊、@media hover:none）
-  - **性能/無障礙/程式碼衛生**：圖表 will-change + prefers-reduced-motion；console.log 清理 19 項；errorHandler.ts ESLint 4 errors 修復、移除 12 條無效 eslint-disable、enum 定義回歸標準
-  - **Code Quality 收尾**：移除重複 .js/.js.map（yearlyInteractionUtils, geocodeService, layeredReading）、MouseEvent 全域宣告、LanguageSelector 測試修復；ESLint 0 errors / 126 warnings，構建驗證通過
-  - **演算法校正**：真太陽時模組完成（經度校正 + 均時差），calculateHourPillar 增加 Date 重載；6 測試涵蓋北京/烏魯木齊時差驗證
-  - **部署**：生產版本 28efc232-c24b-4ad4-98e2-48abe71a49db 上線（15.43s，10 新檔 + 105 快取），既有 ff462e5a/8880b8b2 穩定；Staging 7a89f251-c4d7-417e-9095-463520d990e2 健康；快取/資源清理完成
-  - **Bug 修復與品質**：前端 ESLint 233→126（0 errors/126 warnings）、npm 漏洞 7→0；日柱測試 20/20 通過；後端 ESLint 基線 3597 issues 待清理
-  - **RWD 路線圖**：Phase1 收尾；完成 0.1/0.5/0.6/1.1/1.2/1.3/2.1/2.3/3.3/3.4/5.1/5.2，待辦 2.2/2.4/3.1/3.2/4.x/5.3/6.x；高風險 Task4.4 需可回滾至完整表格+橫向滾動，所有變更保留 `.legacy.vue` 備份
+- **性能/無障礙/程式碼衛生**：圖表 will-change + prefers-reduced-motion；console.log 清理 19 項；errorHandler.ts ESLint 4 errors 修復、移除 12 條無效 eslint-disable、enum 定義回歸標準
+- **Code Quality 收尾**：移除重複 .js/.js.map（yearlyInteractionUtils, geocodeService, layeredReading）、MouseEvent 全域宣告、LanguageSelector 測試修復；ESLint 0 errors / 126 warnings，構建驗證通過
+- **演算法校正**：真太陽時模組完成（經度校正 + 均時差），calculateHourPillar 增加 Date 重載；6 測試涵蓋北京/烏魯木齊時差驗證
+- **部署**：生產版本 28efc232-c24b-4ad4-98e2-48abe71a49db 上線（15.43s，10 新檔 + 105 快取），既有 ff462e5a/8880b8b2 穩定；Staging 7a89f251-c4d7-417e-9095-463520d990e2 健康；快取/資源清理完成
+- **Bug 修復與品質**：前端 ESLint 233→126（0 errors/126 warnings）、npm 漏洞 7→0；日柱測試 20/20 通過；後端 ESLint 基線 3597 issues 待清理
+- **RWD 路線圖**：Phase1 收尾；完成 0.1/0.5/0.6/1.1/1.2/1.3/2.1/2.3/3.3/3.4/5.1/5.2，待辦 2.2/2.4/3.1/3.2/4.x/5.3/6.x；高風險 Task4.4 需可回滾至完整表格+橫向滾動，所有變更保留 `.legacy.vue` 備份
+- **運勢增強**：四化飛星頂層能量匯總 + 中心性分析（壓力匯聚點/資源源頭）、能量統計（56 飛化邊分布、最大壓力/資源宮位），Prompt 引導採用新統計；部署至 Staging b0d38d3a-560a-4f59-8b4e-7d6973f89e35（health ok）
+- **演算法驗證**：`doc/八字算法驗算報告_2025-12-04.md` 更新（年/月/日/時柱 + 真太陽時全面驗證，35/36 測試 97%，設計文件 100% 對齊）；`doc/算法影響分析報告_2025-12-04.md`（441 測試 426/441 通過 96.6%，失敗皆與四柱無關，結論四柱校正無負面影響）
 - **架構決策記錄**:
   1. chartId 為唯一識別符：移除 userId AND 條件（類 URL shortener）
   2. 快取策略：chart_records 永久 + analysis_records 24h TTL；預檢查 /analyze/check 端點改善提示 UX；部署前清除舊快取

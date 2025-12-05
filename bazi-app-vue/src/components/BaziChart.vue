@@ -97,6 +97,13 @@ const tenGodsForPillars = computed(() => {
 /* RWD optimization - 2025-12-03 */
 /* Task 3.3: Responsive chart sizing - 2025-12-04 */
 /* Task 3.4: Mobile performance optimization - 2025-12-04 */
+/* Task: Fix mobile card overflow issues - 2025-12-05 */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 .bazi-chart {
   margin-top: clamp(16px, 4vw, 20px);
@@ -106,6 +113,8 @@ const tenGodsForPillars = computed(() => {
   background-color: var(--bg-secondary);
   max-width: 100%; /* Ensure container responsiveness */
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .bazi-chart h4 {
@@ -128,18 +137,20 @@ const tenGodsForPillars = computed(() => {
   text-align: center;
   width: 100%; /* Full width within parent */
   max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .pillar-card-display {
-  flex: 1 1 auto; /* Allow flexible growth/shrink */
+  flex: 1 1 0; /* Equal flex basis with grow/shrink */
+  min-width: 0; /* Allow flex items to shrink below content size */
   padding: clamp(8px, 2vw, 10px);
   border: 1px solid var(--border-medium);
   border-radius: 4px;
   background-color: var(--bg-primary);
-  min-width: 80px; /* 移動端增大最小寬度 */
   min-height: 44px; /* 觸控目標 */
-  max-width: calc(25% - clamp(8px, 2vw, 10px)); /* 4 columns max */
   aspect-ratio: 0.8 / 1; /* Maintain vertical aspect ratio */
+  box-sizing: border-box;
   /* Performance optimization: hint browser for potential transforms */
   will-change: auto;
 }
@@ -198,50 +209,56 @@ const tenGodsForPillars = computed(() => {
 
 /* Mobile-specific data refinement (< 768px) */
 @media (max-width: 767px) {
-  /* Single column layout on mobile for better readability */
+  /* 2-column layout on mobile for better space utilization */
   .pillars-container {
-    flex-direction: column;
+    flex-direction: row-reverse;
     gap: 0.75rem;
   }
 
   .pillar-card-display {
-    max-width: 100%;
-    min-width: 100%;
+    flex: 1 1 calc(50% - 0.375rem); /* 2 columns with gap */
+    min-width: 0;
+    max-width: calc(50% - 0.375rem);
     aspect-ratio: auto;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0.75rem;
+    box-sizing: border-box;
   }
 
-  /* Horizontal layout within each pillar */
+  /* Vertical layout within each pillar */
   .pillar-card-display h5 {
-    margin: 0;
-    min-width: 60px;
-    text-align: left;
+    margin: 0 0 0.5rem 0;
+    width: 100%;
+    text-align: center;
   }
 
   .stem-branch {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    margin: 0;
+    gap: 0.25rem;
+    margin: 0.25rem 0;
+    width: 100%;
   }
 
-  /* Simplify labels on mobile - hide element labels */
+  /* Keep labels visible but smaller on mobile */
   .label {
-    display: none;
+    font-size: 0.7rem;
   }
 
   /* Emphasize characters */
   .char {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
   }
 
   .ten-god {
-    display: inline;
-    margin-left: 0.5rem;
-    font-size: 0.875rem;
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    text-align: center;
   }
 }
 </style>

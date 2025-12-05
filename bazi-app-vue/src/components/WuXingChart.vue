@@ -113,6 +113,13 @@ const getBarWidth = (score: number): string => {
 /* RWD optimization - 2025-12-03 */
 /* Task 3.3: Responsive chart sizing - 2025-12-04 */
 /* Task 3.4: Mobile performance optimization - 2025-12-04 */
+/* Task: Fix mobile card overflow issues - 2025-12-05 */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 .wuxing-chart {
   padding: clamp(12px, 3vw, 16px);
@@ -120,6 +127,8 @@ const getBarWidth = (score: number): string => {
   border-radius: 8px;
   max-width: 100%; /* Ensure container responsiveness */
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .chart-container {
@@ -129,12 +138,15 @@ const getBarWidth = (score: number): string => {
   margin-bottom: clamp(16px, 4vw, 20px);
   width: 100%; /* Full width within parent */
   max-width: 100%; /* Prevent overflow */
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .element-bar {
   display: flex;
   flex-direction: column;
   gap: clamp(5px, 1.2vw, 6px);
+  box-sizing: border-box;
 }
 
 .element-info {
@@ -142,6 +154,7 @@ const getBarWidth = (score: number): string => {
   justify-content: space-between;
   align-items: center;
   font-size: clamp(13px, 3.2vw, 14px);
+  box-sizing: border-box;
 }
 
 .element-name {
@@ -179,6 +192,7 @@ const getBarWidth = (score: number): string => {
   min-height: 28px; /* 確保最小高度 */
   width: 100%; /* Auto-resize with container */
   max-width: 100%;
+  box-sizing: border-box;
 }
 
 .bar-fill {
@@ -189,6 +203,7 @@ const getBarWidth = (score: number): string => {
   transition: width 0.5s ease;
   border-radius: 6px;
   will-change: transform; /* Performance hint for GPU acceleration */
+  box-sizing: border-box;
 }
 
 /* Reduce animations on mobile if user prefers reduced motion */
@@ -212,6 +227,7 @@ const getBarWidth = (score: number): string => {
   gap: clamp(10px, 2.5vw, 12px);
   margin-bottom: clamp(12px, 3vw, 16px);
   flex-wrap: wrap;
+  box-sizing: border-box;
 }
 
 .legend {
@@ -220,6 +236,7 @@ const getBarWidth = (score: number): string => {
   gap: clamp(12px, 3vw, 16px);
   font-size: clamp(11px, 2.8vw, 12px);
   color: var(--text-tertiary);
+  box-sizing: border-box;
 }
 
 .legend-item {

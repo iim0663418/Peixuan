@@ -13,29 +13,61 @@ import {
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/unified',
+    name: 'home',
+    component: () => import('../views/HomeView.vue'),
+    meta: { title: '首頁 - 佩璇' },
   },
   {
     path: '/unified',
     name: 'unified',
     component: () => import('../views/UnifiedView.vue'),
-    meta: { title: 'astrology.unified' },
+    meta: { title: '整合命盤計算 - 佩璇' },
+  },
+  {
+    path: '/personality',
+    name: 'personality',
+    component: () => import('../views/AIAnalysisView.vue'),
+    meta: { title: '佩璇性格分析 - 佩璇' },
+  },
+  {
+    path: '/fortune',
+    name: 'fortune',
+    component: () => import('../views/AdvancedAnalysisView.vue'),
+    meta: { title: '佩璇運勢分析 - 佩璇' },
+  },
+  {
+    path: '/daily',
+    name: 'daily',
+    component: () => import('../views/DailyReminderView.vue'),
+    meta: { title: '每日運勢提醒 - 佩璇' },
+  },
+  // 向後兼容 (Backward compatibility redirects)
+  {
+    path: '/calculate',
+    redirect: '/unified',
   },
   {
     path: '/ai-analysis',
-    name: 'ai-analysis',
-    component: () => import('../views/AIAnalysisView.vue'),
+    redirect: '/personality',
   },
   {
     path: '/advanced-analysis',
-    name: 'advanced-analysis',
-    component: () => import('../views/AdvancedAnalysisView.vue'),
+    redirect: '/fortune',
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    return savedPosition || { top: 0 };
+  },
+});
+
+// 動態更新頁面標題
+router.beforeEach((to, from, next) => {
+  document.title = (to.meta.title as string) || '佩璇';
+  next();
 });
 
 export default router;

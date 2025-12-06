@@ -37,7 +37,7 @@ const startStreaming = async () => {
   const { chartId } = chartStore;
 
   if (!chartId) {
-    error.value = '找不到命盤數據,請先進行計算';
+    error.value = '還沒有命盤喔～先去算個命盤，我才能幫你分析呀！';
     isLoading.value = false;
     return;
   }
@@ -142,10 +142,10 @@ onUnmounted(() => {
 
       <!-- 錯誤狀態 -->
       <div v-else-if="error" class="error">
-        <div class="error-icon">😢</div>
-        <h3>哎呀，出了點小問題</h3>
+        <div class="error-icon">💫</div>
+        <h3>還沒有命盤喔～</h3>
         <p class="error-message">{{ error }}</p>
-        <button class="retry-btn" @click="goBack">← 返回重試</button>
+        <button class="retry-btn" @click="goBack">→ 去計算命盤</button>
       </div>
 
       <!-- 分析內容 -->
@@ -195,6 +195,14 @@ onUnmounted(() => {
   color: var(--text-primary);
   margin: 0;
   font-weight: var(--font-weight-bold);
+}
+
+.subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  margin: var(--space-xs) 0 0 0;
+  font-weight: var(--font-weight-medium);
+  text-align: center;
 }
 
 .back-btn,

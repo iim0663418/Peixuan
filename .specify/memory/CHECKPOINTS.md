@@ -1,5 +1,27 @@
 # 檢查點記錄
 
+# 檢查點記錄
+
+## Checkpoint: progress-core-2025-12-06
+**時間**: 2025-12-06  
+**狀態**: ✅ 完成（路由健全性 + 告警類型修復）
+
+### 完成的任務
+- 核心路由驗證：/daily、/personality、/fortune 均存在且使用 lazy loading，meta.title 正確，重定向保留向後兼容
+- ElAlert 類型修復：SiHuaAggregationCard getSeverityType 從 'danger' 改為 Element Plus 標準 'error'，映射表同步調整
+
+### 關鍵成果
+- 導航/SEO 穩定性確認，避免舊連結或 meta 缺失導致的 UX 風險
+- 告警色彩與狀態與框架契約一致，消除未定義樣式與潛在警告
+
+### 已知問題
+- 服務介紹頁未建立；前端 ESLint 6 errors / 120 warnings；後端 ESLint 3597 issues
+- LanguageSelector 測試 6 失敗；DST/歷史時區增強未實作；後端 npm 4 moderate 漏洞
+
+### 下一步
+- 優先清理前端 ESLint errors 與 LanguageSelector 測試，分批收斂後端 ESLint 與依賴漏洞
+- 規劃 DST/歷史時區支援並補實機/文件；落地服務介紹頁
+
 ## Checkpoint: progress-core-2025-12-04-20-26
 **時間**: 2025-12-04 20:26  
 **狀態**: ✅ 完成（運勢中心性敘事 + 四柱校正影響分析）

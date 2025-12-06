@@ -9,6 +9,7 @@ import { eq } from 'drizzle-orm';
 import { createUnifiedRoutes } from './routes/unifiedRoutes';
 import { createAnalyzeRoutes } from './routes/analyzeRoutes';
 import { createChartRoutes } from './routes/chartRoutes';
+import { createDailyReminderRoutes } from './routes/dailyReminderRoutes';
 import { AutoRouter } from 'itty-router';
 
 export interface Env {
@@ -49,6 +50,7 @@ async function handleAPI(request: Request, env: Env): Promise<Response> {
 	createUnifiedRoutes(router);
 	createAnalyzeRoutes(router, env);
 	createChartRoutes(router);
+	createDailyReminderRoutes(router, env);
 
 	// Try unified routes first using fetch() instead of handle()
 	try {

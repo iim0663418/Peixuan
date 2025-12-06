@@ -45,7 +45,7 @@ const handleAIAnalysis = () => {
   }
 
   // 跳轉到 AI 分析頁面
-  router.push('/ai-analysis');
+  router.push('/personality');
   closeMobileMenu();
 };
 
@@ -63,7 +63,7 @@ const handleAdvancedAnalysis = () => {
   }
 
   // 跳轉到進階分析頁面
-  router.push('/advanced-analysis');
+  router.push('/fortune');
   closeMobileMenu();
 };
 
@@ -80,12 +80,20 @@ onMounted(() => {
         <div class="nav-brand">
           <router-link to="/" class="brand-link">
             <h1>{{ $t('common.app_name') }}</h1>
-            <span class="brand-subtitle">佩璇命理智能分析平台</span>
+            <span class="brand-subtitle">八字 × 紫微 × AI</span>
           </router-link>
         </div>
 
         <!-- 桌面版導航菜單 -->
         <div class="nav-menu desktop-menu">
+          <router-link
+            to="/"
+            class="nav-link"
+            :class="{ active: route?.path === '/' }"
+          >
+            首頁
+          </router-link>
+
           <router-link
             to="/unified"
             class="nav-link"
@@ -98,10 +106,8 @@ onMounted(() => {
           <button
             class="nav-link ai-analysis-btn"
             :class="{
-              active: route?.path === '/ai-analysis',
-              disabled: !hasChartData,
+              active: route?.path === '/personality',
             }"
-            :disabled="!hasChartData"
             @click="handleAIAnalysis"
           >
             <span>佩璇性格分析</span>
@@ -109,14 +115,20 @@ onMounted(() => {
           <button
             class="nav-link advanced-analysis-btn"
             :class="{
-              active: route?.path === '/advanced-analysis',
-              disabled: !hasChartData,
+              active: route?.path === '/fortune',
             }"
-            :disabled="!hasChartData"
             @click="handleAdvancedAnalysis"
           >
             <span>佩璇運勢分析</span>
           </button>
+          <router-link
+            to="/daily"
+            class="nav-link nav-link-daily"
+            :class="{ active: route?.path === '/daily' }"
+          >
+            每日提醒
+            <span class="nav-badge">NEW</span>
+          </router-link>
         </div>
 
         <div class="nav-controls">
@@ -138,6 +150,15 @@ onMounted(() => {
       <!-- 移動版導航菜單 -->
       <div class="mobile-menu" :class="{ show: showMobileMenu }">
         <router-link
+          to="/"
+          class="mobile-nav-link"
+          :class="{ active: route?.path === '/' }"
+          @click="closeMobileMenu"
+        >
+          首頁
+        </router-link>
+
+        <router-link
           to="/unified"
           class="mobile-nav-link"
           :class="{ active: route?.path?.startsWith('/unified') }"
@@ -150,10 +171,8 @@ onMounted(() => {
         <button
           class="mobile-nav-link mobile-ai-btn"
           :class="{
-            active: route?.path === '/ai-analysis',
-            disabled: !hasChartData,
+            active: route?.path === '/personality',
           }"
-          :disabled="!hasChartData"
           @click="handleAIAnalysis"
         >
           <span>佩璇性格分析</span>
@@ -161,14 +180,21 @@ onMounted(() => {
         <button
           class="mobile-nav-link advanced-analysis-btn"
           :class="{
-            active: route?.path === '/advanced-analysis',
-            disabled: !hasChartData,
+            active: route?.path === '/fortune',
           }"
-          :disabled="!hasChartData"
           @click="handleAdvancedAnalysis"
         >
           <span>佩璇運勢分析</span>
         </button>
+        <router-link
+          to="/daily"
+          class="mobile-nav-link mobile-nav-link-daily"
+          :class="{ active: route?.path === '/daily' }"
+          @click="closeMobileMenu"
+        >
+          每日提醒
+          <span class="nav-badge">NEW</span>
+        </router-link>
       </div>
     </header>
 
@@ -186,12 +212,13 @@ onMounted(() => {
         <div class="footer-section">
           <h4>服務項目</h4>
           <div class="footer-links">
+            <router-link to="/">首頁</router-link>
             <router-link to="/unified">{{
               $t('astrology.unified')
             }}</router-link>
-            <router-link to="/ai-analysis">佩璇性格分析</router-link>
-            <router-link to="/advanced-analysis">佩璇運勢分析</router-link>
-            <router-link to="/">服務介紹</router-link>
+            <router-link to="/personality">佩璇性格分析</router-link>
+            <router-link to="/fortune">佩璇運勢分析</router-link>
+            <router-link to="/daily">每日運勢提醒</router-link>
           </div>
         </div>
         <div class="footer-section">
@@ -371,6 +398,24 @@ onMounted(() => {
   transform: translateY(-1px);
 }
 
+/* NEW 徽章樣式 */
+.nav-badge {
+  font-size: 0.65rem;
+  background: #67c23a;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.nav-link-daily {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .nav-controls {
   display: flex;
   align-items: center;
@@ -521,6 +566,13 @@ onMounted(() => {
 
 .mobile-menu .advanced-analysis-btn:not(.disabled):hover {
   transform: translateX(8px);
+}
+
+/* 移動版每日提醒連結 */
+.mobile-nav-link-daily {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* 主要內容區域 */

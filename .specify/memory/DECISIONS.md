@@ -1,5 +1,23 @@
 # 決策記錄
 
+## 2025-12-06: 路由健全性與告警類型修復
+
+### 決策：核心路由健全性驗證（/daily, /personality, /fortune）
+- **背景**: 需確認行動/桌面端核心路由存在並具備正確 meta.title 與重定向，以降低導航/SEO 風險
+- **影響**:
+  - 驗證 /daily、/personality、/fortune 已註冊且使用 lazy loading 動態導入組件
+  - 確認 meta.title 正確填寫並保留向後兼容的重定向路由，避免舊連結失效
+  - 維持現有 RWD/導航體驗不被破壞
+- **狀態**: 完成 ✓
+
+### 決策：ElAlert 嚴重度類型改回 Element Plus 標準
+- **背景**: SiHuaAggregationCard.vue 中 getSeverityType 返回 'danger' 造成型別與 UI 呈現不一致
+- **影響**:
+  - getSeverityType 返回值從 'danger' 調整為 'error'，與 Element Plus 允許值對齊（success/warning/error）
+  - 內部映射表同步修正 high severity → 'error'
+  - 避免未定義樣式與警告，確保告警色彩與狀態一致
+- **狀態**: 完成 ✓
+
 ## 2025-12-04: 產品定位、Prompt 重構與 RWD Phase1
 
 ### 決策：運勢分析加入四化頂層能量匯總與中心性敘事

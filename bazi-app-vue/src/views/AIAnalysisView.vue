@@ -35,7 +35,7 @@ const startStreaming = async () => {
   const { chartId } = chartStore;
 
   if (!chartId) {
-    error.value = '找不到命盤數據,請先進行計算';
+    error.value = '還沒有命盤喔～先去算個命盤，我才能幫你分析呀！';
     isLoading.value = false;
     return;
   }
@@ -118,7 +118,8 @@ onUnmounted(() => {
     <div class="container">
       <div class="header">
         <button class="back-btn" @click="goBack">← 返回</button>
-        <h1>🤖 佩璇性格分析</h1>
+        <h1>💝 佩璇性格分析</h1>
+        <p class="subtitle">八字 × 十神 × 紫微 × 深度解讀</p>
         <div class="actions">
           <button
             v-if="!isLoading && !error"
@@ -139,10 +140,10 @@ onUnmounted(() => {
 
       <!-- 錯誤狀態 -->
       <div v-else-if="error" class="error">
-        <div class="error-icon">😢</div>
-        <h3>哎呀，出了點小問題</h3>
+        <div class="error-icon">💫</div>
+        <h3>還沒有命盤喔～</h3>
         <p class="error-message">{{ error }}</p>
-        <button class="retry-btn" @click="goBack">← 返回重試</button>
+        <button class="retry-btn" @click="goBack">→ 去計算命盤</button>
       </div>
 
       <!-- 分析內容 -->
@@ -192,6 +193,14 @@ onUnmounted(() => {
   color: var(--text-primary);
   margin: 0;
   font-weight: var(--font-weight-bold);
+}
+
+.subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  margin: var(--space-xs) 0 0 0;
+  font-weight: var(--font-weight-medium);
+  text-align: center;
 }
 
 .back-btn,
@@ -259,7 +268,7 @@ onUnmounted(() => {
   border-top: 4px solid #667eea;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
+  margin: 0 auto var(--space-lg);
 }
 
 @keyframes spin {

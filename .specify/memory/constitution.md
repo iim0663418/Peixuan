@@ -27,7 +27,8 @@
 - 快取體驗: analyzeStream 先查 analysis_records，命中直接返回 SSE（0.118s，180x 提速）；快取 SSE 逐行輸出保留 Markdown，loading 文案依 cached 狀態切換（有快取「馬上就好！」，無快取「大概需要半分鐘」）；表單鎖定機制（currentChartId 存在時鎖定提交防重複計算）；移除 chartHistory；部署前清除舊快取以呈現最新 Prompt
 - UI 設計系統: UnifiedInputForm/UnifiedResultView 完整 CSS 變數化（--space-*/--font-size-*/--radius-*/--bg-*/--text-*），移除所有硬編碼與內聯樣式；移動端響應式優化（<768px Tab 44px 觸控目標、水平滾動、無痕滾動條）；按鈕圖標與 hover 動畫（Lock/Check/Delete + Tooltip）；RWD Phase1 完成 Navbar/Footer 觸控放大與移動關閉、1024px 斷點微調、Grid/Flex 佈局基線、設計斷點 tokens 定義、hover 依賴剝離（popover 點擊、@media hover:none）、圖表 will-change + prefers-reduced-motion 性能/無障礙強化
 - 資料維護: Cloudflare Workers Cron 清理 chart_records 6 個月前舊資料；部署保持 `/health` 檢查通過
-- Bug 修復: Chart API 404（chartRoutes 註冊）、userId null≠'anonymous'、chartId 為唯一識別符、欄位轉換層（stem/branch↔gan/zhi、Wood/Fire↔木/火）、wuxingDistribution 英文鍵轉中文鍵、balance NaN 防護（?? 0）、AI 按鈕鎖定（chartStore 狀態同步）
+- Bug 修復: Chart API 404（chartRoutes 註冊）、userId null≠'anonymous'、chartId 為唯一識別符、欄位轉換層（stem/branch↔gan/zhi、Wood/Fire↔木/火）、wuxingDistribution 英文鍵轉中文鍵、balance NaN 防護（?? 0）、AI 按鈕鎖定（chartStore 狀態同步）、SiHuaAggregationCard 告警類型改回 Element Plus 標準（'danger'→'error'）
+- 導航與路由健全性: /daily、/personality、/fortune 路由存在且 lazy loading、meta.title 正確、重定向後向兼容，確保導航與 SEO 穩定
 - Worker 測試：對齊 `/health` 端點並啟用 `nodejs_compat`；保留單元測試 33 項，暫停 workerd 集成測試
 
 ## 架構決策
@@ -38,10 +39,10 @@
 - 前端八字計算 + 後端紫微計算
 
 ## 程式碼品質基線
-- **ESLint 當前狀態**: 前端 0 errors / 126 warnings；後端 3597 issues（新建配置）
-  - 前端：233 → 126 總問題（12 errors → 0 errors）；剩餘多為 @typescript-eslint/no-explicit-any/風格類
+- **ESLint 當前狀態**: 前端 6 errors / 120 warnings；後端 3597 issues（新建配置）
+  - 前端：233 → 126 總問題（12 errors → 6 errors）；剩餘多為 @typescript-eslint/no-explicit-any/風格類
   - 後端：新增 ESLint 配置，初始基線 3597 issues，後續批次清理
-  - 處理策略：保持 0 errors，分批清理警告；後端逐步收斂基線
+  - 處理策略：先清理前端 errors、維持警告可見性；後端逐步收斂基線
 - **改善進度**: 前端從 1,142 → 126 (-88.9%)；錯誤 725 → 0 (-100%)、警告 417 → 126 (-69.8%)
 - **v-for :key 覆蓋率**: 100% (68/68)
 - **TypeScript 嚴格模式**: 部分啟用（測試檔案排除）

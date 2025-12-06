@@ -508,4 +508,63 @@ class UnifiedApiService {
   }
 }
 
+/**
+ * Daily Reminder Interface
+ * 每日運勢提醒資料結構
+ */
+export interface DailyReminder {
+  text: string;
+  tags: Array<{ label: string; type: 'success' | 'warning' | 'info' }>;
+  cached: boolean;
+}
+
+/**
+ * Get Daily Reminder
+ * 取得每日運勢提醒（含 localStorage 快取）
+ *
+ * @param chartId - 命盤 ID
+ * @param date - 查詢日期
+ * @returns 每日運勢提醒資料
+ *
+ * 快取策略：
+ * - Key: `daily-reminder-${chartId}-${dateKey}`
+ * - Storage: localStorage
+ * - TTL: 永久（日期固定，結果不變）
+ */
+export async function getDailyReminder(
+  chartId: string,
+  date: Date,
+): Promise<DailyReminder> {
+  const dateKey = date.toISOString().split('T')[0];
+  const cacheKey = `daily-reminder-${chartId}-${dateKey}`;
+
+  try {
+    // 先查 localStorage（永久快取）
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      const parsedCache = JSON.parse(cached);
+      return { ...parsedCache, cached: true };
+    }
+
+    // API 調用
+    const response = await axios.get<DailyReminder>(`${BASE_URL}/daily-reminder`, {
+      params: { chartId, date: date.toISOString() },
+    });
+
+    // 永久快取（日期固定，結果不變）
+    localStorage.setItem(cacheKey, JSON.stringify(response.data));
+
+    return { ...response.data, cached: false };
+  } catch (error: any) {
+    console.error('Failed to get daily reminder:', error);
+
+    // 錯誤時拋出，由組件處理 Fallback
+    throw new Error(
+      error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        '無法取得每日運勢提醒',
+    );
+  }
+}
+
 export default new UnifiedApiService();

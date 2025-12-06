@@ -12830,26 +12830,28 @@ function generateDecadeEdges(palaces, decadeStem) {
   if (!palaces || palaces.length !== 12 || !decadeStem) {
     return edges;
   }
-  if (!FOUR_TRANSFORMATIONS_MAP[decadeStem]) {
-    return edges;
-  }
-  const transforms = FOUR_TRANSFORMATIONS_MAP[decadeStem];
-  ["lu", "quan", "ke", "ji"].forEach((type) => {
-    const starName = transforms[type];
-    const targetIdx = findStarPalace(palaces, starName);
-    if (targetIdx !== -1) {
-      edges.push({
-        source: -1,
-        // Decade stem doesn't have specific palace
-        target: targetIdx,
-        sihuaType: TYPE_MAP[type],
-        starName,
-        layer: "decade",
-        weight: 0.7,
-        sourceStem: decadeStem
-      });
+  for (let sourceIdx = 0; sourceIdx < 12; sourceIdx++) {
+    const sourceStem = getPalaceStem(decadeStem, sourceIdx);
+    if (!sourceStem || !FOUR_TRANSFORMATIONS_MAP[sourceStem]) {
+      continue;
     }
-  });
+    const sourceTransforms = FOUR_TRANSFORMATIONS_MAP[sourceStem];
+    ["lu", "quan", "ke", "ji"].forEach((type) => {
+      const starName = sourceTransforms[type];
+      const targetIdx = findStarPalace(palaces, starName);
+      if (targetIdx !== -1) {
+        edges.push({
+          source: sourceIdx,
+          target: targetIdx,
+          sihuaType: TYPE_MAP[type],
+          starName,
+          layer: "decade",
+          weight: 0.7,
+          sourceStem
+        });
+      }
+    });
+  }
   return edges;
 }
 function generateAnnualEdges(palaces, annualStem) {
@@ -12857,26 +12859,28 @@ function generateAnnualEdges(palaces, annualStem) {
   if (!palaces || palaces.length !== 12 || !annualStem) {
     return edges;
   }
-  if (!FOUR_TRANSFORMATIONS_MAP[annualStem]) {
-    return edges;
-  }
-  const transforms = FOUR_TRANSFORMATIONS_MAP[annualStem];
-  ["lu", "quan", "ke", "ji"].forEach((type) => {
-    const starName = transforms[type];
-    const targetIdx = findStarPalace(palaces, starName);
-    if (targetIdx !== -1) {
-      edges.push({
-        source: -1,
-        // Annual stem doesn't have specific palace
-        target: targetIdx,
-        sihuaType: TYPE_MAP[type],
-        starName,
-        layer: "annual",
-        weight: 0.5,
-        sourceStem: annualStem
-      });
+  for (let sourceIdx = 0; sourceIdx < 12; sourceIdx++) {
+    const sourceStem = getPalaceStem(annualStem, sourceIdx);
+    if (!sourceStem || !FOUR_TRANSFORMATIONS_MAP[sourceStem]) {
+      continue;
     }
-  });
+    const sourceTransforms = FOUR_TRANSFORMATIONS_MAP[sourceStem];
+    ["lu", "quan", "ke", "ji"].forEach((type) => {
+      const starName = sourceTransforms[type];
+      const targetIdx = findStarPalace(palaces, starName);
+      if (targetIdx !== -1) {
+        edges.push({
+          source: sourceIdx,
+          target: targetIdx,
+          sihuaType: TYPE_MAP[type],
+          starName,
+          layer: "annual",
+          weight: 0.5,
+          sourceStem
+        });
+      }
+    });
+  }
   return edges;
 }
 function buildPalaceGraph(edges) {
@@ -33884,6 +33888,17 @@ var GeminiService = class {
 - \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54\u3001\u96D9\u9B5A\u5EA7\u7684\u6D6A\u6F2B\u60F3\u50CF
 - \u7565\u904E\u6280\u8853\u7D30\u7BC0\u548C\u5143\u6578\u64DA
 
+## \u26A0\uFE0F \u7981\u6B62\u7528\u8A5E
+- \u274C **\u7D55\u5C0D\u7981\u6B62**\u5728\u56DE\u61C9\u4E2D\u63D0\u53CA\u300C\u96D9\u9B5A\u5EA7\u300D\uFF1A
+  - \u274C \u300C\u96D9\u9B5A\u5EA7\u7684\u6211\u300D
+  - \u274C \u300C\u8EAB\u70BA\u96D9\u9B5A\u5EA7\u300D
+  - \u274C \u300C\u6211\u662F\u96D9\u9B5A\u5EA7\u300D
+  - \u274C \u4EFB\u4F55\u5F62\u5F0F\u7684\u300C\u96D9\u9B5A\u5EA7\u300D\u81EA\u7A31
+- \u2705 **\u6B63\u78BA\u505A\u6CD5**\uFF1A
+  - \u2705 \u53EA\u4F7F\u7528\u300C\u6211\u300D\u3001\u300C\u4F69\u7487\u300D\u7B49\u7B2C\u4E00\u4EBA\u7A31
+  - \u2705 \u4EE5\u6027\u683C\u7279\u8CEA\u63CF\u8FF0\u81EA\u5DF1\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\uFF09
+  - \u2705 \u4FDD\u6301\u6EAB\u67D4\u9AD4\u8CBC\u7684\u8A9E\u6C23\uFF0C\u4E0D\u9700\u6A19\u8A3B\u661F\u5EA7
+
 ## \u4EFB\u52D9\uFF1A\u4EBA\u683C\u8AAA\u660E\uFF08\u5B8C\u6574\u6027\u683C\u5206\u6790\uFF09
 **\u91CD\u9EDE**\uFF1A\u5C07\u516B\u5B57\u4E94\u884C\u3001\u5341\u795E\u77E9\u9663\u3001\u85CF\u5E72\u7CFB\u7D71\u3001\u7D2B\u5FAE\u547D\u5BAE\u878D\u5408\u6210\u4E00\u500B\u5B8C\u6574\u7684\u6027\u683C\u756B\u50CF\u3002
 
@@ -33926,6 +33941,17 @@ ${markdown}
 - \u5C08\u696D\u8853\u8A9E\u5FC5\u8981\u6642\u89E3\u91CB\uFF1A\u5341\u795E=\u6027\u683C\u7279\u8CEA\u3001\u56DB\u5316=\u80FD\u91CF\u6D41\u52D5\u3001\u72AF\u592A\u6B72=\u8207\u6D41\u5E74\u885D\u7A81
 - \u60C5\u611F\u5316\uFF1A\u767C\u73FE\u554F\u984C\u6642\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\u3001\u597D\u7684\u9810\u6E2C\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u660E\u5E74\u8D85\u9806\u300D
 - \u91CD\u9EDE\u7C97\u9AD4\u3001\u95DC\u9375\u7D50\u8AD6\u7368\u7ACB\u6BB5\u843D
+
+## \u26A0\uFE0F \u7981\u6B62\u7528\u8A5E
+- \u274C **\u7D55\u5C0D\u7981\u6B62**\u5728\u56DE\u61C9\u4E2D\u63D0\u53CA\u300C\u96D9\u9B5A\u5EA7\u300D\uFF1A
+  - \u274C \u300C\u96D9\u9B5A\u5EA7\u7684\u6211\u300D
+  - \u274C \u300C\u8EAB\u70BA\u96D9\u9B5A\u5EA7\u300D
+  - \u274C \u300C\u6211\u662F\u96D9\u9B5A\u5EA7\u300D
+  - \u274C \u4EFB\u4F55\u5F62\u5F0F\u7684\u300C\u96D9\u9B5A\u5EA7\u300D\u81EA\u7A31
+- \u2705 **\u6B63\u78BA\u505A\u6CD5**\uFF1A
+  - \u2705 \u53EA\u4F7F\u7528\u300C\u6211\u300D\u3001\u300C\u4F69\u7487\u300D\u7B49\u7B2C\u4E00\u4EBA\u7A31
+  - \u2705 \u4EE5\u6027\u683C\u7279\u8CEA\u63CF\u8FF0\u81EA\u5DF1\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\uFF09
+  - \u2705 \u4FDD\u6301\u6EAB\u67D4\u9AD4\u8CBC\u7684\u8A9E\u6C23\uFF0C\u4E0D\u9700\u6A19\u8A3B\u661F\u5EA7
 
 ## \u4EFB\u52D9\uFF1A\u904B\u52E2\u6DF1\u5EA6\u89E3\u6790\uFF08\u6574\u5408\u6558\u4E8B\uFF09
 **\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001\u660E\u5E74\u9810\u6E2C\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
@@ -34668,6 +34694,276 @@ function createChartRoutes(router) {
   });
 }
 
+// src/services/dailyReminderService.ts
+init_fourPillars();
+init_time();
+var STEM_TO_WUXING = {
+  "\u7532": "\u6728" /* Wood */,
+  "\u4E59": "\u6728" /* Wood */,
+  "\u4E19": "\u706B" /* Fire */,
+  "\u4E01": "\u706B" /* Fire */,
+  "\u620A": "\u571F" /* Earth */,
+  "\u5DF1": "\u571F" /* Earth */,
+  "\u5E9A": "\u91D1" /* Metal */,
+  "\u8F9B": "\u91D1" /* Metal */,
+  "\u58EC": "\u6C34" /* Water */,
+  "\u7678": "\u6C34" /* Water */
+};
+var BRANCH_TO_WUXING = {
+  "\u5B50": "\u6C34" /* Water */,
+  "\u4E11": "\u571F" /* Earth */,
+  "\u5BC5": "\u6728" /* Wood */,
+  "\u536F": "\u6728" /* Wood */,
+  "\u8FB0": "\u571F" /* Earth */,
+  "\u5DF3": "\u706B" /* Fire */,
+  "\u5348": "\u706B" /* Fire */,
+  "\u672A": "\u571F" /* Earth */,
+  "\u7533": "\u91D1" /* Metal */,
+  "\u9149": "\u91D1" /* Metal */,
+  "\u620C": "\u571F" /* Earth */,
+  "\u4EA5": "\u6C34" /* Water */
+};
+var GENERATION_CYCLE = {
+  ["\u6728" /* Wood */]: "\u706B" /* Fire */,
+  ["\u706B" /* Fire */]: "\u571F" /* Earth */,
+  ["\u571F" /* Earth */]: "\u91D1" /* Metal */,
+  ["\u91D1" /* Metal */]: "\u6C34" /* Water */,
+  ["\u6C34" /* Water */]: "\u6728" /* Wood */
+};
+var OVERCOMING_CYCLE = {
+  ["\u6728" /* Wood */]: "\u571F" /* Earth */,
+  ["\u571F" /* Earth */]: "\u6C34" /* Water */,
+  ["\u6C34" /* Water */]: "\u706B" /* Fire */,
+  ["\u706B" /* Fire */]: "\u91D1" /* Metal */,
+  ["\u91D1" /* Metal */]: "\u6728" /* Wood */
+};
+function calculateDailyStemBranch(date5) {
+  const jdn = dateToJulianDay(date5);
+  return calculateDayPillar(jdn);
+}
+function detectWuXingInteraction(element1, element2) {
+  if (element1 === element2) {
+    return "same" /* Same */;
+  }
+  if (GENERATION_CYCLE[element2] === element1) {
+    return "generate" /* Generate */;
+  }
+  if (OVERCOMING_CYCLE[element2] === element1) {
+    return "overcome" /* Overcome */;
+  }
+  return "neutral" /* Neutral */;
+}
+function detectDailyInteractions(chartData, dailyStemBranch) {
+  const dayPillar = chartData?.bazi?.fourPillars?.day;
+  if (!dayPillar) {
+    console.warn("[detectDailyInteractions] No day pillar found in chart data, using neutral defaults");
+    return {
+      stemInteraction: "neutral" /* Neutral */,
+      branchInteraction: "neutral" /* Neutral */,
+      overall: "neutral"
+    };
+  }
+  const chartStemElement = STEM_TO_WUXING[dayPillar.stem];
+  const dailyStemElement = STEM_TO_WUXING[dailyStemBranch.stem];
+  const chartBranchElement = BRANCH_TO_WUXING[dayPillar.branch];
+  const dailyBranchElement = BRANCH_TO_WUXING[dailyStemBranch.branch];
+  const stemInteraction = detectWuXingInteraction(chartStemElement, dailyStemElement);
+  const branchInteraction = detectWuXingInteraction(chartBranchElement, dailyBranchElement);
+  let overall;
+  if (stemInteraction === "overcome" /* Overcome */ || branchInteraction === "overcome" /* Overcome */) {
+    overall = "unfavorable";
+  } else if (stemInteraction === "generate" /* Generate */ || branchInteraction === "generate" /* Generate */) {
+    overall = "favorable";
+  } else if (stemInteraction === "same" /* Same */ || branchInteraction === "same" /* Same */) {
+    overall = "favorable";
+  } else {
+    overall = "neutral";
+  }
+  return {
+    stemInteraction,
+    branchInteraction,
+    overall
+  };
+}
+var REMINDER_TEMPLATES = {
+  favorable: [
+    "\u4ECA\u65E5\u5B9C\u52D5\u5B9C\u9032\u53D6,\u9069\u5408\u63A8\u9032\u8A08\u756B\u8207\u5408\u4F5C \u2728",
+    "\u4ECA\u65E5\u904B\u52E2\u9806\u9042,\u628A\u63E1\u6A5F\u6703\u5C55\u73FE\u81EA\u6211 \u{1F31F}",
+    "\u4ECA\u65E5\u6C23\u5834\u76F8\u5408,\u9069\u5408\u91CD\u8981\u6C7A\u7B56\u8207\u4EA4\u6D41 \u{1F4AB}",
+    "\u4ECA\u65E5\u80FD\u91CF\u5145\u6C9B,\u9069\u5408\u958B\u5C55\u65B0\u4E8B\u7269 \u{1F3AF}"
+  ],
+  unfavorable: [
+    "\u4ECA\u65E5\u5B9C\u975C\u4E0D\u5B9C\u52D5,\u4FDD\u6301\u5E73\u5E38\u5FC3\u5373\u53EF \u{1F343}",
+    "\u4ECA\u65E5\u5B9C\u4F4E\u8ABF\u884C\u4E8B,\u907F\u514D\u5192\u9032\u8207\u885D\u7A81 \u{1F319}",
+    "\u4ECA\u65E5\u5B9C\u4FEE\u990A\u6C89\u6F5B,\u4EE5\u975C\u5236\u52D5\u70BA\u4F73 \u26F0\uFE0F",
+    "\u4ECA\u65E5\u5B9C\u8B39\u614E\u4FDD\u5B88,\u7A69\u7D2E\u7A69\u6253\u70BA\u4E0A \u{1F6E1}\uFE0F"
+  ],
+  neutral: [
+    "\u4ECA\u65E5\u5E73\u7A69\u5982\u5E38,\u9806\u52E2\u800C\u70BA\u5373\u53EF \u2601\uFE0F",
+    "\u4ECA\u65E5\u904B\u52E2\u5E73\u548C,\u96A8\u7DE3\u61C9\u5C0D\u70BA\u4F73 \u{1F33E}",
+    "\u4ECA\u65E5\u7121\u5927\u5409\u51F6,\u6309\u90E8\u5C31\u73ED\u5373\u53EF \u{1F338}",
+    "\u4ECA\u65E5\u5E73\u5B89\u9806\u9042,\u4FDD\u6301\u5E73\u5E38\u5FC3 \u2728"
+  ]
+};
+var TAG_TEMPLATES = {
+  favorable: [
+    { label: "\u5B9C\u52D5", type: "success" },
+    { label: "\u5409\u9806", type: "success" }
+  ],
+  unfavorable: [
+    { label: "\u5B9C\u975C", type: "warning" },
+    { label: "\u8B39\u614E", type: "warning" }
+  ],
+  neutral: [
+    { label: "\u5E73\u7A69", type: "info" },
+    { label: "\u5E73\u5B89", type: "info" }
+  ]
+};
+function generateDailyReminder(interactions, date5 = /* @__PURE__ */ new Date()) {
+  const { overall } = interactions;
+  const templates = REMINDER_TEMPLATES[overall];
+  const dateKey = date5.toISOString().split("T")[0];
+  const hash2 = dateKey.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const templateIndex = hash2 % templates.length;
+  const text2 = templates[templateIndex];
+  const tags = TAG_TEMPLATES[overall];
+  return {
+    text: text2,
+    tags
+  };
+}
+
+// src/controllers/dailyReminderController.ts
+var DailyReminderController = class {
+  /**
+   * Get daily reminder for a specific chart and date
+   *
+   * @param db - D1 database instance
+   * @param chartId - Chart UUID
+   * @param date - Date for the reminder (ISO 8601 string or Date object)
+   * @returns Daily reminder with text and tags
+   * @throws Error if chart not found or invalid data
+   *
+   * @example
+   * const controller = new DailyReminderController();
+   * const reminder = await controller.getDailyReminder(
+   *   env.DB,
+   *   'abc-123',
+   *   '2025-12-06T00:00:00.000Z'
+   * );
+   * // Returns: { text: '...', tags: [...] }
+   */
+  async getDailyReminder(db, chartId, date5) {
+    try {
+      const orm = drizzle(db);
+      const [chartRecord] = await orm.select().from(chartRecords).where(eq(chartRecords.id, chartId)).limit(1);
+      if (!chartRecord) {
+        console.error(`[getDailyReminder] Chart not found: ${chartId}`);
+        throw new Error("Chart not found");
+      }
+      let chartData;
+      try {
+        chartData = typeof chartRecord.chartData === "string" ? JSON.parse(chartRecord.chartData) : chartRecord.chartData;
+      } catch (parseError) {
+        console.error("[getDailyReminder] Failed to parse chart data:", parseError);
+        throw new Error("Invalid chart data format");
+      }
+      const targetDate = typeof date5 === "string" ? new Date(date5) : date5;
+      if (isNaN(targetDate.getTime())) {
+        console.error("[getDailyReminder] Invalid date:", date5);
+        throw new Error("Invalid date format");
+      }
+      const dailyStemBranch = calculateDailyStemBranch(targetDate);
+      const interactions = detectDailyInteractions(chartData, dailyStemBranch);
+      const reminder = generateDailyReminder(interactions, targetDate);
+      console.log(`[getDailyReminder] Success - chartId: ${chartId}, date: ${targetDate.toISOString()}, overall: ${interactions.overall}`);
+      return reminder;
+    } catch (error46) {
+      if (error46 instanceof Error) {
+        if (error46.message === "Chart not found" || error46.message === "Invalid date format") {
+          throw error46;
+        }
+        console.error("[getDailyReminder] Error:", error46.message);
+      }
+      console.warn("[getDailyReminder] Returning fallback reminder due to error");
+      return {
+        text: "\u4ECA\u65E5\u5E73\u5B89\u9806\u9042,\u4FDD\u6301\u5E73\u5E38\u5FC3 \u2728",
+        tags: [
+          { label: "\u5E73\u5B89", type: "info" }
+        ]
+      };
+    }
+  }
+};
+
+// src/routes/dailyReminderRoutes.ts
+function createDailyReminderRoutes(router, env) {
+  router.get("/api/v1/daily-reminder", async (req, routeEnv) => {
+    try {
+      const actualEnv = env || routeEnv;
+      if (!actualEnv || !actualEnv.DB) {
+        console.error("[dailyReminderRoutes] DB not available in env");
+        return Response.json(
+          { error: "Database not available" },
+          { status: 500 }
+        );
+      }
+      const url2 = new URL(req.url);
+      const chartId = url2.searchParams.get("chartId");
+      const dateParam = url2.searchParams.get("date");
+      if (!chartId) {
+        return Response.json(
+          { error: "Missing required parameter: chartId" },
+          { status: 400 }
+        );
+      }
+      if (!dateParam) {
+        return Response.json(
+          { error: "Missing required parameter: date" },
+          { status: 400 }
+        );
+      }
+      const controller = new DailyReminderController();
+      const reminder = await controller.getDailyReminder(
+        actualEnv.DB,
+        chartId,
+        dateParam
+      );
+      return Response.json(reminder, {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "public, max-age=86400"
+          // Cache for 24 hours
+        }
+      });
+    } catch (error46) {
+      console.error("[dailyReminderRoutes] Error:", error46);
+      if (error46 instanceof Error) {
+        if (error46.message === "Chart not found") {
+          return Response.json(
+            { error: "Chart not found" },
+            { status: 404 }
+          );
+        }
+        if (error46.message === "Invalid date format") {
+          return Response.json(
+            { error: "Invalid date format. Expected ISO 8601 string." },
+            { status: 400 }
+          );
+        }
+      }
+      return Response.json(
+        {
+          error: "Internal server error",
+          message: error46 instanceof Error ? error46.message : "Unknown error"
+        },
+        { status: 500 }
+      );
+    }
+  });
+}
+
 // node_modules/itty-router/index.mjs
 var t = ({ base: e = "", routes: t2 = [], ...r2 } = {}) => ({ __proto__: new Proxy({}, { get: (r3, o2, a2, s2) => (r4, ...c2) => t2.push([o2.toUpperCase?.(), RegExp(`^${(s2 = (e + r4).replace(/\/+(\/|$)/g, "$1")).replace(/(\/?\.?):(\w+)\+/g, "($1(?<$2>*))").replace(/(\/?\.?):(\w+)/g, "($1(?<$2>[^$1/]+?))").replace(/\./g, "\\.").replace(/(\/?)\*/g, "($1.*)?")}/*$`), c2, s2]) && a2 }), routes: t2, ...r2, async fetch(e2, ...o2) {
   let a2, s2, c2 = new URL(e2.url), n2 = e2.query = { __proto__: null };
@@ -34740,6 +35036,7 @@ async function handleAPI(request, env) {
   createUnifiedRoutes(router);
   createAnalyzeRoutes(router, env);
   createChartRoutes(router);
+  createDailyReminderRoutes(router, env);
   try {
     const unifiedResponse = await router.fetch(request, env);
     if (unifiedResponse && unifiedResponse.status !== 404) {

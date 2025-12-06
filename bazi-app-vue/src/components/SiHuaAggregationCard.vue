@@ -187,11 +187,11 @@ function formatSeverity(severity: string): string {
   return map[severity] || severity;
 }
 
-function getSeverityType(severity: string): 'success' | 'warning' | 'danger' {
-  const map: Record<string, 'success' | 'warning' | 'danger'> = {
+function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
+  const map: Record<string, 'success' | 'warning' | 'error'> = {
     low: 'success',
     medium: 'warning',
-    high: 'danger',
+    high: 'error',
   };
   return map[severity] || 'warning';
 }

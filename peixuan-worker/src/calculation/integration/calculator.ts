@@ -49,6 +49,7 @@ import { analyzeTaiSui } from '../../services/annual/taiSuiAnalysis';
 import { aggregateSiHua } from '../ziwei/sihua/aggregator';
 import { calculateCurrentDecade } from '../ziwei/decade';
 import type { Star , Palace} from '../annual/palace';
+import { calculateYearlyForecast } from '../../services/annualFortune';
 
 /**
  * Hidden stems mapping for earthly branches
@@ -326,6 +327,18 @@ export class UnifiedCalculator {
     // Analyze Tai Sui (太歲分析)
     const taiSuiAnalysis = analyzeTaiSui(annualPillar, bazi.fourPillars);
 
+    // Calculate yearly forecast (Phase 2)
+    const currentDayunGanZhi = bazi.fortuneCycles.currentDayun
+      ? { stem: bazi.fortuneCycles.currentDayun.stem, branch: bazi.fortuneCycles.currentDayun.branch }
+      : undefined;
+    const yearlyForecast = calculateYearlyForecast(
+      input.solarDate,
+      queryDate,
+      ziwei.palaces,
+      bazi.fourPillars,
+      currentDayunGanZhi
+    );
+
     // Step 5: Return unified result
     return {
       input,
@@ -340,6 +353,7 @@ export class UnifiedCalculator {
           harmoniousCombinations,
         },
         taiSuiAnalysis,
+        yearlyForecast,
       },
       timestamp: new Date()
     };

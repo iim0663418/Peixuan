@@ -1,70 +1,70 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useChartStore } from '@/stores/chartStore';
 import ServiceCard from '@/components/ServiceCard.vue';
+import DailyReminderCard from '@/components/DailyReminderCard.vue';
 
 const router = useRouter();
 const chartStore = useChartStore();
+const { t } = useI18n();
 
 // 檢測是否有保存的命盤
 const hasChart = computed(() => !!chartStore.currentChart?.chartId);
+const currentChartId = computed(() => chartStore.currentChart?.chartId);
+
+onMounted(() => {
+  // 嘗試從 localStorage 載入歷史記錄
+  chartStore.loadFromLocalStorage();
+});
 
 // 服務列表配置
-const services = [
+const services = computed(() => [
   {
     id: 'calculate',
     icon: '📊',
-    title: '整合命盤計算',
-    desc: '八字與紫微斗數雙重分析,提供完整命盤資訊',
+    title: t('home.services.calculate_title'),
+    desc: t('home.services.calculate_desc'),
     route: '/unified',
     color: 'primary' as const,
   },
   {
     id: 'personality',
     icon: '💬',
-    title: '佩璇性格分析',
-    desc: 'AI 驅動的深度性格解讀,了解真實的自己',
+    title: t('home.services.personality_title'),
+    desc: t('home.services.personality_desc'),
     route: '/personality',
     color: 'success' as const,
   },
   {
     id: 'fortune',
     icon: '🔮',
-    title: '佩璇運勢分析',
-    desc: '幫你看流年運勢、四化能量,還有明年會怎樣喔 💫',
+    title: t('home.services.fortune_title'),
+    desc: t('home.services.fortune_desc'),
     route: '/fortune',
     color: 'warning' as const,
   },
-  {
-    id: 'daily',
-    icon: '📅',
-    title: '每日運勢提醒',
-    desc: '輕量化每日吉凶提示,快速掌握今日運勢',
-    route: '/daily',
-    color: 'info' as const,
-    badge: 'NEW',
-  },
-];
+]);
 
 // 特色說明列表
-const features = [
+const features = computed(() => [
   {
     icon: '💯',
-    title: '分析更準確',
-    desc: '八字與紫微斗數雙重驗證,結果更可靠',
+    title: t('home.features.accurate_title'),
+    desc: t('home.features.accurate_desc'),
   },
   {
     icon: '💬',
-    title: '解讀更易懂',
-    desc: 'AI 幫你把複雜的命理轉成白話文',
+    title: t('home.features.readable_title'),
+    desc: t('home.features.readable_desc'),
   },
   {
     icon: '⚡',
-    title: '隨時能查看',
-    desc: '保存你的命盤,隨時回來看都很快',
+    title: t('home.features.accessible_title'),
+    desc: t('home.features.accessible_desc'),
   },
-];
+]);
 
 // 快速入口導航
 const quickStart = () => {
@@ -77,10 +77,10 @@ const quickStart = () => {
     <!-- Hero Section (主視覺區域) -->
     <section class="hero-section">
       <div class="hero-content">
-        <h1 class="hero-title">佩璇命理智能分析平台</h1>
-        <p class="hero-subtitle">傳統命理智慧,現代科技精算</p>
+        <h1 class="hero-title">{{ $t('home.title') }}</h1>
+        <p class="hero-subtitle">{{ $t('home.subtitle') }}</p>
         <p class="hero-description">
-          結合八字與紫微斗數的專業分析,運用 AI 技術提供易懂的命理解讀
+          {{ $t('home.description') }}
         </p>
       </div>
     </section>
@@ -88,7 +88,7 @@ const quickStart = () => {
     <!-- Services Section (服務卡片區域) -->
     <section class="services-section">
       <div class="section-container">
-        <h2 class="section-title">服務項目</h2>
+        <h2 class="section-title">{{ $t('home.sections.services') }}</h2>
         <div class="service-grid">
           <ServiceCard
             v-for="service in services"
@@ -99,22 +99,30 @@ const quickStart = () => {
       </div>
     </section>
 
+    <!-- Daily Reminder Section (每日運勢提醒區域) -->
+    <section v-if="currentChartId" class="daily-reminder-section">
+      <div class="section-container">
+        <h2 class="section-title">{{ $t('home.sections.dailyReminder') }}</h2>
+        <DailyReminderCard :chart-id="currentChartId" />
+      </div>
+    </section>
+
     <!-- Quick Access Section (快速入口區域) -->
     <section class="quick-access-section">
       <div class="section-container">
         <div class="quick-access-card">
           <div v-if="hasChart" class="quick-access-content">
-            <h3 class="quick-access-title">歡迎回來!</h3>
-            <p class="quick-access-desc">您有已保存的命盤</p>
+            <h3 class="quick-access-title">{{ $t('home.quick_access.welcome_title') }}</h3>
+            <p class="quick-access-desc">{{ $t('home.quick_access.welcome_desc') }}</p>
             <button class="quick-access-btn" @click="quickStart">
-              繼續查看命盤
+              {{ $t('home.quick_access.welcome_btn') }}
             </button>
           </div>
           <div v-else class="quick-access-content">
-            <h3 class="quick-access-title">開始探索</h3>
-            <p class="quick-access-desc">立即開始您的命理分析之旅</p>
+            <h3 class="quick-access-title">{{ $t('home.quick_access.start_title') }}</h3>
+            <p class="quick-access-desc">{{ $t('home.quick_access.start_desc') }}</p>
             <button class="quick-access-btn" @click="quickStart">
-              開始計算命盤
+              {{ $t('home.quick_access.start_btn') }}
             </button>
           </div>
         </div>
@@ -124,7 +132,7 @@ const quickStart = () => {
     <!-- Features Section (特色說明區域) -->
     <section class="features-section">
       <div class="section-container">
-        <h2 class="section-title">平台特色</h2>
+        <h2 class="section-title">{{ $t('home.sections.features') }}</h2>
         <div class="features-grid">
           <div
             v-for="feature in features"
@@ -252,6 +260,12 @@ const quickStart = () => {
   display: grid;
   gap: var(--space-xl, 2rem);
   animation: fadeInUp 0.6s ease-out;
+}
+
+/* Daily Reminder Section */
+.daily-reminder-section {
+  background: var(--bg-primary, #f7f8fa);
+  padding: var(--space-2xl, 3rem) 0;
 }
 
 @keyframes fadeInUp {

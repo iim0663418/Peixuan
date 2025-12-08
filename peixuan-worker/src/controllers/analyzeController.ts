@@ -118,41 +118,130 @@ export class AnalyzeController {
    *
    * @param chartId - The chart ID to analyze
    * @param env - Cloudflare Worker environment with DB binding
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns ReadableStream in SSE format
    */
-  async analyzeStream(chartId: string, env: { DB: D1Database }): Promise<ReadableStream> {
-    console.log('[analyzeStream] Entry, chartId:', chartId);
+  async analyzeStream(chartId: string, env: { DB: D1Database }, locale: string = 'zh-TW'): Promise<ReadableStream> {
+    console.log('[analyzeStream] Entry, chartId:', chartId, 'locale:', locale);
 
-    // Step 0: Check analysis cache first
-    const cachedAnalysis = await this.analysisCacheService.getAnalysis(chartId, 'ai-streaming', env);
-    if (cachedAnalysis) {
-      console.log('[analyzeStream] Cache hit! Returning cached analysis');
-      const cachedText = typeof cachedAnalysis.result === 'string'
-        ? cachedAnalysis.result
-        : (cachedAnalysis.result as any).text || JSON.stringify(cachedAnalysis.result);
-      return this.createCachedSSEStream(cachedText);
-    }
+    const encoder = new TextEncoder();
+    const analysisType = `ai-streaming-${locale}`;
+    
+    // Return stream immediately to establish SSE connection
+    return new ReadableStream({
+      async start(controller) {
+        try {
+          // Send immediate loading message
+          const loadingMessage = locale === 'en'
+            ? 'Let me see~ I am analyzing your chart carefully...\n\n'
+            : '好我看看～讓我仔細分析一下你的命盤...\n\n';
+          const sseData = `data: ${JSON.stringify({ text: loadingMessage })}\n\n`;
+          controller.enqueue(encoder.encode(sseData));
+          console.log('[analyzeStream] Loading message sent, locale:', locale);
 
-    // Step 1: Read chart data from D1
-    const chart = await this.chartCacheService.getChart(chartId, env);
-    console.log('[analyzeStream] After getChart, found:', !!chart);
-    if (!chart) {
-      throw new Error('Chart not found');
-    }
+          // Step 0: Check analysis cache first
+          const analysisCacheService = new AnalysisCacheService();
+          const cachedAnalysis = await analysisCacheService.getAnalysis(chartId, analysisType, env);
+          
+          if (cachedAnalysis) {
+            console.log('[analyzeStream] Cache hit! Returning cached analysis');
+            const cachedText = typeof cachedAnalysis.result === 'string'
+              ? cachedAnalysis.result
+              : (cachedAnalysis.result as any).text || JSON.stringify(cachedAnalysis.result);
+            
+            // Send cached content line by line
+            const lines = cachedText.split('\n');
+            for (const line of lines) {
+              const sseData = `data: ${JSON.stringify({ text: line + '\n' })}\n\n`;
+              controller.enqueue(encoder.encode(sseData));
+              await new Promise(resolve => setTimeout(resolve, 10));
+            }
+            
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.close();
+            return;
+          }
 
-    // Step 2: Convert to Markdown
-    const calculation: CalculationResult = typeof chart.chartData === 'string'
-      ? JSON.parse(chart.chartData)
-      : chart.chartData;
-    const markdown = formatToMarkdown(calculation, { excludeSteps: true, personalityOnly: true });
+          // Step 1: Read chart data from D1
+          const chartCacheService = new ChartCacheService();
+          const chart = await chartCacheService.getChart(chartId, env);
+          console.log('[analyzeStream] After getChart, found:', !!chart);
+          
+          if (!chart) {
+            const errorData = `data: ${JSON.stringify({ error: 'Chart not found' })}\n\n`;
+            controller.enqueue(encoder.encode(errorData));
+            controller.close();
+            return;
+          }
 
-    // Step 3: Call Gemini Stream
-    console.log('[analyzeStream] Before geminiService.analyzeChartStream');
-    const geminiStream = await this.geminiService.analyzeChartStream(markdown);
-    console.log('[analyzeStream] After geminiService.analyzeChartStream, stream:', !!geminiStream);
+          // Step 2: Convert to Markdown
+          const calculation: CalculationResult = typeof chart.chartData === 'string'
+            ? JSON.parse(chart.chartData)
+            : chart.chartData;
+          const markdown = formatToMarkdown(calculation, { excludeSteps: true, personalityOnly: true });
 
-    // Step 4: Transform to SSE format
-    return this.transformToSSE(geminiStream, chartId, env);
+          // Step 3: Call Gemini Stream with locale
+          console.log('[analyzeStream] Before geminiService.analyzeChartStream');
+          const geminiService = new GeminiService({ apiKey: env.GEMINI_API_KEY || '' });
+          const geminiStream = await geminiService.analyzeChartStream(markdown, locale);
+          console.log('[analyzeStream] After geminiService.analyzeChartStream, stream:', !!geminiStream);
+
+          // Step 4: Process Gemini stream
+          const reader = geminiStream.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+          let fullText = '';
+          let chunkCount = 0;
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+              console.log('[analyzeStream] Stream done, total chunks received:', chunkCount);
+              break;
+            }
+
+            chunkCount++;
+            console.log('[analyzeStream] Chunk', chunkCount, 'received, bytes:', value.length);
+            buffer += decoder.decode(value, { stream: true });
+          }
+
+          console.log('[analyzeStream] Complete buffer accumulated, size:', buffer.length);
+
+          // Parse and send
+          const jsonArray = JSON.parse(buffer);
+          console.log('[analyzeStream] Parsed JSON array, length:', jsonArray.length);
+
+          for (let i = 0; i < jsonArray.length; i++) {
+            const obj = jsonArray[i];
+            const text = obj?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+            if (text) {
+              fullText += text;
+              const sseData = `data: ${JSON.stringify({ text })}\n\n`;
+              controller.enqueue(encoder.encode(sseData));
+            }
+          }
+
+          // Save to cache with correct chartId and analysisType
+          if (fullText) {
+            await analysisCacheService.saveAnalysis(
+              chartId,
+              analysisType,
+              { text: fullText },
+              env
+            );
+          }
+
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+          controller.close();
+        } catch (error) {
+          console.error('[analyzeStream] Error:', error);
+          const errorData = `data: ${JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' })}\n\n`;
+          controller.enqueue(encoder.encode(errorData));
+          controller.close();
+        }
+      }
+    });
   }
 
   /**
@@ -293,10 +382,12 @@ export class AnalyzeController {
    * Check if advanced analysis cache exists for a chart
    * @param chartId - The chart ID to check
    * @param env - Cloudflare Worker environment
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns Object with cached status
    */
-  async checkAdvancedCache(chartId: string, env: { DB: D1Database }): Promise<{ cached: boolean }> {
-    const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, env);
+  async checkAdvancedCache(chartId: string, env: { DB: D1Database }, locale: string = 'zh-TW'): Promise<{ cached: boolean }> {
+    const analysisType = `ai-advanced-${locale}`;
+    const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
     return { cached: !!cachedAnalysis };
   }
 
@@ -305,13 +396,15 @@ export class AnalyzeController {
    *
    * @param chartId - The chart ID to analyze
    * @param env - Cloudflare Worker environment with DB binding
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns ReadableStream in SSE format
    */
-  async analyzeAdvancedStream(chartId: string, env: { DB: D1Database }): Promise<ReadableStream> {
-    console.log('[analyzeAdvancedStream] Entry, chartId:', chartId);
+  async analyzeAdvancedStream(chartId: string, env: { DB: D1Database }, locale: string = 'zh-TW'): Promise<ReadableStream> {
+    console.log('[analyzeAdvancedStream] Entry, chartId:', chartId, 'locale:', locale);
 
-    // Step 0: Check advanced analysis cache first
-    const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, env);
+    // Step 0: Define analysis type based on locale
+    const analysisType = `ai-advanced-${locale}`;
+    const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
     if (cachedAnalysis) {
       console.log('[analyzeAdvancedStream] Cache hit! Returning cached analysis');
       const cachedText = typeof cachedAnalysis.result === 'string'
@@ -337,13 +430,13 @@ export class AnalyzeController {
     const advancedMarkdown = formatAdvancedMarkdown(calculation);
     console.log('[analyzeAdvancedStream] advancedMarkdown length:', advancedMarkdown.length);
 
-    // Step 3: Call Gemini Advanced Stream
+    // Step 3: Call Gemini Advanced Stream with locale
     console.log('[analyzeAdvancedStream] Before geminiService.analyzeAdvancedStream');
-    const geminiStream = await this.geminiService.analyzeAdvancedStream(advancedMarkdown);
+    const geminiStream = await this.geminiService.analyzeAdvancedStream(advancedMarkdown, locale);
     console.log('[analyzeAdvancedStream] After geminiService.analyzeAdvancedStream, stream:', !!geminiStream);
 
     // Step 4: Transform to SSE format with advanced cache
-    return this.transformAdvancedToSSE(geminiStream, chartId, env);
+    return this.transformAdvancedToSSE(geminiStream, chartId, analysisType, env);
   }
 
   /**
@@ -353,12 +446,14 @@ export class AnalyzeController {
    *
    * @param geminiStream - ReadableStream from Gemini API
    * @param chartId - The chart ID for caching
+   * @param analysisType - The analysis type (e.g., 'ai-advanced-zh-TW', 'ai-advanced-en')
    * @param env - Cloudflare Worker environment
    * @returns ReadableStream in SSE format
    */
   private transformAdvancedToSSE(
     geminiStream: ReadableStream,
     chartId: string,
+    analysisType: string,
     env: { DB: D1Database }
   ): ReadableStream {
     const reader = geminiStream.getReader();
@@ -368,7 +463,7 @@ export class AnalyzeController {
     let fullText = '';
     let chunkCount = 0;
 
-    console.log('[transformAdvancedToSSE] Starting stream transformation for chartId:', chartId);
+    console.log('[transformAdvancedToSSE] Starting stream transformation for chartId:', chartId, 'analysisType:', analysisType);
 
     return new ReadableStream({
       async start(controller) {
@@ -426,6 +521,7 @@ export class AnalyzeController {
             const advancedAnalysisCacheService = new AdvancedAnalysisCacheService();
             await advancedAnalysisCacheService.saveAnalysis(
               chartId,
+              analysisType,
               { text: fullText },
               env
             );

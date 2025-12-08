@@ -334,18 +334,183 @@ function formatAnnualFortune(result: CalculationResult): string {
   const { annualFortune } = result;
   if (!annualFortune) {return '';}
 
-  const sections: string[] = ['## 📅 流年分析\n'];
+  const sections: string[] = [];
 
-  // Annual Pillar
-  sections.push('### 流年年柱');
-  sections.push(`- **干支**：${annualFortune.annualPillar.stem}${annualFortune.annualPillar.branch}`);
+  // Use yearlyForecast if available (new format)
+  if (annualFortune.yearlyForecast) {
+    const { yearlyForecast } = annualFortune;
+    const { queryDate, endDate, periods } = yearlyForecast;
 
-  // Annual Life Palace
-  if (annualFortune.annualLifePalace !== undefined && annualFortune.annualLifePalace >= 0) {
-    sections.push(`- **流年命宮**：第${annualFortune.annualLifePalace}宮`);
+    // Format header with date range
+    const startDateStr = formatDate(queryDate).split(' ')[0]; // YYYY-MM-DD
+    const endDateStr = formatDate(endDate).split(' ')[0]; // YYYY-MM-DD
+    sections.push(`## 📅 未來一年運勢（${startDateStr} → ${endDateStr}）\n`);
+
+    // Check if there are two periods (Lichun exists)
+    if (periods.length === 2) {
+      const currentPeriod = periods[0];
+      const nextPeriod = periods[1];
+
+      // Current year period
+      sections.push('### 當前年運（立春前）');
+      const currentStart = formatDate(currentPeriod.startDate).split(' ')[0];
+      const currentEnd = formatDate(currentPeriod.endDate).split(' ')[0];
+      const currentPercent = (currentPeriod.weight * 100).toFixed(1);
+      sections.push(`- **時段**：${currentStart} → ${currentEnd}（剩餘 ${currentPeriod.durationDays} 天，佔比 ${currentPercent}%）`);
+      sections.push(`- **干支**：${currentPeriod.annualPillar.stem}${currentPeriod.annualPillar.branch}`);
+      sections.push(`- **流年命宮**：第${currentPeriod.annualLifePalacePosition}宮`);
+
+      // Tai Sui analysis for current period
+      if (currentPeriod.taiSuiAnalysis) {
+        sections.push('\n**太歲分析**：');
+        const { taiSuiAnalysis } = currentPeriod;
+        const isFanTaiSui = taiSuiAnalysis.types.length > 0;
+        sections.push(`- 犯太歲：${isFanTaiSui ? '是' : '否'}`);
+        sections.push(`- 沖太歲：${taiSuiAnalysis.chong ? '是' : '否'}${taiSuiAnalysis.chong && taiSuiAnalysis.severity !== 'none' ? `（${taiSuiAnalysis.severity.toUpperCase()}）` : ''}`);
+        if (isFanTaiSui) {
+          sections.push(`- 類型：${taiSuiAnalysis.types.join('、')}`);
+          sections.push(`- 嚴重度：${taiSuiAnalysis.severity.toUpperCase()}`);
+        }
+      }
+
+      // Interactions for current period
+      if (currentPeriod.interactions) {
+        sections.push('\n**干支交互**：');
+        const { interactions } = currentPeriod;
+
+        if (interactions.stemCombinations.length > 0) {
+          const combos = interactions.stemCombinations.map(c => `${c.pillar}柱（${c.element}）`).join('、');
+          sections.push(`- 天干五合：${combos}`);
+        }
+
+        if (interactions.branchClashes.length > 0) {
+          const clashes = interactions.branchClashes.map(c => `${c.pillar}柱（${c.severity.toUpperCase()}）`).join('、');
+          sections.push(`- 地支六沖：${clashes}`);
+        }
+
+        if (interactions.harmoniousCombinations.length > 0) {
+          const harmonies = interactions.harmoniousCombinations.map(h => `${h.type === 'sanhe' ? '三合' : '三會'}（${h.branches.join('')}→${h.element}）`).join('、');
+          sections.push(`- 和諧組合：${harmonies}`);
+        }
+
+        if (interactions.stemCombinations.length === 0 && interactions.branchClashes.length === 0 && interactions.harmoniousCombinations.length === 0) {
+          sections.push('- 無明顯交互');
+        }
+      }
+
+      // Next year period
+      sections.push('\n### 下一年運（立春後）');
+      const nextStart = formatDate(nextPeriod.startDate).split(' ')[0];
+      const nextEnd = formatDate(nextPeriod.endDate).split(' ')[0];
+      const nextPercent = (nextPeriod.weight * 100).toFixed(1);
+      sections.push(`- **時段**：${nextStart} → ${nextEnd}（${nextPeriod.durationDays} 天，佔比 ${nextPercent}%）`);
+      sections.push(`- **干支**：${nextPeriod.annualPillar.stem}${nextPeriod.annualPillar.branch}`);
+      sections.push(`- **流年命宮**：第${nextPeriod.annualLifePalacePosition}宮`);
+
+      // Tai Sui analysis for next period
+      if (nextPeriod.taiSuiAnalysis) {
+        sections.push('\n**太歲分析**：');
+        const { taiSuiAnalysis } = nextPeriod;
+        const isFanTaiSui = taiSuiAnalysis.types.length > 0;
+        sections.push(`- 犯太歲：${isFanTaiSui ? '是' : '否'}`);
+        sections.push(`- 沖太歲：${taiSuiAnalysis.chong ? '是' : '否'}${taiSuiAnalysis.chong && taiSuiAnalysis.severity !== 'none' ? `（${taiSuiAnalysis.severity.toUpperCase()}）` : ''}`);
+        if (isFanTaiSui) {
+          sections.push(`- 類型：${taiSuiAnalysis.types.join('、')}`);
+          sections.push(`- 嚴重度：${taiSuiAnalysis.severity.toUpperCase()}`);
+        }
+      }
+
+      // Interactions for next period
+      if (nextPeriod.interactions) {
+        sections.push('\n**干支交互**：');
+        const { interactions } = nextPeriod;
+
+        if (interactions.stemCombinations.length > 0) {
+          const combos = interactions.stemCombinations.map(c => `${c.pillar}柱（${c.element}）`).join('、');
+          sections.push(`- 天干五合：${combos}`);
+        }
+
+        if (interactions.branchClashes.length > 0) {
+          const clashes = interactions.branchClashes.map(c => `${c.pillar}柱（${c.severity.toUpperCase()}）`).join('、');
+          sections.push(`- 地支六沖：${clashes}`);
+        }
+
+        if (interactions.harmoniousCombinations.length > 0) {
+          const harmonies = interactions.harmoniousCombinations.map(h => `${h.type === 'sanhe' ? '三合' : '三會'}（${h.branches.join('')}→${h.element}）`).join('、');
+          sections.push(`- 和諧組合：${harmonies}`);
+        }
+
+        if (interactions.stemCombinations.length === 0 && interactions.branchClashes.length === 0 && interactions.harmoniousCombinations.length === 0) {
+          sections.push('- 無明顯交互');
+        }
+      }
+
+      // Lichun transition reminder
+      const lichunDate = formatDate(nextPeriod.startDate).split(' ')[0];
+      sections.push(`\n**⚠️ 立春轉換提醒**：${lichunDate} 立春，能量將從 ${currentPeriod.annualPillar.stem}${currentPeriod.annualPillar.branch} 年切換至 ${nextPeriod.annualPillar.stem}${nextPeriod.annualPillar.branch} 年，請注意運勢轉折。`);
+    } else {
+      // Single period (no Lichun in forecast range)
+      const period = periods[0];
+      sections.push('### 當前年運');
+      const startStr = formatDate(period.startDate).split(' ')[0];
+      const endStr = formatDate(period.endDate).split(' ')[0];
+      sections.push(`- **時段**：${startStr} → ${endStr}（${period.durationDays} 天）`);
+      sections.push(`- **干支**：${period.annualPillar.stem}${period.annualPillar.branch}`);
+      sections.push(`- **流年命宮**：第${period.annualLifePalacePosition}宮`);
+
+      // Tai Sui analysis for single period
+      if (period.taiSuiAnalysis) {
+        sections.push('\n**太歲分析**：');
+        const { taiSuiAnalysis } = period;
+        const isFanTaiSui = taiSuiAnalysis.types.length > 0;
+        sections.push(`- 犯太歲：${isFanTaiSui ? '是' : '否'}`);
+        sections.push(`- 沖太歲：${taiSuiAnalysis.chong ? '是' : '否'}${taiSuiAnalysis.chong && taiSuiAnalysis.severity !== 'none' ? `（${taiSuiAnalysis.severity.toUpperCase()}）` : ''}`);
+        if (isFanTaiSui) {
+          sections.push(`- 類型：${taiSuiAnalysis.types.join('、')}`);
+          sections.push(`- 嚴重度：${taiSuiAnalysis.severity.toUpperCase()}`);
+        }
+      }
+
+      // Interactions for single period
+      if (period.interactions) {
+        sections.push('\n**干支交互**：');
+        const { interactions } = period;
+
+        if (interactions.stemCombinations.length > 0) {
+          const combos = interactions.stemCombinations.map(c => `${c.pillar}柱（${c.element}）`).join('、');
+          sections.push(`- 天干五合：${combos}`);
+        }
+
+        if (interactions.branchClashes.length > 0) {
+          const clashes = interactions.branchClashes.map(c => `${c.pillar}柱（${c.severity.toUpperCase()}）`).join('、');
+          sections.push(`- 地支六沖：${clashes}`);
+        }
+
+        if (interactions.harmoniousCombinations.length > 0) {
+          const harmonies = interactions.harmoniousCombinations.map(h => `${h.type === 'sanhe' ? '三合' : '三會'}（${h.branches.join('')}→${h.element}）`).join('、');
+          sections.push(`- 和諧組合：${harmonies}`);
+        }
+
+        if (interactions.stemCombinations.length === 0 && interactions.branchClashes.length === 0 && interactions.harmoniousCombinations.length === 0) {
+          sections.push('- 無明顯交互');
+        }
+      }
+    }
+  } else {
+    // Fallback to old format for backward compatibility
+    sections.push('## 📅 流年分析\n');
+
+    // Annual Pillar
+    sections.push('### 流年年柱');
+    sections.push(`- **干支**：${annualFortune.annualPillar.stem}${annualFortune.annualPillar.branch}`);
+
+    // Annual Life Palace
+    if (annualFortune.annualLifePalace !== undefined && annualFortune.annualLifePalace >= 0) {
+      sections.push(`- **流年命宮**：第${annualFortune.annualLifePalace}宮`);
+    }
   }
 
-  // Interactions
+  // Interactions (common to both formats)
   if (annualFortune.interactions) {
     const { interactions } = annualFortune;
 
@@ -374,11 +539,11 @@ function formatAnnualFortune(result: CalculationResult): string {
     }
   }
 
-  // Tai Sui Analysis
+  // Tai Sui Analysis (common to both formats)
   if (annualFortune.taiSuiAnalysis) {
     const { taiSuiAnalysis } = annualFortune;
     sections.push('\n### 太歲分析');
-    
+
     const violations: string[] = [];
     if (taiSuiAnalysis.zhi) {violations.push('值太歲');}
     if (taiSuiAnalysis.chong) {violations.push('沖太歲');}

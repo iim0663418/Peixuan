@@ -33,8 +33,19 @@ export const useChartStore = defineStore('chart', {
       localStorage.setItem('currentChartId', chartData.chartId);
     },
 
-    loadFromLocalStorage(): string | null {
-      return localStorage.getItem('currentChartId');
+    loadFromLocalStorage() {
+      const chartId = localStorage.getItem('currentChartId');
+      if (chartId && !this.currentChart) {
+        // 設置一個最小的 ChartData 結構，只包含 chartId
+        // 完整資料需要從 API 載入
+        this.currentChart = {
+          chartId,
+          calculation: {} as CalculationResult,
+          metadata: {} as ChartMetadata,
+          createdAt: new Date(),
+        };
+      }
+      return chartId;
     },
 
     clearCurrentChart() {

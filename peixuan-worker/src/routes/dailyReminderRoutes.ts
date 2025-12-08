@@ -26,6 +26,10 @@ export function createDailyReminderRoutes(router: Router, env?: Env) {
    * Query Parameters:
    * - chartId: string (required) - Chart UUID
    * - date: string (required) - ISO 8601 date string (e.g., 2025-12-06T00:00:00.000Z)
+   * - locale: string (optional) - Locale for the reminder (default: 'zh-TW', supports: 'zh-TW', 'en')
+   *
+   * @example
+   * GET /api/v1/daily-reminder?chartId=abc-123&date=2025-12-06T00:00:00.000Z&locale=en
    *
    * Response:
    * {
@@ -58,6 +62,7 @@ export function createDailyReminderRoutes(router: Router, env?: Env) {
       const url = new URL(req.url);
       const chartId = url.searchParams.get('chartId');
       const dateParam = url.searchParams.get('date');
+      const locale = url.searchParams.get('locale') || 'zh-TW';
 
       // Validate required parameters
       if (!chartId) {
@@ -79,7 +84,8 @@ export function createDailyReminderRoutes(router: Router, env?: Env) {
       const reminder = await controller.getDailyReminder(
         actualEnv.DB,
         chartId,
-        dateParam
+        dateParam,
+        locale
       );
 
       // Return successful response

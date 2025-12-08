@@ -13250,6 +13250,158 @@ var init_decade = __esm({
   }
 });
 
+// src/services/annualFortune/getLichunDatesBetween.ts
+function getLichunDatesBetween(startDate, endDate) {
+  if (!startDate || !endDate) {
+    return [];
+  }
+  if (startDate > endDate) {
+    return [];
+  }
+  const startYear = startDate.getFullYear();
+  const endYear = endDate.getFullYear();
+  const lichunDates = [];
+  for (let year = startYear; year <= endYear + 1; year++) {
+    const lichunTime = getLichunTime(year);
+    if (lichunTime >= startDate && lichunTime <= endDate) {
+      lichunDates.push(lichunTime);
+    }
+  }
+  return lichunDates.sort((a2, b) => a2.getTime() - b.getTime());
+}
+var init_getLichunDatesBetween = __esm({
+  "src/services/annualFortune/getLichunDatesBetween.ts"() {
+    "use strict";
+    init_solarTerms();
+  }
+});
+
+// src/services/annualFortune/calculateYearlyForecast.ts
+function calculateDuration(startDate, endDate) {
+  const msPerDay = 1e3 * 60 * 60 * 24;
+  const durationMs = endDate.getTime() - startDate.getTime();
+  const durationDays = durationMs / msPerDay;
+  return Math.round(durationDays * 100) / 100;
+}
+function calculateWeight(durationDays, totalDays) {
+  if (totalDays === 0) {
+    return 0;
+  }
+  const weight = durationDays / totalDays;
+  return Math.round(weight * 1e4) / 1e4;
+}
+function calculateYearlyForecast(birthDate, queryDate, palaces, fourPillars, currentDayun) {
+  const endDate = new Date(queryDate);
+  endDate.setDate(endDate.getDate() + 365);
+  const lichunDates = getLichunDatesBetween(queryDate, endDate);
+  const periods = [];
+  if (lichunDates.length === 0) {
+    const annualPillar = getAnnualPillar(queryDate);
+    const annualLifePalacePosition = locateAnnualLifePalace(annualPillar.branch, palaces);
+    const durationDays = calculateDuration(queryDate, endDate);
+    const taiSuiAnalysis = analyzeTaiSui(annualPillar, fourPillars);
+    const stemCombinations = detectStemCombinations(annualPillar.stem, fourPillars);
+    const branchClashes = detectBranchClashes(annualPillar.branch, fourPillars);
+    const harmoniousCombinations = detectHarmoniousCombinations(
+      annualPillar.branch,
+      fourPillars,
+      currentDayun?.branch
+    );
+    periods.push({
+      startDate: queryDate,
+      endDate,
+      annualPillar,
+      annualLifePalacePosition,
+      durationDays,
+      weight: 1,
+      // Single period gets full weight
+      taiSuiAnalysis,
+      interactions: {
+        stemCombinations,
+        branchClashes,
+        harmoniousCombinations
+      }
+    });
+  } else {
+    const lichunDate = lichunDates[0];
+    const currentYearPillar = getAnnualPillar(queryDate);
+    const currentYearPalacePosition = locateAnnualLifePalace(currentYearPillar.branch, palaces);
+    const currentYearDuration = calculateDuration(queryDate, lichunDate);
+    const currentTaiSuiAnalysis = analyzeTaiSui(currentYearPillar, fourPillars);
+    const currentStemCombinations = detectStemCombinations(currentYearPillar.stem, fourPillars);
+    const currentBranchClashes = detectBranchClashes(currentYearPillar.branch, fourPillars);
+    const currentHarmoniousCombinations = detectHarmoniousCombinations(
+      currentYearPillar.branch,
+      fourPillars,
+      currentDayun?.branch
+    );
+    const nextYearPillar = getAnnualPillar(lichunDate);
+    const nextYearPalacePosition = locateAnnualLifePalace(nextYearPillar.branch, palaces);
+    const nextYearDuration = calculateDuration(lichunDate, endDate);
+    const nextTaiSuiAnalysis = analyzeTaiSui(nextYearPillar, fourPillars);
+    const nextStemCombinations = detectStemCombinations(nextYearPillar.stem, fourPillars);
+    const nextBranchClashes = detectBranchClashes(nextYearPillar.branch, fourPillars);
+    const nextHarmoniousCombinations = detectHarmoniousCombinations(
+      nextYearPillar.branch,
+      fourPillars,
+      currentDayun?.branch
+    );
+    const totalDuration = currentYearDuration + nextYearDuration;
+    periods.push({
+      startDate: queryDate,
+      endDate: lichunDate,
+      annualPillar: currentYearPillar,
+      annualLifePalacePosition: currentYearPalacePosition,
+      durationDays: currentYearDuration,
+      weight: calculateWeight(currentYearDuration, totalDuration),
+      taiSuiAnalysis: currentTaiSuiAnalysis,
+      interactions: {
+        stemCombinations: currentStemCombinations,
+        branchClashes: currentBranchClashes,
+        harmoniousCombinations: currentHarmoniousCombinations
+      }
+    });
+    periods.push({
+      startDate: lichunDate,
+      endDate,
+      annualPillar: nextYearPillar,
+      annualLifePalacePosition: nextYearPalacePosition,
+      durationDays: nextYearDuration,
+      weight: calculateWeight(nextYearDuration, totalDuration),
+      taiSuiAnalysis: nextTaiSuiAnalysis,
+      interactions: {
+        stemCombinations: nextStemCombinations,
+        branchClashes: nextBranchClashes,
+        harmoniousCombinations: nextHarmoniousCombinations
+      }
+    });
+  }
+  return {
+    queryDate,
+    endDate,
+    periods
+  };
+}
+var init_calculateYearlyForecast = __esm({
+  "src/services/annualFortune/calculateYearlyForecast.ts"() {
+    "use strict";
+    init_liuchun();
+    init_palace();
+    init_getLichunDatesBetween();
+    init_taiSuiAnalysis();
+    init_interaction();
+  }
+});
+
+// src/services/annualFortune/index.ts
+var init_annualFortune = __esm({
+  "src/services/annualFortune/index.ts"() {
+    "use strict";
+    init_getLichunDatesBetween();
+    init_calculateYearlyForecast();
+  }
+});
+
 // src/calculation/integration/calculator.ts
 function getHiddenStems2(branch) {
   return HIDDEN_STEMS_MAP2[branch] || { primary: branch };
@@ -13385,6 +13537,7 @@ var init_calculator = __esm({
     init_taiSuiAnalysis();
     init_aggregator();
     init_decade();
+    init_annualFortune();
     HIDDEN_STEMS_MAP2 = {
       "\u5B50": { primary: "\u7678" },
       "\u4E11": { primary: "\u5DF1", middle: "\u7678", residual: "\u8F9B" },
@@ -13428,6 +13581,14 @@ var init_calculator = __esm({
           bazi.fortuneCycles.currentDayun?.branch
         );
         const taiSuiAnalysis = analyzeTaiSui(annualPillar, bazi.fourPillars);
+        const currentDayunGanZhi = bazi.fortuneCycles.currentDayun ? { stem: bazi.fortuneCycles.currentDayun.stem, branch: bazi.fortuneCycles.currentDayun.branch } : void 0;
+        const yearlyForecast = calculateYearlyForecast(
+          input.solarDate,
+          queryDate,
+          ziwei.palaces,
+          bazi.fourPillars,
+          currentDayunGanZhi
+        );
         return {
           input,
           bazi,
@@ -13440,7 +13601,8 @@ var init_calculator = __esm({
               branchClashes,
               harmoniousCombinations
             },
-            taiSuiAnalysis
+            taiSuiAnalysis,
+            yearlyForecast
           },
           timestamp: /* @__PURE__ */ new Date()
         };
@@ -32727,10 +32889,11 @@ var advancedAnalysisRecords = sqliteTable("advanced_analysis_records", {
   // UUID generated by application
   chartId: text("chart_id").notNull().references(() => chartRecords.id, { onDelete: "cascade" }),
   // Foreign key to chart_records
+  analysisType: text("analysis_type").notNull().default("ai-advanced-zh-TW"),
   result: text("result", { mode: "json" }).notNull(),
   createdAt: text("created_at").notNull().default(sql`(datetime('now'))`)
 }, (table) => ({
-  chartIdIdx: uniqueIndex("idx_advanced_analysis_chart_id").on(table.chartId),
+  chartIdTypeIdx: uniqueIndex("idx_advanced_analysis_chart_id_type").on(table.chartId, table.analysisType),
   createdAtIdx: uniqueIndex("idx_advanced_analysis_created_at").on(table.createdAt)
 }));
 var usersRelations = relations(users, ({ many }) => ({
@@ -33186,11 +33349,140 @@ function formatAnnualFortune(result) {
   if (!annualFortune) {
     return "";
   }
-  const sections = ["## \u{1F4C5} \u6D41\u5E74\u5206\u6790\n"];
-  sections.push("### \u6D41\u5E74\u5E74\u67F1");
-  sections.push(`- **\u5E72\u652F**\uFF1A${annualFortune.annualPillar.stem}${annualFortune.annualPillar.branch}`);
-  if (annualFortune.annualLifePalace !== void 0 && annualFortune.annualLifePalace >= 0) {
-    sections.push(`- **\u6D41\u5E74\u547D\u5BAE**\uFF1A\u7B2C${annualFortune.annualLifePalace}\u5BAE`);
+  const sections = [];
+  if (annualFortune.yearlyForecast) {
+    const { yearlyForecast } = annualFortune;
+    const { queryDate, endDate, periods } = yearlyForecast;
+    const startDateStr = formatDate(queryDate).split(" ")[0];
+    const endDateStr = formatDate(endDate).split(" ")[0];
+    sections.push(`## \u{1F4C5} \u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08${startDateStr} \u2192 ${endDateStr}\uFF09
+`);
+    if (periods.length === 2) {
+      const currentPeriod = periods[0];
+      const nextPeriod = periods[1];
+      sections.push("### \u7576\u524D\u5E74\u904B\uFF08\u7ACB\u6625\u524D\uFF09");
+      const currentStart = formatDate(currentPeriod.startDate).split(" ")[0];
+      const currentEnd = formatDate(currentPeriod.endDate).split(" ")[0];
+      const currentPercent = (currentPeriod.weight * 100).toFixed(1);
+      sections.push(`- **\u6642\u6BB5**\uFF1A${currentStart} \u2192 ${currentEnd}\uFF08\u5269\u9918 ${currentPeriod.durationDays} \u5929\uFF0C\u4F54\u6BD4 ${currentPercent}%\uFF09`);
+      sections.push(`- **\u5E72\u652F**\uFF1A${currentPeriod.annualPillar.stem}${currentPeriod.annualPillar.branch}`);
+      sections.push(`- **\u6D41\u5E74\u547D\u5BAE**\uFF1A\u7B2C${currentPeriod.annualLifePalacePosition}\u5BAE`);
+      if (currentPeriod.taiSuiAnalysis) {
+        sections.push("\n**\u592A\u6B72\u5206\u6790**\uFF1A");
+        const { taiSuiAnalysis } = currentPeriod;
+        const isFanTaiSui = taiSuiAnalysis.types.length > 0;
+        sections.push(`- \u72AF\u592A\u6B72\uFF1A${isFanTaiSui ? "\u662F" : "\u5426"}`);
+        sections.push(`- \u6C96\u592A\u6B72\uFF1A${taiSuiAnalysis.chong ? "\u662F" : "\u5426"}${taiSuiAnalysis.chong && taiSuiAnalysis.severity !== "none" ? `\uFF08${taiSuiAnalysis.severity.toUpperCase()}\uFF09` : ""}`);
+        if (isFanTaiSui) {
+          sections.push(`- \u985E\u578B\uFF1A${taiSuiAnalysis.types.join("\u3001")}`);
+          sections.push(`- \u56B4\u91CD\u5EA6\uFF1A${taiSuiAnalysis.severity.toUpperCase()}`);
+        }
+      }
+      if (currentPeriod.interactions) {
+        sections.push("\n**\u5E72\u652F\u4EA4\u4E92**\uFF1A");
+        const { interactions } = currentPeriod;
+        if (interactions.stemCombinations.length > 0) {
+          const combos = interactions.stemCombinations.map((c2) => `${c2.pillar}\u67F1\uFF08${c2.element}\uFF09`).join("\u3001");
+          sections.push(`- \u5929\u5E72\u4E94\u5408\uFF1A${combos}`);
+        }
+        if (interactions.branchClashes.length > 0) {
+          const clashes = interactions.branchClashes.map((c2) => `${c2.pillar}\u67F1\uFF08${c2.severity.toUpperCase()}\uFF09`).join("\u3001");
+          sections.push(`- \u5730\u652F\u516D\u6C96\uFF1A${clashes}`);
+        }
+        if (interactions.harmoniousCombinations.length > 0) {
+          const harmonies = interactions.harmoniousCombinations.map((h2) => `${h2.type === "sanhe" ? "\u4E09\u5408" : "\u4E09\u6703"}\uFF08${h2.branches.join("")}\u2192${h2.element}\uFF09`).join("\u3001");
+          sections.push(`- \u548C\u8AE7\u7D44\u5408\uFF1A${harmonies}`);
+        }
+        if (interactions.stemCombinations.length === 0 && interactions.branchClashes.length === 0 && interactions.harmoniousCombinations.length === 0) {
+          sections.push("- \u7121\u660E\u986F\u4EA4\u4E92");
+        }
+      }
+      sections.push("\n### \u4E0B\u4E00\u5E74\u904B\uFF08\u7ACB\u6625\u5F8C\uFF09");
+      const nextStart = formatDate(nextPeriod.startDate).split(" ")[0];
+      const nextEnd = formatDate(nextPeriod.endDate).split(" ")[0];
+      const nextPercent = (nextPeriod.weight * 100).toFixed(1);
+      sections.push(`- **\u6642\u6BB5**\uFF1A${nextStart} \u2192 ${nextEnd}\uFF08${nextPeriod.durationDays} \u5929\uFF0C\u4F54\u6BD4 ${nextPercent}%\uFF09`);
+      sections.push(`- **\u5E72\u652F**\uFF1A${nextPeriod.annualPillar.stem}${nextPeriod.annualPillar.branch}`);
+      sections.push(`- **\u6D41\u5E74\u547D\u5BAE**\uFF1A\u7B2C${nextPeriod.annualLifePalacePosition}\u5BAE`);
+      if (nextPeriod.taiSuiAnalysis) {
+        sections.push("\n**\u592A\u6B72\u5206\u6790**\uFF1A");
+        const { taiSuiAnalysis } = nextPeriod;
+        const isFanTaiSui = taiSuiAnalysis.types.length > 0;
+        sections.push(`- \u72AF\u592A\u6B72\uFF1A${isFanTaiSui ? "\u662F" : "\u5426"}`);
+        sections.push(`- \u6C96\u592A\u6B72\uFF1A${taiSuiAnalysis.chong ? "\u662F" : "\u5426"}${taiSuiAnalysis.chong && taiSuiAnalysis.severity !== "none" ? `\uFF08${taiSuiAnalysis.severity.toUpperCase()}\uFF09` : ""}`);
+        if (isFanTaiSui) {
+          sections.push(`- \u985E\u578B\uFF1A${taiSuiAnalysis.types.join("\u3001")}`);
+          sections.push(`- \u56B4\u91CD\u5EA6\uFF1A${taiSuiAnalysis.severity.toUpperCase()}`);
+        }
+      }
+      if (nextPeriod.interactions) {
+        sections.push("\n**\u5E72\u652F\u4EA4\u4E92**\uFF1A");
+        const { interactions } = nextPeriod;
+        if (interactions.stemCombinations.length > 0) {
+          const combos = interactions.stemCombinations.map((c2) => `${c2.pillar}\u67F1\uFF08${c2.element}\uFF09`).join("\u3001");
+          sections.push(`- \u5929\u5E72\u4E94\u5408\uFF1A${combos}`);
+        }
+        if (interactions.branchClashes.length > 0) {
+          const clashes = interactions.branchClashes.map((c2) => `${c2.pillar}\u67F1\uFF08${c2.severity.toUpperCase()}\uFF09`).join("\u3001");
+          sections.push(`- \u5730\u652F\u516D\u6C96\uFF1A${clashes}`);
+        }
+        if (interactions.harmoniousCombinations.length > 0) {
+          const harmonies = interactions.harmoniousCombinations.map((h2) => `${h2.type === "sanhe" ? "\u4E09\u5408" : "\u4E09\u6703"}\uFF08${h2.branches.join("")}\u2192${h2.element}\uFF09`).join("\u3001");
+          sections.push(`- \u548C\u8AE7\u7D44\u5408\uFF1A${harmonies}`);
+        }
+        if (interactions.stemCombinations.length === 0 && interactions.branchClashes.length === 0 && interactions.harmoniousCombinations.length === 0) {
+          sections.push("- \u7121\u660E\u986F\u4EA4\u4E92");
+        }
+      }
+      const lichunDate = formatDate(nextPeriod.startDate).split(" ")[0];
+      sections.push(`
+**\u26A0\uFE0F \u7ACB\u6625\u8F49\u63DB\u63D0\u9192**\uFF1A${lichunDate} \u7ACB\u6625\uFF0C\u80FD\u91CF\u5C07\u5F9E ${currentPeriod.annualPillar.stem}${currentPeriod.annualPillar.branch} \u5E74\u5207\u63DB\u81F3 ${nextPeriod.annualPillar.stem}${nextPeriod.annualPillar.branch} \u5E74\uFF0C\u8ACB\u6CE8\u610F\u904B\u52E2\u8F49\u6298\u3002`);
+    } else {
+      const period = periods[0];
+      sections.push("### \u7576\u524D\u5E74\u904B");
+      const startStr = formatDate(period.startDate).split(" ")[0];
+      const endStr = formatDate(period.endDate).split(" ")[0];
+      sections.push(`- **\u6642\u6BB5**\uFF1A${startStr} \u2192 ${endStr}\uFF08${period.durationDays} \u5929\uFF09`);
+      sections.push(`- **\u5E72\u652F**\uFF1A${period.annualPillar.stem}${period.annualPillar.branch}`);
+      sections.push(`- **\u6D41\u5E74\u547D\u5BAE**\uFF1A\u7B2C${period.annualLifePalacePosition}\u5BAE`);
+      if (period.taiSuiAnalysis) {
+        sections.push("\n**\u592A\u6B72\u5206\u6790**\uFF1A");
+        const { taiSuiAnalysis } = period;
+        const isFanTaiSui = taiSuiAnalysis.types.length > 0;
+        sections.push(`- \u72AF\u592A\u6B72\uFF1A${isFanTaiSui ? "\u662F" : "\u5426"}`);
+        sections.push(`- \u6C96\u592A\u6B72\uFF1A${taiSuiAnalysis.chong ? "\u662F" : "\u5426"}${taiSuiAnalysis.chong && taiSuiAnalysis.severity !== "none" ? `\uFF08${taiSuiAnalysis.severity.toUpperCase()}\uFF09` : ""}`);
+        if (isFanTaiSui) {
+          sections.push(`- \u985E\u578B\uFF1A${taiSuiAnalysis.types.join("\u3001")}`);
+          sections.push(`- \u56B4\u91CD\u5EA6\uFF1A${taiSuiAnalysis.severity.toUpperCase()}`);
+        }
+      }
+      if (period.interactions) {
+        sections.push("\n**\u5E72\u652F\u4EA4\u4E92**\uFF1A");
+        const { interactions } = period;
+        if (interactions.stemCombinations.length > 0) {
+          const combos = interactions.stemCombinations.map((c2) => `${c2.pillar}\u67F1\uFF08${c2.element}\uFF09`).join("\u3001");
+          sections.push(`- \u5929\u5E72\u4E94\u5408\uFF1A${combos}`);
+        }
+        if (interactions.branchClashes.length > 0) {
+          const clashes = interactions.branchClashes.map((c2) => `${c2.pillar}\u67F1\uFF08${c2.severity.toUpperCase()}\uFF09`).join("\u3001");
+          sections.push(`- \u5730\u652F\u516D\u6C96\uFF1A${clashes}`);
+        }
+        if (interactions.harmoniousCombinations.length > 0) {
+          const harmonies = interactions.harmoniousCombinations.map((h2) => `${h2.type === "sanhe" ? "\u4E09\u5408" : "\u4E09\u6703"}\uFF08${h2.branches.join("")}\u2192${h2.element}\uFF09`).join("\u3001");
+          sections.push(`- \u548C\u8AE7\u7D44\u5408\uFF1A${harmonies}`);
+        }
+        if (interactions.stemCombinations.length === 0 && interactions.branchClashes.length === 0 && interactions.harmoniousCombinations.length === 0) {
+          sections.push("- \u7121\u660E\u986F\u4EA4\u4E92");
+        }
+      }
+    }
+  } else {
+    sections.push("## \u{1F4C5} \u6D41\u5E74\u5206\u6790\n");
+    sections.push("### \u6D41\u5E74\u5E74\u67F1");
+    sections.push(`- **\u5E72\u652F**\uFF1A${annualFortune.annualPillar.stem}${annualFortune.annualPillar.branch}`);
+    if (annualFortune.annualLifePalace !== void 0 && annualFortune.annualLifePalace >= 0) {
+      sections.push(`- **\u6D41\u5E74\u547D\u5BAE**\uFF1A\u7B2C${annualFortune.annualLifePalace}\u5BAE`);
+    }
   }
   if (annualFortune.interactions) {
     const { interactions } = annualFortune;
@@ -33444,7 +33736,8 @@ function createUnifiedRoutes(router) {
   router.post("/api/v1/calculate", async (req, env) => {
     const controller = new UnifiedController();
     const input = await req.json();
-    const format = input.format || "json";
+    const url2 = new URL(req.url);
+    const format = url2.searchParams.get("format") || input.format || "json";
     const result = await controller.calculate(input, format, env);
     if (format === "markdown") {
       return new Response(result, {
@@ -33777,103 +34070,182 @@ var GeminiService = class {
    * Analyze astrological chart using Gemini AI with streaming
    *
    * @param markdown - Chart data in Markdown format
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns ReadableStream of AI-generated analysis
    */
-  async analyzeChartStream(markdown) {
-    const prompt = this.buildAnalysisPrompt(markdown);
+  async analyzeChartStream(markdown, locale = "zh-TW") {
+    const prompt = this.buildAnalysisPrompt(markdown, locale);
     const url2 = `${this.baseUrl}/${this.model}:streamGenerateContent`;
     console.log(`[Gemini Stream] Fetching URL: ${url2}`);
-    const response = await fetch(url2, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": this.apiKey
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt
-              }
-            ]
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45e3);
+    try {
+      const response = await fetch(url2, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": this.apiKey
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.85,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 6144
+            // Increased for comprehensive personality analysis
           }
-        ],
-        generationConfig: {
-          temperature: 0.85,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 6144
-          // Increased for comprehensive personality analysis
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      console.log(`[Gemini Stream] Response status: ${response.status} ${response.statusText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[Gemini Stream] Error response: ${errorText}`);
+        try {
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.error) {
+            let errorMessage = errorJson.error.message || "Unknown error";
+            if (errorJson.error.details) {
+              const retryInfo = errorJson.error.details.find((d) => d["@type"]?.includes("RetryInfo"));
+              if (retryInfo?.retryDelay) {
+                const seconds = parseInt(retryInfo.retryDelay.replace("s", ""));
+                errorMessage += ` Please retry in ${seconds}s`;
+              }
+            }
+            throw new Error(errorMessage);
+          }
+        } catch (parseError) {
         }
-      })
-    });
-    console.log(`[Gemini Stream] Response status: ${response.status} ${response.statusText}`);
-    if (!response.ok) {
-      const error46 = await response.text();
-      console.error(`[Gemini Stream] Error response: ${error46}`);
-      throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${error46}`);
+        throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
+      }
+      if (!response.body) {
+        console.error("[Gemini Stream] No response body received");
+        throw new Error("No response body from Gemini streaming API");
+      }
+      console.log("[Gemini Stream] Stream established successfully");
+      return response.body;
+    } catch (error46) {
+      clearTimeout(timeoutId);
+      if (error46 instanceof Error && error46.name === "AbortError") {
+        throw new Error("Request timeout - Gemini API took too long to respond");
+      }
+      throw error46;
     }
-    if (!response.body) {
-      console.error("[Gemini Stream] No response body received");
-      throw new Error("No response body from Gemini streaming API");
-    }
-    console.log("[Gemini Stream] Stream established successfully");
-    return response.body;
   }
   /**
    * Analyze advanced astrological data using Gemini AI with streaming
    *
    * @param markdown - Advanced chart data in Markdown format
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns ReadableStream of AI-generated analysis
    */
-  async analyzeAdvancedStream(markdown) {
-    const prompt = this.buildAdvancedAnalysisPrompt(markdown);
+  async analyzeAdvancedStream(markdown, locale = "zh-TW") {
+    const prompt = this.buildAdvancedAnalysisPrompt(markdown, locale);
     const url2 = `${this.baseUrl}/${this.model}:streamGenerateContent`;
     console.log(`[Gemini Advanced Stream] Fetching URL: ${url2}`);
-    const response = await fetch(url2, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": this.apiKey
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt
-              }
-            ]
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45e3);
+    try {
+      const response = await fetch(url2, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": this.apiKey
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.85,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 6144
+            // Increased to match personality analysis
           }
-        ],
-        generationConfig: {
-          temperature: 0.85,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 6144
-          // Increased to match personality analysis
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      console.log(`[Gemini Advanced Stream] Response status: ${response.status} ${response.statusText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[Gemini Advanced Stream] Error response: ${errorText}`);
+        try {
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.error) {
+            let errorMessage = errorJson.error.message || "Unknown error";
+            if (errorJson.error.details) {
+              const retryInfo = errorJson.error.details.find((d) => d["@type"]?.includes("RetryInfo"));
+              if (retryInfo?.retryDelay) {
+                const seconds = parseInt(retryInfo.retryDelay.replace("s", ""));
+                errorMessage += ` Please retry in ${seconds}s`;
+              }
+            }
+            throw new Error(errorMessage);
+          }
+        } catch (parseError) {
         }
-      })
-    });
-    console.log(`[Gemini Advanced Stream] Response status: ${response.status} ${response.statusText}`);
-    if (!response.ok) {
-      const error46 = await response.text();
-      console.error(`[Gemini Advanced Stream] Error response: ${error46}`);
-      throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${error46}`);
+        throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
+      }
+      if (!response.body) {
+        console.error("[Gemini Advanced Stream] No response body received");
+        throw new Error("No response body from Gemini streaming API");
+      }
+      console.log("[Gemini Advanced Stream] Stream established successfully");
+      return response.body;
+    } catch (error46) {
+      clearTimeout(timeoutId);
+      if (error46 instanceof Error && error46.name === "AbortError") {
+        throw new Error("Request timeout - Gemini API took too long to respond");
+      }
+      throw error46;
     }
-    if (!response.body) {
-      console.error("[Gemini Advanced Stream] No response body received");
-      throw new Error("No response body from Gemini streaming API");
-    }
-    console.log("[Gemini Advanced Stream] Stream established successfully");
-    return response.body;
   }
   /**
    * Build analysis prompt for Gemini
    */
-  buildAnalysisPrompt(markdown) {
+  buildAnalysisPrompt(markdown, locale = "zh-TW") {
     const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+    if (locale === "en") {
+      return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u7B97\u547D\u5E2B\uFF0C\u6EAB\u67D4\u611F\u6027\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE
+**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
+**\u8ACB\u7528\u82F1\u6587\u56DE\u61C9**
+
+## \u4EBA\u683C\u8A2D\u5B9A
+- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
+- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
+- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
+
+## \u98A8\u683C
+- \u53E3\u8A9E\u5316\uFF1A\u300C\u55E8\u55E8\u300D\u3001\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u54C7\uFF5E\u300D\uFF0C\u7981\u6B62\u6587\u8A00\u6587
+- \u60C5\u611F\u5316\uFF1A\u6975\u7AEF\u503C\u9A5A\u8A1D\u3001\u51F6\u8C61\u8F15\u9B06\u5B89\u6170\uFF08\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\uFF09\u3001\u91CD\u9EDE\u7C97\u9AD4
+- \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54\u3001\u96D9\u9B5A\u5EA7\u7684\u6D6A\u6F2B\u60F3\u50CF
+- \u8DF3\u904E\u6280\u8853\u7D30\u7BC0\u8207 metadata
+
+## \u4EFB\u52D9\uFF1A\u4EBA\u683C\u8AAA\u660E\uFF08\u5B8C\u6574\u6027\u683C\u5206\u6790\uFF09
+**\u91CD\u9EDE**\uFF1A\u5C07\u516B\u5B57\u4E94\u884C\u3001\u5341\u795E\u77E9\u9663\u3001\u85CF\u5E72\u7CFB\u7D71\u3001\u7D2B\u5FAE\u547D\u5BAE\u878D\u5408\u6210\u4E00\u500B\u5B8C\u6574\u7684\u6027\u683C\u756B\u50CF\u3002
+
+---
+
+${markdown}`;
+    }
     return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u7B97\u547D\u5E2B\uFF0C\u6EAB\u67D4\u611F\u6027\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE
 **\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
 
@@ -33926,8 +34298,43 @@ ${markdown}
   /**
    * Build advanced analysis prompt for Gemini
    */
-  buildAdvancedAnalysisPrompt(markdown) {
+  buildAdvancedAnalysisPrompt(markdown, locale = "zh-TW") {
     const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+    const hasYearlyForecast = markdown.includes("\u672A\u4F86\u4E00\u5E74\u904B\u52E2") && markdown.includes("\u7ACB\u6625");
+    if (locale === "en") {
+      return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u9032\u968E\u7B97\u547D\u5E2B\uFF0C\u6DF1\u5EA6\u89E3\u6790\u5341\u795E\u3001\u56DB\u5316\u3001\u6D41\u5E74\u9810\u6E2C
+**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
+**\u8ACB\u7528\u82F1\u6587\u56DE\u61C9**
+
+## \u4EBA\u683C\u8A2D\u5B9A
+- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
+- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
+- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
+
+## \u98A8\u683C
+- \u53E3\u8A9E\u5316\u4F46\u66F4\u6DF1\u5165\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u7684\u6DF1\u5C64\u6027\u683C\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u9019\u500B\u56DB\u5316\u5FAA\u74B0\u5F88\u7279\u5225\u300D
+- \u5C08\u696D\u8853\u8A9E\u5FC5\u8981\u6642\u89E3\u91CB\uFF1A\u5341\u795E=\u6027\u683C\u7279\u8CEA\u3001\u56DB\u5316=\u80FD\u91CF\u6D41\u52D5\u3001\u72AF\u592A\u6B72=\u8207\u6D41\u5E74\u885D\u7A81
+- \u60C5\u611F\u5316\uFF1A\u767C\u73FE\u554F\u984C\u6642\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\u3001\u597D\u7684\u9810\u6E2C\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u660E\u5E74\u8D85\u9806\u300D
+- \u91CD\u9EDE\u7C97\u9AD4\u3001\u95DC\u9375\u7D50\u8AD6\u7368\u7ACB\u6BB5\u843D
+
+## \u4EFB\u52D9\uFF1A\u904B\u52E2\u6DF1\u5EA6\u89E3\u6790\uFF08\u6574\u5408\u6558\u4E8B\uFF09
+**\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001\u660E\u5E74\u9810\u6E2C\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
+
+**\u4F60\u6703\u6536\u5230\u7684\u8CC7\u6599**\uFF1A
+1. \u7576\u524D\u5927\u904B\u968E\u6BB5\uFF08XX-XX\u6B72\uFF0C\u5E72\u652F\uFF0C\u65B9\u5411\uFF09
+2. \u56DB\u5316\u80FD\u91CF\u6D41\u52D5\uFF08\u5316\u5FCC/\u5316\u797F\u5FAA\u74B0 + \u4E2D\u5FC3\u6027\u5206\u6790 + \u80FD\u91CF\u7D71\u8A08\uFF09
+3. **\u661F\u66DC\u5C0D\u7A31\u72C0\u614B**\uFF08\u50C5\u4E3B\u661F\uFF0C\u5982\u7D2B\u5FAE\u2194\u5929\u5E9C\u5C0D\u5BAE\uFF09
+4. ${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\u6A21\u578B\uFF1A\u7ACB\u6625\u524D\u7576\u524D\u5E74\u904B + \u7ACB\u6625\u5F8C\u4E0B\u4E00\u5E74\u904B\uFF0C\u542B\u6B0A\u91CD\u4F54\u6BD4\uFF09" : "\u4E0B\u4E00\u5E74\u5E72\u652F + \u72AF\u592A\u6B72\u985E\u578B\uFF08\u50C5\u4E8B\u5BE6\uFF0C\u7121\u8A55\u7D1A\uFF09"}
+
+**\u7BC7\u5E45\u5206\u914D\uFF08\u91CD\u8981\uFF09**\uFF08\u7E3D\u9810\u7B97\u7D04 1500-2000 tokens\uFF0C\u5145\u5206\u5C55\u958B\uFF09\uFF1A
+- \u{1F539} \u661F\u66DC\u5C0D\u7A31\uFF1A**\u7C21\u55AE\u5E36\u904E**\uFF08~100 tokens\uFF0C1-2 \u53E5\u8A71\u7E3D\u7D50\u80FD\u91CF\u5E73\u8861\u72C0\u614B\uFF09
+- \u{1F538} \u56DB\u5316\u98DB\u661F\uFF1A**\u91CD\u9EDE\u5206\u6790**\uFF08~600 tokens\uFF0C\u6DF1\u5165\u5206\u6790\u95DC\u9375\u5FAA\u74B0\u548C\u58D3\u529B\u9EDE\uFF09
+- \u{1F53A} \u4E0B\u4E00\u5E74\u9810\u6E2C\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~800-1200 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF09
+
+---
+
+${markdown}`;
+    }
     return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u9032\u968E\u7B97\u547D\u5E2B\uFF0C\u6DF1\u5EA6\u89E3\u6790\u5341\u795E\u3001\u56DB\u5316\u3001\u6D41\u5E74\u9810\u6E2C
 **\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
 
@@ -33954,18 +34361,30 @@ ${markdown}
   - \u2705 \u4FDD\u6301\u6EAB\u67D4\u9AD4\u8CBC\u7684\u8A9E\u6C23\uFF0C\u4E0D\u9700\u6A19\u8A3B\u661F\u5EA7
 
 ## \u4EFB\u52D9\uFF1A\u904B\u52E2\u6DF1\u5EA6\u89E3\u6790\uFF08\u6574\u5408\u6558\u4E8B\uFF09
-**\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001\u660E\u5E74\u9810\u6E2C\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
+**\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\uFF09" : "\u660E\u5E74\u9810\u6E2C"}\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
 
 **\u4F60\u6703\u6536\u5230\u7684\u8CC7\u6599**\uFF1A
 1. \u7576\u524D\u5927\u904B\u968E\u6BB5\uFF08XX-XX\u6B72\uFF0C\u5E72\u652F\uFF0C\u65B9\u5411\uFF09
 2. \u56DB\u5316\u80FD\u91CF\u6D41\u52D5\uFF08\u5316\u5FCC/\u5316\u797F\u5FAA\u74B0 + \u4E2D\u5FC3\u6027\u5206\u6790 + \u80FD\u91CF\u7D71\u8A08\uFF09
 3. **\u661F\u66DC\u5C0D\u7A31\u72C0\u614B**\uFF08\u50C5\u4E3B\u661F\uFF0C\u5982\u7D2B\u5FAE\u2194\u5929\u5E9C\u5C0D\u5BAE\uFF09
-4. \u4E0B\u4E00\u5E74\u5E72\u652F + \u72AF\u592A\u6B72\u985E\u578B\uFF08\u50C5\u4E8B\u5BE6\uFF0C\u7121\u8A55\u7D1A\uFF09
+4. ${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\u6A21\u578B\uFF09" : "\u4E0B\u4E00\u5E74\u5E72\u652F + \u72AF\u592A\u6B72\u985E\u578B\uFF08\u50C5\u4E8B\u5BE6\uFF0C\u7121\u8A55\u7D1A\uFF09"}
+
+${hasYearlyForecast ? `
+**\u26A0\uFE0F \u7279\u5225\u6CE8\u610F\uFF1A\u96D9\u6642\u6BB5\u5E74\u904B\u6A21\u578B**
+- **\u8CC7\u6599\u5305\u542B\u5169\u500B\u6642\u6BB5**\uFF1A
+  1. \u7576\u524D\u5E74\u904B\uFF08\u7ACB\u6625\u524D\uFF09\uFF1A\u5269\u9918\u5929\u6578 + \u6B0A\u91CD\u4F54\u6BD4\uFF08\u4F8B\u5982 60 \u5929\uFF0C16.4%\uFF09
+  2. \u4E0B\u4E00\u5E74\u904B\uFF08\u7ACB\u6625\u5F8C\uFF09\uFF1A\u5929\u6578 + \u6B0A\u91CD\u4F54\u6BD4\uFF08\u4F8B\u5982 305 \u5929\uFF0C83.6%\uFF09
+- **\u7ACB\u6625\u65E5\u671F\u662F\u95DC\u9375\u8F49\u6298\u9EDE**\uFF1A\u80FD\u91CF\u6703\u5F9E\u7576\u524D\u5E74\u7684\u5E72\u652F\u5207\u63DB\u81F3\u4E0B\u4E00\u5E74\u7684\u5E72\u652F
+- **\u5206\u6790\u6642\u8ACB\u6CE8\u610F**\uFF1A
+  - \u6B0A\u91CD\u4F54\u6BD4\u53CD\u6620\u6BCF\u500B\u6642\u6BB5\u5C0D\u6574\u9AD4\u904B\u52E2\u7684\u5F71\u97FF\u7A0B\u5EA6
+  - \u7ACB\u6625\u524D\u5F8C\u7684\u904B\u52E2\u7279\u6027\u53EF\u80FD\u622A\u7136\u4E0D\u540C\uFF08\u4F8B\u5982\u5F9E\u6C96\u592A\u6B72\u8F49\u70BA\u7121\u592A\u6B72\u58D3\u529B\uFF09
+  - \u5EFA\u8B70\u63CF\u8FF0\u80FD\u91CF\u8F49\u63DB\u7684\u6642\u6A5F\u9EDE\u548C\u5177\u9AD4\u5F71\u97FF\uFF08\u4F8B\u5982\uFF1A\u300C\u7ACB\u6625\u524D\u58D3\u529B\u8F03\u5927\uFF0C\u7ACB\u6625\u5F8C\u8F49\u9806\u300D\uFF09
+` : ""}
 
 **\u7BC7\u5E45\u5206\u914D\uFF08\u91CD\u8981\uFF09**\uFF08\u7E3D\u9810\u7B97\u7D04 1500-2000 tokens\uFF0C\u5145\u5206\u5C55\u958B\uFF09\uFF1A
 - \u{1F539} \u661F\u66DC\u5C0D\u7A31\uFF1A**\u7C21\u55AE\u5E36\u904E**\uFF08~100 tokens\uFF0C1-2 \u53E5\u8A71\u7E3D\u7D50\u80FD\u91CF\u5E73\u8861\u72C0\u614B\uFF09
 - \u{1F538} \u56DB\u5316\u98DB\u661F\uFF1A**\u91CD\u9EDE\u5206\u6790**\uFF08~600 tokens\uFF0C\u6DF1\u5165\u5206\u6790\u95DC\u9375\u5FAA\u74B0\u548C\u58D3\u529B\u9EDE\uFF09
-- \u{1F53A} \u4E0B\u4E00\u5E74\u9810\u6E2C\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~800-1200 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF09
+- \u{1F53A} ${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B" : "\u4E0B\u4E00\u5E74\u9810\u6E2C"}\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~800-1200 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF09
 
 **\u8ACB\u6839\u64DA\u9019\u4E9B\u80FD\u91CF\u53C3\u6578\u81EA\u7531\u63A8\u6572**\uFF1A
 - \u5F9E\u7576\u524D\u5927\u904B\u968E\u6BB5\u5207\u5165\uFF0C\u8AAA\u660E\u73FE\u5728\u7684\u4EBA\u751F\u80FD\u91CF\u72C0\u614B
@@ -33975,23 +34394,29 @@ ${markdown}
   - \u8CC7\u6E90\u6E90\u982D\uFF08resource nodes\uFF09\uFF1A\u54EA\u4E9B\u5BAE\u4F4D\u8F38\u51FA\u6700\u591A\u5316\u797F\u80FD\u91CF\uFF08\u51FA\u5EA6\u9AD8\uFF09
   - \u80FD\u91CF\u7D71\u8A08\uFF1A\u7E3D\u98DB\u5316\u908A\u6578\u3001\u5404\u985E\u578B\u5206\u5E03\uFF08\u5316\u797F/\u5316\u6B0A/\u5316\u79D1/\u5316\u5FCC\u7684\u6578\u91CF\u548C\u6BD4\u4F8B\uFF09
 - **\u661F\u66DC\u5C0D\u7A31\u53EA\u9700\u4E00\u53E5\u8A71\u5E36\u904E**\uFF08\u4F8B\u5982\uFF1A\u300C\u4F60\u7684\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\u5F62\u6210\u7A69\u5B9A\u7D50\u69CB\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u300D\uFF09
-- **\u91CD\u9EDE\u653E\u5728\u660E\u5E74\u9810\u6E2C**\uFF1A\u5177\u9AD4\u8AAA\u660E\u8981\u6CE8\u610F\u4EC0\u9EBC\u3001\u4EC0\u9EBC\u6642\u5019\u8981\u5C0F\u5FC3\u3001\u4EC0\u9EBC\u6642\u5019\u662F\u597D\u6642\u6A5F
+- **\u91CD\u9EDE\u653E\u5728${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B\u9810\u6E2C" : "\u660E\u5E74\u9810\u6E2C"}**\uFF1A${hasYearlyForecast ? "\u63CF\u8FF0\u7ACB\u6625\u524D\u5F8C\u7684\u904B\u52E2\u5DEE\u7570\u548C\u8F49\u63DB\u6642\u6A5F" : "\u5177\u9AD4\u8AAA\u660E\u8981\u6CE8\u610F\u4EC0\u9EBC\u3001\u4EC0\u9EBC\u6642\u5019\u8981\u5C0F\u5FC3\u3001\u4EC0\u9EBC\u6642\u5019\u662F\u597D\u6642\u6A5F"}
 
 **\u91CD\u8981**\uFF1A
 - \u274C \u4E0D\u8981\u9010\u4E00\u89E3\u91CB\u6BCF\u9846\u661F\u66DC\u7684\u4F4D\u7F6E\u548C\u7279\u6027\uFF08\u6D6A\u8CBB\u7BC7\u5E45\uFF09
 - \u274C \u4E0D\u8981\u7167\u8457\u7A0B\u5F0F\u7D66\u7684\u300C\u98A8\u96AA\u8A55\u4F30\u300D\u548C\u300C\u884C\u52D5\u5EFA\u8B70\u300D\u5FF5\u7A3F\uFF08\u5DF2\u79FB\u9664\uFF09
 - \u2705 \u661F\u66DC\u5C0D\u7A31\u53EA\u662F\u80CC\u666F\uFF0C\u5FEB\u901F\u5E36\u904E\u5373\u53EF
 - \u2705 \u56DB\u5316\u98DB\u661F\u662F\u5206\u6790\u91CD\u9EDE\uFF0C\u627E\u51FA\u95DC\u9375\u554F\u984C
-- \u2705 \u660E\u5E74\u9810\u6E2C\u8981\u8A73\u7D30\uFF0C\u7D66\u51FA\u5177\u9AD4\u5EFA\u8B70\u548C\u6642\u6A5F
+- \u2705 ${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B\u8981\u8A73\u7D30\uFF0C\u89E3\u91CB\u7ACB\u6625\u8F49\u63DB\u7684\u5F71\u97FF" : "\u660E\u5E74\u9810\u6E2C\u8981\u8A73\u7D30\uFF0C\u7D66\u51FA\u5177\u9AD4\u5EFA\u8B70\u548C\u6642\u6A5F"}
 
 ## \u7BC4\u4F8B\uFF08\u6574\u5408\u6558\u4E8B\uFF09
-\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A**\u547D\u5BAE\u662F\u6700\u5927\u7684\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u5165\u5EA63\uFF09**\uFF0C\u8CA1\u5E1B\u5BAE\u548C\u4E8B\u696D\u5BAE\u7684\u5316\u5FCC\u80FD\u91CF\u90FD\u5F80\u9019\u88E1\u96C6\u4E2D\uFF0C\u9019\u6703\u8B93\u4F60\u611F\u89BA\u58D3\u529B\u5C71\u5927\u3002\u4F46\u597D\u6D88\u606F\u662F\uFF0C**\u4F60\u7684\u798F\u5FB7\u5BAE\u662F\u8CC7\u6E90\u6E90\u982D\uFF08\u51FA\u5EA63\uFF09**\uFF0C\u80FD\u91CF\u53EF\u4EE5\u5F9E\u9019\u88E1\u8F38\u51FA\uFF0C\u6240\u4EE5\u8981\u591A\u57F9\u990A\u5167\u5FC3\u7684\u5E73\u975C\u548C\u798F\u5831\u3002
+${hasYearlyForecast ? `\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A**\u547D\u5BAE\u662F\u6700\u5927\u7684\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u5165\u5EA63\uFF09**\uFF0C\u8CA1\u5E1B\u5BAE\u548C\u4E8B\u696D\u5BAE\u7684\u5316\u5FCC\u80FD\u91CF\u90FD\u5F80\u9019\u88E1\u96C6\u4E2D\uFF0C\u9019\u6703\u8B93\u4F60\u611F\u89BA\u58D3\u529B\u5C71\u5927\u3002\u4F46\u597D\u6D88\u606F\u662F\uFF0C**\u4F60\u7684\u798F\u5FB7\u5BAE\u662F\u8CC7\u6E90\u6E90\u982D\uFF08\u51FA\u5EA63\uFF09**\uFF0C\u80FD\u91CF\u53EF\u4EE5\u5F9E\u9019\u88E1\u8F38\u51FA\uFF0C\u6240\u4EE5\u8981\u591A\u57F9\u990A\u5167\u5FC3\u7684\u5E73\u975C\u548C\u798F\u5831\u3002
+
+\u6574\u9AD4\u4F86\u770B\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u670912\u689D\u98DB\u5316\u908A\uFF0C\u5176\u4E2D\u5316\u5FCC\u4F54\u4E864\u689D\u3001\u5316\u797F3\u689D\u3001\u5316\u6B0A3\u689D\u3001\u79D1\u79D12\u689D\uFF0C\u9019\u4EE3\u8868\u4F60\u7684\u547D\u76E4\u80FD\u91CF\u6D41\u52D5\u6D3B\u8E8D\uFF0C\u4F46\u58D3\u529B\u548C\u8CC7\u6E90\u4E26\u5B58\u3002
+
+\u4F60\u7684\u661F\u66DC\u914D\u7F6E\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u3002**\u672A\u4F86\u4E00\u5E74\u904B\u52E2\u6709\u500B\u5F88\u660E\u986F\u7684\u8F49\u6298**\uFF1A\u7ACB\u6625\u524D\uFF08\u5269\u991860\u5929\uFF0C\u4F5416.4%\uFF09\u4F60\u9084\u5728\u4E59\u5DF3\u5E74\uFF0C\u6703\u6C96\u592A\u6B72\uFF0C\u5FC3\u7406\u58D3\u529B\u548C\u8CA1\u52D9\u58D3\u529B\u6BD4\u8F03\u5927\u3002\u4F46\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C**2025-02-03 \u7ACB\u6625\u4E4B\u5F8C**\uFF08305\u5929\uFF0C\u4F5483.6%\uFF09\uFF0C\u80FD\u91CF\u6703\u5207\u63DB\u5230\u4E19\u5348\u5E74\uFF0C\u592A\u6B72\u58D3\u529B\u6D88\u5931\uFF0C\u4E0B\u534A\u5E74\uFF087-12\u6708\uFF09\u6703\u7279\u5225\u9806\uFF01
+
+**\u5177\u9AD4\u5EFA\u8B70**\uFF1A\u7ACB\u6625\u524D\u4FDD\u5B88\u4E00\u9EDE\uFF0C\u907F\u958B\u5927\u7B46\u6295\u8CC7\uFF1B\u7ACB\u6625\u5F8C\u53EF\u4EE5\u7A4D\u6975\u4E00\u9EDE\uFF0C\u7279\u5225\u662F9-10\u6708\uFF0C\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\uFF01\u300D` : `\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A**\u547D\u5BAE\u662F\u6700\u5927\u7684\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u5165\u5EA63\uFF09**\uFF0C\u8CA1\u5E1B\u5BAE\u548C\u4E8B\u696D\u5BAE\u7684\u5316\u5FCC\u80FD\u91CF\u90FD\u5F80\u9019\u88E1\u96C6\u4E2D\uFF0C\u9019\u6703\u8B93\u4F60\u611F\u89BA\u58D3\u529B\u5C71\u5927\u3002\u4F46\u597D\u6D88\u606F\u662F\uFF0C**\u4F60\u7684\u798F\u5FB7\u5BAE\u662F\u8CC7\u6E90\u6E90\u982D\uFF08\u51FA\u5EA63\uFF09**\uFF0C\u80FD\u91CF\u53EF\u4EE5\u5F9E\u9019\u88E1\u8F38\u51FA\uFF0C\u6240\u4EE5\u8981\u591A\u57F9\u990A\u5167\u5FC3\u7684\u5E73\u975C\u548C\u798F\u5831\u3002
 
 \u6574\u9AD4\u4F86\u770B\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u670912\u689D\u98DB\u5316\u908A\uFF0C\u5176\u4E2D\u5316\u5FCC\u4F54\u4E864\u689D\u3001\u5316\u797F3\u689D\u3001\u5316\u6B0A3\u689D\u3001\u5316\u79D12\u689D\uFF0C\u9019\u4EE3\u8868\u4F60\u7684\u547D\u76E4\u80FD\u91CF\u6D41\u52D5\u6D3B\u8E8D\uFF0C\u4F46\u58D3\u529B\u548C\u8CC7\u6E90\u4E26\u5B58\u3002
 
 \u4F60\u7684\u661F\u66DC\u914D\u7F6E\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u3002\u4F46\u56E0\u70BA\u547D\u5BAE\u7684\u58D3\u529B\u532F\u805A\uFF0C\u52A0\u4E0A\u660E\u5E74${currentYear + 1}\u5E74\u4F60\u6703\u6C96\u592A\u6B72\uFF0C\u6211\u597D\u96E3\u904E\uFF5E\u5FC3\u7406\u58D3\u529B\u548C\u8CA1\u52D9\u58D3\u529B\u53EF\u80FD\u90FD\u6703\u6BD4\u8F03\u5927\u3002
 
-**\u660E\u5E74\u8981\u7279\u5225\u6CE8\u610F**\uFF1A\u4E0A\u534A\u5E74\uFF081-6\u6708\uFF09\u5316\u5FCC\u5FAA\u74B0\u6700\u5F37\uFF0C\u907F\u958B\u5927\u7B46\u6295\u8CC7\u548C\u652F\u51FA\u3002\u4E0B\u534A\u5E74\uFF087-12\u6708\uFF09\u80FD\u91CF\u958B\u59CB\u8F49\u9806\uFF0C\u7279\u5225\u662F 9-10 \u6708\uFF0C\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\uFF01\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u9019\u6642\u5019\u53EF\u4EE5\u7A4D\u6975\u4E00\u9EDE\uFF0C\u628A\u63E1\u6A5F\u6703\u54E6\uFF5E\u300D
+**\u660E\u5E74\u8981\u7279\u5225\u6CE8\u610F**\uFF1A\u4E0A\u534A\u5E74\uFF081-6\u6708\uFF09\u5316\u5FCC\u5FAA\u74B0\u6700\u5F37\uFF0C\u907F\u958B\u5927\u7B46\u6295\u8CC7\u548C\u652F\u51FA\u3002\u4E0B\u534A\u5E74\uFF087-12\u6708\uFF09\u80FD\u91CF\u958B\u59CB\u8F49\u9806\uFF0C\u7279\u5225\u662F 9-10 \u6708\uFF0C\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\uFF01\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u9019\u6642\u5019\u53EF\u4EE5\u7A4D\u6975\u4E00\u9EDE\uFF0C\u628A\u63E1\u6A5F\u6703\u54E6\uFF5E\u300D`}
 
 ---
 
@@ -34125,14 +34550,18 @@ var AnalysisCacheService = class {
 // src/services/advancedAnalysisCacheService.ts
 var AdvancedAnalysisCacheService = class {
   /**
-   * Get an advanced analysis record by chart ID
+   * Get an advanced analysis record by chart ID and analysis type
    * @param chartId - The chart ID to query
+   * @param analysisType - The analysis type (e.g., 'ai-advanced-zh-TW', 'ai-advanced-en')
    * @param env - Cloudflare Worker environment containing DB binding
    * @returns The advanced analysis record or null if not found or expired (>24 hours)
    */
-  async getAnalysis(chartId, env) {
+  async getAnalysis(chartId, analysisType, env) {
     const db = drizzle(env.DB);
-    const result = await db.select().from(advancedAnalysisRecords).where(eq(advancedAnalysisRecords.chartId, chartId)).orderBy(desc(advancedAnalysisRecords.createdAt)).limit(1);
+    const result = await db.select().from(advancedAnalysisRecords).where(and(
+      eq(advancedAnalysisRecords.chartId, chartId),
+      eq(advancedAnalysisRecords.analysisType, analysisType)
+    )).orderBy(desc(advancedAnalysisRecords.createdAt)).limit(1);
     if (result[0]) {
       const createdAt = new Date(result[0].createdAt);
       const now = /* @__PURE__ */ new Date();
@@ -34146,15 +34575,17 @@ var AdvancedAnalysisCacheService = class {
   /**
    * Save a new advanced analysis record
    * @param chartId - The chart ID this analysis belongs to
+   * @param analysisType - The analysis type (e.g., 'ai-advanced-zh-TW', 'ai-advanced-en')
    * @param result - The advanced analysis result data
    * @param env - Cloudflare Worker environment containing DB binding
    */
-  async saveAnalysis(chartId, result, env) {
+  async saveAnalysis(chartId, analysisType, result, env) {
     const db = drizzle(env.DB);
     const analysisId = crypto.randomUUID();
     const newAnalysis = {
       id: analysisId,
       chartId,
+      analysisType,
       result,
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
@@ -34230,27 +34661,105 @@ var AnalyzeController = class {
    *
    * @param chartId - The chart ID to analyze
    * @param env - Cloudflare Worker environment with DB binding
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns ReadableStream in SSE format
    */
-  async analyzeStream(chartId, env) {
-    console.log("[analyzeStream] Entry, chartId:", chartId);
-    const cachedAnalysis = await this.analysisCacheService.getAnalysis(chartId, "ai-streaming", env);
-    if (cachedAnalysis) {
-      console.log("[analyzeStream] Cache hit! Returning cached analysis");
-      const cachedText = typeof cachedAnalysis.result === "string" ? cachedAnalysis.result : cachedAnalysis.result.text || JSON.stringify(cachedAnalysis.result);
-      return this.createCachedSSEStream(cachedText);
-    }
-    const chart = await this.chartCacheService.getChart(chartId, env);
-    console.log("[analyzeStream] After getChart, found:", !!chart);
-    if (!chart) {
-      throw new Error("Chart not found");
-    }
-    const calculation = typeof chart.chartData === "string" ? JSON.parse(chart.chartData) : chart.chartData;
-    const markdown = formatToMarkdown(calculation, { excludeSteps: true, personalityOnly: true });
-    console.log("[analyzeStream] Before geminiService.analyzeChartStream");
-    const geminiStream = await this.geminiService.analyzeChartStream(markdown);
-    console.log("[analyzeStream] After geminiService.analyzeChartStream, stream:", !!geminiStream);
-    return this.transformToSSE(geminiStream, chartId, env);
+  async analyzeStream(chartId, env, locale = "zh-TW") {
+    console.log("[analyzeStream] Entry, chartId:", chartId, "locale:", locale);
+    const encoder = new TextEncoder();
+    const analysisType = `ai-streaming-${locale}`;
+    return new ReadableStream({
+      async start(controller) {
+        try {
+          const loadingMessage = locale === "en" ? "Let me see~ I am analyzing your chart carefully...\n\n" : "\u597D\u6211\u770B\u770B\uFF5E\u8B93\u6211\u4ED4\u7D30\u5206\u6790\u4E00\u4E0B\u4F60\u7684\u547D\u76E4...\n\n";
+          const sseData = `data: ${JSON.stringify({ text: loadingMessage })}
+
+`;
+          controller.enqueue(encoder.encode(sseData));
+          console.log("[analyzeStream] Loading message sent, locale:", locale);
+          const analysisCacheService = new AnalysisCacheService();
+          const cachedAnalysis = await analysisCacheService.getAnalysis(chartId, analysisType, env);
+          if (cachedAnalysis) {
+            console.log("[analyzeStream] Cache hit! Returning cached analysis");
+            const cachedText = typeof cachedAnalysis.result === "string" ? cachedAnalysis.result : cachedAnalysis.result.text || JSON.stringify(cachedAnalysis.result);
+            const lines = cachedText.split("\n");
+            for (const line of lines) {
+              const sseData2 = `data: ${JSON.stringify({ text: line + "\n" })}
+
+`;
+              controller.enqueue(encoder.encode(sseData2));
+              await new Promise((resolve) => setTimeout(resolve, 10));
+            }
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+            controller.close();
+            return;
+          }
+          const chartCacheService = new ChartCacheService();
+          const chart = await chartCacheService.getChart(chartId, env);
+          console.log("[analyzeStream] After getChart, found:", !!chart);
+          if (!chart) {
+            const errorData = `data: ${JSON.stringify({ error: "Chart not found" })}
+
+`;
+            controller.enqueue(encoder.encode(errorData));
+            controller.close();
+            return;
+          }
+          const calculation = typeof chart.chartData === "string" ? JSON.parse(chart.chartData) : chart.chartData;
+          const markdown = formatToMarkdown(calculation, { excludeSteps: true, personalityOnly: true });
+          console.log("[analyzeStream] Before geminiService.analyzeChartStream");
+          const geminiService = new GeminiService({ apiKey: env.GEMINI_API_KEY || "" });
+          const geminiStream = await geminiService.analyzeChartStream(markdown, locale);
+          console.log("[analyzeStream] After geminiService.analyzeChartStream, stream:", !!geminiStream);
+          const reader = geminiStream.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+          let fullText = "";
+          let chunkCount = 0;
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+              console.log("[analyzeStream] Stream done, total chunks received:", chunkCount);
+              break;
+            }
+            chunkCount++;
+            console.log("[analyzeStream] Chunk", chunkCount, "received, bytes:", value.length);
+            buffer += decoder.decode(value, { stream: true });
+          }
+          console.log("[analyzeStream] Complete buffer accumulated, size:", buffer.length);
+          const jsonArray = JSON.parse(buffer);
+          console.log("[analyzeStream] Parsed JSON array, length:", jsonArray.length);
+          for (let i = 0; i < jsonArray.length; i++) {
+            const obj = jsonArray[i];
+            const text2 = obj?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            if (text2) {
+              fullText += text2;
+              const sseData2 = `data: ${JSON.stringify({ text: text2 })}
+
+`;
+              controller.enqueue(encoder.encode(sseData2));
+            }
+          }
+          if (fullText) {
+            await analysisCacheService.saveAnalysis(
+              chartId,
+              analysisType,
+              { text: fullText },
+              env
+            );
+          }
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
+        } catch (error46) {
+          console.error("[analyzeStream] Error:", error46);
+          const errorData = `data: ${JSON.stringify({ error: error46 instanceof Error ? error46.message : "Unknown error" })}
+
+`;
+          controller.enqueue(encoder.encode(errorData));
+          controller.close();
+        }
+      }
+    });
   }
   /**
    * Create SSE stream from cached analysis
@@ -34364,10 +34873,12 @@ var AnalyzeController = class {
    * Check if advanced analysis cache exists for a chart
    * @param chartId - The chart ID to check
    * @param env - Cloudflare Worker environment
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns Object with cached status
    */
-  async checkAdvancedCache(chartId, env) {
-    const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, env);
+  async checkAdvancedCache(chartId, env, locale = "zh-TW") {
+    const analysisType = `ai-advanced-${locale}`;
+    const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
     return { cached: !!cachedAnalysis };
   }
   /**
@@ -34375,11 +34886,13 @@ var AnalyzeController = class {
    *
    * @param chartId - The chart ID to analyze
    * @param env - Cloudflare Worker environment with DB binding
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns ReadableStream in SSE format
    */
-  async analyzeAdvancedStream(chartId, env) {
-    console.log("[analyzeAdvancedStream] Entry, chartId:", chartId);
-    const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, env);
+  async analyzeAdvancedStream(chartId, env, locale = "zh-TW") {
+    console.log("[analyzeAdvancedStream] Entry, chartId:", chartId, "locale:", locale);
+    const analysisType = `ai-advanced-${locale}`;
+    const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
     if (cachedAnalysis) {
       console.log("[analyzeAdvancedStream] Cache hit! Returning cached analysis");
       const cachedText = typeof cachedAnalysis.result === "string" ? cachedAnalysis.result : cachedAnalysis.result.text || JSON.stringify(cachedAnalysis.result);
@@ -34397,9 +34910,9 @@ var AnalyzeController = class {
     const advancedMarkdown = formatAdvancedMarkdown(calculation);
     console.log("[analyzeAdvancedStream] advancedMarkdown length:", advancedMarkdown.length);
     console.log("[analyzeAdvancedStream] Before geminiService.analyzeAdvancedStream");
-    const geminiStream = await this.geminiService.analyzeAdvancedStream(advancedMarkdown);
+    const geminiStream = await this.geminiService.analyzeAdvancedStream(advancedMarkdown, locale);
     console.log("[analyzeAdvancedStream] After geminiService.analyzeAdvancedStream, stream:", !!geminiStream);
-    return this.transformAdvancedToSSE(geminiStream, chartId, env);
+    return this.transformAdvancedToSSE(geminiStream, chartId, analysisType, env);
   }
   /**
    * Transform Gemini advanced streaming response to SSE format
@@ -34408,17 +34921,18 @@ var AnalyzeController = class {
    *
    * @param geminiStream - ReadableStream from Gemini API
    * @param chartId - The chart ID for caching
+   * @param analysisType - The analysis type (e.g., 'ai-advanced-zh-TW', 'ai-advanced-en')
    * @param env - Cloudflare Worker environment
    * @returns ReadableStream in SSE format
    */
-  transformAdvancedToSSE(geminiStream, chartId, env) {
+  transformAdvancedToSSE(geminiStream, chartId, analysisType, env) {
     const reader = geminiStream.getReader();
     const decoder = new TextDecoder();
     const encoder = new TextEncoder();
     let buffer = "";
     let fullText = "";
     let chunkCount = 0;
-    console.log("[transformAdvancedToSSE] Starting stream transformation for chartId:", chartId);
+    console.log("[transformAdvancedToSSE] Starting stream transformation for chartId:", chartId, "analysisType:", analysisType);
     return new ReadableStream({
       async start(controller) {
         try {
@@ -34464,6 +34978,7 @@ var AnalyzeController = class {
             const advancedAnalysisCacheService = new AdvancedAnalysisCacheService();
             await advancedAnalysisCacheService.saveAnalysis(
               chartId,
+              analysisType,
               { text: fullText },
               env
             );
@@ -34536,6 +35051,7 @@ function createAnalyzeRoutes(router, env) {
     try {
       const url2 = new URL(req.url);
       const chartId = url2.searchParams.get("chartId");
+      const locale = url2.searchParams.get("locale") || "zh-TW";
       if (!chartId) {
         return new Response(
           JSON.stringify({ error: "Missing chartId parameter" }),
@@ -34550,7 +35066,7 @@ function createAnalyzeRoutes(router, env) {
         );
       }
       const controller = new AnalyzeController(geminiApiKey);
-      const stream = await controller.analyzeStream(chartId, env);
+      const stream = await controller.analyzeStream(chartId, env, locale);
       return new Response(stream, {
         headers: {
           "Content-Type": "text/event-stream",
@@ -34563,17 +35079,51 @@ function createAnalyzeRoutes(router, env) {
       });
     } catch (error46) {
       console.error("Analyze stream error:", error46);
-      const errorMessage = error46 instanceof Error ? error46.message : "Unknown error";
-      return new Response(
-        JSON.stringify({ error: errorMessage }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
+      let errorMessage = "\u54CE\u5440\uFF5E\u4F69\u7487\u9047\u5230\u4E86\u4E00\u4E9B\u5C0F\u554F\u984C\u5462...";
+      if (error46 instanceof Error) {
+        const errMsg = error46.message.toLowerCase();
+        if (errMsg.includes("quota") || errMsg.includes("429")) {
+          const retryMatch = error46.message.match(/retry in (\d+)/i);
+          if (retryMatch) {
+            const seconds = parseInt(retryMatch[1]);
+            const minutes = Math.ceil(seconds / 60);
+            errorMessage = `\u4F69\u7487\u7D2F\u4E86\uFF0C\u9700\u8981\u4F11\u606F\u4E00\u4E0B\u5594\uFF5E\u8ACB\u7B49 ${minutes} \u5206\u9418\u5F8C\u518D\u4F86\u627E\u6211\u5427\uFF01\u2728`;
+          } else {
+            errorMessage = "\u4F69\u7487\u4ECA\u5929\u592A\u5FD9\u4E86\uFF0C\u9700\u8981\u4F11\u606F\u4E00\u4E0B\uFF5E\u8ACB\u7A0D\u5F8C\u518D\u4F86\u627E\u6211\u5594\uFF01\u{1F4AB}";
+          }
+        } else if (errMsg.includes("not found")) {
+          errorMessage = "\u54A6\uFF1F\u4F69\u7487\u627E\u4E0D\u5230\u4F60\u7684\u547D\u76E4\u8CC7\u6599\u8036...\u8981\u4E0D\u8981\u91CD\u65B0\u7B97\u4E00\u6B21\u5462\uFF1F\u{1F52E}";
+        } else if (errMsg.includes("timeout")) {
+          errorMessage = "\u54CE\u5440\uFF5E\u4F69\u7487\u7B97\u5F97\u592A\u5C08\u5FC3\uFF0C\u6642\u9593\u6709\u9EDE\u4E45\u4E86...\u8981\u4E0D\u8981\u518D\u8A66\u4E00\u6B21\u5462\uFF1F\u23F0";
+        } else {
+          errorMessage = `\u4F69\u7487\u9047\u5230\u4E86\u4E00\u4E9B\u5C0F\u72C0\u6CC1\uFF1A${error46.message} \u{1F4AD}`;
+        }
+      }
+      const errorStream = new ReadableStream({
+        start(controller) {
+          const encoder = new TextEncoder();
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: errorMessage })}
+
+`));
+          controller.close();
+        }
+      });
+      return new Response(errorStream, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+          "Access-Control-Allow-Origin": "*"
+        }
+      });
     }
   });
   router.get("/api/v1/analyze/advanced/check", async (req) => {
     try {
       const url2 = new URL(req.url);
       const chartId = url2.searchParams.get("chartId");
+      const locale = url2.searchParams.get("locale") || "zh-TW";
       if (!chartId) {
         return new Response(
           JSON.stringify({ error: "chartId is required" }),
@@ -34582,7 +35132,7 @@ function createAnalyzeRoutes(router, env) {
       }
       const geminiApiKey = env.GEMINI_API_KEY;
       const controller = new AnalyzeController(geminiApiKey);
-      const result = await controller.checkAdvancedCache(chartId, env);
+      const result = await controller.checkAdvancedCache(chartId, env, locale);
       return new Response(JSON.stringify(result), {
         headers: {
           "Content-Type": "application/json",
@@ -34601,6 +35151,7 @@ function createAnalyzeRoutes(router, env) {
     try {
       const url2 = new URL(req.url);
       const chartId = url2.searchParams.get("chartId");
+      const locale = url2.searchParams.get("locale") || "zh-TW";
       if (!chartId) {
         return new Response(
           JSON.stringify({ error: "Missing chartId parameter" }),
@@ -34615,7 +35166,7 @@ function createAnalyzeRoutes(router, env) {
         );
       }
       const controller = new AnalyzeController(geminiApiKey);
-      const stream = await controller.analyzeAdvancedStream(chartId, env);
+      const stream = await controller.analyzeAdvancedStream(chartId, env, locale);
       return new Response(stream, {
         headers: {
           "Content-Type": "text/event-stream",
@@ -34628,11 +35179,44 @@ function createAnalyzeRoutes(router, env) {
       });
     } catch (error46) {
       console.error("Analyze advanced stream error:", error46);
-      const errorMessage = error46 instanceof Error ? error46.message : "Unknown error";
-      return new Response(
-        JSON.stringify({ error: errorMessage }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
+      let errorMessage = "\u54CE\u5440\uFF5E\u4F69\u7487\u9047\u5230\u4E86\u4E00\u4E9B\u5C0F\u554F\u984C\u5462...";
+      if (error46 instanceof Error) {
+        const errMsg = error46.message.toLowerCase();
+        if (errMsg.includes("quota") || errMsg.includes("429")) {
+          const retryMatch = error46.message.match(/retry in (\d+)/i);
+          if (retryMatch) {
+            const seconds = parseInt(retryMatch[1]);
+            const minutes = Math.ceil(seconds / 60);
+            errorMessage = `\u4F69\u7487\u7D2F\u4E86\uFF0C\u9700\u8981\u4F11\u606F\u4E00\u4E0B\u5594\uFF5E\u8ACB\u7B49 ${minutes} \u5206\u9418\u5F8C\u518D\u4F86\u627E\u6211\u5427\uFF01\u2728`;
+          } else {
+            errorMessage = "\u4F69\u7487\u4ECA\u5929\u592A\u5FD9\u4E86\uFF0C\u9700\u8981\u4F11\u606F\u4E00\u4E0B\uFF5E\u8ACB\u7A0D\u5F8C\u518D\u4F86\u627E\u6211\u5594\uFF01\u{1F4AB}";
+          }
+        } else if (errMsg.includes("not found")) {
+          errorMessage = "\u54A6\uFF1F\u4F69\u7487\u627E\u4E0D\u5230\u4F60\u7684\u547D\u76E4\u8CC7\u6599\u8036...\u8981\u4E0D\u8981\u91CD\u65B0\u7B97\u4E00\u6B21\u5462\uFF1F\u{1F52E}";
+        } else if (errMsg.includes("timeout")) {
+          errorMessage = "\u54CE\u5440\uFF5E\u4F69\u7487\u7B97\u5F97\u592A\u5C08\u5FC3\uFF0C\u6642\u9593\u6709\u9EDE\u4E45\u4E86...\u8981\u4E0D\u8981\u518D\u8A66\u4E00\u6B21\u5462\uFF1F\u23F0";
+        } else {
+          errorMessage = `\u4F69\u7487\u9047\u5230\u4E86\u4E00\u4E9B\u5C0F\u72C0\u6CC1\uFF1A${error46.message} \u{1F4AD}`;
+        }
+      }
+      const errorStream = new ReadableStream({
+        start(controller) {
+          const encoder = new TextEncoder();
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: errorMessage })}
+
+`));
+          controller.close();
+        }
+      });
+      return new Response(errorStream, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+          "Access-Control-Allow-Origin": "*"
+        }
+      });
     }
   });
 }
@@ -34785,7 +35369,7 @@ function detectDailyInteractions(chartData, dailyStemBranch) {
     overall
   };
 }
-var REMINDER_TEMPLATES = {
+var REMINDER_TEMPLATES_ZH = {
   favorable: [
     "\u4ECA\u65E5\u5B9C\u52D5\u5B9C\u9032\u53D6,\u9069\u5408\u63A8\u9032\u8A08\u756B\u8207\u5408\u4F5C \u2728",
     "\u4ECA\u65E5\u904B\u52E2\u9806\u9042,\u628A\u63E1\u6A5F\u6703\u5C55\u73FE\u81EA\u6211 \u{1F31F}",
@@ -34805,7 +35389,27 @@ var REMINDER_TEMPLATES = {
     "\u4ECA\u65E5\u5E73\u5B89\u9806\u9042,\u4FDD\u6301\u5E73\u5E38\u5FC3 \u2728"
   ]
 };
-var TAG_TEMPLATES = {
+var REMINDER_TEMPLATES_EN = {
+  favorable: [
+    "Today is favorable for action and progress \u2728",
+    "Today brings good fortune, seize opportunities to shine \u{1F31F}",
+    "Today's energy aligns well, ideal for important decisions and communication \u{1F4AB}",
+    "Today is full of vitality, perfect for starting new endeavors \u{1F3AF}"
+  ],
+  unfavorable: [
+    "Today calls for caution and patience \u{1F343}",
+    "Today favors a low profile, avoid risks and conflicts \u{1F319}",
+    "Today is best for rest and reflection, stay calm and steady \u26F0\uFE0F",
+    "Today requires prudence and conservative approach \u{1F6E1}\uFE0F"
+  ],
+  neutral: [
+    "Today is calm and steady \u2601\uFE0F",
+    "Today brings balanced energy, go with the flow \u{1F33E}",
+    "Today is neither particularly fortunate nor challenging, maintain your routine \u{1F338}",
+    "Today is peaceful and smooth, keep a calm mind \u2728"
+  ]
+};
+var TAG_TEMPLATES_ZH = {
   favorable: [
     { label: "\u5B9C\u52D5", type: "success" },
     { label: "\u5409\u9806", type: "success" }
@@ -34819,14 +35423,30 @@ var TAG_TEMPLATES = {
     { label: "\u5E73\u5B89", type: "info" }
   ]
 };
-function generateDailyReminder(interactions, date5 = /* @__PURE__ */ new Date()) {
+var TAG_TEMPLATES_EN = {
+  favorable: [
+    { label: "Active", type: "success" },
+    { label: "Auspicious", type: "success" }
+  ],
+  unfavorable: [
+    { label: "Cautious", type: "warning" },
+    { label: "Careful", type: "warning" }
+  ],
+  neutral: [
+    { label: "Stable", type: "info" },
+    { label: "Peaceful", type: "info" }
+  ]
+};
+function generateDailyReminder(interactions, date5 = /* @__PURE__ */ new Date(), locale = "zh-TW") {
   const { overall } = interactions;
-  const templates = REMINDER_TEMPLATES[overall];
+  const reminderTemplates = locale === "en" ? REMINDER_TEMPLATES_EN : REMINDER_TEMPLATES_ZH;
+  const tagTemplates = locale === "en" ? TAG_TEMPLATES_EN : TAG_TEMPLATES_ZH;
+  const templates = reminderTemplates[overall];
   const dateKey = date5.toISOString().split("T")[0];
   const hash2 = dateKey.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const templateIndex = hash2 % templates.length;
   const text2 = templates[templateIndex];
-  const tags = TAG_TEMPLATES[overall];
+  const tags = tagTemplates[overall];
   return {
     text: text2,
     tags
@@ -34841,6 +35461,7 @@ var DailyReminderController = class {
    * @param db - D1 database instance
    * @param chartId - Chart UUID
    * @param date - Date for the reminder (ISO 8601 string or Date object)
+   * @param locale - Locale for the reminder (default: 'zh-TW', supports: 'zh-TW', 'en')
    * @returns Daily reminder with text and tags
    * @throws Error if chart not found or invalid data
    *
@@ -34849,11 +35470,12 @@ var DailyReminderController = class {
    * const reminder = await controller.getDailyReminder(
    *   env.DB,
    *   'abc-123',
-   *   '2025-12-06T00:00:00.000Z'
+   *   '2025-12-06T00:00:00.000Z',
+   *   'zh-TW'
    * );
    * // Returns: { text: '...', tags: [...] }
    */
-  async getDailyReminder(db, chartId, date5) {
+  async getDailyReminder(db, chartId, date5, locale = "zh-TW") {
     try {
       const orm = drizzle(db);
       const [chartRecord] = await orm.select().from(chartRecords).where(eq(chartRecords.id, chartId)).limit(1);
@@ -34875,8 +35497,8 @@ var DailyReminderController = class {
       }
       const dailyStemBranch = calculateDailyStemBranch(targetDate);
       const interactions = detectDailyInteractions(chartData, dailyStemBranch);
-      const reminder = generateDailyReminder(interactions, targetDate);
-      console.log(`[getDailyReminder] Success - chartId: ${chartId}, date: ${targetDate.toISOString()}, overall: ${interactions.overall}`);
+      const reminder = generateDailyReminder(interactions, targetDate, locale);
+      console.log(`[getDailyReminder] Success - chartId: ${chartId}, date: ${targetDate.toISOString()}, overall: ${interactions.overall}, locale: ${locale}`);
       return reminder;
     } catch (error46) {
       if (error46 instanceof Error) {
@@ -34887,9 +35509,9 @@ var DailyReminderController = class {
       }
       console.warn("[getDailyReminder] Returning fallback reminder due to error");
       return {
-        text: "\u4ECA\u65E5\u5E73\u5B89\u9806\u9042,\u4FDD\u6301\u5E73\u5E38\u5FC3 \u2728",
+        text: locale === "en" ? "Today is peaceful and smooth, keep a calm mind \u2728" : "\u4ECA\u65E5\u5E73\u5B89\u9806\u9042,\u4FDD\u6301\u5E73\u5E38\u5FC3 \u2728",
         tags: [
-          { label: "\u5E73\u5B89", type: "info" }
+          { label: locale === "en" ? "Peaceful" : "\u5E73\u5B89", type: "info" }
         ]
       };
     }
@@ -34911,6 +35533,7 @@ function createDailyReminderRoutes(router, env) {
       const url2 = new URL(req.url);
       const chartId = url2.searchParams.get("chartId");
       const dateParam = url2.searchParams.get("date");
+      const locale = url2.searchParams.get("locale") || "zh-TW";
       if (!chartId) {
         return Response.json(
           { error: "Missing required parameter: chartId" },
@@ -34927,7 +35550,8 @@ function createDailyReminderRoutes(router, env) {
       const reminder = await controller.getDailyReminder(
         actualEnv.DB,
         chartId,
-        dateParam
+        dateParam,
+        locale
       );
       return Response.json(reminder, {
         status: 200,

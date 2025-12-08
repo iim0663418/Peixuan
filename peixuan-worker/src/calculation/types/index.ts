@@ -17,6 +17,7 @@ import type {
 } from '../annual/interaction';
 import type { Palace } from '../annual/palace';
 import type { SiHuaAggregation } from '../ziwei/sihua/types';
+import type { YearlyForecast, YearlyPeriod } from '../../services/annualFortune';
 
 /**
  * Birth information input
@@ -259,6 +260,21 @@ export interface CalculationResult {
       /** Recommendations */
       recommendations: string[];
     };
+
+    /**
+     * Yearly forecast with Lichun boundary splitting
+     * @since Phase 2
+     */
+    yearlyForecast?: YearlyForecast;
+
+    /**
+     * @deprecated Use yearlyForecast instead. Kept for backward compatibility.
+     * This field will be removed in a future version.
+     */
+    nextYear?: {
+      annualPillar: { stem: string; branch: string };
+      annualLifePalaceIndex: number;
+    };
   };
 
   /** Calculation timestamp */
@@ -275,3 +291,8 @@ export interface ValidationResult {
   /** Error messages (if any) */
   errors: string[];
 }
+
+/**
+ * Re-export YearlyForecast and YearlyPeriod from annualFortune service
+ */
+export type { YearlyForecast, YearlyPeriod };

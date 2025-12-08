@@ -2,7 +2,7 @@
   <div class="unified-view">
     <el-card class="form-card">
       <template #header>
-        <h2>整合命盤計算</h2>
+        <h2>{{ $t('unifiedView.title') }}</h2>
       </template>
 
       <UnifiedInputForm @submit="handleSubmit" />
@@ -13,13 +13,12 @@
     </el-card>
 
     <el-card v-else-if="error" class="result-card error">
-      <el-alert type="error" :title="error" show-icon
-:closable="false" />
+      <el-alert type="error" :title="error" show-icon :closable="false" />
     </el-card>
 
     <el-card v-else-if="result" class="result-card">
       <template #header>
-        <h3>計算結果</h3>
+        <h3>{{ $t('unifiedView.result_title') }}</h3>
       </template>
 
       <UnifiedResultView :result="result" />
@@ -27,7 +26,7 @@
 
     <el-dialog
       v-model="showAnalysisDialog"
-      title="✨ 計算完成！"
+      :title="$t('unifiedView.dialog_title')"
       width="90%"
       :style="{ maxWidth: '600px' }"
       center
@@ -35,8 +34,8 @@
     >
       <template #header>
         <div class="dialog-header">
-          <h3 class="dialog-title">✨ 計算完成！</h3>
-          <p class="dialog-subtitle">選擇您想要的分析類型</p>
+          <h3 class="dialog-title">{{ $t('unifiedView.dialog_title') }}</h3>
+          <p class="dialog-subtitle">{{ $t('unifiedView.dialog_subtitle') }}</p>
         </div>
       </template>
       
@@ -47,8 +46,8 @@
         >
           <div class="choice-icon">🌟</div>
           <div class="choice-info">
-            <h4 class="choice-title">佩璇性格分析</h4>
-            <p class="choice-desc">深入了解你的性格特質與天賦</p>
+            <h4 class="choice-title">{{ $t('unifiedView.personality_title') }}</h4>
+            <p class="choice-desc">{{ $t('unifiedView.personality_desc') }}</p>
           </div>
           <div class="choice-arrow">→</div>
         </div>
@@ -59,15 +58,15 @@
         >
           <div class="choice-icon">🔮</div>
           <div class="choice-info">
-            <h4 class="choice-title">佩璇運勢分析</h4>
-            <p class="choice-desc">查看流年運勢與未來趨勢</p>
+            <h4 class="choice-title">{{ $t('unifiedView.fortune_title') }}</h4>
+            <p class="choice-desc">{{ $t('unifiedView.fortune_desc') }}</p>
           </div>
           <div class="choice-arrow">→</div>
         </div>
       </div>
 
       <template #footer>
-        <el-button @click="showAnalysisDialog = false">稍後再說</el-button>
+        <el-button @click="showAnalysisDialog = false">{{ $t('unifiedView.later_button') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -101,7 +100,7 @@ const handleSubmit = async (birthInfo: any) => {
     result.value = await unifiedApiService.calculate(birthInfo);
 
     // Save to chartStore - use chartId from backend
-    const chartId = (result.value as any).chartId || `chart_${Date.now()}`;
+    const chartId = result.value.chartId || `chart_${Date.now()}`;
     chartStore.setCurrentChart({
       chartId,
       calculation: result.value,

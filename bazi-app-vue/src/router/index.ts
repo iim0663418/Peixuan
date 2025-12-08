@@ -35,12 +35,6 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/AdvancedAnalysisView.vue'),
     meta: { title: '佩璇運勢分析 - 佩璇' },
   },
-  {
-    path: '/daily',
-    name: 'daily',
-    component: () => import('../views/DailyReminderView.vue'),
-    meta: { title: '每日運勢提醒 - 佩璇' },
-  },
   // 向後兼容 (Backward compatibility redirects)
   {
     path: '/calculate',

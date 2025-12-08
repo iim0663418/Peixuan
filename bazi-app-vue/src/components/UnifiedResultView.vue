@@ -122,6 +122,12 @@
       </el-tab-pane>
 
       <el-tab-pane v-if="result.annualFortune" label="流年" name="annual">
+        <!-- 年度運勢卡片 -->
+        <AnnualFortuneCard
+          v-if="result.annualFortune?.yearlyForecast"
+          :yearly-forecast="result.annualFortune.yearlyForecast"
+        />
+
         <!-- 太歲分析卡片 -->
         <TaiSuiCard
           v-if="result.annualFortune.taiSuiAnalysis"
@@ -171,6 +177,7 @@ import SiHuaAggregationCard from './SiHuaAggregationCard.vue';
 import TechnicalDetailsCard from './TechnicalDetailsCard.vue';
 import DeveloperCard from './DeveloperCard.vue';
 import TaiSuiCard from './TaiSuiCard.vue';
+import AnnualFortuneCard from './AnnualFortuneCard.vue';
 import {
   STEM_TO_ELEMENT,
   BRANCH_TO_ELEMENT,

@@ -1,26 +1,82 @@
 # 檢查點記錄
 
-# 檢查點記錄
-
-## Checkpoint: progress-core-2025-12-06
-**時間**: 2025-12-06  
-**狀態**: ✅ 完成（路由健全性 + 告警類型修復）
+## Checkpoint: yearly-forecast-phase2.5-2025-12-08-13-24
+**時間**: 2025-12-08 13:24
+**狀態**: ✅ 完成（年運雙流年 Phase2.5 + 品牌資產更新 + SSE 回歸）
 
 ### 完成的任務
+- YearlyPeriod/YearlyForecast 擴充 taiSuiAnalysis、interactions，calculateYearlyForecast 引入 currentDayun；yearlyForecast 20/20 測試綠燈，unifiedRoutes 支援 `?format=markdown`
+- markdownFormatter 年運輸出新增太歲分析與干支交互區段；AnnualFortuneCard 整合 UnifiedResultView，雙流年視覺化與向後相容
+- 進階/年運分析 SSE 回歸：清空 advanced_analysis_records 1 筆後，26 chunks、約 30 秒輸出，AI 聚焦主要期間（丙午年 83.9%）並包含四化能量/壓力匯聚/明年建議
+- 品牌資產更新：透明背景 favicon/apple-touch-icon（深紫 + 金色星盤），更新 index.html 引用並重編譯前端
+- Staging 部署：bbbec4fa（Phase2.5 年運增強）、f674224c（Markdown query 修復）、05f55f76/1dde0dde（圖示更新），健康檢查通過
+
+### 關鍵成果
+- 年運雙流年可同時展示太歲衝犯與天干/地支交互，Markdown 與卡片輸出一致，舊欄位保持向後相容
+- SSE 流程穩定，快取清空後仍 26 chunks 流暢輸出，模型聚焦主期間並給出行動建議
+- 品牌資產一致性提升，Staging 縮圖/圖示已生效
+
+### 已知問題
+- 服務介紹頁未建立；前端 ESLint 0 errors / 126 warnings；後端 ESLint 3597 issues；DST/歷史時區增強未實作；後端 npm 4 moderate 漏洞
+- RWD Phase2-6 待推進；LanguageSelector 測試需再確認；實機/性能基準測試缺位
+
+### 下一步
+- 推生產部署年運 Phase2.5 變更並監控 SSE/快取表現
+- 分批清理 ESLint/依賴漏洞，補 DST/歷史時區與實機/性能測試
+- 建立服務介紹頁並持續推進 RWD Phase2-6
+
+## Checkpoint: multilang-ai-ux-2025-12-06-20-37
+**時間**: 2025-12-06 20:37
+**狀態**: ✅ 完成（多語言 AI 體驗優化：進階分析中英文獨立緩存 + 英文 SSE 掛起修復 + Gemini 超時處理 + loading UX 優化）
+
+### 完成的任務
+- **進階分析多語言緩存修復**：新增 DB migration 0003_add_analysis_type_to_advanced.sql（analysis_type 欄位 + chartIdTypeIdx 複合索引）、schema.ts 更新 advancedAnalysisRecords 表結構、advancedAnalysisCacheService 支援 analysisType 參數（`ai-advanced-${locale}`）、analyzeController.ts 修正緩存邏輯、chartId 不含 locale 後綴
+- **英文 SSE 掛起修復**：移除 analyzeChartStream/analyzeAdvancedStream 重複 languageInstruction、修正雙語 API 設計（buildAnalysisPrompt/buildAdvancedAnalysisPrompt 根據 locale 生成完整 prompt）
+- **Gemini 超時處理與佩璇風格錯誤**：AbortController 30 秒超時（英文 45 秒）、429 配額錯誤顯示休息時間、SSE 格式化錯誤返回、前端錯誤事件處理
+- **loading UX 優化**：移除 heartbeat 註釋，立即發送中文「好我看看～讓我仔細分析一下你的命盤...」、英文「Let me see~ I am analyzing your chart carefully...」
+
+### 關鍵成果
+- **Staging 部署測試**：版本 8ed8c067（loading 訊息優化）、1ed307d7（中英文獨立緩存測試）健康通過
+- **功能驗證**：英文進階分析 24.3 秒完成、中文正常、快取命中測試成功（英文二次請求 0.206s）、無資料庫外鍵錯誤、中英文分析獨立緩存互不干擾
+- **錯誤處理**：Gemini 配額錯誤友好提示、SSE 超時保護、EventSource 錯誤不立即關閉
+- **用戶體驗**：立即 loading 訊息避免空等焦慮、中英文語言一致性、緩存獨立避免語言錯亂
+
+### 已知問題
+- 服務介紹頁未建立；前端 ESLint 0 errors / 126 warnings；後端 ESLint 3597 issues
+- DST/歷史時區增強未實作；後端 npm 4 moderate 漏洞
+- 夢幻神秘風實作（R1-R4）與 RWD Phase2-6 待啟動
+
+### 下一步
+- 執行夢幻神秘風實作（R1-R4, 1.5h）並推進 RWD Phase2-6
+- 優先清理前端 ESLint warnings 與後端 ESLint/依賴漏洞
+- 規劃 DST/歷史時區支援、補齊測試與文件；落地服務介紹頁
+
+## Checkpoint: design-rwd-risk-integration-2025-12-06
+**時間**: 2025-12-06 13:38
+**狀態**: ✅ 完成（設計規劃整合 + RWD 風險表格化 + 路由健全性 + 告警類型修復）
+
+### 完成的任務
+- 夢幻神秘風設計規劃微調：整合使用者建議（標點停頓、Markdown 關鍵詞、覆蓋層玻璃化），更新 `doc/夢幻神秘風完整實作規劃.md`（R1-R4 實作細節與時程 1.5h）
+- RWD 適配風險與解決方案表格化：新增 Glassmorphism 性能、背景動畫、圖表重構、觸控優化四大面向風險與降級/禁用/選型/手勢處理方案
 - 核心路由驗證：/daily、/personality、/fortune 均存在且使用 lazy loading，meta.title 正確，重定向保留向後兼容
 - ElAlert 類型修復：SiHuaAggregationCard getSeverityType 從 'danger' 改為 Element Plus 標準 'error'，映射表同步調整
 
 ### 關鍵成果
+- 設計文件完整覆蓋實作細節與 RWD 風險管理，降低後續開發不確定性
 - 導航/SEO 穩定性確認，避免舊連結或 meta 缺失導致的 UX 風險
 - 告警色彩與狀態與框架契約一致，消除未定義樣式與潛在警告
+- Week 2 進度維持 71.5/62h (115%)
 
 ### 已知問題
 - 服務介紹頁未建立；前端 ESLint 6 errors / 120 warnings；後端 ESLint 3597 issues
 - LanguageSelector 測試 6 失敗；DST/歷史時區增強未實作；後端 npm 4 moderate 漏洞
+- 夢幻神秘風實作（R1-R4）與 RWD Phase2-6 待啟動
 
 ### 下一步
+- 執行夢幻神秘風實作（R1-R4, 1.5h）：打字機標點停頓、Markdown 關鍵詞高亮、Element Plus 覆蓋層玻璃化、文件更新與回歸測試
 - 優先清理前端 ESLint errors 與 LanguageSelector 測試，分批收斂後端 ESLint 與依賴漏洞
 - 規劃 DST/歷史時區支援並補實機/文件；落地服務介紹頁
+- 推進 RWD Phase2-6 並依風險表格執行降級/測試策略
 
 ## Checkpoint: progress-core-2025-12-04-20-26
 **時間**: 2025-12-04 20:26  

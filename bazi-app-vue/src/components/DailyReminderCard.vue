@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import type { DailyReminder } from '@/services/unifiedApiService';
 import { getDailyReminder } from '@/services/unifiedApiService';
+
+const { t, locale } = useI18n();
 
 /**
  * DailyReminderCard Component
  *
  * 每日運勢提醒卡片組件
- * - 日期選擇器（預設今天）
- * - API 調用 getDailyReminder()
+ * - API 調用 getDailyReminder()（固定今天，支援多語系）
  * - 顯示提醒文字（1-2 句）
  * - 顯示吉凶標籤
  * - 快取狀態提示
@@ -23,7 +25,6 @@ interface Props {
 const props = defineProps<Props>();
 
 // 狀態管理
-const selectedDate = ref<Date>(new Date());
 const reminderText = ref<string>('');
 const tags = ref<Array<{ label: string; type: 'success' | 'warning' | 'info' }>>([]);
 const loading = ref<boolean>(false);
@@ -31,14 +32,14 @@ const cached = ref<boolean>(false);
 const error = ref<boolean>(false);
 
 /**
- * 載入每日提醒
+ * 載入每日提醒（固定今天）
  */
 const loadReminder = async () => {
   loading.value = true;
   error.value = false;
 
   try {
-    const result: DailyReminder = await getDailyReminder(props.chartId, selectedDate.value);
+    const result: DailyReminder = await getDailyReminder(props.chartId, new Date(), locale.value);
     reminderText.value = result.text;
     tags.value = result.tags;
     cached.value = result.cached;
@@ -46,18 +47,13 @@ const loadReminder = async () => {
     console.error('Failed to load daily reminder:', err);
     error.value = true;
     // Fallback: 顯示通用吉祥話
-    reminderText.value = '今日平安順遂,保持平常心 ✨';
-    tags.value = [{ label: '平安', type: 'info' }];
+    reminderText.value = t('dailyReminder.fallback_text');
+    tags.value = [{ label: t('dailyReminder.fallback_tag'), type: 'info' }];
     cached.value = false;
   } finally {
     loading.value = false;
   }
 };
-
-// 監聽日期變化，自動載入提醒
-watch(selectedDate, () => {
-  loadReminder();
-});
 
 // 組件掛載時載入今日提醒
 onMounted(() => {
@@ -67,24 +63,6 @@ onMounted(() => {
 
 <template>
   <div class="daily-reminder-card">
-    <!-- 日期選擇器區域 -->
-    <div class="date-selector-section">
-      <div class="date-label">
-        <span class="label-icon">📅</span>
-        <span class="label-text">選擇日期</span>
-      </div>
-      <el-date-picker
-        v-model="selectedDate"
-        type="date"
-        placeholder="請選擇日期"
-        format="YYYY-MM-DD"
-        value-format="YYYY-MM-DD"
-        class="date-picker"
-        :clearable="false"
-        :disabled="loading"
-      />
-    </div>
-
     <!-- Loading 狀態 -->
     <div v-if="loading" class="reminder-content">
       <el-skeleton :rows="3" animated />
@@ -95,7 +73,7 @@ onMounted(() => {
       <!-- 快取狀態提示 -->
       <div v-if="cached" class="cache-badge">
         <span class="cache-icon">⚡</span>
-        <span class="cache-text">快取命中</span>
+        <span class="cache-text">{{ $t('dailyReminder.cache_hit') }}</span>
       </div>
 
       <!-- 提醒文字 -->
@@ -121,7 +99,7 @@ onMounted(() => {
       <!-- 錯誤提示（僅當發生錯誤時顯示） -->
       <div v-if="error" class="error-notice">
         <span class="error-icon">ℹ️</span>
-        <span class="error-text">暫時無法取得運勢資料,顯示通用提醒</span>
+        <span class="error-text">{{ $t('dailyReminder.error_notice') }}</span>
       </div>
     </div>
   </div>
@@ -140,34 +118,6 @@ onMounted(() => {
 
 .daily-reminder-card:hover {
   box-shadow: var(--shadow-md, 0 4px 20px rgba(0, 0, 0, 0.12));
-}
-
-/* ===== 日期選擇器區域 ===== */
-.date-selector-section {
-  margin-bottom: var(--space-xl, 20px);
-  padding-bottom: var(--space-lg, 16px);
-  border-bottom: 1px solid var(--border-light, #e9ecef);
-}
-
-.date-label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm, 8px);
-  margin-bottom: var(--space-md, 12px);
-}
-
-.label-icon {
-  font-size: var(--font-size-xl, 1.25rem);
-}
-
-.label-text {
-  font-size: var(--font-size-lg, 1.125rem);
-  font-weight: var(--font-weight-semibold, 600);
-  color: var(--text-primary, #2c3e50);
-}
-
-.date-picker {
-  width: 100%;
 }
 
 /* ===== 提醒內容區域 ===== */
@@ -253,10 +203,6 @@ onMounted(() => {
 @media (max-width: 767px) {
   .daily-reminder-card {
     padding: var(--space-lg, 16px);
-  }
-
-  .label-text {
-    font-size: var(--font-size-base, 1rem);
   }
 
   .reminder-text {

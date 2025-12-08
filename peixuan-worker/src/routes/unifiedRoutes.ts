@@ -30,7 +30,11 @@ export function createUnifiedRoutes(router: ReturnType<typeof AutoRouter>) {
   router.post('/api/v1/calculate', async (req: any, env: any) => {
     const controller = new UnifiedController();
     const input = await req.json();
-    const format = input.format || 'json';
+    
+    // Support format from both query parameter and request body
+    const url = new URL(req.url);
+    const format = url.searchParams.get('format') || input.format || 'json';
+    
     const result = await controller.calculate(input, format, env);
 
     // Return appropriate response based on format

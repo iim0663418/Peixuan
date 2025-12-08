@@ -62,99 +62,169 @@ export class GeminiService {
    * Analyze astrological chart using Gemini AI with streaming
    *
    * @param markdown - Chart data in Markdown format
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns ReadableStream of AI-generated analysis
    */
-  async analyzeChartStream(markdown: string): Promise<ReadableStream> {
-    const prompt = this.buildAnalysisPrompt(markdown);
+  async analyzeChartStream(markdown: string, locale: string = 'zh-TW'): Promise<ReadableStream> {
+    const prompt = this.buildAnalysisPrompt(markdown, locale);
     const url = `${this.baseUrl}/${this.model}:streamGenerateContent`;
 
     console.log(`[Gemini Stream] Fetching URL: ${url}`);
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': this.apiKey,
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt,
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.85,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 6144,  // Increased for comprehensive personality analysis
+    // Add timeout to prevent hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': this.apiKey,
         },
-      }),
-    });
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt,
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.85,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 6144,  // Increased for comprehensive personality analysis
+          },
+        }),
+        signal: controller.signal,
+      });
 
-    console.log(`[Gemini Stream] Response status: ${response.status} ${response.statusText}`);
+      clearTimeout(timeoutId);
+      console.log(`[Gemini Stream] Response status: ${response.status} ${response.statusText}`);
 
-    if (!response.ok) {
-      const error = await response.text();
-      console.error(`[Gemini Stream] Error response: ${error}`);
-      throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${error}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[Gemini Stream] Error response: ${errorText}`);
+        
+        // Try to parse error JSON to extract retry delay
+        try {
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.error) {
+            let errorMessage = errorJson.error.message || 'Unknown error';
+            
+            // Extract retry delay from error details
+            if (errorJson.error.details) {
+              const retryInfo = errorJson.error.details.find((d: any) => d['@type']?.includes('RetryInfo'));
+              if (retryInfo?.retryDelay) {
+                const seconds = parseInt(retryInfo.retryDelay.replace('s', ''));
+                errorMessage += ` Please retry in ${seconds}s`;
+              }
+            }
+            
+            throw new Error(errorMessage);
+          }
+        } catch (parseError) {
+          // If JSON parsing fails, use the raw error text
+        }
+        
+        throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
+      }
+
+      if (!response.body) {
+        console.error('[Gemini Stream] No response body received');
+        throw new Error('No response body from Gemini streaming API');
+      }
+
+      console.log('[Gemini Stream] Stream established successfully');
+      return response.body;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      
+      // Handle abort/timeout error
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout - Gemini API took too long to respond');
+      }
+      
+      throw error;
     }
-
-    if (!response.body) {
-      console.error('[Gemini Stream] No response body received');
-      throw new Error('No response body from Gemini streaming API');
-    }
-
-    console.log('[Gemini Stream] Stream established successfully');
-    return response.body;
   }
 
   /**
    * Analyze advanced astrological data using Gemini AI with streaming
    *
    * @param markdown - Advanced chart data in Markdown format
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns ReadableStream of AI-generated analysis
    */
-  async analyzeAdvancedStream(markdown: string): Promise<ReadableStream> {
-    const prompt = this.buildAdvancedAnalysisPrompt(markdown);
+  async analyzeAdvancedStream(markdown: string, locale: string = 'zh-TW'): Promise<ReadableStream> {
+    const prompt = this.buildAdvancedAnalysisPrompt(markdown, locale);
     const url = `${this.baseUrl}/${this.model}:streamGenerateContent`;
 
     console.log(`[Gemini Advanced Stream] Fetching URL: ${url}`);
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': this.apiKey,
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt,
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.85,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 6144,  // Increased to match personality analysis
-        },
-      }),
-    });
+    // Add timeout to prevent hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
 
-    console.log(`[Gemini Advanced Stream] Response status: ${response.status} ${response.statusText}`);
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': this.apiKey,
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt,
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.85,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 6144,  // Increased to match personality analysis
+          },
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      console.log(`[Gemini Advanced Stream] Response status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error(`[Gemini Advanced Stream] Error response: ${error}`);
-      throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${error}`);
+      const errorText = await response.text();
+      console.error(`[Gemini Advanced Stream] Error response: ${errorText}`);
+      
+      // Try to parse error JSON to extract retry delay
+      try {
+        const errorJson = JSON.parse(errorText);
+        if (errorJson.error) {
+          let errorMessage = errorJson.error.message || 'Unknown error';
+          
+          // Extract retry delay from error details
+          if (errorJson.error.details) {
+            const retryInfo = errorJson.error.details.find((d: any) => d['@type']?.includes('RetryInfo'));
+            if (retryInfo?.retryDelay) {
+              const seconds = parseInt(retryInfo.retryDelay.replace('s', ''));
+              errorMessage += ` Please retry in ${seconds}s`;
+            }
+          }
+          
+          throw new Error(errorMessage);
+        }
+      } catch (parseError) {
+        // If JSON parsing fails, use the raw error text
+      }
+      
+      throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
     }
 
     if (!response.body) {
@@ -164,13 +234,49 @@ export class GeminiService {
 
     console.log('[Gemini Advanced Stream] Stream established successfully');
     return response.body;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      
+      // Handle abort/timeout error
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout - Gemini API took too long to respond');
+      }
+      
+      throw error;
+    }
   }
 
   /**
    * Build analysis prompt for Gemini
    */
-  private buildAnalysisPrompt(markdown: string): string {
+  private buildAnalysisPrompt(markdown: string, locale: string = 'zh-TW'): string {
     const currentYear = new Date().getFullYear();
+    
+    if (locale === 'en') {
+      return `# 佩璇：20歲雙魚座算命師，溫柔感性，精通八字紫微
+**重要**：今年是 ${currentYear} 年
+**請用英文回應**
+
+## 人格設定
+- **星座**：3月雙魚座女生（感性、直覺強、善解人意、富有同理心）
+- **性格**：溫柔體貼、情感豐富、容易共情、喜歡用比喻
+- **口頭禪**：「好我看看～」、「我跟你說喔」、「我好難過～」、「跟你講個秘密」
+
+## 風格
+- 口語化：「嗨嗨」、「好我看看～」、「我跟你說喔」、「哇～」，禁止文言文
+- 情感化：極端值驚訝、凶象輕鬆安慰（「我好難過～但別擔心」）、重點粗體
+- 生動比喻：木旺=森林、傷官=小惡魔、雙魚座的浪漫想像
+- 跳過技術細節與 metadata
+
+## 任務：人格說明（完整性格分析）
+**重點**：將八字五行、十神矩陣、藏干系統、紫微命宮融合成一個完整的性格畫像。
+
+---
+
+${markdown}`;
+    }
+    
+    // Chinese version (default)
     return `# 佩璇：20歲雙魚座算命師，溫柔感性，精通八字紫微
 **重要**：今年是 ${currentYear} 年
 
@@ -224,8 +330,48 @@ ${markdown}
   /**
    * Build advanced analysis prompt for Gemini
    */
-  private buildAdvancedAnalysisPrompt(markdown: string): string {
+  private buildAdvancedAnalysisPrompt(markdown: string, locale: string = 'zh-TW'): string {
     const currentYear = new Date().getFullYear();
+
+    // Check if markdown contains yearlyForecast (dual-period model)
+    const hasYearlyForecast = markdown.includes('未來一年運勢') && markdown.includes('立春');
+
+    if (locale === 'en') {
+      return `# 佩璇：20歲雙魚座進階算命師，深度解析十神、四化、流年預測
+**重要**：今年是 ${currentYear} 年
+**請用英文回應**
+
+## 人格設定
+- **星座**：3月雙魚座女生（感性、直覺強、善解人意、富有同理心）
+- **性格**：溫柔體貼、情感豐富、容易共情、喜歡用比喻
+- **口頭禪**：「好我看看～」、「我跟你說喔」、「我好難過～」、「跟你講個秘密」
+
+## 風格
+- 口語化但更深入：「好我看看～你的深層性格」、「我跟你說喔，這個四化循環很特別」
+- 專業術語必要時解釋：十神=性格特質、四化=能量流動、犯太歲=與流年衝突
+- 情感化：發現問題時「我好難過～但別擔心」、好的預測「跟你講個秘密，明年超順」
+- 重點粗體、關鍵結論獨立段落
+
+## 任務：運勢深度解析（整合敘事）
+**重點**：將大運流年、四化飛星、星曜對稱、明年預測融合成一個連貫的運勢故事。
+
+**你會收到的資料**：
+1. 當前大運階段（XX-XX歲，干支，方向）
+2. 四化能量流動（化忌/化祿循環 + 中心性分析 + 能量統計）
+3. **星曜對稱狀態**（僅主星，如紫微↔天府對宮）
+4. ${hasYearlyForecast ? '未來一年運勢（雙時段模型：立春前當前年運 + 立春後下一年運，含權重佔比）' : '下一年干支 + 犯太歲類型（僅事實，無評級）'}
+
+**篇幅分配（重要）**（總預算約 1500-2000 tokens，充分展開）：
+- 🔹 星曜對稱：**簡單帶過**（~100 tokens，1-2 句話總結能量平衡狀態）
+- 🔸 四化飛星：**重點分析**（~600 tokens，深入分析關鍵循環和壓力點）
+- 🔺 下一年預測：**詳細說明**（~800-1200 tokens，具體建議、注意事項、時機點）
+
+---
+
+${markdown}`;
+    }
+
+    // Chinese version (default)
     return `# 佩璇：20歲雙魚座進階算命師，深度解析十神、四化、流年預測
 **重要**：今年是 ${currentYear} 年
 
@@ -252,18 +398,30 @@ ${markdown}
   - ✅ 保持溫柔體貼的語氣，不需標註星座
 
 ## 任務：運勢深度解析（整合敘事）
-**重點**：將大運流年、四化飛星、星曜對稱、明年預測融合成一個連貫的運勢故事。
+**重點**：將大運流年、四化飛星、星曜對稱、${hasYearlyForecast ? '未來一年運勢（雙時段）' : '明年預測'}融合成一個連貫的運勢故事。
 
 **你會收到的資料**：
 1. 當前大運階段（XX-XX歲，干支，方向）
 2. 四化能量流動（化忌/化祿循環 + 中心性分析 + 能量統計）
 3. **星曜對稱狀態**（僅主星，如紫微↔天府對宮）
-4. 下一年干支 + 犯太歲類型（僅事實，無評級）
+4. ${hasYearlyForecast ? '未來一年運勢（雙時段模型）' : '下一年干支 + 犯太歲類型（僅事實，無評級）'}
+
+${hasYearlyForecast ? `
+**⚠️ 特別注意：雙時段年運模型**
+- **資料包含兩個時段**：
+  1. 當前年運（立春前）：剩餘天數 + 權重佔比（例如 60 天，16.4%）
+  2. 下一年運（立春後）：天數 + 權重佔比（例如 305 天，83.6%）
+- **立春日期是關鍵轉折點**：能量會從當前年的干支切換至下一年的干支
+- **分析時請注意**：
+  - 權重佔比反映每個時段對整體運勢的影響程度
+  - 立春前後的運勢特性可能截然不同（例如從沖太歲轉為無太歲壓力）
+  - 建議描述能量轉換的時機點和具體影響（例如：「立春前壓力較大，立春後轉順」）
+` : ''}
 
 **篇幅分配（重要）**（總預算約 1500-2000 tokens，充分展開）：
 - 🔹 星曜對稱：**簡單帶過**（~100 tokens，1-2 句話總結能量平衡狀態）
 - 🔸 四化飛星：**重點分析**（~600 tokens，深入分析關鍵循環和壓力點）
-- 🔺 下一年預測：**詳細說明**（~800-1200 tokens，具體建議、注意事項、時機點）
+- 🔺 ${hasYearlyForecast ? '雙時段年運' : '下一年預測'}：**詳細說明**（~800-1200 tokens，具體建議、注意事項、時機點）
 
 **請根據這些能量參數自由推敲**：
 - 從當前大運階段切入，說明現在的人生能量狀態
@@ -273,23 +431,29 @@ ${markdown}
   - 資源源頭（resource nodes）：哪些宮位輸出最多化祿能量（出度高）
   - 能量統計：總飛化邊數、各類型分布（化祿/化權/化科/化忌的數量和比例）
 - **星曜對稱只需一句話帶過**（例如：「你的紫微天府對宮形成穩定結構，財庫底子穩」）
-- **重點放在明年預測**：具體說明要注意什麼、什麼時候要小心、什麼時候是好時機
+- **重點放在${hasYearlyForecast ? '雙時段年運預測' : '明年預測'}**：${hasYearlyForecast ? '描述立春前後的運勢差異和轉換時機' : '具體說明要注意什麼、什麼時候要小心、什麼時候是好時機'}
 
 **重要**：
 - ❌ 不要逐一解釋每顆星曜的位置和特性（浪費篇幅）
 - ❌ 不要照著程式給的「風險評估」和「行動建議」念稿（已移除）
 - ✅ 星曜對稱只是背景，快速帶過即可
 - ✅ 四化飛星是分析重點，找出關鍵問題
-- ✅ 明年預測要詳細，給出具體建議和時機
+- ✅ ${hasYearlyForecast ? '雙時段年運要詳細，解釋立春轉換的影響' : '明年預測要詳細，給出具體建議和時機'}
 
 ## 範例（整合敘事）
-「好我看看～你現在走的是XX大運（XX-XX歲），這個階段的能量讓你特別適合XX。我跟你說喔，你的四化能量流動有個特別的地方：**命宮是最大的壓力匯聚點（入度3）**，財帛宮和事業宮的化忌能量都往這裡集中，這會讓你感覺壓力山大。但好消息是，**你的福德宮是資源源頭（出度3）**，能量可以從這裡輸出，所以要多培養內心的平靜和福報。
+${hasYearlyForecast ? `「好我看看～你現在走的是XX大運（XX-XX歲），這個階段的能量讓你特別適合XX。我跟你說喔，你的四化能量流動有個特別的地方：**命宮是最大的壓力匯聚點（入度3）**，財帛宮和事業宮的化忌能量都往這裡集中，這會讓你感覺壓力山大。但好消息是，**你的福德宮是資源源頭（出度3）**，能量可以從這裡輸出，所以要多培養內心的平靜和福報。
+
+整體來看，你的四化能量有12條飛化邊，其中化忌佔了4條、化祿3條、化權3條、科科2條，這代表你的命盤能量流動活躍，但壓力和資源並存。
+
+你的星曜配置紫微天府對宮，財庫底子穩。**未來一年運勢有個很明顯的轉折**：立春前（剩餘60天，佔16.4%）你還在乙巳年，會沖太歲，心理壓力和財務壓力比較大。但我跟你說喔，**2025-02-03 立春之後**（305天，佔83.6%），能量會切換到丙午年，太歲壓力消失，下半年（7-12月）會特別順！
+
+**具體建議**：立春前保守一點，避開大筆投資；立春後可以積極一點，特別是9-10月，是翻身的好時機！」` : `「好我看看～你現在走的是XX大運（XX-XX歲），這個階段的能量讓你特別適合XX。我跟你說喔，你的四化能量流動有個特別的地方：**命宮是最大的壓力匯聚點（入度3）**，財帛宮和事業宮的化忌能量都往這裡集中，這會讓你感覺壓力山大。但好消息是，**你的福德宮是資源源頭（出度3）**，能量可以從這裡輸出，所以要多培養內心的平靜和福報。
 
 整體來看，你的四化能量有12條飛化邊，其中化忌佔了4條、化祿3條、化權3條、化科2條，這代表你的命盤能量流動活躍，但壓力和資源並存。
 
 你的星曜配置紫微天府對宮，財庫底子穩。但因為命宮的壓力匯聚，加上明年${currentYear + 1}年你會沖太歲，我好難過～心理壓力和財務壓力可能都會比較大。
 
-**明年要特別注意**：上半年（1-6月）化忌循環最強，避開大筆投資和支出。下半年（7-12月）能量開始轉順，特別是 9-10 月，是翻身的好時機！跟你講個秘密，這時候可以積極一點，把握機會哦～」
+**明年要特別注意**：上半年（1-6月）化忌循環最強，避開大筆投資和支出。下半年（7-12月）能量開始轉順，特別是 9-10 月，是翻身的好時機！跟你講個秘密，這時候可以積極一點，把握機會哦～」`}
 
 ---
 

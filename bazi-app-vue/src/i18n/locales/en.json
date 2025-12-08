@@ -1,6 +1,7 @@
 {
   "common": {
     "app_name": "Peixuan Astrology Intelligence Platform",
+    "brand_subtitle": "BaZi × Purple Star × AI",
     "home": "Home",
     "login": "Login",
     "logout": "Logout",
@@ -12,13 +13,16 @@
     "cancel": "Cancel",
     "loading": "Loading...",
     "reset": "Reset",
-    "error": "Error"
+    "error": "Error",
+    "period": "Period"
   },
   "navigation": {
     "home": "Home",
     "purple_star": "Purple Star Astrology",
     "bazi": "BaZi (Eight Characters)",
     "integrated_analysis": "Integrated Analysis",
+    "personality": "Peixuan Personality Analysis",
+    "fortune": "Peixuan Fortune Analysis",
     "auth": {
       "login": "Member Login",
       "register": "Member Register"
@@ -288,5 +292,141 @@
       "selectModule": "Select module: Switch astrology analysis type",
       "adjustDepth": "Adjust depth: Control information detail level"
     }
+  },
+  "home": {
+    "title": "Peixuan Astrology Intelligence Platform",
+    "subtitle": "Traditional Wisdom, Modern Precision",
+    "description": "Professional analysis combining BaZi and Purple Star astrology, using AI technology to provide accessible astrological insights",
+    "sections": {
+      "services": "Services",
+      "dailyReminder": "Daily Fortune Reminder",
+      "quickAccess": "Quick Access",
+      "features": "Platform Features"
+    },
+    "services": {
+      "calculate_title": "Integrated Chart Calculation",
+      "calculate_desc": "Dual analysis of BaZi and Purple Star astrology for comprehensive chart information",
+      "personality_title": "Peixuan Personality Analysis",
+      "personality_desc": "AI-driven deep personality insights to understand your true self",
+      "fortune_title": "Peixuan Fortune Analysis",
+      "fortune_desc": "Analyze yearly fortune, transformation energies, and future trends 💫"
+    },
+    "features": {
+      "accurate_title": "More Accurate",
+      "accurate_desc": "Dual validation of BaZi and Purple Star for more reliable results",
+      "readable_title": "Easier to Understand",
+      "readable_desc": "AI translates complex astrology into plain language",
+      "accessible_title": "Always Accessible",
+      "accessible_desc": "Save your chart and access it anytime"
+    },
+    "quick_access": {
+      "welcome_title": "Welcome Back!",
+      "welcome_desc": "You have a saved chart",
+      "welcome_btn": "View Chart",
+      "start_title": "Start Exploring",
+      "start_desc": "Begin your astrological analysis journey now",
+      "start_btn": "Calculate Chart"
+    }
+  },
+  "dailyReminder": {
+    "date_label": "Select Date",
+    "date_placeholder": "Please select a date",
+    "cache_hit": "Cache Hit",
+    "fallback_text": "Peace and smooth sailing today, keep calm ✨",
+    "fallback_tag": "Peaceful",
+    "error_notice": "Unable to fetch fortune data, showing general reminder"
+  },
+  "personality": {
+    "title": "💝 Peixuan Personality Analysis",
+    "subtitle": "BaZi × Ten Gods × Purple Star × Deep Insights",
+    "recalc_notice": "✨ I recalculate daily! Come back often for new discoveries!",
+    "loading_message": "Peixuan is analyzing your chart...",
+    "loading_hint": "Let me take a closer look~ About half a minute ⏰",
+    "loading_cached": "Loading analysis results...",
+    "loading_hint_cached": "Almost ready! ✨",
+    "error_no_chart": "No chart yet~ Calculate a chart first so I can analyze it for you!",
+    "error_no_chart_title": "No Chart Yet~",
+    "error_connection": "Connection interrupted, please retry",
+    "btn_back": "← Back",
+    "btn_copy": "📋 Copy",
+    "btn_go_calculate": "→ Calculate Chart",
+    "copy_success": "Copied to clipboard",
+    "copy_failed": "Copy failed"
+  },
+  "fortune": {
+    "title": "🔮 Peixuan Fortune Analysis",
+    "subtitle": "Transformation Stars × Annual Influences × Deep Insights",
+    "recalc_notice": "✨ I recalculate daily! Come back often for new discoveries!",
+    "loading_message": "Peixuan is analyzing your fortune...",
+    "loading_hint": "Let me take a closer look~ About half a minute ⏰",
+    "loading_cached": "Loading fortune analysis results...",
+    "loading_hint_cached": "Almost ready! ✨",
+    "error_no_chart": "No chart yet~ Calculate a chart first so I can analyze it for you!",
+    "error_no_chart_title": "No Chart Yet~",
+    "error_connection": "Connection interrupted, please retry",
+    "btn_back": "← Back",
+    "btn_copy": "📋 Copy",
+    "btn_go_calculate": "→ Calculate Chart",
+    "copy_success": "Copied to clipboard",
+    "copy_failed": "Copy failed"
+  },
+  "annualFortune": {
+    "yearlyForecast": {
+      "title": "One Year Forecast",
+      "currentYear": "Current Year",
+      "nextYear": "Next Year",
+      "lichunTransition": "Lichun Transition Reminder",
+      "remainingDays": "Next {days} days still under {year} influence",
+      "durationDays": "{days} days",
+      "weightPercent": "Weight {percent}%"
+    }
+  },
+  "footer": {
+    "services": "Services",
+    "tagline": "Traditional Wisdom, Modern Precision",
+    "contact": "Contact",
+    "copyright": "© 2025 {appName}",
+    "rights": "All Rights Reserved"
+  },
+  "unifiedForm": {
+    "birth_info": "Birth Information",
+    "birth_date": "Birth Date",
+    "birth_date_placeholder": "Select birth date",
+    "birth_time": "Birth Time",
+    "birth_time_placeholder": "Select birth time",
+    "gender": "Gender",
+    "gender_male": "Male",
+    "gender_female": "Female",
+    "address_label": "Birth Address or Landmark",
+    "address_placeholder": "Enter address or landmark, e.g., Taipei 101, Taichung Station",
+    "address_hint": "💡 Supports landmarks, full addresses, or postal codes",
+    "geocode_button": "Find Coordinates",
+    "location_label": "Birth Location Coordinates (Required)",
+    "longitude": "Longitude",
+    "longitude_placeholder": "Longitude (Required)",
+    "latitude": "Latitude",
+    "latitude_placeholder": "Latitude",
+    "timezone": "Timezone",
+    "timezone_placeholder": "Timezone",
+    "coordinate_warning": "⚠️ Longitude is required for accurate calculation",
+    "city_label": "Quick Select: Major Cities",
+    "city_placeholder": "Select a city to auto-fill coordinates",
+    "city_hint": "💡 Not sure about the address? Choose the nearest city",
+    "submit_button": "Calculate",
+    "submit_button_cached": "Chart Cached",
+    "clear_cache": "Clear Cache",
+    "clear_cache_confirm": "Are you sure you want to clear the cache?",
+    "candidate_select_placeholder": "Multiple addresses found, please select the most accurate one"
+  },
+  "unifiedView": {
+    "title": "Integrated Chart Calculation",
+    "result_title": "Calculation Results",
+    "dialog_title": "✨ Calculation Complete!",
+    "dialog_subtitle": "Choose your analysis type",
+    "personality_title": "Peixuan Personality Analysis",
+    "personality_desc": "Deep insights into your personality traits and talents",
+    "fortune_title": "Peixuan Fortune Analysis",
+    "fortune_desc": "View annual fortune and future trends",
+    "later_button": "Maybe Later"
   }
 }

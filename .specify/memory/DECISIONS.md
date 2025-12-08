@@ -1,6 +1,110 @@
 # 決策記錄
 
-## 2025-12-06: 路由健全性與告警類型修復
+## 2025-12-08: 年運雙流年 Phase2.5 與品牌資產更新
+
+### 決策：年運雙流年與太歲/干支交互全面落地
+- **背景**: 年運分析需同時覆蓋當前年與下一年，並揭露犯/沖/刑/破/害太歲與干支交互，提供可視化輸出
+- **影響**:
+  - YearlyPeriod/YearlyForecast 介面擴充 taiSuiAnalysis、interactions，calculateYearlyForecast 新增 currentDayun 參與判斷；向後相容舊欄位
+  - markdownFormatter 年運輸出新增太歲分析與干支交互區段（單期/雙期皆支援），AnnualFortuneCard 整合 UnifiedResultView 呈現雙流年
+  - 測試：yearlyForecast 20/20 通過；SSE 年運分析 26 chunks、約 30 秒完成，AI 正確聚焦主要期間；快取清空 1 筆 advanced_analysis_records 後驗證流暢
+  - 部署：Staging bbbec4fa（Phase2.5 主體）、f674224c（Markdown query 修復）、1dde0dde/05f55f76（圖示更新後重建）
+- **狀態**: 完成 ✓（準備推生產）
+
+### 決策：統一路由支援 Markdown 輸出參數
+- **背景**: unifiedRoutes 需允許 `?format=markdown` 傳遞，避免 Markdown 版本輸出失效
+- **影響**: 修正 unifiedRoutes.ts 格式化流程可接受 query 參數並返回完整 Markdown（含雙流年太歲與干支交互）；Staging f674224c 驗證通過
+- **狀態**: 完成 ✓
+
+### 決策：品牌縮圖與 Favicon 更新
+- **背景**: 需要新版透明背景縮圖（深紫 + 金色星盤）提升一致性
+- **影響**: 更換 favicon.png、apple-touch-icon.png，更新 index.html 引用並重編譯前端；Staging 05f55f76/1dde0dde 部署後圖示已生效
+- **狀態**: 完成 ✓
+
+## 2025-12-07: 進階分析 SSE 驗證與預檢查修復
+
+### 決策：AI 分析 SSE 流程回歸測試與快取清空
+- **背景**: 雙語快取修復後需確認進階分析 SSE 整段輸出與模型聚焦
+- **影響**: 清空 advanced_analysis_records 1 筆後測試 SSE 26 chunks、約 30 秒完成；AI 正確聚焦雙流年主要期間並輸出四化能量分析、壓力匯聚點、資源源頭、明年運勢建議
+- **狀態**: 完成 ✓（準備生產部署）
+
+### 決策：修復 checkAdvancedCache locale 漏傳造成 500
+- **背景**: /analyze/check 進階預檢查未傳 locale/analysisType 導致 500
+- **影響**: checkAdvancedCache 新增 locale 參數並傳遞 analysisType；路由層提取 locale 查詢參數；Staging 7b52a6c3 測試通過
+- **狀態**: 完成 ✓
+
+## 2025-12-06: 多語言 AI 分析體驗優化與緩存修復
+
+### 決策：修復進階分析多語言緩存混亂問題
+- **背景**: 中英文分析共享 chartId 緩存導致語言錯亂，需獨立緩存機制
+- **影響**:
+  - 新增 DB migration 0003_add_analysis_type_to_advanced.sql（添加 analysis_type 欄位 + 複合索引 chartIdTypeIdx）
+  - schema.ts 更新 advancedAnalysisRecords 表結構（analysisType 欄位 + 索引）
+  - advancedAnalysisCacheService 修改 getAnalysis/saveAnalysis 支援 analysisType 參數
+  - analyzeController.ts 使用 analysisType = `ai-advanced-${locale}` 取代 cacheKey
+  - chartId 不含 locale 後綴，保持乾淨
+- **狀態**: 完成 ✓（Staging 1ed307d7 測試通過，中英文分析獨立緩存）
+
+### 決策：修復英文 locale SSE 掛起問題
+- **背景**: 英文分析時 SSE 無回應，中文正常
+- **影響**:
+  - 移除 analyzeChartStream 和 analyzeAdvancedStream 中重複的 languageInstruction
+  - 直接使用 buildXxxPrompt 返回的完整 prompt，避免 prompt 結構混亂
+  - 修正雙語 API 設計：buildAnalysisPrompt/buildAdvancedAnalysisPrompt 根據 locale 生成完整 prompt（包含角色設定、風格指引、任務說明）
+- **狀態**: 完成 ✓（英文 locale 24.3 秒完成，問題已解決）
+
+### 決策：添加 Gemini API 超時處理與佩璇風格錯誤訊息
+- **背景**: Gemini API 無回應導致 Worker 掛起，需超時保護與友好錯誤提示
+- **影響**:
+  - 添加 AbortController 30 秒超時處理（英文 locale 延長至 45 秒）
+  - Gemini 錯誤提取重試時間（429 配額錯誤顯示「佩璇累了，需要休息 X 分鐘」）
+  - SSE 格式化錯誤返回（data: {"error": "..."}\n\n）
+  - 前端增加錯誤事件處理，避免 EventSource 立即關閉
+- **狀態**: 完成 ✓（Staging 測試通過，錯誤處理正常）
+
+### 決策：優化 SSE loading 用戶體驗
+- **背景**: 用戶空等無提示，需立即發送有意義的訊息
+- **影響**:
+  - 移除 SSE heartbeat 註釋，改為立即發送 loading 訊息
+  - 中文：「好我看看～讓我仔細分析一下你的命盤...」
+  - 英文：「Let me see~ I am analyzing your chart carefully...」
+  - 避免使用者空等焦慮，提升體驗
+- **狀態**: 完成 ✓（Staging 8ed8c067 部署，測試確認正常）
+
+## 2025-12-06: 每日提醒功能整合至首頁
+
+### 決策：移除 /daily 獨立路由，整合 DailyReminderCard 至 HomeView
+- **背景**: 每日運勢提醒功能作為獨立頁面增加導航複雜度，使用頻率較高時應更易訪問
+- **影響**:
+  - 移除 `/daily` 路由及 DailyReminderView.vue 組件
+  - 移除 App.vue 中所有 /daily 導航連結（桌面版、移動版、Footer）
+  - DailyReminderCard 直接整合至 HomeView.vue，當有 chartId 時自動顯示
+  - 組件掛載時自動載入今日運勢提醒
+  - 減少一層導航路徑，提升用戶體驗
+- **優點**:
+  - 首頁直接展示每日運勢，無需額外點擊
+  - 減少路由和組件維護成本
+  - 更符合用戶使用流程（計算命盤 → 查看分析 → 查看每日運勢）
+- **狀態**: 完成 ✓
+
+### 決策：為性格分析與運勢分析頁面添加重算提醒橫幅
+- **背景**: 需要告知用戶分析結果會每天重新計算，鼓勵回訪
+- **影響**:
+  - AIAnalysisView.vue 和 AdvancedAnalysisView.vue 頂部添加提醒橫幅
+  - 橫幅文字：「✨ 我每天都會重新幫你算一次喔～記得常回來看看，說不定會有新發現呢！」
+  - 使用金色漸變背景與邊框，視覺上柔和友好
+  - 提升用戶回訪率，增加產品黏性
+- **狀態**: 完成 ✓
+
+## 2025-12-06: 設計規劃整合與路由健全性驗證
+
+### 決策：夢幻神秘風設計規劃微調與 RWD 風險表格化
+- **背景**: 需整合使用者建議（標點停頓、Markdown 關鍵詞、覆蓋層玻璃化）並明確 RWD 適配風險
+- **影響**:
+  - 更新 `doc/夢幻神秘風完整實作規劃.md`：打字機標點停頓（句讀 300ms、逗號 200ms）、Markdown 關鍵詞高亮（加粗/顏色/圖標）、Element Plus 覆蓋層玻璃化（backdrop-filter、色溫）
+  - 新增 RWD 適配風險與解決方案表格：Glassmorphism 性能（降級方案）、背景動畫（禁用選項）、圖表重構（Canvas/SVG 選型）、觸控優化（手勢衝突）
+  - 文件覆蓋 R1-R4 實作細節與時程（1.5h）
+- **狀態**: 完成 ✓
 
 ### 決策：核心路由健全性驗證（/daily, /personality, /fortune）
 - **背景**: 需確認行動/桌面端核心路由存在並具備正確 meta.title 與重定向，以降低導航/SEO 風險

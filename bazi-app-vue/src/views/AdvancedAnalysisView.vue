@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useChartStore } from '@/stores/chartStore';
 import { marked } from 'marked';
 
 const router = useRouter();
 const chartStore = useChartStore();
+const { t, locale } = useI18n();
 
 const analysisText = ref('');
 const isLoading = ref(true);
 const error = ref<string | null>(null);
 const progress = ref(0);
-const loadingMessage = ref('佩璇正在分析你的運勢...');
-const loadingHint = ref('讓我仔細看看～大概需要半分鐘喔 ⏰');
+const loadingMessage = ref(t('fortune.loading_message'));
+const loadingHint = ref(t('fortune.loading_hint'));
 
 let eventSource: EventSource | null = null;
 
@@ -23,7 +25,7 @@ const renderMarkdown = (text: string): string => {
 const checkCache = async (chartId: string): Promise<boolean> => {
   try {
     const response = await fetch(
-      `/api/v1/analyze/advanced/check?chartId=${chartId}`,
+      `/api/v1/analyze/advanced/check?chartId=${chartId}&locale=${locale.value}`,
     );
     const data = await response.json();
     return data.cached || false;
@@ -34,10 +36,10 @@ const checkCache = async (chartId: string): Promise<boolean> => {
 };
 
 const startStreaming = async () => {
-  const { chartId } = chartStore;
+  const chartId = chartStore.chartId;
 
   if (!chartId) {
-    error.value = '還沒有命盤喔～先去算個命盤，我才能幫你分析呀！';
+    error.value = t('fortune.error_no_chart');
     isLoading.value = false;
     return;
   }
@@ -45,13 +47,15 @@ const startStreaming = async () => {
   // Check cache first
   const hasCached = await checkCache(chartId);
   loadingMessage.value = hasCached
-    ? '正在載入運勢分析結果...'
-    : '佩璇正在分析你的運勢...';
+    ? t('fortune.loading_cached')
+    : t('fortune.loading_message');
   loadingHint.value = hasCached
-    ? '馬上就好！✨'
-    : '讓我仔細看看～大概需要半分鐘喔 ⏰';
+    ? t('fortune.loading_hint_cached')
+    : t('fortune.loading_hint');
 
-  const apiUrl = `/api/v1/analyze/advanced/stream?chartId=${chartId}`;
+  // Use absolute URL for EventSource (relative URLs may not work in all browsers)
+  const baseUrl = window.location.origin;
+  const apiUrl = `${baseUrl}/api/v1/analyze/advanced/stream?chartId=${chartId}&locale=${locale.value}`;
 
   eventSource = new EventSource(apiUrl);
 
@@ -69,6 +73,16 @@ const startStreaming = async () => {
 
     try {
       const data = JSON.parse(event.data);
+      
+      // Handle error from backend
+      if (data.error) {
+        console.error('[SSE] Backend error:', data.error);
+        error.value = data.error;
+        isLoading.value = false;
+        eventSource?.close();
+        return;
+      }
+      
       if (data.text) {
         analysisText.value += data.text;
 
@@ -86,7 +100,7 @@ const startStreaming = async () => {
 
   eventSource.onerror = (err) => {
     console.error('[SSE] Error:', err);
-    error.value = '連接中斷,請重試';
+    error.value = t('fortune.error_connection');
     isLoading.value = false;
     eventSource?.close();
   };
@@ -95,18 +109,20 @@ const startStreaming = async () => {
 const copyToClipboard = async () => {
   try {
     await navigator.clipboard.writeText(analysisText.value);
-    alert('已複製到剪貼簿');
+    alert(t('fortune.copy_success'));
   } catch (err) {
-    console.error('複製失敗:', err);
+    console.error(t('fortune.copy_failed'), err);
   }
 };
 
 const goBack = () => {
-  router.push('/unified');
+  router.push('/');
 };
 
 onMounted(() => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Restore chartId from localStorage if currentChart is null
+  chartStore.loadFromLocalStorage();
   startStreaming();
 });
 
@@ -119,18 +135,23 @@ onUnmounted(() => {
   <div class="ai-analysis-view">
     <div class="container">
       <div class="header">
-        <button class="back-btn" @click="goBack">← 返回</button>
-        <h1>🔮 佩璇運勢分析</h1>
-        <p class="subtitle">四化飛星 × 流年太歲 × 深度解讀</p>
+        <button class="back-btn" @click="goBack">{{ $t('fortune.btn_back') }}</button>
+        <h1>{{ $t('fortune.title') }}</h1>
+        <p class="subtitle">{{ $t('fortune.subtitle') }}</p>
         <div class="actions">
           <button
             v-if="!isLoading && !error"
             class="copy-btn"
             @click="copyToClipboard"
           >
-            📋 複製
+            {{ $t('fortune.btn_copy') }}
           </button>
         </div>
+      </div>
+
+      <!-- 重新計算提醒橫幅 -->
+      <div class="recalc-notice">
+        {{ $t('fortune.recalc_notice') }}
       </div>
 
       <!-- 載入狀態 -->
@@ -143,9 +164,9 @@ onUnmounted(() => {
       <!-- 錯誤狀態 -->
       <div v-else-if="error" class="error">
         <div class="error-icon">💫</div>
-        <h3>還沒有命盤喔～</h3>
+        <h3>{{ $t('fortune.error_no_chart_title') }}</h3>
         <p class="error-message">{{ error }}</p>
-        <button class="retry-btn" @click="goBack">→ 去計算命盤</button>
+        <button class="retry-btn" @click="goBack">{{ $t('fortune.btn_go_calculate') }}</button>
       </div>
 
       <!-- 分析內容 -->
@@ -203,6 +224,19 @@ onUnmounted(() => {
   margin: var(--space-xs) 0 0 0;
   font-weight: var(--font-weight-medium);
   text-align: center;
+}
+
+.recalc-notice {
+  background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%);
+  border: 1px solid #ffd700;
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-2xl);
+  text-align: center;
+  color: #8b7500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.15);
 }
 
 .back-btn,

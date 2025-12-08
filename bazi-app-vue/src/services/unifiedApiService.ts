@@ -128,6 +128,7 @@ export interface ZiWeiResult {
  * Complete calculation result
  */
 export interface CalculationResult {
+  chartId: string;
   input: {
     solarDate: string;
     longitude: number;
@@ -136,6 +137,7 @@ export interface CalculationResult {
   };
   bazi: BaZiResult;
   ziwei: ZiWeiResult;
+  annualFortune?: any;
   timestamp: string;
 }
 
@@ -524,19 +526,21 @@ export interface DailyReminder {
  *
  * @param chartId - 命盤 ID
  * @param date - 查詢日期
+ * @param locale - 語言設定 (預設 'zh-TW', 可選 'en', 'zh')
  * @returns 每日運勢提醒資料
  *
  * 快取策略：
- * - Key: `daily-reminder-${chartId}-${dateKey}`
+ * - Key: `daily-reminder-${chartId}-${dateKey}-${locale}`
  * - Storage: localStorage
  * - TTL: 永久（日期固定，結果不變）
  */
 export async function getDailyReminder(
   chartId: string,
   date: Date,
+  locale: string = 'zh-TW',
 ): Promise<DailyReminder> {
   const dateKey = date.toISOString().split('T')[0];
-  const cacheKey = `daily-reminder-${chartId}-${dateKey}`;
+  const cacheKey = `daily-reminder-${chartId}-${dateKey}-${locale}`;
 
   try {
     // 先查 localStorage（永久快取）
@@ -548,7 +552,7 @@ export async function getDailyReminder(
 
     // API 調用
     const response = await axios.get<DailyReminder>(`${BASE_URL}/daily-reminder`, {
-      params: { chartId, date: date.toISOString() },
+      params: { chartId, date: date.toISOString(), locale },
     });
 
     // 永久快取（日期固定，結果不變）

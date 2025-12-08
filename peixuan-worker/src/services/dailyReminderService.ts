@@ -210,9 +210,9 @@ export function detectDailyInteractions(chartData: any, dailyStemBranch: GanZhi)
 }
 
 /**
- * Template-based reminder texts
+ * Template-based reminder texts (Chinese Traditional)
  */
-const REMINDER_TEMPLATES = {
+const REMINDER_TEMPLATES_ZH = {
   favorable: [
     '今日宜動宜進取,適合推進計畫與合作 ✨',
     '今日運勢順遂,把握機會展現自我 🌟',
@@ -234,9 +234,33 @@ const REMINDER_TEMPLATES = {
 };
 
 /**
- * Tag templates based on overall favorability
+ * Template-based reminder texts (English)
  */
-const TAG_TEMPLATES: Record<'favorable' | 'unfavorable' | 'neutral', DailyTag[]> = {
+const REMINDER_TEMPLATES_EN = {
+  favorable: [
+    'Today is favorable for action and progress ✨',
+    'Today brings good fortune, seize opportunities to shine 🌟',
+    'Today\'s energy aligns well, ideal for important decisions and communication 💫',
+    'Today is full of vitality, perfect for starting new endeavors 🎯'
+  ],
+  unfavorable: [
+    'Today calls for caution and patience 🍃',
+    'Today favors a low profile, avoid risks and conflicts 🌙',
+    'Today is best for rest and reflection, stay calm and steady ⛰️',
+    'Today requires prudence and conservative approach 🛡️'
+  ],
+  neutral: [
+    'Today is calm and steady ☁️',
+    'Today brings balanced energy, go with the flow 🌾',
+    'Today is neither particularly fortunate nor challenging, maintain your routine 🌸',
+    'Today is peaceful and smooth, keep a calm mind ✨'
+  ]
+};
+
+/**
+ * Tag templates based on overall favorability (Chinese Traditional)
+ */
+const TAG_TEMPLATES_ZH: Record<'favorable' | 'unfavorable' | 'neutral', DailyTag[]> = {
   favorable: [
     { label: '宜動', type: 'success' },
     { label: '吉順', type: 'success' }
@@ -252,31 +276,56 @@ const TAG_TEMPLATES: Record<'favorable' | 'unfavorable' | 'neutral', DailyTag[]>
 };
 
 /**
+ * Tag templates based on overall favorability (English)
+ */
+const TAG_TEMPLATES_EN: Record<'favorable' | 'unfavorable' | 'neutral', DailyTag[]> = {
+  favorable: [
+    { label: 'Active', type: 'success' },
+    { label: 'Auspicious', type: 'success' }
+  ],
+  unfavorable: [
+    { label: 'Cautious', type: 'warning' },
+    { label: 'Careful', type: 'warning' }
+  ],
+  neutral: [
+    { label: 'Stable', type: 'info' },
+    { label: 'Peaceful', type: 'info' }
+  ]
+};
+
+/**
  * Generate daily reminder text and tags based on interactions
  *
  * Uses template-based approach (no AI):
  * - Selects template based on overall favorability
  * - Uses simple hash to ensure same date always gets same template
  * - Adds appropriate tags
+ * - Supports multiple locales (zh-TW, en)
  *
  * @param interactions - Interaction summary from detectDailyInteractions()
  * @param date - The date for the reminder (used for consistent template selection)
+ * @param locale - Locale for templates ('zh-TW' or 'en', default: 'zh-TW')
  * @returns Daily reminder object with text and tags
  */
 export function generateDailyReminder(
   interactions: { overall: 'favorable' | 'unfavorable' | 'neutral' },
-  date: Date = new Date()
+  date: Date = new Date(),
+  locale: 'zh-TW' | 'en' = 'zh-TW'
 ): DailyReminder {
   const { overall } = interactions;
 
+  // Select templates based on locale
+  const reminderTemplates = locale === 'en' ? REMINDER_TEMPLATES_EN : REMINDER_TEMPLATES_ZH;
+  const tagTemplates = locale === 'en' ? TAG_TEMPLATES_EN : TAG_TEMPLATES_ZH;
+
   // Select template based on date (ensures consistency)
-  const templates = REMINDER_TEMPLATES[overall];
+  const templates = reminderTemplates[overall];
   const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
   const hash = dateKey.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const templateIndex = hash % templates.length;
 
   const text = templates[templateIndex];
-  const tags = TAG_TEMPLATES[overall];
+  const tags = tagTemplates[overall];
 
   return {
     text,

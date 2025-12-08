@@ -80,8 +80,8 @@ onMounted(() => {
         <div class="nav-brand">
           <router-link to="/" class="brand-link">
             <h1>{{ $t('common.app_name') }}</h1>
-            <span class="brand-subtitle">八字 × 紫微 × AI</span>
           </router-link>
+          <span class="brand-subtitle">{{ $t('common.brand_subtitle') }}</span>
         </div>
 
         <!-- 桌面版導航菜單 -->
@@ -91,7 +91,7 @@ onMounted(() => {
             class="nav-link"
             :class="{ active: route?.path === '/' }"
           >
-            首頁
+            {{ $t('navigation.home') }}
           </router-link>
 
           <router-link
@@ -110,7 +110,7 @@ onMounted(() => {
             }"
             @click="handleAIAnalysis"
           >
-            <span>佩璇性格分析</span>
+            <span>{{ $t('navigation.personality') }}</span>
           </button>
           <button
             class="nav-link advanced-analysis-btn"
@@ -119,16 +119,8 @@ onMounted(() => {
             }"
             @click="handleAdvancedAnalysis"
           >
-            <span>佩璇運勢分析</span>
+            <span>{{ $t('navigation.fortune') }}</span>
           </button>
-          <router-link
-            to="/daily"
-            class="nav-link nav-link-daily"
-            :class="{ active: route?.path === '/daily' }"
-          >
-            每日提醒
-            <span class="nav-badge">NEW</span>
-          </router-link>
         </div>
 
         <div class="nav-controls">
@@ -155,7 +147,7 @@ onMounted(() => {
           :class="{ active: route?.path === '/' }"
           @click="closeMobileMenu"
         >
-          首頁
+          {{ $t('navigation.home') }}
         </router-link>
 
         <router-link
@@ -175,7 +167,7 @@ onMounted(() => {
           }"
           @click="handleAIAnalysis"
         >
-          <span>佩璇性格分析</span>
+          <span>{{ $t('navigation.personality') }}</span>
         </button>
         <button
           class="mobile-nav-link advanced-analysis-btn"
@@ -184,17 +176,8 @@ onMounted(() => {
           }"
           @click="handleAdvancedAnalysis"
         >
-          <span>佩璇運勢分析</span>
+          <span>{{ $t('navigation.fortune') }}</span>
         </button>
-        <router-link
-          to="/daily"
-          class="mobile-nav-link mobile-nav-link-daily"
-          :class="{ active: route?.path === '/daily' }"
-          @click="closeMobileMenu"
-        >
-          每日提醒
-          <span class="nav-badge">NEW</span>
-        </router-link>
       </div>
     </header>
 
@@ -207,24 +190,23 @@ onMounted(() => {
       <div class="footer-content">
         <div class="footer-section">
           <h4>{{ $t('common.app_name') }}</h4>
-          <p>傳統命理智慧，現代科技精算</p>
+          <p>{{ $t('footer.tagline') }}</p>
         </div>
         <div class="footer-section">
-          <h4>服務項目</h4>
+          <h4>{{ $t('footer.services') }}</h4>
           <div class="footer-links">
-            <router-link to="/">首頁</router-link>
+            <router-link to="/">{{ $t('navigation.home') }}</router-link>
             <router-link to="/unified">{{
               $t('astrology.unified')
             }}</router-link>
-            <router-link to="/personality">佩璇性格分析</router-link>
-            <router-link to="/fortune">佩璇運勢分析</router-link>
-            <router-link to="/daily">每日運勢提醒</router-link>
+            <router-link to="/personality">{{ $t('navigation.personality') }}</router-link>
+            <router-link to="/fortune">{{ $t('navigation.fortune') }}</router-link>
           </div>
         </div>
         <div class="footer-section">
-          <h4>聯絡資訊</h4>
-          <p>© 2025 佩璇命理服務平台</p>
-          <p>版權所有，保留一切權利</p>
+          <h4>{{ $t('footer.contact') }}</h4>
+          <p>{{ $t('footer.copyright', { appName: $t('common.app_name') }) }}</p>
+          <p>{{ $t('footer.rights') }}</p>
           <p class="footer-licenses">
             Built with
             <a
@@ -398,24 +380,6 @@ onMounted(() => {
   transform: translateY(-1px);
 }
 
-/* NEW 徽章樣式 */
-.nav-badge {
-  font-size: 0.65rem;
-  background: #67c23a;
-  color: white;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-weight: 700;
-  margin-left: 4px;
-  vertical-align: middle;
-}
-
-.nav-link-daily {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
 .nav-controls {
   display: flex;
   align-items: center;
@@ -566,13 +530,6 @@ onMounted(() => {
 
 .mobile-menu .advanced-analysis-btn:not(.disabled):hover {
   transform: translateX(8px);
-}
-
-/* 移動版每日提醒連結 */
-.mobile-nav-link-daily {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 /* 主要內容區域 */

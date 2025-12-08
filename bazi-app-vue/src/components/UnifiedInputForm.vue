@@ -7,39 +7,39 @@
     label-position="top"
     @submit.prevent="submitForm"
   >
-    <el-form-item label="出生資訊" />
+    <el-form-item :label="$t('unifiedForm.birth_info')" />
 
-    <el-form-item label="出生日期" prop="birthDate">
+    <el-form-item :label="$t('unifiedForm.birth_date')" prop="birthDate">
       <el-date-picker
         id="birth-date"
         v-model="formData.birthDate"
         type="date"
-        placeholder="請選擇出生日期"
+        :placeholder="$t('unifiedForm.birth_date_placeholder')"
         value-format="YYYY-MM-DD"
       />
     </el-form-item>
 
-    <el-form-item label="出生時間" prop="birthTime">
+    <el-form-item :label="$t('unifiedForm.birth_time')" prop="birthTime">
       <el-time-picker
         v-model="formData.birthTime"
-        placeholder="請選擇出生時間"
+        :placeholder="$t('unifiedForm.birth_time_placeholder')"
         format="HH:mm"
         value-format="HH:mm"
       />
     </el-form-item>
 
-    <el-form-item label="性別" prop="gender">
+    <el-form-item :label="$t('unifiedForm.gender')" prop="gender">
       <el-radio-group v-model="formData.gender">
-        <el-radio value="male">男</el-radio>
-        <el-radio value="female">女</el-radio>
+        <el-radio value="male">{{ $t('unifiedForm.gender_male') }}</el-radio>
+        <el-radio value="female">{{ $t('unifiedForm.gender_female') }}</el-radio>
       </el-radio-group>
     </el-form-item>
 
     <!-- 中文地址輸入 -->
-    <el-form-item label="出生地址或地標">
+    <el-form-item :label="$t('unifiedForm.address_label')">
       <el-input
         v-model="addressInput"
-        placeholder="請輸入地址或地標，例如：台北101、台中火車站、高雄85大樓"
+        :placeholder="$t('unifiedForm.address_placeholder')"
         :loading="geocoding"
         clearable
         @input="handleAddressInput"
@@ -51,7 +51,7 @@
             type="primary"
             @click="geocodeCurrentAddress"
           >
-            查詢座標
+            {{ $t('unifiedForm.geocode_button') }}
           </el-button>
         </template>
       </el-input>
@@ -59,7 +59,7 @@
       <!-- 說明文字 -->
       <div class="field-hint">
         <el-text type="info" size="small">
-          💡 支援地標、完整地址或郵遞區號，系統會自動查詢座標
+          {{ $t('unifiedForm.address_hint') }}
         </el-text>
       </div>
 
@@ -74,7 +74,7 @@
       <el-select
         v-if="candidateAddresses.length > 1"
         v-model="selectedCandidateIndex"
-        placeholder="發現多個匹配地址，請選擇最準確的"
+        :placeholder="$t('unifiedForm.candidate_select_placeholder')"
         class="candidate-select"
         @change="selectCandidate"
       >
@@ -89,7 +89,7 @@
 
     <!-- 精確地理位置輸入 -->
     <el-form-item
-      label="出生地點座標（必填）"
+      :label="$t('unifiedForm.location_label')"
       prop="location"
       class="location-form-item"
     >
@@ -98,14 +98,14 @@
           <el-form-item prop="longitude">
             <el-input
               v-model.number="formData.longitude"
-              placeholder="經度（必填）"
+              :placeholder="$t('unifiedForm.longitude_placeholder')"
               type="number"
               :min="-180"
               :max="180"
               :step="0.000001"
               class="coordinate-input"
             >
-              <template #prepend>經度</template>
+              <template #prepend>{{ $t('unifiedForm.longitude') }}</template>
             </el-input>
           </el-form-item>
         </div>
@@ -113,14 +113,14 @@
           <el-form-item prop="latitude">
             <el-input
               v-model.number="formData.latitude"
-              placeholder="緯度"
+              :placeholder="$t('unifiedForm.latitude_placeholder')"
               type="number"
               :min="-90"
               :max="90"
               :step="0.000001"
               class="coordinate-input"
             >
-              <template #prepend>緯度</template>
+              <template #prepend>{{ $t('unifiedForm.latitude') }}</template>
             </el-input>
           </el-form-item>
         </div>
@@ -128,7 +128,7 @@
           <el-select
             v-model="formData.timezone"
             filterable
-            placeholder="時區"
+            :placeholder="$t('unifiedForm.timezone_placeholder')"
             class="timezone-select"
           >
             <el-option
@@ -141,16 +141,16 @@
         </div>
       </div>
       <el-text type="warning" size="small" class="coordinate-warning">
-        ⚠️ 經度為必填項目，用於精確計算
+        {{ $t('unifiedForm.coordinate_warning') }}
       </el-text>
     </el-form-item>
 
     <!-- 快速城市選擇（可選） -->
-    <el-form-item label="快速選擇：常用城市">
+    <el-form-item :label="$t('unifiedForm.city_label')">
       <el-select
         v-model="selectedCity"
         filterable
-        placeholder="選擇城市快速填入座標"
+        :placeholder="$t('unifiedForm.city_placeholder')"
         class="city-select"
         clearable
         @change="fillCityCoordinates"
@@ -166,7 +166,7 @@
       <!-- 說明文字 -->
       <div class="field-hint">
         <el-text type="info" size="small">
-          💡 不確定地址？可以先選擇最接近的城市
+          {{ $t('unifiedForm.city_hint') }}
         </el-text>
       </div>
     </el-form-item>
@@ -190,7 +190,7 @@
           class="submit-btn"
           @click="submitForm"
         >
-          {{ hasCache ? '已有快取命盤' : '開始計算' }}
+          {{ hasCache ? $t('unifiedForm.submit_button_cached') : $t('unifiedForm.submit_button') }}
         </el-button>
         <el-popover
           v-if="hasCache"
@@ -204,17 +204,17 @@
               type="warning"
               :icon="Delete"
               class="clear-btn"
-              aria-label="清除快取"
+              :aria-label="$t('unifiedForm.clear_cache')"
               :aria-describedby="
                 showClearCachePopover ? 'clear-cache-popover' : undefined
               "
               @click="toggleClearCachePopover"
             >
-              清除快取
+              {{ $t('unifiedForm.clear_cache') }}
             </el-button>
           </template>
           <div id="clear-cache-popover" role="tooltip">
-            清除快取後可重新計算
+            {{ $t('unifiedForm.clear_cache_confirm') }}
           </div>
         </el-popover>
       </div>

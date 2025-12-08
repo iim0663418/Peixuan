@@ -25,13 +25,11 @@ import { useI18n } from 'vue-i18n';
 const { locale } = useI18n();
 const currentLocale = ref(locale.value);
 
-// 從 sessionStorage 讀取保存的語言設定
+// 從 sessionStorage 或瀏覽器語言偏好讀取語言設定
 function loadLanguagePreference(): string {
   try {
-    const savedLocale =
-      sessionStorage.getItem('preferred-language') ||
-      localStorage.getItem('preferred-language');
-    // 移除對簡體中文的支持
+    // 優先從 sessionStorage 讀取
+    const savedLocale = sessionStorage.getItem('preferred-language');
     if (savedLocale && ['en', 'zh_TW'].includes(savedLocale)) {
       return savedLocale;
     }
@@ -46,7 +44,28 @@ function loadLanguagePreference(): string {
     );
   }
 
-  // 如果沒有保存的設定，預設使用繁體中文
+  // 如果沒有保存的設定，從瀏覽器語言偏好獲取
+  try {
+    const browserLang = navigator.language || navigator.languages?.[0];
+    if (browserLang) {
+      // 英文環境
+      if (browserLang.startsWith('en')) {
+        return 'en';
+      }
+      // 繁體中文環境 (zh-TW, zh-HK, zh-Hant)
+      if (browserLang.startsWith('zh-TW') || browserLang.startsWith('zh-HK') || browserLang.includes('Hant')) {
+        return 'zh_TW';
+      }
+      // 簡體中文環境也導向繁體中文
+      if (browserLang.startsWith('zh')) {
+        return 'zh_TW';
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to detect browser language:', error);
+  }
+
+  // 最終預設使用繁體中文
   return 'zh_TW';
 }
 

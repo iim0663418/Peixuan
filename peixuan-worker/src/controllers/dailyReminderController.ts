@@ -28,6 +28,7 @@ export class DailyReminderController {
    * @param db - D1 database instance
    * @param chartId - Chart UUID
    * @param date - Date for the reminder (ISO 8601 string or Date object)
+   * @param locale - Locale for the reminder (default: 'zh-TW', supports: 'zh-TW', 'en')
    * @returns Daily reminder with text and tags
    * @throws Error if chart not found or invalid data
    *
@@ -36,14 +37,16 @@ export class DailyReminderController {
    * const reminder = await controller.getDailyReminder(
    *   env.DB,
    *   'abc-123',
-   *   '2025-12-06T00:00:00.000Z'
+   *   '2025-12-06T00:00:00.000Z',
+   *   'zh-TW'
    * );
    * // Returns: { text: '...', tags: [...] }
    */
   async getDailyReminder(
     db: D1Database,
     chartId: string,
-    date: string | Date
+    date: string | Date,
+    locale: string = 'zh-TW'
   ): Promise<DailyReminder> {
     try {
       // Step 1: Query chart data from D1
@@ -85,9 +88,9 @@ export class DailyReminderController {
       const interactions = detectDailyInteractions(chartData, dailyStemBranch);
 
       // Step 6: Generate reminder
-      const reminder = generateDailyReminder(interactions, targetDate);
+      const reminder = generateDailyReminder(interactions, targetDate, locale);
 
-      console.log(`[getDailyReminder] Success - chartId: ${chartId}, date: ${targetDate.toISOString()}, overall: ${interactions.overall}`);
+      console.log(`[getDailyReminder] Success - chartId: ${chartId}, date: ${targetDate.toISOString()}, overall: ${interactions.overall}, locale: ${locale}`);
 
       return reminder;
     } catch (error) {
@@ -102,9 +105,11 @@ export class DailyReminderController {
       // For other errors, return fallback reminder
       console.warn('[getDailyReminder] Returning fallback reminder due to error');
       return {
-        text: '今日平安順遂,保持平常心 ✨',
+        text: locale === 'en'
+          ? 'Today is peaceful and smooth, keep a calm mind ✨'
+          : '今日平安順遂,保持平常心 ✨',
         tags: [
-          { label: '平安', type: 'info' }
+          { label: locale === 'en' ? 'Peaceful' : '平安', type: 'info' }
         ]
       };
     }

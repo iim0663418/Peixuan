@@ -1,4 +1,4 @@
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { advancedAnalysisRecords, type AdvancedAnalysisRecord, type InsertAdvancedAnalysisRecord } from '../db/schema';
 
@@ -10,13 +10,15 @@ import { advancedAnalysisRecords, type AdvancedAnalysisRecord, type InsertAdvanc
  */
 export class AdvancedAnalysisCacheService {
   /**
-   * Get an advanced analysis record by chart ID
+   * Get an advanced analysis record by chart ID and analysis type
    * @param chartId - The chart ID to query
+   * @param analysisType - The analysis type (e.g., 'ai-advanced-zh-TW', 'ai-advanced-en')
    * @param env - Cloudflare Worker environment containing DB binding
    * @returns The advanced analysis record or null if not found or expired (>24 hours)
    */
   async getAnalysis(
     chartId: string,
+    analysisType: string,
     env: { DB: D1Database }
   ): Promise<AdvancedAnalysisRecord | null> {
     const db = drizzle(env.DB);
@@ -24,7 +26,10 @@ export class AdvancedAnalysisCacheService {
     const result = await db
       .select()
       .from(advancedAnalysisRecords)
-      .where(eq(advancedAnalysisRecords.chartId, chartId))
+      .where(and(
+        eq(advancedAnalysisRecords.chartId, chartId),
+        eq(advancedAnalysisRecords.analysisType, analysisType)
+      ))
       .orderBy(desc(advancedAnalysisRecords.createdAt))
       .limit(1);
 
@@ -45,11 +50,13 @@ export class AdvancedAnalysisCacheService {
   /**
    * Save a new advanced analysis record
    * @param chartId - The chart ID this analysis belongs to
+   * @param analysisType - The analysis type (e.g., 'ai-advanced-zh-TW', 'ai-advanced-en')
    * @param result - The advanced analysis result data
    * @param env - Cloudflare Worker environment containing DB binding
    */
   async saveAnalysis(
     chartId: string,
+    analysisType: string,
     result: any,
     env: { DB: D1Database }
   ): Promise<void> {
@@ -60,6 +67,7 @@ export class AdvancedAnalysisCacheService {
     const newAnalysis: InsertAdvancedAnalysisRecord = {
       id: analysisId,
       chartId,
+      analysisType,
       result,
       createdAt: new Date().toISOString(),
     };

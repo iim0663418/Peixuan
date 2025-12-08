@@ -1,29 +1,30 @@
 # Peixuan 專案進度（摘要）
 
-專案：佩璇 - 智能命理分析平台  
-階段：Week 2 完成 | 進度 71.5/62h (115%)  
-最後更新：2025-12-06 13:38
+- 專案：佩璇 - 智能命理分析平台
+- 階段：Week 2 完成，進度 71.5/62h (115%)
+- 最後更新：2025-12-08 13:24
 
-## 最新進度
-- 2025-12-06 13:38：新增 RWD 適配風險與解決方案表格至設計文件，涵蓋 Glassmorphism 性能、背景動畫、圖表重構、觸控優化四大面向。
-- 2025-12-06 13:35：完成「夢幻神秘風」設計規劃微調，整合使用者建議（標點停頓、Markdown 關鍵詞、覆蓋層玻璃化），更新 `doc/夢幻神秘風完整實作規劃.md`。
-- 2025-12-06：`/daily`、`/personality`、`/fortune` 路由驗證完成；SiHuaAggregationCard ElAlert 類型修正為 `error`（符合 Element Plus）。
-- 2025-12-04 20:26：運勢分析新增四化頂層能量匯總與中心性統計（壓力/資源節點、總飛化邊數），Prompt 與範例更新；部署至 Staging（b0d38d3a-560a-4f59-8b4e-7d6973f89e35），健康檢查通過。
-- 2025-12-04 20:18：四柱算法校正後完成影響分析（441 測試 426/441 通過，失敗與四柱無關），結論：無負面影響；報告 `doc/算法影響分析報告_2025-12-04.md`。
-- 2025-12-04 20:13：八字算法驗算完成（年/月/日/時柱 + 真太陽時），符合度 100%；報告 `doc/八字算法驗算報告_2025-12-04.md`。
-- 2025-12-04 19:14：真太陽時模組驗證（經度 + 均時差校正），新增 Date 參數重載與 6 項測試，全數通過。
+## Week 2 核心成就
+- 多語言 AI 體驗優化：中英文 prompt 分離、英文 SSE 掛起修復、Gemini 30→45s 超時、佩璇風格錯誤訊息、即時 loading
+- 進階分析緩存修復：DB migration 0003 + analysisType 複合索引，中英文獨立緩存；/analyze/check 預檢查；快取命中 0.118s（180x）
+- RWD/設計：夢幻神秘風規劃 + RWD 風險表格、Navbar/Footer 觸控與設計系統化、hover 依賴剝離
+- 算法校正：真太陽時模組、四化頂層能量 + 中心性統計、八字/算法驗算報告更新（35/36=97%，441 測試 96.6%）
+- Prompt 敘事化：性格/運勢分工、敘事輸出、personalityOnly 模式、token 調整
+- 部署治理：Staging 先行、Prod 僅 CI/CD；快取/健康檢查流程建立
 
-## 當前狀態
-- Staging：最新部署 b0d38d3a-560a-4f59-8b4e-7d6973f89e35，health OK。
-- Production：近期版本 b42e8091-1f60-42e8-b52a-96e86893f943，health OK。
-- ESLint：前端 6 errors / 120 warnings；後端 3597 issues。
-- 測試：LanguageSelector 測試需再確認（先前 6 失敗）；缺實機與性能基準測試。
+## 最新進展（2025-12-08）
+- 年運雙流年 Phase2.5：YearlyPeriod/YearlyForecast 擴充 taiSuiAnalysis + interactions + currentDayun；markdownFormatter/AnnualFortuneCard 雙流年輸出；yearlyForecast 20/20 測試通過
+- SSE 回歸：清空 advanced_analysis_records（1 筆）後，進階/年運分析 SSE 26 chunks、約 30 秒完成，模型聚焦主要期間（丙午年 83.9%）
+- 路由/格式：unifiedRoutes 支援 `?format=markdown`，Markdown 版本完整輸出雙流年太歲與干支交互
+- 品牌資產：透明背景 favicon/apple-touch-icon（深紫 + 金色星盤）更新，前端重編譯；Staging 05f55f76/1dde0dde 已生效
+- 部署：Staging bbbec4fa（Phase2.5）、f674224c（Markdown query）、05f55f76/1dde0dde（圖示）；Production 28efc232/b42e8091/ff462e5a/8880b8b2 穩定
 
-## 待辦事項
-- **夢幻神秘風實作** (R1-R4, 1.5h)：打字機標點停頓、Markdown 關鍵詞高亮、Element Plus 覆蓋層玻璃化、文件更新與回歸測試。
-- 新增服務介紹頁（/），說明平台功能與特色。
-- 清零 ESLint：前端 6 errors/120 warnings；後端 3597 issues。
-- 語言切換與儲存流程回歸測試（LanguageSelector）。
-- 時區處理增強：歷史時區變化與夏令時支援。
-- RWD Phase 2：即時表單驗證；圖表數據精煉與類型簡化；表格模式評估與實作（橫向滾動/卡片/優先級隱藏）；觸控手勢支援。
-- DevOps：文件化 `wrangler dev` 流程；完善 CI/CD 測試工作流；處理後端 npm 4 個 moderate 漏洞。
+## 當前品質/風險
+- 前端 ESLint 0 errors / 126 warnings；後端 ESLint 3597 issues；後端 npm 4 moderate 漏洞
+- DST/歷史時區處理、實機/性能基準測試、服務介紹頁、RWD Phase2-6、LanguageSelector 測試待處理
+
+## 待辦事項（優先）
+1. 推生產部署年運 Phase2.5 並監控 SSE/快取
+2. 夢幻神秘風實作與 RWD Phase2-6 進度拉動
+3. ESLint/依賴漏洞分批清理；補 DST/歷史時區支援與實機/性能測試
+4. 建立服務介紹頁與相關文件

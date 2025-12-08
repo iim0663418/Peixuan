@@ -1,5 +1,5 @@
 import { sql, relations } from 'drizzle-orm';
-import { sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, uniqueIndex, index } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import type { z } from 'zod';
 
@@ -55,8 +55,8 @@ export const advancedAnalysisRecords = sqliteTable('advanced_analysis_records', 
 	result: text('result', { mode: 'json' }).notNull(),
 	createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 }, (table) => ({
-	chartIdTypeIdx: uniqueIndex('idx_advanced_analysis_chart_id_type').on(table.chartId, table.analysisType),
-	createdAtIdx: uniqueIndex('idx_advanced_analysis_created_at').on(table.createdAt),
+	chartIdTypeIdx: index('idx_advanced_analysis_chart_id_type').on(table.chartId, table.analysisType),
+	createdAtIdx: index('idx_advanced_analysis_created_at').on(table.createdAt),
 }));
 
 // ---- RELATIONS ----

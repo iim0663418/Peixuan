@@ -799,3 +799,16 @@
 - **影響**: 新增 callGeminiStreamWithRetry 方法實施指數退避重試策略（最多 3 次）；專門處理 503 Service Unavailable 和 429 Too Many Requests 錯誤；4xx 客戶端錯誤（除 429 外）不進行重試；每次嘗試 45 秒超時；修改 analyzeChartStream 和 analyzeAdvancedStream 使用新的重試機制
 - **狀態**: 完成 ✓（已通過代碼審查和構建驗證）
 
+
+## 2025-12-16: TypeScript Global Types Fix for Cloudflare Workers
+
+### 決策：修復 Cloudflare Workers 環境中的 TypeScript 全域類型定義
+- **背景**: geminiService.ts 出現 TypeScript 錯誤，找不到 ReadableStream、AbortController、setTimeout、console、fetch、clearTimeout 等全域變數
+- **影響**:
+  - 更新 peixuan-worker/tsconfig.json 添加 WebWorker 和 DOM 庫
+  - 新增 @cloudflare/workers-types 開發依賴
+  - 配置 tsconfig.json 使用 @cloudflare/workers-types 提供正確的類型定義
+  - 解決所有 TypeScript 類型錯誤，構建成功通過
+- **替代方案**: 創建自定義 global.d.ts 文件（放棄，@cloudflare/workers-types 更完整且維護良好）
+- **狀態**: 完成 ✓（構建驗證通過）
+

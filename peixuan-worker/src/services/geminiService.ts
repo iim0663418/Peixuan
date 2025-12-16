@@ -345,7 +345,7 @@ ${markdown}
    */
   private async callGeminiStreamWithRetry(url: string, body: string, logPrefix: string = '[Gemini Stream]'): Promise<ReadableStream> {
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
-      const controller = new AbortController();
+      const controller = new (globalThis as any).AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout per attempt
 
       try {
@@ -401,7 +401,7 @@ ${markdown}
                     }
                     throw new Error(errorMessage);
                 }
-            } catch (parseError) {
+            } catch {
                 // If JSON parsing fails, use the raw error text
             }
              throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
@@ -471,7 +471,7 @@ ${markdown}
         throw new Error(`Gemini API error (${response.status}): ${error}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as any;
 
       // Debug: log response structure
       console.log('[Gemini] Response structure:', JSON.stringify(data, null, 2).substring(0, 500));

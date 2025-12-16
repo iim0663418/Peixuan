@@ -812,3 +812,16 @@
 - **替代方案**: 創建自定義 global.d.ts 文件（放棄，@cloudflare/workers-types 更完整且維護良好）
 - **狀態**: 完成 ✓（構建驗證通過）
 
+
+## 2025-12-16: ESLint and TypeScript Errors Fix
+
+### 決策：修復 geminiService.ts 中剩餘的 ESLint 和 TypeScript 錯誤
+- **背景**: 雖然構建通過，但仍有 ESLint no-undef、no-unused-vars 和 TypeScript unknown 類型錯誤
+- **影響**:
+  - 修復 AbortController 未定義：使用 globalThis 訪問 Web API
+  - 移除未使用的 parseError 變數：改為空 catch 語句
+  - 修復 data 類型未知：為 response.json() 添加 as any 類型斷言
+  - 所有修改都是最小化變更，不重構複雜邏輯
+- **替代方案**: 重構整個錯誤處理邏輯（放棄，過度工程化）
+- **狀態**: 完成 ✓（構建和 ESLint 驗證通過）
+

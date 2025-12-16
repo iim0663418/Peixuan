@@ -34339,7 +34339,7 @@ ${markdown}
    */
   async callGeminiStreamWithRetry(url2, body, logPrefix = "[Gemini Stream]") {
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
-      const controller = new AbortController();
+      const controller = new globalThis.AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 45e3);
       try {
         if (attempt > 1) {
@@ -34385,7 +34385,7 @@ ${markdown}
               }
               throw new Error(errorMessage);
             }
-          } catch (parseError) {
+          } catch {
           }
           throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
         }

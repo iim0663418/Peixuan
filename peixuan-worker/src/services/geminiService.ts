@@ -69,87 +69,25 @@ export class GeminiService {
     const prompt = this.buildAnalysisPrompt(markdown, locale);
     const url = `${this.baseUrl}/${this.model}:streamGenerateContent`;
 
-    console.log(`[Gemini Stream] Fetching URL: ${url}`);
-
-    // Add timeout to prevent hanging
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': this.apiKey,
-        },
-        body: JSON.stringify({
-          contents: [
+    const body = JSON.stringify({
+      contents: [
+        {
+          parts: [
             {
-              parts: [
-                {
-                  text: prompt,
-                },
-              ],
+              text: prompt,
             },
           ],
-          generationConfig: {
-            temperature: 0.85,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 6144,  // Increased for comprehensive personality analysis
-          },
-        }),
-        signal: controller.signal,
-      });
+        },
+      ],
+      generationConfig: {
+        temperature: 0.85,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 6144,  // Increased for comprehensive personality analysis
+      },
+    });
 
-      clearTimeout(timeoutId);
-      console.log(`[Gemini Stream] Response status: ${response.status} ${response.statusText}`);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`[Gemini Stream] Error response: ${errorText}`);
-        
-        // Try to parse error JSON to extract retry delay
-        try {
-          const errorJson = JSON.parse(errorText);
-          if (errorJson.error) {
-            let errorMessage = errorJson.error.message || 'Unknown error';
-            
-            // Extract retry delay from error details
-            if (errorJson.error.details) {
-              const retryInfo = errorJson.error.details.find((d: any) => d['@type']?.includes('RetryInfo'));
-              if (retryInfo?.retryDelay) {
-                const seconds = parseInt(retryInfo.retryDelay.replace('s', ''));
-                errorMessage += ` Please retry in ${seconds}s`;
-              }
-            }
-            
-            throw new Error(errorMessage);
-          }
-        } catch (parseError) {
-          // If JSON parsing fails, use the raw error text
-        }
-        
-        throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
-      }
-
-      if (!response.body) {
-        console.error('[Gemini Stream] No response body received');
-        throw new Error('No response body from Gemini streaming API');
-      }
-
-      console.log('[Gemini Stream] Stream established successfully');
-      return response.body;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      
-      // Handle abort/timeout error
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('Request timeout - Gemini API took too long to respond');
-      }
-      
-      throw error;
-    }
+    return this.callGeminiStreamWithRetry(url, body, '[Gemini Stream]');
   }
 
   /**
@@ -163,87 +101,25 @@ export class GeminiService {
     const prompt = this.buildAdvancedAnalysisPrompt(markdown, locale);
     const url = `${this.baseUrl}/${this.model}:streamGenerateContent`;
 
-    console.log(`[Gemini Advanced Stream] Fetching URL: ${url}`);
-
-    // Add timeout to prevent hanging
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': this.apiKey,
-        },
-        body: JSON.stringify({
-          contents: [
+    const body = JSON.stringify({
+      contents: [
+        {
+          parts: [
             {
-              parts: [
-                {
-                  text: prompt,
-                },
-              ],
+              text: prompt,
             },
           ],
-          generationConfig: {
-            temperature: 0.85,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 6144,  // Increased to match personality analysis
-          },
-        }),
-        signal: controller.signal,
-      });
+        },
+      ],
+      generationConfig: {
+        temperature: 0.85,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 6144,  // Increased to match personality analysis
+      },
+    });
 
-      clearTimeout(timeoutId);
-      console.log(`[Gemini Advanced Stream] Response status: ${response.status} ${response.statusText}`);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[Gemini Advanced Stream] Error response: ${errorText}`);
-      
-      // Try to parse error JSON to extract retry delay
-      try {
-        const errorJson = JSON.parse(errorText);
-        if (errorJson.error) {
-          let errorMessage = errorJson.error.message || 'Unknown error';
-          
-          // Extract retry delay from error details
-          if (errorJson.error.details) {
-            const retryInfo = errorJson.error.details.find((d: any) => d['@type']?.includes('RetryInfo'));
-            if (retryInfo?.retryDelay) {
-              const seconds = parseInt(retryInfo.retryDelay.replace('s', ''));
-              errorMessage += ` Please retry in ${seconds}s`;
-            }
-          }
-          
-          throw new Error(errorMessage);
-        }
-      } catch (parseError) {
-        // If JSON parsing fails, use the raw error text
-      }
-      
-      throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
-    }
-
-    if (!response.body) {
-      console.error('[Gemini Advanced Stream] No response body received');
-      throw new Error('No response body from Gemini streaming API');
-    }
-
-    console.log('[Gemini Advanced Stream] Stream established successfully');
-    return response.body;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      
-      // Handle abort/timeout error
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('Request timeout - Gemini API took too long to respond');
-      }
-      
-      throw error;
-    }
+    return this.callGeminiStreamWithRetry(url, body, '[Gemini Advanced Stream]');
   }
 
   /**
@@ -462,6 +338,97 @@ ${markdown}
 ---
 
 嗨嗨！好我看看～來幫你做進階深度分析吧～`;
+  }
+
+  /**
+   * Internal method to call Gemini Stream with retry logic
+   */
+  private async callGeminiStreamWithRetry(url: string, body: string, logPrefix: string = '[Gemini Stream]'): Promise<ReadableStream> {
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout per attempt
+
+      try {
+        if (attempt > 1) {
+            console.log(`${logPrefix} Retry attempt ${attempt}/${this.maxRetries}...`);
+        } else {
+            console.log(`${logPrefix} Fetching URL: ${url}`);
+        }
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': this.apiKey,
+          },
+          body: body,
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+            console.log(`${logPrefix} Response status: ${response.status} ${response.statusText}`);
+            if (!response.body) {
+                console.error(`${logPrefix} No response body received`);
+                throw new Error('No response body from Gemini streaming API');
+            }
+            console.log(`${logPrefix} Stream established successfully`);
+            return response.body;
+        }
+
+        const errorText = await response.text();
+        console.error(`${logPrefix} Error response (Attempt ${attempt}): ${errorText}`);
+
+        // Stop retrying if it's a client error (4xx), unless it's 429 (Too Many Requests)
+        if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+             throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
+        }
+
+        // For 503, 429, or other server errors, we continue to retry loop unless it's the last attempt
+        if (attempt === this.maxRetries) {
+             // Try to parse error JSON to extract retry delay
+            try {
+                const errorJson = JSON.parse(errorText);
+                if (errorJson.error) {
+                    let errorMessage = errorJson.error.message || 'Unknown error';
+                    if (errorJson.error.details) {
+                        const retryInfo = errorJson.error.details.find((d: any) => d['@type']?.includes('RetryInfo'));
+                        if (retryInfo?.retryDelay) {
+                            const seconds = parseInt(retryInfo.retryDelay.replace('s', ''));
+                            errorMessage += ` Please retry in ${seconds}s`;
+                        }
+                    }
+                    throw new Error(errorMessage);
+                }
+            } catch (parseError) {
+                // If JSON parsing fails, use the raw error text
+            }
+             throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
+        }
+
+        // Backoff
+        const backoff = Math.pow(2, attempt) * 1000;
+        console.log(`${logPrefix} Retrying in ${backoff}ms...`);
+        await this.sleep(backoff);
+
+      } catch (error: any) {
+        clearTimeout(timeoutId);
+
+        if (attempt === this.maxRetries) {
+            if (error.name === 'AbortError') {
+                throw new Error('Request timeout - Gemini API took too long to respond');
+            }
+            throw error;
+        }
+
+         const backoff = Math.pow(2, attempt) * 1000;
+         console.log(`${logPrefix} Exception: ${error.message}. Retrying in ${backoff}ms...`);
+         await this.sleep(backoff);
+      }
+    }
+
+    throw new Error('Unexpected error in callGeminiStreamWithRetry');
   }
 
   /**

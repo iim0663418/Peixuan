@@ -792,3 +792,10 @@
 - **範例**: 出生 1990-01-01, 起運 2000-01-01 (10歲) → 第一大運 10-20 歲（修正前 0-10 歲）
 - **替代方案**: 保持相對年齡（放棄，用戶體驗差）
 - **狀態**: 完成 ✓
+## 2025-12-16: Gemini API 503 Error Handling Hotfix
+
+### 決策：實施 Gemini API 重試機制以處理 503 Service Unavailable 錯誤
+- **背景**: 佩璇運勢分析常態出現 Gemini streaming API 503 Service Unavailable 錯誤，影響用戶體驗
+- **影響**: 新增 callGeminiStreamWithRetry 方法實施指數退避重試策略（最多 3 次）；專門處理 503 Service Unavailable 和 429 Too Many Requests 錯誤；4xx 客戶端錯誤（除 429 外）不進行重試；每次嘗試 45 秒超時；修改 analyzeChartStream 和 analyzeAdvancedStream 使用新的重試機制
+- **狀態**: 完成 ✓（已通過代碼審查和構建驗證）
+

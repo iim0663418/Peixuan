@@ -301,9 +301,9 @@ var init_dist = __esm({
             week = _SolarWeek.fromYmd(solar.getYear(), solar.getMonth(), solar.getDay(), start);
             let weekMonth = week.getMonth();
             if (month !== weekMonth) {
-              const index = week.getIndex();
+              const index2 = week.getIndex();
               if (plus) {
-                if (1 === index) {
+                if (1 === index2) {
                   const firstDay = week.getFirstDay();
                   week = _SolarWeek.fromYmd(firstDay.getYear(), firstDay.getMonth(), firstDay.getDay(), start);
                   weekMonth = week.getMonth();
@@ -312,7 +312,7 @@ var init_dist = __esm({
                   week = _SolarWeek.fromYmd(solar.getYear(), solar.getMonth(), solar.getDay(), start);
                 }
               } else {
-                if (SolarUtil.getWeeksOfMonth(week.getYear(), week.getMonth(), start) === index) {
+                if (SolarUtil.getWeeksOfMonth(week.getYear(), week.getMonth(), start) === index2) {
                   const lastDay = week.getFirstDay().next(6);
                   week = _SolarWeek.fromYmd(lastDay.getYear(), lastDay.getMonth(), lastDay.getDay(), start);
                   weekMonth = week.getMonth();
@@ -340,15 +340,15 @@ var init_dist = __esm({
         return solar.next(-prev);
       }
       getFirstDayInMonth() {
-        let index = 0;
+        let index2 = 0;
         const days = this.getDays();
         for (let i = 0; i < days.length; i++) {
           if (this._month === days[i].getMonth()) {
-            index = i;
+            index2 = i;
             break;
           }
         }
-        return days[index];
+        return days[index2];
       }
       getDays() {
         const firstDay = this.getFirstDay();
@@ -413,9 +413,9 @@ var init_dist = __esm({
         const day = _LunarUtil.hex(_LunarUtil.getJiaZiIndex(dayGanZhi));
         const month = _LunarUtil.hex(_LunarUtil.getJiaZiIndex(monthGanZhi));
         let right = _LunarUtil.DAY_YI_JI;
-        let index = right.indexOf(day + "=");
-        while (index > -1) {
-          right = right.substring(index + 3);
+        let index2 = right.indexOf(day + "=");
+        while (index2 > -1) {
+          right = right.substring(index2 + 3);
           let left = right;
           if (left.indexOf("=") > -1) {
             left = left.substring(0, left.indexOf("=") - 2);
@@ -436,7 +436,7 @@ var init_dist = __esm({
             }
             break;
           }
-          index = right.indexOf(day + "=");
+          index2 = right.indexOf(day + "=");
         }
         if (l.length < 1) {
           l.push(_LunarUtil.SHEN_SHA[0]);
@@ -448,9 +448,9 @@ var init_dist = __esm({
         const day = _LunarUtil.hex(_LunarUtil.getJiaZiIndex(dayGanZhi));
         const month = _LunarUtil.hex(_LunarUtil.getJiaZiIndex(monthGanZhi));
         let right = _LunarUtil.DAY_YI_JI;
-        let index = right.indexOf(day + "=");
-        while (index > -1) {
-          right = right.substring(index + 3);
+        let index2 = right.indexOf(day + "=");
+        while (index2 > -1) {
+          right = right.substring(index2 + 3);
           let left = right;
           if (left.indexOf("=") > -1) {
             left = left.substring(0, left.indexOf("=") - 2);
@@ -470,7 +470,7 @@ var init_dist = __esm({
             }
             break;
           }
-          index = right.indexOf(day + "=");
+          index2 = right.indexOf(day + "=");
         }
         if (l.length < 1) {
           l.push(_LunarUtil.SHEN_SHA[0]);
@@ -483,11 +483,11 @@ var init_dist = __esm({
         if (m < 0) {
           m += 12;
         }
-        let index = _LunarUtil.getJiaZiIndex(dayGanZhi).toString(16).toUpperCase();
-        if (index.length < 2) {
-          index = "0" + index;
+        let index2 = _LunarUtil.getJiaZiIndex(dayGanZhi).toString(16).toUpperCase();
+        if (index2.length < 2) {
+          index2 = "0" + index2;
         }
-        const matcher = new RegExp(`;${index}(.[^;]*)`, "g").exec(_LunarUtil.DAY_SHEN_SHA[m]);
+        const matcher = new RegExp(`;${index2}(.[^;]*)`, "g").exec(_LunarUtil.DAY_SHEN_SHA[m]);
         if (matcher) {
           const data = matcher[1];
           for (let i = 0, j = data.length; i < j; i += 2) {
@@ -508,11 +508,11 @@ var init_dist = __esm({
         if (m < 0) {
           m += 12;
         }
-        let index = _LunarUtil.getJiaZiIndex(dayGanZhi).toString(16).toUpperCase();
-        if (index.length < 2) {
-          index = "0" + index;
+        let index2 = _LunarUtil.getJiaZiIndex(dayGanZhi).toString(16).toUpperCase();
+        if (index2.length < 2) {
+          index2 = "0" + index2;
         }
-        const matcher = new RegExp(`;${index}(.[^;]*)`, "g").exec(_LunarUtil.DAY_SHEN_SHA[m]);
+        const matcher = new RegExp(`;${index2}(.[^;]*)`, "g").exec(_LunarUtil.DAY_SHEN_SHA[m]);
         if (matcher) {
           const data = matcher[1];
           for (let i = 0, j = data.length; i < j; i += 2) {
@@ -531,9 +531,9 @@ var init_dist = __esm({
         const l = [];
         const day = _LunarUtil.hex(_LunarUtil.getJiaZiIndex(dayGanZhi));
         const time3 = _LunarUtil.hex(_LunarUtil.getJiaZiIndex(timeGanZhi));
-        const index = _LunarUtil.TIME_YI_JI.indexOf(day + time3 + "=");
-        if (index > -1) {
-          let left = _LunarUtil.TIME_YI_JI.substring(index + 5);
+        const index2 = _LunarUtil.TIME_YI_JI.indexOf(day + time3 + "=");
+        if (index2 > -1) {
+          let left = _LunarUtil.TIME_YI_JI.substring(index2 + 5);
           if (left.indexOf("=") > -1) {
             left = left.substring(0, left.indexOf("=") - 4);
           }
@@ -551,9 +551,9 @@ var init_dist = __esm({
         const l = [];
         const day = _LunarUtil.hex(_LunarUtil.getJiaZiIndex(dayGanZhi));
         const time3 = _LunarUtil.hex(_LunarUtil.getJiaZiIndex(timeGanZhi));
-        const index = _LunarUtil.TIME_YI_JI.indexOf(day + time3 + "=");
-        if (index > -1) {
-          let left = _LunarUtil.TIME_YI_JI.substring(index + 5);
+        const index2 = _LunarUtil.TIME_YI_JI.indexOf(day + time3 + "=");
+        if (index2 > -1) {
+          let left = _LunarUtil.TIME_YI_JI.substring(index2 + 5);
           if (left.indexOf("=") > -1) {
             left = left.substring(0, left.indexOf("=") - 4);
           }
@@ -2195,9 +2195,9 @@ var init_dist = __esm({
       }
     };
     LiuYue = class {
-      constructor(liuNian, index) {
+      constructor(liuNian, index2) {
         this._liuNian = liuNian;
-        this._index = index;
+        this._index = index2;
       }
       getIndex() {
         return this._index;
@@ -4487,10 +4487,10 @@ var init_dist = __esm({
       }
     };
     LiuNian = class {
-      constructor(daYun, index) {
-        this._year = daYun.getStartYear() + index;
-        this._age = daYun.getStartAge() + index;
-        this._index = index;
+      constructor(daYun, index2) {
+        this._year = daYun.getStartYear() + index2;
+        this._age = daYun.getStartAge() + index2;
+        this._index = index2;
         this._daYun = daYun;
         this._lunar = daYun.getLunar();
       }
@@ -4529,10 +4529,10 @@ var init_dist = __esm({
       }
     };
     XiaoYun = class {
-      constructor(daYun, index, forward) {
-        this._year = daYun.getStartYear() + index;
-        this._age = daYun.getStartAge() + index;
-        this._index = index;
+      constructor(daYun, index2, forward) {
+        this._year = daYun.getStartYear() + index2;
+        this._age = daYun.getStartAge() + index2;
+        this._index = index2;
         this._daYun = daYun;
         this._lunar = daYun.getLunar();
         this._forward = forward;
@@ -4568,7 +4568,7 @@ var init_dist = __esm({
       }
     };
     DaYun = class {
-      constructor(yun, index) {
+      constructor(yun, index2) {
         const lunar = yun.getLunar();
         const birthYear = lunar.getSolar().getYear();
         const year = yun.getStartSolar().getYear();
@@ -4576,8 +4576,8 @@ var init_dist = __esm({
         let startAge = 1;
         let endYear = year - 1;
         let endAge = year - birthYear;
-        if (index >= 1) {
-          startYear = year + (index - 1) * 10;
+        if (index2 >= 1) {
+          startYear = year + (index2 - 1) * 10;
           startAge = startYear - birthYear + 1;
           endYear = startYear + 9;
           endAge = startAge + 9;
@@ -4586,7 +4586,7 @@ var init_dist = __esm({
         this._endYear = endYear;
         this._startAge = startAge;
         this._endAge = endAge;
-        this._index = index;
+        this._index = index2;
         this._yun = yun;
         this._lunar = lunar;
       }
@@ -4795,14 +4795,14 @@ var init_dist = __esm({
         if (offset == void 0) {
           return "";
         }
-        let index = offset + (this.getDayGanIndex() % 2 == 0 ? zhiIndex : -zhiIndex);
-        if (index >= 12) {
-          index -= 12;
+        let index2 = offset + (this.getDayGanIndex() % 2 == 0 ? zhiIndex : -zhiIndex);
+        if (index2 >= 12) {
+          index2 -= 12;
         }
-        if (index < 0) {
-          index += 12;
+        if (index2 < 0) {
+          index2 += 12;
         }
-        return LunarUtil.CHANG_SHENG[index];
+        return LunarUtil.CHANG_SHENG[index2];
       }
       getYearDiShi() {
         return this.getDiShi(this._lunar.getYearZhiIndexExact());
@@ -5026,11 +5026,11 @@ var init_dist = __esm({
       }
     };
     _NineStar = class {
-      static fromIndex(index) {
-        return new _NineStar(index);
+      static fromIndex(index2) {
+        return new _NineStar(index2);
       }
-      constructor(index) {
-        this._index = index;
+      constructor(index2) {
+        this._index = index2;
       }
       getNumber() {
         return NineStarUtil.NUMBER[this._index];
@@ -5127,9 +5127,9 @@ var init_dist = __esm({
     NineStar.SONG_TAI_YI = ["\u95E8\u4E2D\u592A\u4E59\u660E\uFF0C\u661F\u5B98\u53F7\u8D2A\u72FC\uFF0C\u8D4C\u5F69\u8D22\u559C\u65FA\uFF0C\u5A5A\u59FB\u5927\u5409\u660C\uFF0C\u51FA\u5165\u65E0\u963B\u6321\uFF0C\u53C2\u8C12\u89C1\u8D24\u826F\uFF0C\u6B64\u884C\u4E09\u4E94\u91CC\uFF0C\u9ED1\u8863\u522B\u9634\u9633\u3002", "\u95E8\u524D\u89C1\u6444\u63D0\uFF0C\u767E\u4E8B\u5FC5\u5FE7\u7591\uFF0C\u76F8\u751F\u72B9\u81EA\u53EF\uFF0C\u76F8\u514B\u7978\u5FC5\u4E34\uFF0C\u6B7B\u95E8\u5E76\u76F8\u4F1A\uFF0C\u8001\u5987\u54ED\u60B2\u557C\uFF0C\u6C42\u8C0B\u5E76\u5409\u4E8B\uFF0C\u5C3D\u7686\u4E0D\u76F8\u5B9C\uFF0C\u53EA\u53EF\u85CF\u9690\u9041\uFF0C\u82E5\u52A8\u4F24\u8EAB\u75BE\u3002", "\u51FA\u5165\u4F1A\u8F69\u8F95\uFF0C\u51E1\u4E8B\u5FC5\u7F20\u7275\uFF0C\u76F8\u751F\u5168\u4E0D\u7F8E\uFF0C\u76F8\u514B\u66F4\u5FE7\u714E\uFF0C\u8FDC\u884C\u591A\u4E0D\u5229\uFF0C\u535A\u5F69\u5C3D\u8F93\u94B1\uFF0C\u4E5D\u5929\u7384\u5973\u6CD5\uFF0C\u53E5\u53E5\u4E0D\u865A\u8A00\u3002", "\u62DB\u6447\u53F7\u6728\u661F\uFF0C\u5F53\u4E4B\u4E8B\u83AB\u884C\uFF0C\u76F8\u514B\u884C\u4EBA\u963B\uFF0C\u9634\u4EBA\u53E3\u820C\u8FCE\uFF0C\u68A6\u5BD0\u591A\u60CA\u60E7\uFF0C\u5C4B\u54CD\u65A7\u81EA\u9E23\uFF0C\u9634\u9633\u6D88\u606F\u7406\uFF0C\u4E07\u6CD5\u5F17\u8FDD\u60C5\u3002", "\u4E94\u9B3C\u4E3A\u5929\u7B26\uFF0C\u5F53\u95E8\u9634\u5973\u8C0B\uFF0C\u76F8\u514B\u65E0\u597D\u4E8B\uFF0C\u884C\u8DEF\u963B\u4E2D\u9014\uFF0C\u8D70\u5931\u96BE\u5BFB\u89C5\uFF0C\u9053\u9022\u6709\u5C3C\u59D1\uFF0C\u6B64\u661F\u5F53\u95E8\u503C\uFF0C\u4E07\u4E8B\u6709\u707E\u9664\u3002", "\u795E\u5149\u8DC3\u9752\u9F99\uFF0C\u8D22\u6C14\u559C\u91CD\u91CD\uFF0C\u6295\u5165\u6709\u9152\u98DF\uFF0C\u8D4C\u5F69\u6700\u5174\u9686\uFF0C\u66F4\u9022\u76F8\u751F\u65FA\uFF0C\u4F11\u8A00\u514B\u7834\u51F6\uFF0C\u89C1\u8D35\u5B89\u8425\u5BE8\uFF0C\u4E07\u4E8B\u603B\u5409\u540C\u3002", "\u543E\u5C06\u4E3A\u54B8\u6C60\uFF0C\u5F53\u4E4B\u5C3D\u4E0D\u5B9C\uFF0C\u51FA\u5165\u591A\u4E0D\u5229\uFF0C\u76F8\u514B\u6709\u707E\u60C5\uFF0C\u8D4C\u5F69\u5168\u8F93\u5C3D\uFF0C\u6C42\u8D22\u7A7A\u624B\u56DE\uFF0C\u4ED9\u4EBA\u771F\u5999\u8BED\uFF0C\u611A\u4EBA\u83AB\u4E0E\u77E5\uFF0C\u52A8\u7528\u865A\u60CA\u9000\uFF0C\u53CD\u590D\u9006\u98CE\u5439\u3002", "\u5750\u4E34\u592A\u9634\u661F\uFF0C\u767E\u7978\u4E0D\u76F8\u4FB5\uFF0C\u6C42\u8C0B\u6089\u6210\u5C31\uFF0C\u77E5\u4EA4\u6709\u89C5\u5BFB\uFF0C\u56DE\u98CE\u5F52\u6765\u8DEF\uFF0C\u6050\u6709\u6B83\u4F0F\u8D77\uFF0C\u5BC6\u8BED\u4E2D\u8BB0\u53D6\uFF0C\u614E\u4E4E\u83AB\u8F7B\u884C\u3002", "\u8FCE\u6765\u5929\u4E59\u661F\uFF0C\u76F8\u9022\u767E\u4E8B\u5174\uFF0C\u8FD0\u7528\u548C\u5408\u5E86\uFF0C\u8336\u9152\u559C\u76F8\u8FCE\uFF0C\u6C42\u8C0B\u5E76\u5AC1\u5A36\uFF0C\u597D\u5408\u6709\u5929\u6210\uFF0C\u7978\u798F\u5982\u795E\u9A8C\uFF0C\u5409\u51F6\u751A\u5206\u660E\u3002"];
     NineStar.LUCK_QI_MEN = ["\u5927\u51F6", "\u5927\u51F6", "\u5C0F\u5409", "\u5927\u5409", "\u5927\u5409", "\u5927\u5409", "\u5C0F\u51F6", "\u5C0F\u5409", "\u5C0F\u51F6"];
     ShuJiu = class {
-      constructor(name, index) {
+      constructor(name, index2) {
         this._name = name;
-        this._index = index;
+        this._index = index2;
       }
       getName() {
         return this._name;
@@ -5140,8 +5140,8 @@ var init_dist = __esm({
       getIndex() {
         return this._index;
       }
-      setIndex(index) {
-        this._index = index;
+      setIndex(index2) {
+        this._index = index2;
       }
       toString() {
         return this.getName();
@@ -5151,9 +5151,9 @@ var init_dist = __esm({
       }
     };
     Fu = class {
-      constructor(name, index) {
+      constructor(name, index2) {
         this._name = name;
-        this._index = index;
+        this._index = index2;
       }
       getName() {
         return this._name;
@@ -5164,8 +5164,8 @@ var init_dist = __esm({
       getIndex() {
         return this._index;
       }
-      setIndex(index) {
-        this._index = index;
+      setIndex(index2) {
+        this._index = index2;
       }
       toString() {
         return this.getName();
@@ -5178,12 +5178,12 @@ var init_dist = __esm({
       static fromYm(lunarYear, lunarMonth) {
         return LunarYear.fromYear(lunarYear).getMonth(lunarMonth);
       }
-      constructor(lunarYear, lunarMonth, dayCount, firstJulianDay, index) {
+      constructor(lunarYear, lunarMonth, dayCount, firstJulianDay, index2) {
         this._year = lunarYear;
         this._month = lunarMonth;
         this._dayCount = dayCount;
         this._firstJulianDay = firstJulianDay;
-        this._index = index;
+        this._index = index2;
         this._zhiIndex = (Math.abs(lunarMonth) - 1 + LunarUtil.BASE_MONTH_ZHI_INDEX) % 12;
       }
       getYear() {
@@ -5272,10 +5272,10 @@ var init_dist = __esm({
         return LunarUtil.POSITION_DESC[this.getPositionTaiSui()];
       }
       getNineStar() {
-        const index = LunarYear.fromYear(this._year).getZhiIndex() % 3;
+        const index2 = LunarYear.fromYear(this._year).getZhiIndex() % 3;
         const m = Math.abs(this._month);
         const monthZhiIndex = (13 + m) % 12;
-        let n2 = 27 - index * 3;
+        let n2 = 27 - index2 * 3;
         if (monthZhiIndex < LunarUtil.BASE_MONTH_ZHI_INDEX) {
           n2 -= 3;
         }
@@ -5293,7 +5293,7 @@ var init_dist = __esm({
           let ny = this._year;
           let iy = ny;
           let im = this._month;
-          let index = 0;
+          let index2 = 0;
           let months = LunarYear.fromYear(ny).getMonths();
           if (n2 > 0) {
             while (true) {
@@ -5301,11 +5301,11 @@ var init_dist = __esm({
               for (let i = 0; i < size; i++) {
                 const m = months[i];
                 if (m.getYear() === iy && m.getMonth() === im) {
-                  index = i;
+                  index2 = i;
                   break;
                 }
               }
-              const more = size - index - 1;
+              const more = size - index2 - 1;
               if (rest < more) {
                 break;
               }
@@ -5316,28 +5316,28 @@ var init_dist = __esm({
               ny++;
               months = LunarYear.fromYear(ny).getMonths();
             }
-            return months[index + rest];
+            return months[index2 + rest];
           } else {
             while (true) {
               const size = months.length;
               for (let i = 0; i < size; i++) {
                 const m = months[i];
                 if (m.getYear() === iy && m.getMonth() === im) {
-                  index = i;
+                  index2 = i;
                   break;
                 }
               }
-              if (rest <= index) {
+              if (rest <= index2) {
                 break;
               }
-              rest -= index;
+              rest -= index2;
               const firstMonth = months[0];
               iy = firstMonth.getYear();
               im = firstMonth.getMonth();
               ny--;
               months = LunarYear.fromYear(ny).getMonths();
             }
-            return months[index - rest];
+            return months[index2 - rest];
           }
         }
       }
@@ -8711,7 +8711,7 @@ var init_dist = __esm({
         }
         const ymc = [11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         let fm = -1;
-        let index = -1;
+        let index2 = -1;
         let y = prevYear;
         for (i = 0; i < 15; i++) {
           const dm = hs[i] + Solar.J2000;
@@ -8726,11 +8726,11 @@ var init_dist = __esm({
           }
           if (fm == -1) {
             fm = mc;
-            index = mc;
+            index2 = mc;
           }
           if (mc < fm) {
             y += 1;
-            index = 1;
+            index2 = 1;
           }
           fm = mc;
           if (i == leapIndex) {
@@ -8738,8 +8738,8 @@ var init_dist = __esm({
           } else if (dm == 1729794 || dm == 1808699) {
             mc = -11;
           }
-          this._months.push(new LunarMonth(y, mc, dayCounts[i], hs[i] + Solar.J2000, index));
-          index++;
+          this._months.push(new LunarMonth(y, mc, dayCounts[i], hs[i] + Solar.J2000, index2));
+          index2++;
         }
       }
       getYear() {
@@ -8810,23 +8810,23 @@ var init_dist = __esm({
       toFullString() {
         return `${this.getYear()}\u5E74`;
       }
-      _getZaoByGan(index, name) {
+      _getZaoByGan(index2, name) {
         const month = this.getMonth(1);
         if (null == month) {
           return "";
         }
-        let offset = index - Solar.fromJulianDay(month.getFirstJulianDay()).getLunar().getDayGanIndex();
+        let offset = index2 - Solar.fromJulianDay(month.getFirstJulianDay()).getLunar().getDayGanIndex();
         if (offset < 0) {
           offset += 10;
         }
         return name.replace("\u51E0", LunarUtil.NUMBER[offset + 1]);
       }
-      _getZaoByZhi(index, name) {
+      _getZaoByZhi(index2, name) {
         const month = this.getMonth(1);
         if (null == month) {
           return "";
         }
-        let offset = index - Solar.fromJulianDay(month.getFirstJulianDay()).getLunar().getDayZhiIndex();
+        let offset = index2 - Solar.fromJulianDay(month.getFirstJulianDay()).getLunar().getDayZhiIndex();
         if (offset < 0) {
           offset += 12;
         }
@@ -8881,9 +8881,9 @@ var init_dist = __esm({
         return _LunarYear.YUN[Math.floor((this._year + 2696) / 20) % 9] + "\u8FD0";
       }
       getNineStar() {
-        const index = LunarUtil.getJiaZiIndex(this.getGanZhi()) + 1;
+        const index2 = LunarUtil.getJiaZiIndex(this.getGanZhi()) + 1;
         const yuan = Math.floor(this._year + 2696) / 60 % 3;
-        let offset = (62 + yuan * 3 - index) % 9;
+        let offset = (62 + yuan * 3 - index2) % 9;
         if (0 == offset) {
           offset = 9;
         }
@@ -9043,8 +9043,8 @@ var init_dist = __esm({
         }
         const offset = asc2 ? [0, 3, 6] : [8, 5, 2];
         const start = offset[this._lunar.getDayZhiIndex() % 3];
-        const index = asc2 ? start + this._zhiIndex : start + 9 - this._zhiIndex;
-        return NineStar.fromIndex(index % 9);
+        const index2 = asc2 ? start + this._zhiIndex : start + 9 - this._zhiIndex;
+        return NineStar.fromIndex(index2 % 9);
       }
       getXun() {
         return LunarUtil.getXun(this.getGanZhi());
@@ -9453,7 +9453,7 @@ var init_dist = __esm({
         const ymd = solar.toYmd();
         const time3 = solar.toYmdHms();
         const size = LunarUtil.JIE_QI_IN_USE.length;
-        let index = -3;
+        let index2 = -3;
         for (let i = 0; i < size; i += 2) {
           end = o2.jieQi[LunarUtil.JIE_QI_IN_USE[i]];
           const symd = null == start ? ymd : start.toYmd();
@@ -9461,13 +9461,13 @@ var init_dist = __esm({
             break;
           }
           start = end;
-          index++;
+          index2++;
         }
-        let offset = ((o2.yearGanIndexByLiChun + (index < 0 ? 1 : 0)) % 5 + 1) * 2 % 10;
-        o2.monthGanIndex = ((index < 0 ? index + 10 : index) + offset) % 10;
-        o2.monthZhiIndex = ((index < 0 ? index + 12 : index) + LunarUtil.BASE_MONTH_ZHI_INDEX) % 12;
+        let offset = ((o2.yearGanIndexByLiChun + (index2 < 0 ? 1 : 0)) % 5 + 1) * 2 % 10;
+        o2.monthGanIndex = ((index2 < 0 ? index2 + 10 : index2) + offset) % 10;
+        o2.monthZhiIndex = ((index2 < 0 ? index2 + 12 : index2) + LunarUtil.BASE_MONTH_ZHI_INDEX) % 12;
         start = null;
-        index = -3;
+        index2 = -3;
         for (let i = 0; i < size; i += 2) {
           end = o2.jieQi[LunarUtil.JIE_QI_IN_USE[i]];
           const stime = null == start ? time3 : start.toYmdHms();
@@ -9475,11 +9475,11 @@ var init_dist = __esm({
             break;
           }
           start = end;
-          index++;
+          index2++;
         }
-        offset = ((o2.yearGanIndexExact + (index < 0 ? 1 : 0)) % 5 + 1) * 2 % 10;
-        o2.monthGanIndexExact = ((index < 0 ? index + 10 : index) + offset) % 10;
-        o2.monthZhiIndexExact = ((index < 0 ? index + 12 : index) + LunarUtil.BASE_MONTH_ZHI_INDEX) % 12;
+        offset = ((o2.yearGanIndexExact + (index2 < 0 ? 1 : 0)) % 5 + 1) * 2 % 10;
+        o2.monthGanIndexExact = ((index2 < 0 ? index2 + 10 : index2) + offset) % 10;
+        o2.monthZhiIndexExact = ((index2 < 0 ? index2 + 12 : index2) + LunarUtil.BASE_MONTH_ZHI_INDEX) % 12;
       }
       static _computeDay(o2, solar, hour, minute) {
         const noon = Solar.fromYmdHms(solar.getYear(), solar.getMonth(), solar.getDay(), 12, 0, 0);
@@ -10301,8 +10301,8 @@ var init_dist = __esm({
       }
       _getYearNineStar(yearInGanZhi) {
         const indexExact = LunarUtil.getJiaZiIndex(yearInGanZhi) + 1;
-        const index = LunarUtil.getJiaZiIndex(this.getYearInGanZhi()) + 1;
-        let yearOffset = indexExact - index;
+        const index2 = LunarUtil.getJiaZiIndex(this.getYearInGanZhi()) + 1;
+        let yearOffset = indexExact - index2;
         if (yearOffset > 1) {
           yearOffset -= 60;
         } else if (yearOffset < -1) {
@@ -10383,8 +10383,8 @@ var init_dist = __esm({
         }
         const offset = asc2 ? [0, 3, 6] : [8, 5, 2];
         const start = offset[this.getDayZhiIndex() % 3];
-        const index = asc2 ? start + this._timeZhiIndex : start + 9 - this._timeZhiIndex;
-        return NineStar.fromIndex(index % 9);
+        const index2 = asc2 ? start + this._timeZhiIndex : start + 9 - this._timeZhiIndex;
+        return NineStar.fromIndex(index2 % 9);
       }
       getSolar() {
         return this._solar;
@@ -10668,11 +10668,11 @@ var init_dist = __esm({
       getWuHou() {
         const jieQi = this.getPrevJieQi(true);
         const jq = LunarUtil.find(jieQi.getName(), LunarUtil.JIE_QI);
-        let index = Math.floor(this._solar.subtract(jieQi.getSolar()) / 5);
-        if (index > 2) {
-          index = 2;
+        let index2 = Math.floor(this._solar.subtract(jieQi.getSolar()) / 5);
+        if (index2 > 2) {
+          index2 = 2;
         }
-        return LunarUtil.WU_HOU[(jq.index * 3 + index) % LunarUtil.WU_HOU.length];
+        return LunarUtil.WU_HOU[(jq.index * 3 + index2) % LunarUtil.WU_HOU.length];
       }
       getHou() {
         const jieQi = this.getPrevJieQi(true);
@@ -10976,32 +10976,32 @@ var init_dist = __esm({
         return this.getXingZuo();
       }
       getXingZuo() {
-        let index = 11;
+        let index2 = 11;
         const y = this._month * 100 + this._day;
         if (y >= 321 && y <= 419) {
-          index = 0;
+          index2 = 0;
         } else if (y >= 420 && y <= 520) {
-          index = 1;
+          index2 = 1;
         } else if (y >= 521 && y <= 621) {
-          index = 2;
+          index2 = 2;
         } else if (y >= 622 && y <= 722) {
-          index = 3;
+          index2 = 3;
         } else if (y >= 723 && y <= 822) {
-          index = 4;
+          index2 = 4;
         } else if (y >= 823 && y <= 922) {
-          index = 5;
+          index2 = 5;
         } else if (y >= 923 && y <= 1023) {
-          index = 6;
+          index2 = 6;
         } else if (y >= 1024 && y <= 1122) {
-          index = 7;
+          index2 = 7;
         } else if (y >= 1123 && y <= 1221) {
-          index = 8;
+          index2 = 8;
         } else if (y >= 1222 || y <= 119) {
-          index = 9;
+          index2 = 9;
         } else if (y <= 218) {
-          index = 10;
+          index2 = 10;
         }
-        return SolarUtil.XINGZUO[index];
+        return SolarUtil.XINGZUO[index2];
       }
       /**
        * 获取薪资比例(感谢 https://gitee.com/smr1987)
@@ -11531,8 +11531,8 @@ var init_time = __esm({
 });
 
 // src/calculation/core/ganZhi/conversion.ts
-function indexToGanZhi(index) {
-  const normalizedIndex = (index % 60 + 60) % 60;
+function indexToGanZhi(index2) {
+  const normalizedIndex = (index2 % 60 + 60) % 60;
   const stemIndex = normalizedIndex % 10;
   const branchIndex = normalizedIndex % 12;
   return {
@@ -11671,8 +11671,8 @@ function calculateMonthPillar(solarLongitude, yearStemIndex) {
   return indexToGanZhi(pillarIndex);
 }
 function calculateDayPillar(jdn) {
-  const index = ((jdn - 2448851) % 60 + 60) % 60;
-  return indexToGanZhi(index);
+  const index2 = ((jdn - 2448851) % 60 + 60) % 60;
+  return indexToGanZhi(index2);
 }
 function calculateHourPillar(hourOrDate, minuteOrDayStemIndex, dayStemIndex) {
   if (hourOrDate instanceof Date) {
@@ -12320,7 +12320,7 @@ var init_qiyun = __esm({
     "use strict";
     init_solarTerms();
     YANG_STEMS = ["\u7532", "\u4E19", "\u620A", "\u5E9A", "\u58EC"];
-    JIE_TERMS = SOLAR_TERMS.filter((_, index) => index % 2 === 0);
+    JIE_TERMS = SOLAR_TERMS.filter((_, index2) => index2 % 2 === 0);
   }
 });
 
@@ -15729,8 +15729,8 @@ function haveSameKeys(left, right) {
   if (leftKeys.length !== rightKeys.length) {
     return false;
   }
-  for (const [index, key] of leftKeys.entries()) {
-    if (key !== rightKeys[index]) {
+  for (const [index2, key] of leftKeys.entries()) {
+    if (key !== rightKeys[index2]) {
       return false;
     }
   }
@@ -17056,8 +17056,8 @@ var Index = class {
     this.config = { ...config2, table };
   }
 };
-function uniqueIndex(name) {
-  return new IndexBuilderOn(name, true);
+function index(name) {
+  return new IndexBuilderOn(name, false);
 }
 
 // node_modules/drizzle-orm/sqlite-core/utils.js
@@ -17403,8 +17403,8 @@ var SQLiteDialect = class {
     }
     const joinsArray = [];
     if (joins) {
-      for (const [index, joinMeta] of joins.entries()) {
-        if (index === 0) {
+      for (const [index2, joinMeta] of joins.entries()) {
+        if (index2 === 0) {
           joinsArray.push(sql` `);
         }
         const table = joinMeta.table;
@@ -17422,7 +17422,7 @@ var SQLiteDialect = class {
             sql`${sql.raw(joinMeta.joinType)} join ${table}${onSql}`
           );
         }
-        if (index < joins.length - 1) {
+        if (index2 < joins.length - 1) {
           joinsArray.push(sql` `);
         }
       }
@@ -17435,9 +17435,9 @@ var SQLiteDialect = class {
   buildOrderBy(orderBy) {
     const orderByList = [];
     if (orderBy) {
-      for (const [index, orderByValue] of orderBy.entries()) {
+      for (const [index2, orderByValue] of orderBy.entries()) {
         orderByList.push(orderByValue);
-        if (index < orderBy.length - 1) {
+        if (index2 < orderBy.length - 1) {
           orderByList.push(sql`, `);
         }
       }
@@ -17486,9 +17486,9 @@ var SQLiteDialect = class {
     const havingSql = having ? sql` having ${having}` : void 0;
     const groupByList = [];
     if (groupBy) {
-      for (const [index, groupByValue] of groupBy.entries()) {
+      for (const [index2, groupByValue] of groupBy.entries()) {
         groupByList.push(groupByValue);
-        if (index < groupBy.length - 1) {
+        if (index2 < groupBy.length - 1) {
           groupByList.push(sql`, `);
         }
       }
@@ -22710,11 +22710,11 @@ var $ZodDate = /* @__PURE__ */ $constructor("$ZodDate", (inst, def) => {
     return payload;
   };
 });
-function handleArrayResult(result, final, index) {
+function handleArrayResult(result, final, index2) {
   if (result.issues.length) {
-    final.issues.push(...prefixIssues(index, result.issues));
+    final.issues.push(...prefixIssues(index2, result.issues));
   }
-  final.value[index] = result.value;
+  final.value[index2] = result.value;
 }
 var $ZodArray = /* @__PURE__ */ $constructor("$ZodArray", (inst, def) => {
   $ZodType.init(inst, def);
@@ -23122,14 +23122,14 @@ function mergeValues(a2, b) {
       return { valid: false, mergeErrorPath: [] };
     }
     const newArray = [];
-    for (let index = 0; index < a2.length; index++) {
-      const itemA = a2[index];
-      const itemB = b[index];
+    for (let index2 = 0; index2 < a2.length; index2++) {
+      const itemA = a2[index2];
+      const itemB = b[index2];
       const sharedValue = mergeValues(itemA, itemB);
       if (!sharedValue.valid) {
         return {
           valid: false,
-          mergeErrorPath: [index, ...sharedValue.mergeErrorPath]
+          mergeErrorPath: [index2, ...sharedValue.mergeErrorPath]
         };
       }
       newArray.push(sharedValue.data);
@@ -23222,11 +23222,11 @@ var $ZodTuple = /* @__PURE__ */ $constructor("$ZodTuple", (inst, def) => {
     return payload;
   };
 });
-function handleTupleResult(result, final, index) {
+function handleTupleResult(result, final, index2) {
   if (result.issues.length) {
-    final.issues.push(...prefixIssues(index, result.issues));
+    final.issues.push(...prefixIssues(index2, result.issues));
   }
-  final.value[index] = result.value;
+  final.value[index2] = result.value;
 }
 var $ZodRecord = /* @__PURE__ */ $constructor("$ZodRecord", (inst, def) => {
   $ZodType.init(inst, def);
@@ -32893,8 +32893,8 @@ var advancedAnalysisRecords = sqliteTable("advanced_analysis_records", {
   result: text("result", { mode: "json" }).notNull(),
   createdAt: text("created_at").notNull().default(sql`(datetime('now'))`)
 }, (table) => ({
-  chartIdTypeIdx: uniqueIndex("idx_advanced_analysis_chart_id_type").on(table.chartId, table.analysisType),
-  createdAtIdx: uniqueIndex("idx_advanced_analysis_created_at").on(table.createdAt)
+  chartIdTypeIdx: index("idx_advanced_analysis_chart_id_type").on(table.chartId, table.analysisType),
+  createdAtIdx: index("idx_advanced_analysis_created_at").on(table.createdAt)
 }));
 var usersRelations = relations(users, ({ many }) => ({
   charts: many(chartRecords),
@@ -33250,10 +33250,10 @@ function formatFortuneCycles(result) {
   sections.push("\n### \u5927\u904B\u5217\u8868\n");
   sections.push("| \u5927\u904B | \u5E72\u652F | \u5E74\u9F61\u7BC4\u570D | \u6642\u9593\u7BC4\u570D |");
   sections.push("|------|------|----------|----------|");
-  fortuneCycles.dayunList.forEach((dayun, index) => {
+  fortuneCycles.dayunList.forEach((dayun, index2) => {
     const startYear = new Date(dayun.startDate).getFullYear();
     const endYear = new Date(dayun.endDate).getFullYear();
-    sections.push(`| \u7B2C${index + 1}\u904B | ${dayun.stem}${dayun.branch} | ${dayun.startAge}-${dayun.endAge}\u6B72 | ${startYear}-${endYear} |`);
+    sections.push(`| \u7B2C${index2 + 1}\u904B | ${dayun.stem}${dayun.branch} | ${dayun.startAge}-${dayun.endAge}\u6B72 | ${startYear}-${endYear} |`);
   });
   if (fortuneCycles.currentDayun) {
     const current = fortuneCycles.currentDayun;
@@ -33319,9 +33319,9 @@ function formatSiHua(result) {
   sections.push(`- **\u6D41\u5E74\u56DB\u5316**\uFF1A${siHuaAggregation.annualEdges} \u689D`);
   if (siHuaAggregation.cycles && siHuaAggregation.cycles.length > 0) {
     sections.push("\n### \u5FAA\u74B0\u6AA2\u6E2C");
-    siHuaAggregation.cycles.forEach((cycle, index) => {
+    siHuaAggregation.cycles.forEach((cycle, index2) => {
       sections.push(`
-**\u5FAA\u74B0 ${index + 1}**\uFF08${cycle.type}\uFF09`);
+**\u5FAA\u74B0 ${index2 + 1}**\uFF08${cycle.type}\uFF09`);
       sections.push(`- \u8DEF\u5F91\uFF1A${cycle.path.join(" \u2192 ")}`);
       sections.push(`- \u9577\u5EA6\uFF1A${cycle.length}`);
       sections.push(`- \u5F37\u5EA6\uFF1A${cycle.strength.toFixed(2)}`);
@@ -33538,18 +33538,18 @@ function formatCalculationSteps(result) {
   const sections = ["## \u{1F527} \u8A08\u7B97\u6B65\u9A5F\n"];
   if (result.bazi.calculationSteps && result.bazi.calculationSteps.length > 0) {
     sections.push("### \u516B\u5B57\u8A08\u7B97\u6B65\u9A5F");
-    result.bazi.calculationSteps.forEach((step, index) => {
+    result.bazi.calculationSteps.forEach((step, index2) => {
       sections.push(`
-**\u6B65\u9A5F ${index + 1}\uFF1A${step.description}**`);
+**\u6B65\u9A5F ${index2 + 1}\uFF1A${step.description}**`);
       sections.push(`- \u8F38\u5165\uFF1A\`${JSON.stringify(step.input)}\``);
       sections.push(`- \u8F38\u51FA\uFF1A\`${JSON.stringify(step.output)}\``);
     });
   }
   if (result.ziwei.calculationSteps && result.ziwei.calculationSteps.length > 0) {
     sections.push("\n### \u7D2B\u5FAE\u6597\u6578\u8A08\u7B97\u6B65\u9A5F");
-    result.ziwei.calculationSteps.forEach((step, index) => {
+    result.ziwei.calculationSteps.forEach((step, index2) => {
       sections.push(`
-**\u6B65\u9A5F ${index + 1}\uFF1A${step.description}**`);
+**\u6B65\u9A5F ${index2 + 1}\uFF1A${step.description}**`);
       sections.push(`- \u8F38\u5165\uFF1A\`${JSON.stringify(step.input)}\``);
       sections.push(`- \u8F38\u51FA\uFF1A\`${JSON.stringify(step.output)}\``);
     });
@@ -34076,71 +34076,25 @@ var GeminiService = class {
   async analyzeChartStream(markdown, locale = "zh-TW") {
     const prompt = this.buildAnalysisPrompt(markdown, locale);
     const url2 = `${this.baseUrl}/${this.model}:streamGenerateContent`;
-    console.log(`[Gemini Stream] Fetching URL: ${url2}`);
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45e3);
-    try {
-      const response = await fetch(url2, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": this.apiKey
-        },
-        body: JSON.stringify({
-          contents: [
+    const body = JSON.stringify({
+      contents: [
+        {
+          parts: [
             {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
+              text: prompt
             }
-          ],
-          generationConfig: {
-            temperature: 0.85,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 6144
-            // Increased for comprehensive personality analysis
-          }
-        }),
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-      console.log(`[Gemini Stream] Response status: ${response.status} ${response.statusText}`);
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`[Gemini Stream] Error response: ${errorText}`);
-        try {
-          const errorJson = JSON.parse(errorText);
-          if (errorJson.error) {
-            let errorMessage = errorJson.error.message || "Unknown error";
-            if (errorJson.error.details) {
-              const retryInfo = errorJson.error.details.find((d) => d["@type"]?.includes("RetryInfo"));
-              if (retryInfo?.retryDelay) {
-                const seconds = parseInt(retryInfo.retryDelay.replace("s", ""));
-                errorMessage += ` Please retry in ${seconds}s`;
-              }
-            }
-            throw new Error(errorMessage);
-          }
-        } catch (parseError) {
+          ]
         }
-        throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
+      ],
+      generationConfig: {
+        temperature: 0.85,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 6144
+        // Increased for comprehensive personality analysis
       }
-      if (!response.body) {
-        console.error("[Gemini Stream] No response body received");
-        throw new Error("No response body from Gemini streaming API");
-      }
-      console.log("[Gemini Stream] Stream established successfully");
-      return response.body;
-    } catch (error46) {
-      clearTimeout(timeoutId);
-      if (error46 instanceof Error && error46.name === "AbortError") {
-        throw new Error("Request timeout - Gemini API took too long to respond");
-      }
-      throw error46;
-    }
+    });
+    return this.callGeminiStreamWithRetry(url2, body, "[Gemini Stream]");
   }
   /**
    * Analyze advanced astrological data using Gemini AI with streaming
@@ -34152,71 +34106,25 @@ var GeminiService = class {
   async analyzeAdvancedStream(markdown, locale = "zh-TW") {
     const prompt = this.buildAdvancedAnalysisPrompt(markdown, locale);
     const url2 = `${this.baseUrl}/${this.model}:streamGenerateContent`;
-    console.log(`[Gemini Advanced Stream] Fetching URL: ${url2}`);
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45e3);
-    try {
-      const response = await fetch(url2, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": this.apiKey
-        },
-        body: JSON.stringify({
-          contents: [
+    const body = JSON.stringify({
+      contents: [
+        {
+          parts: [
             {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
+              text: prompt
             }
-          ],
-          generationConfig: {
-            temperature: 0.85,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 6144
-            // Increased to match personality analysis
-          }
-        }),
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-      console.log(`[Gemini Advanced Stream] Response status: ${response.status} ${response.statusText}`);
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`[Gemini Advanced Stream] Error response: ${errorText}`);
-        try {
-          const errorJson = JSON.parse(errorText);
-          if (errorJson.error) {
-            let errorMessage = errorJson.error.message || "Unknown error";
-            if (errorJson.error.details) {
-              const retryInfo = errorJson.error.details.find((d) => d["@type"]?.includes("RetryInfo"));
-              if (retryInfo?.retryDelay) {
-                const seconds = parseInt(retryInfo.retryDelay.replace("s", ""));
-                errorMessage += ` Please retry in ${seconds}s`;
-              }
-            }
-            throw new Error(errorMessage);
-          }
-        } catch (parseError) {
+          ]
         }
-        throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
+      ],
+      generationConfig: {
+        temperature: 0.85,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 6144
+        // Increased to match personality analysis
       }
-      if (!response.body) {
-        console.error("[Gemini Advanced Stream] No response body received");
-        throw new Error("No response body from Gemini streaming API");
-      }
-      console.log("[Gemini Advanced Stream] Stream established successfully");
-      return response.body;
-    } catch (error46) {
-      clearTimeout(timeoutId);
-      if (error46 instanceof Error && error46.name === "AbortError") {
-        throw new Error("Request timeout - Gemini API took too long to respond");
-      }
-      throw error46;
-    }
+    });
+    return this.callGeminiStreamWithRetry(url2, body, "[Gemini Advanced Stream]");
   }
   /**
    * Build analysis prompt for Gemini
@@ -34425,6 +34333,79 @@ ${markdown}
 ---
 
 \u55E8\u55E8\uFF01\u597D\u6211\u770B\u770B\uFF5E\u4F86\u5E6B\u4F60\u505A\u9032\u968E\u6DF1\u5EA6\u5206\u6790\u5427\uFF5E`;
+  }
+  /**
+   * Internal method to call Gemini Stream with retry logic
+   */
+  async callGeminiStreamWithRetry(url2, body, logPrefix = "[Gemini Stream]") {
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 45e3);
+      try {
+        if (attempt > 1) {
+          console.log(`${logPrefix} Retry attempt ${attempt}/${this.maxRetries}...`);
+        } else {
+          console.log(`${logPrefix} Fetching URL: ${url2}`);
+        }
+        const response = await fetch(url2, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": this.apiKey
+          },
+          body,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (response.ok) {
+          console.log(`${logPrefix} Response status: ${response.status} ${response.statusText}`);
+          if (!response.body) {
+            console.error(`${logPrefix} No response body received`);
+            throw new Error("No response body from Gemini streaming API");
+          }
+          console.log(`${logPrefix} Stream established successfully`);
+          return response.body;
+        }
+        const errorText = await response.text();
+        console.error(`${logPrefix} Error response (Attempt ${attempt}): ${errorText}`);
+        if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+          throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
+        }
+        if (attempt === this.maxRetries) {
+          try {
+            const errorJson = JSON.parse(errorText);
+            if (errorJson.error) {
+              let errorMessage = errorJson.error.message || "Unknown error";
+              if (errorJson.error.details) {
+                const retryInfo = errorJson.error.details.find((d) => d["@type"]?.includes("RetryInfo"));
+                if (retryInfo?.retryDelay) {
+                  const seconds = parseInt(retryInfo.retryDelay.replace("s", ""));
+                  errorMessage += ` Please retry in ${seconds}s`;
+                }
+              }
+              throw new Error(errorMessage);
+            }
+          } catch (parseError) {
+          }
+          throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
+        }
+        const backoff = Math.pow(2, attempt) * 1e3;
+        console.log(`${logPrefix} Retrying in ${backoff}ms...`);
+        await this.sleep(backoff);
+      } catch (error46) {
+        clearTimeout(timeoutId);
+        if (attempt === this.maxRetries) {
+          if (error46.name === "AbortError") {
+            throw new Error("Request timeout - Gemini API took too long to respond");
+          }
+          throw error46;
+        }
+        const backoff = Math.pow(2, attempt) * 1e3;
+        console.log(`${logPrefix} Exception: ${error46.message}. Retrying in ${backoff}ms...`);
+        await this.sleep(backoff);
+      }
+    }
+    throw new Error("Unexpected error in callGeminiStreamWithRetry");
   }
   /**
    * Call Gemini API

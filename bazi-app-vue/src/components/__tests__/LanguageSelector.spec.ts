@@ -1,8 +1,7 @@
-/* eslint-disable no-unused-vars */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
-import LanguageSelector from '@/components/LanguageSelector.vue';
+import LanguageSelector from '../LanguageSelector.vue';
 
 // 模擬 localStorage
 const localStorageMock = {
@@ -108,7 +107,7 @@ describe('LanguageSelector', () => {
     sessionStorageMock.getItem.mockReturnValue('zh_TW');
 
     const i18n = createTestI18n('en');
-    const wrapper = mount(LanguageSelector, {
+    mount(LanguageSelector, {
       global: {
         plugins: [i18n],
       },
@@ -128,7 +127,7 @@ describe('LanguageSelector', () => {
     sessionStorageMock.getItem.mockReturnValue(null);
 
     const i18n = createTestI18n('en');
-    const wrapper = mount(LanguageSelector, {
+    mount(LanguageSelector, {
       global: {
         plugins: [i18n],
       },
@@ -148,7 +147,7 @@ describe('LanguageSelector', () => {
     sessionStorageMock.getItem.mockReturnValue('zh');
 
     const i18n = createTestI18n('en');
-    const wrapper = mount(LanguageSelector, {
+    mount(LanguageSelector, {
       global: {
         plugins: [i18n],
       },
@@ -163,7 +162,7 @@ describe('LanguageSelector', () => {
     sessionStorageMock.getItem.mockReturnValue('invalid-locale');
 
     const i18n = createTestI18n('zh_TW');
-    const wrapper = mount(LanguageSelector, {
+    mount(LanguageSelector, {
       global: {
         plugins: [i18n],
       },
@@ -184,7 +183,7 @@ describe('LanguageSelector', () => {
       .mockImplementation(() => {});
 
     const i18n = createTestI18n('zh_TW');
-    const wrapper = mount(LanguageSelector, {
+    mount(LanguageSelector, {
       global: {
         plugins: [i18n],
       },

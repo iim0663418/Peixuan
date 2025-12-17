@@ -890,3 +890,20 @@
 - **替代方案**: 修改組件邏輯強制返回 zh_TW（放棄，會破壞正確的語言檢測功能）
 - **狀態**: 完成 ✓（所有 11 個測試通過）
 
+
+## 2025-12-17: LanguageSelector TypeScript and ESLint Fixes
+
+### 決策：修復 LanguageSelector 測試中的 TypeScript 和 ESLint 錯誤
+- **背景**: LanguageSelector.spec.ts 存在 TypeScript 導入錯誤和 ESLint 未使用變數警告
+- **影響**:
+  - 修復 TypeScript 導入路徑從 "@/components/LanguageSelector.vue" 改為 "../LanguageSelector.vue"
+  - 移除 5 個未使用的 wrapper 變數（僅需要組件掛載的測試）
+  - 保留實際需要 DOM 交互的 wrapper 變數
+  - 所有修改都不影響測試功能行為
+- **技術細節**:
+  - 使用相對路徑導入，因為測試文件在 __tests__ 子目錄中
+  - 移除的測試僅通過 i18n 實例驗證行為，不需要 DOM 操作
+  - 保持需要 DOM 交互的測試中的 wrapper 變數
+- **替代方案**: 配置路徑別名或重命名變數為 _wrapper（選擇最簡潔的修復方案）
+- **狀態**: 完成 ✓（所有測試通過，錯誤已解決）
+

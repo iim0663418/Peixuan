@@ -34394,14 +34394,15 @@ ${markdown}
         await this.sleep(backoff);
       } catch (error46) {
         clearTimeout(timeoutId);
+        const err = error46;
         if (attempt === this.maxRetries) {
-          if (error46.name === "AbortError") {
+          if (err.name === "AbortError") {
             throw new Error("Request timeout - Gemini API took too long to respond");
           }
           throw error46;
         }
         const backoff = Math.pow(2, attempt) * 1e3;
-        console.log(`${logPrefix} Exception: ${error46.message}. Retrying in ${backoff}ms...`);
+        console.log(`${logPrefix} Exception: ${err.message}. Retrying in ${backoff}ms...`);
         await this.sleep(backoff);
       }
     }

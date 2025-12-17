@@ -3,6 +3,30 @@
  * Provides AI-powered astrological analysis using Google Gemini
  */
 
+interface AbortControllerGlobal {
+  AbortController: typeof globalThis.AbortController;
+}
+
+interface ErrorDetail {
+  '@type'?: string;
+  retryDelay?: string;
+}
+
+interface GeminiApiResponse {
+  candidates?: Array<{
+    content?: {
+      parts?: Array<{
+        text?: string;
+      }>;
+    };
+  }>;
+  usageMetadata?: {
+    promptTokenCount?: number;
+    candidatesTokenCount?: number;
+    totalTokenCount?: number;
+  };
+}
+
 export interface GeminiConfig {
   apiKey: string;
   model?: string;
@@ -65,7 +89,7 @@ export class GeminiService {
    * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns ReadableStream of AI-generated analysis
    */
-  async analyzeChartStream(markdown: string, locale: string = 'zh-TW'): Promise<ReadableStream> {
+  async analyzeChartStream(markdown: string, locale = 'zh-TW'): Promise<ReadableStream> {
     const prompt = this.buildAnalysisPrompt(markdown, locale);
     const url = `${this.baseUrl}/${this.model}:streamGenerateContent`;
 
@@ -97,7 +121,7 @@ export class GeminiService {
    * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns ReadableStream of AI-generated analysis
    */
-  async analyzeAdvancedStream(markdown: string, locale: string = 'zh-TW'): Promise<ReadableStream> {
+  async analyzeAdvancedStream(markdown: string, locale = 'zh-TW'): Promise<ReadableStream> {
     const prompt = this.buildAdvancedAnalysisPrompt(markdown, locale);
     const url = `${this.baseUrl}/${this.model}:streamGenerateContent`;
 
@@ -125,7 +149,7 @@ export class GeminiService {
   /**
    * Build analysis prompt for Gemini
    */
-  private buildAnalysisPrompt(markdown: string, locale: string = 'zh-TW'): string {
+  private buildAnalysisPrompt(markdown: string, locale = 'zh-TW'): string {
     const currentYear = new Date().getFullYear();
     
     if (locale === 'en') {
@@ -206,7 +230,7 @@ ${markdown}
   /**
    * Build advanced analysis prompt for Gemini
    */
-  private buildAdvancedAnalysisPrompt(markdown: string, locale: string = 'zh-TW'): string {
+  private buildAdvancedAnalysisPrompt(markdown: string, locale = 'zh-TW'): string {
     const currentYear = new Date().getFullYear();
 
     // Check if markdown contains yearlyForecast (dual-period model)
@@ -343,9 +367,9 @@ ${markdown}
   /**
    * Internal method to call Gemini Stream with retry logic
    */
-  private async callGeminiStreamWithRetry(url: string, body: string, logPrefix: string = '[Gemini Stream]'): Promise<ReadableStream> {
+  private async callGeminiStreamWithRetry(url: string, body: string, logPrefix = '[Gemini Stream]'): Promise<ReadableStream> {
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
-      const controller = new (globalThis as any).AbortController();
+      const controller = new (globalThis as AbortControllerGlobal).AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout per attempt
 
       try {
@@ -361,7 +385,7 @@ ${markdown}
             'Content-Type': 'application/json',
             'x-goog-api-key': this.apiKey,
           },
-          body: body,
+          body,
           signal: controller.signal,
         });
 
@@ -393,7 +417,7 @@ ${markdown}
                 if (errorJson.error) {
                     let errorMessage = errorJson.error.message || 'Unknown error';
                     if (errorJson.error.details) {
-                        const retryInfo = errorJson.error.details.find((d: any) => d['@type']?.includes('RetryInfo'));
+                        const retryInfo = errorJson.error.details.find((d: ErrorDetail) => d['@type']?.includes('RetryInfo'));
                         if (retryInfo?.retryDelay) {
                             const seconds = parseInt(retryInfo.retryDelay.replace('s', ''));
                             errorMessage += ` Please retry in ${seconds}s`;
@@ -412,18 +436,19 @@ ${markdown}
         console.log(`${logPrefix} Retrying in ${backoff}ms...`);
         await this.sleep(backoff);
 
-      } catch (error: any) {
+      } catch (error: unknown) {
         clearTimeout(timeoutId);
+        const err = error as Error;
 
         if (attempt === this.maxRetries) {
-            if (error.name === 'AbortError') {
+            if (err.name === 'AbortError') {
                 throw new Error('Request timeout - Gemini API took too long to respond');
             }
             throw error;
         }
 
          const backoff = Math.pow(2, attempt) * 1000;
-         console.log(`${logPrefix} Exception: ${error.message}. Retrying in ${backoff}ms...`);
+         console.log(`${logPrefix} Exception: ${err.message}. Retrying in ${backoff}ms...`);
          await this.sleep(backoff);
       }
     }
@@ -471,7 +496,7 @@ ${markdown}
         throw new Error(`Gemini API error (${response.status}): ${error}`);
       }
 
-      const data = await response.json() as any;
+      const data = await response.json() as GeminiApiResponse;
 
       // Debug: log response structure
       console.log('[Gemini] Response structure:', JSON.stringify(data, null, 2).substring(0, 500));

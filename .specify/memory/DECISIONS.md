@@ -825,3 +825,17 @@
 - **替代方案**: 重構整個錯誤處理邏輯（放棄，過度工程化）
 - **狀態**: 完成 ✓（構建和 ESLint 驗證通過）
 
+
+## 2025-12-17: ESLint Warnings Cleanup
+
+### 決策：清理 geminiService.ts 中所有 ESLint 警告
+- **背景**: geminiService.ts 存在多個 ESLint 警告影響代碼品質
+- **影響**:
+  - 移除不必要的類型註解：locale = "zh-TW" 取代 locale: string = "zh-TW"
+  - 新增適當的 TypeScript 介面：AbortControllerGlobal、ErrorDetail、GeminiApiResponse
+  - 使用對象屬性簡寫語法：{ body } 取代 { body: body }
+  - 替換 any 類型為適當的類型定義
+  - 修復 AbortController 訪問使用 globalThis
+- **替代方案**: 忽略警告或使用 eslint-disable（放棄，影響代碼品質）
+- **狀態**: 完成 ✓（所有 ESLint 警告已解決）
+

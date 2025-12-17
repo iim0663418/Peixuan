@@ -373,11 +373,7 @@ ${markdown}
       const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout per attempt
 
       try {
-        if (attempt > 1) {
-            console.log(`${logPrefix} Retry attempt ${attempt}/${this.maxRetries}...`);
-        } else {
-            console.log(`${logPrefix} Fetching URL: ${url}`);
-        }
+        this.logAttempt(attempt, url, logPrefix);
 
         const response = await fetch(url, {
           method: 'POST',
@@ -392,68 +388,104 @@ ${markdown}
         clearTimeout(timeoutId);
 
         if (response.ok) {
-            console.log(`${logPrefix} Response status: ${response.status} ${response.statusText}`);
-            if (!response.body) {
-                console.error(`${logPrefix} No response body received`);
-                throw new Error('No response body from Gemini streaming API');
-            }
-            console.log(`${logPrefix} Stream established successfully`);
-            return response.body;
+          return this.handleSuccessfulResponse(response, logPrefix);
         }
 
-        const errorText = await response.text();
-        console.error(`${logPrefix} Error response (Attempt ${attempt}): ${errorText}`);
-
-        // Stop retrying if it's a client error (4xx), unless it's 429 (Too Many Requests)
-        if (response.status >= 400 && response.status < 500 && response.status !== 429) {
-             throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
-        }
-
-        // For 503, 429, or other server errors, we continue to retry loop unless it's the last attempt
-        if (attempt === this.maxRetries) {
-             // Try to parse error JSON to extract retry delay
-            try {
-                const errorJson = JSON.parse(errorText);
-                if (errorJson.error) {
-                    let errorMessage = errorJson.error.message || 'Unknown error';
-                    if (errorJson.error.details) {
-                        const retryInfo = errorJson.error.details.find((d: ErrorDetail) => d['@type']?.includes('RetryInfo'));
-                        if (retryInfo?.retryDelay) {
-                            const seconds = parseInt(retryInfo.retryDelay.replace('s', ''));
-                            errorMessage += ` Please retry in ${seconds}s`;
-                        }
-                    }
-                    throw new Error(errorMessage);
-                }
-            } catch {
-                // If JSON parsing fails, use the raw error text
-            }
-             throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
-        }
-
-        // Backoff
-        const backoff = Math.pow(2, attempt) * 1000;
-        console.log(`${logPrefix} Retrying in ${backoff}ms...`);
-        await this.sleep(backoff);
+        await this.handleErrorResponse(response, attempt, logPrefix);
 
       } catch (error: unknown) {
         clearTimeout(timeoutId);
-        const err = error as Error;
-
-        if (attempt === this.maxRetries) {
-            if (err.name === 'AbortError') {
-                throw new Error('Request timeout - Gemini API took too long to respond');
-            }
-            throw error;
-        }
-
-         const backoff = Math.pow(2, attempt) * 1000;
-         console.log(`${logPrefix} Exception: ${err.message}. Retrying in ${backoff}ms...`);
-         await this.sleep(backoff);
+        this.handleFetchException(error, attempt);
       }
+
+      const backoff = Math.pow(2, attempt) * 1000;
+      console.log(`${logPrefix} Retrying in ${backoff}ms...`);
+      await this.sleep(backoff);
     }
 
     throw new Error('Unexpected error in callGeminiStreamWithRetry');
+  }
+
+  /**
+   * Log retry attempt information
+   */
+  private logAttempt(attempt: number, url: string, logPrefix: string): void {
+    if (attempt > 1) {
+      console.log(`${logPrefix} Retry attempt ${attempt}/${this.maxRetries}...`);
+    } else {
+      console.log(`${logPrefix} Fetching URL: ${url}`);
+    }
+  }
+
+  /**
+   * Handle successful streaming response
+   */
+  private handleSuccessfulResponse(response: Response, logPrefix: string): ReadableStream {
+    console.log(`${logPrefix} Response status: ${response.status} ${response.statusText}`);
+    if (!response.body) {
+      console.error(`${logPrefix} No response body received`);
+      throw new Error('No response body from Gemini streaming API');
+    }
+    console.log(`${logPrefix} Stream established successfully`);
+    return response.body;
+  }
+
+  /**
+   * Handle error response from Gemini API
+   */
+  private async handleErrorResponse(response: Response, attempt: number, logPrefix: string): Promise<void> {
+    const errorText = await response.text();
+    console.error(`${logPrefix} Error response (Attempt ${attempt}): ${errorText}`);
+
+    // Stop retrying if it's a client error (4xx), unless it's 429 (Too Many Requests)
+    if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+      throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
+    }
+
+    // For 503, 429, or other server errors, we continue to retry loop unless it's the last attempt
+    if (attempt === this.maxRetries) {
+      this.throwEnhancedError(errorText, response.status, response.statusText);
+    }
+  }
+
+  /**
+   * Parse error JSON and throw enhanced error with retry delay if available
+   */
+  private throwEnhancedError(errorText: string, status: number, statusText: string): never {
+    try {
+      const errorJson = JSON.parse(errorText);
+      if (errorJson.error) {
+        let errorMessage = errorJson.error.message || 'Unknown error';
+        if (errorJson.error.details) {
+          const retryInfo = errorJson.error.details.find((d: ErrorDetail) => d['@type']?.includes('RetryInfo'));
+          if (retryInfo?.retryDelay) {
+            const seconds = parseInt(retryInfo.retryDelay.replace('s', ''));
+            errorMessage += ` Please retry in ${seconds}s`;
+          }
+        }
+        throw new Error(errorMessage);
+      }
+    } catch {
+      // If JSON parsing fails, use the raw error text
+    }
+    throw new Error(`Gemini streaming API error (${status} ${statusText}): ${errorText}`);
+  }
+
+  /**
+   * Handle exceptions during fetch
+   */
+  private handleFetchException(error: unknown, attempt: number): void {
+    const err = error as Error;
+
+    if (attempt === this.maxRetries) {
+      if (err.name === 'AbortError') {
+        throw new Error('Request timeout - Gemini API took too long to respond');
+      }
+      throw error;
+    }
+
+    const backoff = Math.pow(2, attempt) * 1000;
+    console.log(`Exception: ${err.message}. Retrying in ${backoff}ms...`);
   }
 
   /**

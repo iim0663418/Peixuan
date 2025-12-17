@@ -839,3 +839,18 @@
 - **替代方案**: 忽略警告或使用 eslint-disable（放棄，影響代碼品質）
 - **狀態**: 完成 ✓（所有 ESLint 警告已解決）
 
+
+## 2025-12-17: Final ESLint Complexity and Max-Depth Fix
+
+### 決策：重構 callGeminiStreamWithRetry 方法以降低複雜度和嵌套深度
+- **背景**: callGeminiStreamWithRetry 方法複雜度 19（超過限制 15）且嵌套過深（5-7 層，限制 4 層）
+- **影響**:
+  - 提取 4 個輔助方法來降低複雜度：logAttempt、handleSuccessfulResponse、handleErrorResponse、throwEnhancedError、handleFetchException
+  - 複雜度從 19 降至 3-5 每個方法
+  - 嵌套深度從 5-7 層降至 3-4 層
+  - 提升代碼可讀性和可維護性
+  - 每個輔助方法都有單一、明確的職責
+  - 保持所有原始功能不變
+- **替代方案**: 忽略警告或增加 ESLint 規則例外（放棄，影響代碼品質標準）
+- **狀態**: 完成 ✓（所有 ESLint 警告已解決）
+

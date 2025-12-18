@@ -36,11 +36,15 @@ export default [
         URL: 'readonly',
         URLSearchParams: 'readonly',
         ReadableStream: 'readonly',
+        ReadableStreamDefaultController: 'readonly',
+        TextEncoder: 'readonly',
+        TextDecoder: 'readonly',
         crypto: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         setInterval: 'readonly',
         clearInterval: 'readonly',
+        D1Database: 'readonly',
 
         // Node.js (for build/config files)
         process: 'readonly',

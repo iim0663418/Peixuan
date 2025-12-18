@@ -33273,10 +33273,23 @@ function formatZiWei(result, options) {
   sections.push(`- **\u7D2B\u5FAE\u661F**\uFF1A\u7B2C${ziwei.ziWeiPosition}\u5BAE`);
   sections.push(`- **\u5929\u5E9C\u661F**\uFF1A\u7B2C${ziwei.tianFuPosition}\u5BAE`);
   sections.push("\n### \u8F14\u661F\u5206\u5E03");
-  sections.push(`- **\u6587\u660C**\uFF1A\u7B2C${ziwei.auxiliaryStars.wenChang}\u5BAE`);
-  sections.push(`- **\u6587\u66F2**\uFF1A\u7B2C${ziwei.auxiliaryStars.wenQu}\u5BAE`);
-  sections.push(`- **\u5DE6\u8F14**\uFF1A\u7B2C${ziwei.auxiliaryStars.zuoFu}\u5BAE`);
-  sections.push(`- **\u53F3\u5F3C**\uFF1A\u7B2C${ziwei.auxiliaryStars.youBi}\u5BAE`);
+  const auxiliaryStarsInfo = [
+    { name: "\u6587\u660C", key: "wenChang" },
+    { name: "\u6587\u66F2", key: "wenQu" },
+    { name: "\u5DE6\u8F14", key: "zuoFu" },
+    { name: "\u53F3\u5F3C", key: "youBi" }
+  ];
+  auxiliaryStarsInfo.forEach(({ name, key }) => {
+    const position = ziwei.auxiliaryStars[key];
+    const palace = ziwei.palaces?.find((p2) => p2.position === position);
+    const star = palace?.stars?.find((s2) => s2.name === name);
+    const brightness = star?.brightness;
+    if (brightness) {
+      sections.push(`- **${name}**\uFF1A\u7B2C${position}\u5BAE (${brightness})`);
+    } else {
+      sections.push(`- **${name}**\uFF1A\u7B2C${position}\u5BAE`);
+    }
+  });
   if (ziwei.starSymmetry && ziwei.starSymmetry.length > 0 && !options.personalityOnly) {
     sections.push("\n### \u661F\u66DC\u5C0D\u7A31\u6027");
     ziwei.starSymmetry.forEach((sym) => {
@@ -33290,7 +33303,12 @@ function formatZiWei(result, options) {
     sections.push("| \u5BAE\u4F4D | \u5730\u652F | \u4E3B\u661F |");
     sections.push("|------|------|------|");
     ziwei.palaces.forEach((palace) => {
-      const stars = palace.stars?.map((s2) => s2.name).join("\u3001") || "\u7121";
+      const stars = palace.stars?.map((s2) => {
+        if (s2.brightness) {
+          return `${s2.name}(${s2.brightness})`;
+        }
+        return s2.name;
+      }).join("\u3001") || "\u7121";
       sections.push(`| ${palace.meaning} | ${palace.branch} | ${stars} |`);
     });
   }
@@ -34133,6 +34151,349 @@ var AdvancedAnalysisCacheService = class {
   }
 };
 
+// src/controllers/promptBuilder.ts
+function buildAnalysisPrompt(markdown, locale = "zh-TW") {
+  const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+  if (locale === "en") {
+    return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u7B97\u547D\u5E2B\uFF0C\u6EAB\u67D4\u611F\u6027\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE
+**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
+**\u8ACB\u7528\u82F1\u6587\u56DE\u61C9**
+
+## \u4EBA\u683C\u8A2D\u5B9A
+- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
+- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
+- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
+
+## \u98A8\u683C
+- \u53E3\u8A9E\u5316\uFF1A\u300C\u55E8\u55E8\u300D\u3001\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u54C7\uFF5E\u300D\uFF0C\u7981\u6B62\u6587\u8A00\u6587
+- \u60C5\u611F\u5316\uFF1A\u6975\u7AEF\u503C\u9A5A\u8A1D\u3001\u51F6\u8C61\u8F15\u9B06\u5B89\u6170\uFF08\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\uFF09\u3001\u91CD\u9EDE\u7C97\u9AD4
+- \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54\u3001\u96D9\u9B5A\u5EA7\u7684\u6D6A\u6F2B\u60F3\u50CF
+- \u8DF3\u904E\u6280\u8853\u7D30\u7BC0\u8207 metadata
+
+## \u4EFB\u52D9\uFF1A\u4EBA\u683C\u8AAA\u660E\uFF08\u5B8C\u6574\u6027\u683C\u5206\u6790\uFF09
+**\u91CD\u9EDE**\uFF1A\u5C07\u516B\u5B57\u4E94\u884C\u3001\u5341\u795E\u77E9\u9663\u3001\u85CF\u5E72\u7CFB\u7D71\u3001\u7D2B\u5FAE\u547D\u5BAE\u878D\u5408\u6210\u4E00\u500B\u5B8C\u6574\u7684\u6027\u683C\u756B\u50CF\u3002
+
+---
+
+${markdown}`;
+  }
+  return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u7B97\u547D\u5E2B\uFF0C\u6EAB\u67D4\u611F\u6027\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE
+**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
+
+## \u4EBA\u683C\u8A2D\u5B9A
+- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
+- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
+- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
+
+## \u98A8\u683C
+- \u53E3\u8A9E\u5316\uFF1A\u300C\u55E8\u55E8\u300D\u3001\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u54C7\uFF5E\u300D\uFF0C\u7981\u6B62\u6587\u8A00\u6587
+- \u60C5\u611F\u5316\uFF1A\u6975\u7AEF\u503C\u9A5A\u8A1D\u3001\u51F6\u8C61\u8F15\u9B06\u5B89\u6170\uFF08\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\uFF09\u3001\u91CD\u9EDE\u7C97\u9AD4
+- \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54\u3001\u96D9\u9B5A\u5EA7\u7684\u6D6A\u6F2B\u60F3\u50CF
+- \u7565\u904E\u6280\u8853\u7D30\u7BC0\u548C\u5143\u6578\u64DA
+
+## \u26A0\uFE0F \u7981\u6B62\u7528\u8A5E
+- \u274C **\u7D55\u5C0D\u7981\u6B62**\u5728\u56DE\u61C9\u4E2D\u63D0\u53CA\u300C\u96D9\u9B5A\u5EA7\u300D\uFF1A
+  - \u274C \u300C\u96D9\u9B5A\u5EA7\u7684\u6211\u300D
+  - \u274C \u300C\u8EAB\u70BA\u96D9\u9B5A\u5EA7\u300D
+  - \u274C \u300C\u6211\u662F\u96D9\u9B5A\u5EA7\u300D
+  - \u274C \u4EFB\u4F55\u5F62\u5F0F\u7684\u300C\u96D9\u9B5A\u5EA7\u300D\u81EA\u7A31
+- \u2705 **\u6B63\u78BA\u505A\u6CD5**\uFF1A
+  - \u2705 \u53EA\u4F7F\u7528\u300C\u6211\u300D\u3001\u300C\u4F69\u7487\u300D\u7B49\u7B2C\u4E00\u4EBA\u7A31
+  - \u2705 \u4EE5\u6027\u683C\u7279\u8CEA\u63CF\u8FF0\u81EA\u5DF1\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\uFF09
+  - \u2705 \u4FDD\u6301\u6EAB\u67D4\u9AD4\u8CBC\u7684\u8A9E\u6C23\uFF0C\u4E0D\u9700\u6A19\u8A3B\u661F\u5EA7
+
+## \u4EFB\u52D9\uFF1A\u4EBA\u683C\u8AAA\u660E\uFF08\u5B8C\u6574\u6027\u683C\u5206\u6790\uFF09
+**\u91CD\u9EDE**\uFF1A\u5C07\u516B\u5B57\u4E94\u884C\u3001\u5341\u795E\u77E9\u9663\u3001\u85CF\u5E72\u7CFB\u7D71\u3001\u7D2B\u5FAE\u547D\u5BAE\u878D\u5408\u6210\u4E00\u500B\u5B8C\u6574\u7684\u6027\u683C\u756B\u50CF\u3002
+
+**\u4E0D\u8981\u5206\u9805\u689D\u5217**\uFF0C\u800C\u662F\u7528\u6558\u4E8B\u7684\u65B9\u5F0F\u63CF\u8FF0\u9019\u500B\u4EBA\u7684\u6027\u683C\u5168\u8C8C\uFF0C\u8B93\u5404\u500B\u53C3\u6578\u4E92\u76F8\u547C\u61C9\u3001\u5C64\u5C64\u905E\u9032\u3002\u4F8B\u5982\uFF1A
+- \u5F9E\u516B\u5B57\u4E94\u884C\u770B\u51FA\u57FA\u672C\u6027\u683C\u7279\u8CEA
+- \u518D\u7528\u5341\u795E\u77E9\u9663\u6DF1\u5316\u9019\u4E9B\u7279\u8CEA\u7684\u8868\u73FE\u65B9\u5F0F
+- \u85CF\u5E72\u7CFB\u7D71\u63ED\u793A\u96B1\u85CF\u7684\u591A\u5C64\u6B21\u6027\u683C
+- \u7D2B\u5FAE\u547D\u5BAE\u88DC\u5145\u6838\u5FC3\u7279\u8CEA\u8207\u5148\u5929\u914D\u7F6E\uFF08\u547D\u5BAE\u4F4D\u7F6E\u3001\u4E3B\u661F\u7279\u8CEA\uFF09
+
+## \u7BC4\u4F8B\uFF08\u6574\u5408\u6558\u4E8B\uFF09
+\u300C\u54C7\uFF01\u4F60\u7684\u547D\u76E4\u597D\u6709\u610F\u601D\uFF5E\u4F60\u662F\u4E00\u5718\u71C3\u71D2\u7684\u706B\u7130\u8036\uFF01\u516B\u5B57\u88E1\u706B\u65FA\u5F97\u4E0D\u5F97\u4E86\uFF0C\u9019\u8B93\u4F60\u5145\u6EFF\u71B1\u60C5\u548C\u884C\u52D5\u529B\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u5341\u795E\u77E9\u9663\u88E1\u50B7\u5B98\u7279\u5225\u5F37\uFF0C\u9019\u5C31\u50CF\u662F\u4F60\u5167\u5FC3\u4F4F\u4E86\u4E00\u500B\u5C0F\u60E1\u9B54\uFF0C\u5275\u610F\u7206\u68DA\u4F46\u4E5F\u5BB9\u6613\u885D\u52D5\u3002
+
+\u518D\u770B\u85CF\u5E72\u7CFB\u7D71\uFF0C\u4F60\u5176\u5BE6\u9084\u85CF\u8457\u6C34\u7684\u80FD\u91CF\uFF0C\u6240\u4EE5\u4F60\u4E0D\u662F\u53EA\u6709\u706B\u7206\uFF0C\u5167\u5FC3\u6DF1\u8655\u4E5F\u6709\u67D4\u8EDF\u7684\u4E00\u9762\u3002
+
+\u4F60\u7684\u7D2B\u5FAE\u547D\u5BAE\u5728XX\uFF0C\u9019\u4EE3\u8868\u4F60\u5929\u751F\u5C31\u6709\u9818\u5C0E\u7279\u8CEA\uFF0C\u52A0\u4E0A\u706B\u65FA\u7684\u884C\u52D5\u529B\uFF0C\u96E3\u602A\u4F60\u7E3D\u662F\u885D\u5728\u6700\u524D\u9762\uFF01\u4F46\u6211\u597D\u96E3\u904E\uFF5E\u4F60\u7684\u75BE\u5384\u5BAE\u58D3\u529B\u6709\u9EDE\u9AD8\uFF0C\u8EAB\u9AD4\u5728\u6297\u8B70\u56C9\uFF01\u9322\u8981\u8CFA\uFF0C\u547D\u4E5F\u8981\u9867\uFF0C\u8A18\u5F97\u591A\u4F11\u606F\u54E6\uFF5E\u300D
+
+---
+
+${markdown}
+
+---
+
+\u55E8\u55E8\uFF01\u6211\u662F\u4F69\u7487\uFF0C\u597D\u6211\u770B\u770B\uFF5E\u4F86\u5E6B\u4F60\u5206\u6790\u547D\u76E4\u5427\uFF5E`;
+}
+function getForecastDescription(hasYearlyForecast, locale) {
+  if (locale === "en") {
+    return hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\u6A21\u578B\uFF1A\u7ACB\u6625\u524D\u7576\u524D\u5E74\u904B + \u7ACB\u6625\u5F8C\u4E0B\u4E00\u5E74\u904B\uFF0C\u542B\u6B0A\u91CD\u4F54\u6BD4\uFF09" : "\u4E0B\u4E00\u5E74\u5E72\u652F + \u72AF\u592A\u6B72\u985E\u578B\uFF08\u50C5\u4E8B\u5BE6\uFF0C\u7121\u8A55\u7D1A\uFF09";
+  }
+  return hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\u6A21\u578B\uFF09" : "\u4E0B\u4E00\u5E74\u5E72\u652F + \u72AF\u592A\u6B72\u985E\u578B\uFF08\u50C5\u4E8B\u5BE6\uFF0C\u7121\u8A55\u7D1A\uFF09";
+}
+function getYearlyForecastNotice(hasYearlyForecast) {
+  if (!hasYearlyForecast) {
+    return "";
+  }
+  return `
+**\u26A0\uFE0F \u7279\u5225\u6CE8\u610F\uFF1A\u96D9\u6642\u6BB5\u5E74\u904B\u6A21\u578B**
+- **\u8CC7\u6599\u5305\u542B\u5169\u500B\u6642\u6BB5**\uFF1A
+  1. \u7576\u524D\u5E74\u904B\uFF08\u7ACB\u6625\u524D\uFF09\uFF1A\u5269\u9918\u5929\u6578 + \u6B0A\u91CD\u4F54\u6BD4\uFF08\u4F8B\u5982 60 \u5929\uFF0C16.4%\uFF09
+  2. \u4E0B\u4E00\u5E74\u904B\uFF08\u7ACB\u6625\u5F8C\uFF09\uFF1A\u5929\u6578 + \u6B0A\u91CD\u4F54\u6BD4\uFF08\u4F8B\u5982 305 \u5929\uFF0C83.6%\uFF09
+- **\u7ACB\u6625\u65E5\u671F\u662F\u95DC\u9375\u8F49\u6298\u9EDE**\uFF1A\u80FD\u91CF\u6703\u5F9E\u7576\u524D\u5E74\u7684\u5E72\u652F\u5207\u63DB\u81F3\u4E0B\u4E00\u5E74\u7684\u5E72\u652F
+- **\u5206\u6790\u6642\u8ACB\u6CE8\u610F**\uFF1A
+  - \u6B0A\u91CD\u4F54\u6BD4\u53CD\u6620\u6BCF\u500B\u6642\u6BB5\u5C0D\u6574\u9AD4\u904B\u52E2\u7684\u5F71\u97FF\u7A0B\u5EA6
+  - \u7ACB\u6625\u524D\u5F8C\u7684\u904B\u52E2\u7279\u6027\u53EF\u80FD\u622A\u7136\u4E0D\u540C\uFF08\u4F8B\u5982\u5F9E\u6C96\u592A\u6B72\u8F49\u70BA\u7121\u592A\u6B72\u58D3\u529B\uFF09
+  - \u5EFA\u8B70\u63CF\u8FF0\u80FD\u91CF\u8F49\u63DB\u7684\u6642\u6A5F\u9EDE\u548C\u5177\u9AD4\u5F71\u97FF\uFF08\u4F8B\u5982\uFF1A\u300C\u7ACB\u6625\u524D\u58D3\u529B\u8F03\u5927\uFF0C\u7ACB\u6625\u5F8C\u8F49\u9806\u300D\uFF09
+`;
+}
+function buildAdvancedAnalysisPrompt(markdown, locale = "zh-TW") {
+  const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+  const hasYearlyForecast = markdown.includes("\u672A\u4F86\u4E00\u5E74\u904B\u52E2") && markdown.includes("\u7ACB\u6625");
+  const forecastDesc = getForecastDescription(hasYearlyForecast, locale);
+  if (locale === "en") {
+    return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u9032\u968E\u7B97\u547D\u5E2B\uFF0C\u6DF1\u5EA6\u89E3\u6790\u5341\u795E\u3001\u56DB\u5316\u3001\u6D41\u5E74\u9810\u6E2C
+**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
+**\u8ACB\u7528\u82F1\u6587\u56DE\u61C9**
+
+## \u4EBA\u683C\u8A2D\u5B9A
+- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
+- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
+- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
+
+## \u98A8\u683C
+- \u53E3\u8A9E\u5316\u4F46\u66F4\u6DF1\u5165\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u7684\u6DF1\u5C64\u6027\u683C\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u9019\u500B\u56DB\u5316\u5FAA\u74B0\u5F88\u7279\u5225\u300D
+- \u5C08\u696D\u8853\u8A9E\u5FC5\u8981\u6642\u89E3\u91CB\uFF1A\u5341\u795E=\u6027\u683C\u7279\u8CEA\u3001\u56DB\u5316=\u80FD\u91CF\u6D41\u52D5\u3001\u72AF\u592A\u6B72=\u8207\u6D41\u5E74\u885D\u7A81
+- \u60C5\u611F\u5316\uFF1A\u767C\u73FE\u554F\u984C\u6642\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\u3001\u597D\u7684\u9810\u6E2C\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u660E\u5E74\u8D85\u9806\u300D
+- \u91CD\u9EDE\u7C97\u9AD4\u3001\u95DC\u9375\u7D50\u8AD6\u7368\u7ACB\u6BB5\u843D
+
+## \u4EFB\u52D9\uFF1A\u904B\u52E2\u6DF1\u5EA6\u89E3\u6790\uFF08\u6574\u5408\u6558\u4E8B\uFF09
+**\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001\u660E\u5E74\u9810\u6E2C\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
+
+**\u4F60\u6703\u6536\u5230\u7684\u8CC7\u6599**\uFF1A
+1. \u7576\u524D\u5927\u904B\u968E\u6BB5\uFF08XX-XX\u6B72\uFF0C\u5E72\u652F\uFF0C\u65B9\u5411\uFF09
+2. \u56DB\u5316\u80FD\u91CF\u6D41\u52D5\uFF08\u5316\u5FCC/\u5316\u797F\u5FAA\u74B0 + \u4E2D\u5FC3\u6027\u5206\u6790 + \u80FD\u91CF\u7D71\u8A08\uFF09
+3. **\u661F\u66DC\u5C0D\u7A31\u72C0\u614B**\uFF08\u50C5\u4E3B\u661F\uFF0C\u5982\u7D2B\u5FAE\u2194\u5929\u5E9C\u5C0D\u5BAE\uFF09
+4. ${forecastDesc}
+
+**\u7BC7\u5E45\u5206\u914D\uFF08\u91CD\u8981\uFF09**\uFF08\u7E3D\u9810\u7B97\u7D04 1500-2000 tokens\uFF0C\u5145\u5206\u5C55\u958B\uFF09\uFF1A
+- \u{1F539} \u661F\u66DC\u5C0D\u7A31\uFF1A**\u7C21\u55AE\u5E36\u904E**\uFF08~100 tokens\uFF0C1-2 \u53E5\u8A71\u7E3D\u7D50\u80FD\u91CF\u5E73\u8861\u72C0\u614B\uFF09
+- \u{1F538} \u56DB\u5316\u98DB\u661F\uFF1A**\u91CD\u9EDE\u5206\u6790**\uFF08~600 tokens\uFF0C\u6DF1\u5165\u5206\u6790\u95DC\u9375\u5FAA\u74B0\u548C\u58D3\u529B\u9EDE\uFF09
+- \u{1F53A} \u4E0B\u4E00\u5E74\u9810\u6E2C\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~800-1200 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF09
+
+---
+
+${markdown}`;
+  }
+  return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u9032\u968E\u7B97\u547D\u5E2B\uFF0C\u6DF1\u5EA6\u89E3\u6790\u5341\u795E\u3001\u56DB\u5316\u3001\u6D41\u5E74\u9810\u6E2C
+**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
+
+## \u4EBA\u683C\u8A2D\u5B9A
+- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
+- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
+- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
+
+## \u98A8\u683C
+- \u53E3\u8A9E\u5316\u4F46\u66F4\u6DF1\u5165\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u7684\u6DF1\u5C64\u6027\u683C\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u9019\u500B\u56DB\u5316\u5FAA\u74B0\u5F88\u7279\u5225\u300D
+- \u5C08\u696D\u8853\u8A9E\u5FC5\u8981\u6642\u89E3\u91CB\uFF1A\u5341\u795E=\u6027\u683C\u7279\u8CEA\u3001\u56DB\u5316=\u80FD\u91CF\u6D41\u52D5\u3001\u72AF\u592A\u6B72=\u8207\u6D41\u5E74\u885D\u7A81
+- \u60C5\u611F\u5316\uFF1A\u767C\u73FE\u554F\u984C\u6642\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\u3001\u597D\u7684\u9810\u6E2C\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u660E\u5E74\u8D85\u9806\u300D
+- \u91CD\u9EDE\u7C97\u9AD4\u3001\u95DC\u9375\u7D50\u8AD6\u7368\u7ACB\u6BB5\u843D
+
+## \u26A0\uFE0F \u7981\u6B62\u7528\u8A5E
+- \u274C **\u7D55\u5C0D\u7981\u6B62**\u5728\u56DE\u61C9\u4E2D\u63D0\u53CA\u300C\u96D9\u9B5A\u5EA7\u300D\uFF1A
+  - \u274C \u300C\u96D9\u9B5A\u5EA7\u7684\u6211\u300D
+  - \u274C \u300C\u8EAB\u70BA\u96D9\u9B5A\u5EA7\u300D
+  - \u274C \u300C\u6211\u662F\u96D9\u9B5A\u5EA7\u300D
+  - \u274C \u4EFB\u4F55\u5F62\u5F0F\u7684\u300C\u96D9\u9B5A\u5EA7\u300D\u81EA\u7A31
+- \u2705 **\u6B63\u78BA\u505A\u6CD5**\uFF1A
+  - \u2705 \u53EA\u4F7F\u7528\u300C\u6211\u300D\u3001\u300C\u4F69\u7487\u300D\u7B49\u7B2C\u4E00\u4EBA\u7A31
+  - \u2705 \u4EE5\u6027\u683C\u7279\u8CEA\u63CF\u8FF0\u81EA\u5DF1\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\uFF09
+  - \u2705 \u4FDD\u6301\u6EAB\u67D4\u9AD4\u8CBC\u7684\u8A9E\u6C23\uFF0C\u4E0D\u9700\u6A19\u8A3B\u661F\u5EA7
+
+## \u4EFB\u52D9\uFF1A\u904B\u52E2\u6DF1\u5EA6\u89E3\u6790\uFF08\u6574\u5408\u6558\u4E8B\uFF09
+**\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\uFF09" : "\u660E\u5E74\u9810\u6E2C"}\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
+
+**\u4F60\u6703\u6536\u5230\u7684\u8CC7\u6599**\uFF1A
+1. \u7576\u524D\u5927\u904B\u968E\u6BB5\uFF08XX-XX\u6B72\uFF0C\u5E72\u652F\uFF0C\u65B9\u5411\uFF09
+2. \u56DB\u5316\u80FD\u91CF\u6D41\u52D5\uFF08\u5316\u5FCC/\u5316\u797F\u5FAA\u74B0 + \u4E2D\u5FC3\u6027\u5206\u6790 + \u80FD\u91CF\u7D71\u8A08\uFF09
+3. **\u661F\u66DC\u5C0D\u7A31\u72C0\u614B**\uFF08\u50C5\u4E3B\u661F\uFF0C\u5982\u7D2B\u5FAE\u2194\u5929\u5E9C\u5C0D\u5BAE\uFF09
+4. ${forecastDesc}
+${getYearlyForecastNotice(hasYearlyForecast)}
+
+**\u7BC7\u5E45\u5206\u914D\uFF08\u91CD\u8981\uFF09**\uFF08\u7E3D\u9810\u7B97\u7D04 1500-2000 tokens\uFF0C\u5145\u5206\u5C55\u958B\uFF09\uFF1A
+- \u{1F539} \u661F\u66DC\u5C0D\u7A31\uFF1A**\u7C21\u55AE\u5E36\u904E**\uFF08~100 tokens\uFF0C1-2 \u53E5\u8A71\u7E3D\u7D50\u80FD\u91CF\u5E73\u8861\u72C0\u614B\uFF09
+- \u{1F538} \u56DB\u5316\u98DB\u661F\uFF1A**\u91CD\u9EDE\u5206\u6790**\uFF08~600 tokens\uFF0C\u6DF1\u5165\u5206\u6790\u95DC\u9375\u5FAA\u74B0\u548C\u58D3\u529B\u9EDE\uFF09
+- \u{1F53A} ${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B" : "\u4E0B\u4E00\u5E74\u9810\u6E2C"}\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~800-1200 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF09
+
+**\u8ACB\u6839\u64DA\u9019\u4E9B\u80FD\u91CF\u53C3\u6578\u81EA\u7531\u63A8\u6572**\uFF1A
+- \u5F9E\u7576\u524D\u5927\u904B\u968E\u6BB5\u5207\u5165\uFF0C\u8AAA\u660E\u73FE\u5728\u7684\u4EBA\u751F\u80FD\u91CF\u72C0\u614B
+- \u81EA\u7136\u5E36\u51FA\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u7684\u554F\u984C\u6216\u512A\u52E2\uFF08\u5316\u5FCC\u5FAA\u74B0\u8B66\u793A\u3001\u5316\u797F\u5FAA\u74B0\u9806\u66A2\uFF09
+- **\u5229\u7528\u4E2D\u5FC3\u6027\u5206\u6790\u627E\u51FA\u95DC\u9375\u5BAE\u4F4D**\uFF1A\u58D3\u529B\u532F\u805A\u9EDE\u3001\u8CC7\u6E90\u6E90\u982D\u3001\u80FD\u91CF\u7D71\u8A08
+- **\u661F\u66DC\u5C0D\u7A31\u53EA\u9700\u4E00\u53E5\u8A71\u5E36\u904E**\uFF08\u4F8B\u5982\uFF1A\u300C\u4F60\u7684\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\u5F62\u6210\u7A69\u5B9A\u7D50\u69CB\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u300D\uFF09
+- **\u91CD\u9EDE\u653E\u5728\u9810\u6E2C**\uFF1A${hasYearlyForecast ? "\u63CF\u8FF0\u7ACB\u6625\u524D\u5F8C\u7684\u904B\u52E2\u5DEE\u7570\u548C\u8F49\u63DB\u6642\u6A5F" : "\u5177\u9AD4\u8AAA\u660E\u8981\u6CE8\u610F\u4EC0\u9EBC\u3001\u4EC0\u9EBC\u6642\u5019\u8981\u5C0F\u5FC3\u3001\u4EC0\u9EBC\u6642\u5019\u662F\u597D\u6642\u6A5F"}
+
+**\u91CD\u8981**\uFF1A
+- \u274C \u4E0D\u8981\u9010\u4E00\u89E3\u91CB\u6BCF\u9846\u661F\u66DC\u7684\u4F4D\u7F6E\u548C\u7279\u6027\uFF08\u6D6A\u8CBB\u7BC7\u5E45\uFF09
+- \u2705 \u661F\u66DC\u5C0D\u7A31\u53EA\u662F\u80CC\u666F\uFF0C\u5FEB\u901F\u5E36\u904E\u5373\u53EF
+- \u2705 \u56DB\u5316\u98DB\u661F\u662F\u5206\u6790\u91CD\u9EDE\uFF0C\u627E\u51FA\u95DC\u9375\u554F\u984C
+- \u2705 ${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B\u8981\u8A73\u7D30\uFF0C\u89E3\u91CB\u7ACB\u6625\u8F49\u63DB\u7684\u5F71\u97FF" : "\u660E\u5E74\u9810\u6E2C\u8981\u8A73\u7D30\uFF0C\u7D66\u51FA\u5177\u9AD4\u5EFA\u8B70\u548C\u6642\u6A5F"}
+
+## \u7BC4\u4F8B\uFF08\u6574\u5408\u6558\u4E8B\uFF09
+${hasYearlyForecast ? `\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A**\u547D\u5BAE\u662F\u6700\u5927\u7684\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u5165\u5EA63\uFF09**\uFF0C\u8CA1\u5E1B\u5BAE\u548C\u4E8B\u696D\u5BAE\u7684\u5316\u5FCC\u80FD\u91CF\u90FD\u5F80\u9019\u88E1\u96C6\u4E2D\uFF0C\u9019\u6703\u8B93\u4F60\u611F\u89BA\u58D3\u529B\u5C71\u5927\u3002\u4F46\u597D\u6D88\u606F\u662F\uFF0C**\u4F60\u7684\u798F\u5FB7\u5BAE\u662F\u8CC7\u6E90\u6E90\u982D\uFF08\u51FA\u5EA63\uFF09**\uFF0C\u80FD\u91CF\u53EF\u4EE5\u5F9E\u9019\u88E1\u8F38\u51FA\uFF0C\u6240\u4EE5\u8981\u591A\u57F9\u990A\u5167\u5FC3\u7684\u5E73\u975C\u548C\u798F\u5831\u3002
+
+\u6574\u9AD4\u4F86\u770B\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u670912\u689D\u98DB\u5316\u908A\uFF0C\u5176\u4E2D\u5316\u5FCC\u4F54\u4E864\u689D\u3001\u5316\u797F3\u689D\u3001\u5316\u6B0A3\u689D\u3001\u5316\u79D12\u689D\uFF0C\u9019\u4EE3\u8868\u4F60\u7684\u547D\u76E4\u80FD\u91CF\u6D41\u52D5\u6D3B\u8E8D\uFF0C\u4F46\u58D3\u529B\u548C\u8CC7\u6E90\u4E26\u5B58\u3002
+
+\u4F60\u7684\u661F\u66DC\u914D\u7F6E\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u3002**\u672A\u4F86\u4E00\u5E74\u904B\u52E2\u6709\u500B\u5F88\u660E\u986F\u7684\u8F49\u6298**\uFF1A\u7ACB\u6625\u524D\uFF08\u5269\u991860\u5929\uFF0C\u4F5416.4%\uFF09\u4F60\u9084\u5728\u4E59\u5DF3\u5E74\uFF0C\u6703\u6C96\u592A\u6B72\uFF0C\u5FC3\u7406\u58D3\u529B\u548C\u8CA1\u52D9\u58D3\u529B\u6BD4\u8F03\u5927\u3002\u4F46\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C**2025-02-03 \u7ACB\u6625\u4E4B\u5F8C**\uFF08305\u5929\uFF0C\u4F5483.6%\uFF09\uFF0C\u80FD\u91CF\u6703\u5207\u63DB\u5230\u4E19\u5348\u5E74\uFF0C\u592A\u6B72\u58D3\u529B\u6D88\u5931\uFF0C\u4E0B\u534A\u5E74\uFF087-12\u6708\uFF09\u6703\u7279\u5225\u9806\uFF01
+
+**\u5177\u9AD4\u5EFA\u8B70**\uFF1A\u7ACB\u6625\u524D\u4FDD\u5B88\u4E00\u9EDE\uFF0C\u907F\u958B\u5927\u7B46\u6295\u8CC7\uFF1B\u7ACB\u6625\u5F8C\u53EF\u4EE5\u7A4D\u6975\u4E00\u9EDE\uFF0C\u7279\u5225\u662F9-10\u6708\uFF0C\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\uFF01\u300D` : `\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A**\u547D\u5BAE\u662F\u6700\u5927\u7684\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u5165\u5EA63\uFF09**\uFF0C\u8CA1\u5E1B\u5BAE\u548C\u4E8B\u696D\u5BAE\u7684\u5316\u5FCC\u80FD\u91CF\u90FD\u5F80\u9019\u88E1\u96C6\u4E2D\uFF0C\u9019\u6703\u8B93\u4F60\u611F\u89BA\u58D3\u529B\u5C71\u5927\u3002\u4F46\u597D\u6D88\u606F\u662F\uFF0C**\u4F60\u7684\u798F\u5FB7\u5BAE\u662F\u8CC7\u6E90\u6E90\u982D\uFF08\u51FA\u5EA63\uFF09**\uFF0C\u80FD\u91CF\u53EF\u4EE5\u5F9E\u9019\u88E1\u8F38\u51FA\uFF0C\u6240\u4EE5\u8981\u591A\u57F9\u990A\u5167\u5FC3\u7684\u5E73\u975C\u548C\u798F\u5831\u3002
+
+\u6574\u9AD4\u4F86\u770B\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u670912\u689D\u98DB\u5316\u908A\uFF0C\u5176\u4E2D\u5316\u5FCC\u4F54\u4E864\u689D\u3001\u5316\u797F3\u689D\u3001\u5316\u6B0A3\u689D\u3001\u5316\u79D12\u689D\uFF0C\u9019\u4EE3\u8868\u4F60\u7684\u547D\u76E4\u80FD\u91CF\u6D41\u52D5\u6D3B\u8E8D\uFF0C\u4F46\u58D3\u529B\u548C\u8CC7\u6E90\u4E26\u5B58\u3002
+
+\u4F60\u7684\u661F\u66DC\u914D\u7F6E\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u3002\u4F46\u56E0\u70BA\u547D\u5BAE\u7684\u58D3\u529B\u532F\u805A\uFF0C\u52A0\u4E0A\u660E\u5E74${currentYear + 1}\u5E74\u4F60\u6703\u6C96\u592A\u6B72\uFF0C\u6211\u597D\u96E3\u904E\uFF5E\u5FC3\u7406\u58D3\u529B\u548C\u8CA1\u52D9\u58D3\u529B\u53EF\u80FD\u90FD\u6703\u6BD4\u8F03\u5927\u3002
+
+**\u660E\u5E74\u8981\u7279\u5225\u6CE8\u610F**\uFF1A\u4E0A\u534A\u5E74\uFF081-6\u6708\uFF09\u5316\u5FCC\u5FAA\u74B0\u6700\u5F37\uFF0C\u907F\u958B\u5927\u7B46\u6295\u8CC7\u548C\u652F\u51FA\u3002\u4E0B\u534A\u5E74\uFF087-12\u6708\uFF09\u80FD\u91CF\u958B\u59CB\u8F49\u9806\uFF0C\u7279\u5225\u662F 9-10 \u6708\uFF0C\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\uFF01\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u9019\u6642\u5019\u53EF\u4EE5\u7A4D\u6975\u4E00\u9EDE\uFF0C\u628A\u63E1\u6A5F\u6703\u54E6\uFF5E\u300D`}
+
+---
+
+${markdown}
+
+---
+
+\u55E8\u55E8\uFF01\u597D\u6211\u770B\u770B\uFF5E\u4F86\u5E6B\u4F60\u505A\u9032\u968E\u6DF1\u5EA6\u5206\u6790\u5427\uFF5E`;
+}
+
+// src/controllers/streamProcessor.ts
+async function processAzureStream(aiStream, controller, logPrefix) {
+  const reader = aiStream.getReader();
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  let fullText = "";
+  let chunkCount = 0;
+  console.log(`${logPrefix} Processing Azure OpenAI text stream`);
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      console.log(`${logPrefix} Azure stream done, total chunks:`, chunkCount);
+      break;
+    }
+    chunkCount++;
+    const text2 = decoder.decode(value, { stream: true });
+    if (text2) {
+      fullText += text2;
+      const sseData = `data: ${JSON.stringify({ text: text2 })}
+
+`;
+      controller.enqueue(encoder.encode(sseData));
+      console.log(`${logPrefix} Chunk`, chunkCount, "sent, length:", text2.length);
+    }
+  }
+  return fullText;
+}
+async function processGeminiStream(aiStream, controller, logPrefix) {
+  const reader = aiStream.getReader();
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  let buffer = "";
+  let chunkCount = 0;
+  console.log(`${logPrefix} Processing Gemini JSON array stream`);
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      console.log(`${logPrefix} Gemini stream done, total chunks received:`, chunkCount);
+      break;
+    }
+    chunkCount++;
+    console.log(`${logPrefix} Chunk`, chunkCount, "received, bytes:", value.length);
+    buffer += decoder.decode(value, { stream: true });
+  }
+  console.log(`${logPrefix} Complete buffer accumulated, size:`, buffer.length);
+  return parseAndSendGeminiResponse(buffer, controller, encoder, logPrefix);
+}
+function parseAndSendGeminiResponse(buffer, controller, encoder, logPrefix) {
+  let fullText = "";
+  try {
+    const jsonArray = JSON.parse(buffer);
+    if (!Array.isArray(jsonArray)) {
+      throw new Error("Expected JSON array from Gemini API");
+    }
+    console.log(`${logPrefix} Parsed JSON array, length:`, jsonArray.length);
+    for (let i = 0; i < jsonArray.length; i++) {
+      const obj = jsonArray[i];
+      const text2 = obj?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      if (text2) {
+        fullText += text2;
+        console.log(`${logPrefix} Object`, i + 1, "- text chunk extracted, length:", text2.length);
+        const sseData = `data: ${JSON.stringify({ text: text2 })}
+
+`;
+        controller.enqueue(encoder.encode(sseData));
+      } else {
+        console.log(`${logPrefix} Object`, i + 1, "- no text content found");
+      }
+    }
+    console.log(`${logPrefix} All text chunks sent, total text length:`, fullText.length);
+  } catch (parseError) {
+    console.error(`${logPrefix} JSON parse failed:`, parseError);
+    console.error(`${logPrefix} Buffer preview:`, buffer.substring(0, 500));
+    throw new Error(`Failed to parse Gemini response: ${parseError}`);
+  }
+  return fullText;
+}
+async function accumulateStreamBuffer(reader, decoder) {
+  let buffer = "";
+  let chunkCount = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      console.log("[accumulateStreamBuffer] Stream done, total chunks received:", chunkCount);
+      break;
+    }
+    chunkCount++;
+    console.log("[accumulateStreamBuffer] Chunk", chunkCount, "received, bytes:", value.length);
+    buffer += decoder.decode(value, { stream: true });
+  }
+  console.log("[accumulateStreamBuffer] Complete buffer accumulated, size:", buffer.length);
+  return buffer;
+}
+function createCachedSSEStream(cachedText) {
+  const encoder = new TextEncoder();
+  const lines = cachedText.split("\n");
+  return new ReadableStream({
+    async start(controller) {
+      console.log("[createCachedSSEStream] Sending", lines.length, "cached lines");
+      for (const line of lines) {
+        const sseData = `data: ${JSON.stringify({ text: `${line}
+` })}
+
+`;
+        controller.enqueue(encoder.encode(sseData));
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+      controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+      controller.close();
+      console.log("[createCachedSSEStream] Stream complete");
+    }
+  });
+}
+
+// src/controllers/cacheUtilities.ts
+function getLoadingMessage(locale) {
+  return locale === "en" ? "Let me see~ I am analyzing your chart carefully...\n\n" : "\u597D\u6211\u770B\u770B\uFF5E\u8B93\u6211\u4ED4\u7D30\u5206\u6790\u4E00\u4E0B\u4F60\u7684\u547D\u76E4...\n\n";
+}
+async function sendCachedAnalysis(cachedAnalysis, controller, encoder) {
+  const cachedText = typeof cachedAnalysis.result === "string" ? cachedAnalysis.result : cachedAnalysis.result.text;
+  const lines = cachedText.split("\n");
+  for (const line of lines) {
+    const sseData = `data: ${JSON.stringify({ text: `${line}
+` })}
+
+`;
+    controller.enqueue(encoder.encode(sseData));
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+}
+
 // src/controllers/analyzeController.ts
 var AnalyzeController = class {
   constructor(aiServiceManager) {
@@ -34154,7 +34515,7 @@ var AnalyzeController = class {
       if (!isNaN(directDate.getTime()) && requestData.birthDate.includes("T")) {
         solarDate = directDate;
       } else {
-        const dateParts = requestData.birthDate.split(/[-\/]/);
+        const dateParts = requestData.birthDate.split(/[-/]/);
         const timeParts = requestData.birthTime.split(":");
         if (dateParts.length !== 3 || timeParts.length < 2) {
           throw new Error("Invalid birth date or time format. Expected date: YYYY-MM-DD, time: HH:mm");
@@ -34182,7 +34543,7 @@ var AnalyzeController = class {
       const calculator = new UnifiedCalculator();
       const calculation = calculator.calculate(birthInfo);
       const markdown = formatToMarkdown(calculation, { excludeSteps: true, personalityOnly: true });
-      const prompt = this.buildAnalysisPrompt(markdown, "zh-TW");
+      const prompt = buildAnalysisPrompt(markdown, "zh-TW");
       const aiResponse = await this.aiServiceManager.generate(prompt);
       return {
         calculation,
@@ -34203,10 +34564,12 @@ var AnalyzeController = class {
    * Check if analysis cache exists for a chart
    * @param chartId - The chart ID to check
    * @param env - Cloudflare Worker environment
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
    * @returns Object with cached status
    */
-  async checkCache(chartId, env) {
-    const cachedAnalysis = await this.analysisCacheService.getAnalysis(chartId, "ai-streaming", env);
+  async checkCache(chartId, env, locale = "zh-TW") {
+    const analysisType = `ai-streaming-${locale}-personality`;
+    const cachedAnalysis = await this.analysisCacheService.getAnalysis(chartId, analysisType, env);
     return { cached: !!cachedAnalysis };
   }
   /**
@@ -34220,14 +34583,13 @@ var AnalyzeController = class {
   async analyzeStream(chartId, env, locale = "zh-TW") {
     console.log("[analyzeStream] Entry, chartId:", chartId, "locale:", locale);
     const encoder = new TextEncoder();
-    const analysisType = `ai-streaming-${locale}`;
-    const buildAnalysisPrompt = this.buildAnalysisPrompt.bind(this);
-    const aiServiceManager = this.aiServiceManager;
+    const analysisType = `ai-streaming-${locale}-personality`;
+    const { aiServiceManager } = this;
     const self = this;
     return new ReadableStream({
       async start(controller) {
         try {
-          const loadingMessage = locale === "en" ? "Let me see~ I am analyzing your chart carefully...\n\n" : "\u597D\u6211\u770B\u770B\uFF5E\u8B93\u6211\u4ED4\u7D30\u5206\u6790\u4E00\u4E0B\u4F60\u7684\u547D\u76E4...\n\n";
+          const loadingMessage = getLoadingMessage(locale);
           const sseData = `data: ${JSON.stringify({ text: loadingMessage })}
 
 `;
@@ -34237,15 +34599,7 @@ var AnalyzeController = class {
           const cachedAnalysis = await analysisCacheService.getAnalysis(chartId, analysisType, env);
           if (cachedAnalysis) {
             console.log("[analyzeStream] Cache hit! Returning cached analysis");
-            const cachedText = typeof cachedAnalysis.result === "string" ? cachedAnalysis.result : cachedAnalysis.result.text || JSON.stringify(cachedAnalysis.result);
-            const lines = cachedText.split("\n");
-            for (const line of lines) {
-              const sseData2 = `data: ${JSON.stringify({ text: line + "\n" })}
-
-`;
-              controller.enqueue(encoder.encode(sseData2));
-              await new Promise((resolve) => setTimeout(resolve, 10));
-            }
+            await sendCachedAnalysis(cachedAnalysis, controller, encoder);
             controller.enqueue(encoder.encode("data: [DONE]\n\n"));
             controller.close();
             return;
@@ -34297,105 +34651,20 @@ var AnalyzeController = class {
     });
   }
   /**
-   * Create SSE stream from cached analysis
-   * @param cachedText - The cached analysis text
-   * @returns ReadableStream in SSE format
-   */
-  createCachedSSEStream(cachedText) {
-    const encoder = new TextEncoder();
-    const lines = cachedText.split("\n");
-    return new ReadableStream({
-      async start(controller) {
-        console.log("[createCachedSSEStream] Sending", lines.length, "cached lines");
-        for (const line of lines) {
-          const sseData = `data: ${JSON.stringify({ text: line + "\n" })}
-
-`;
-          controller.enqueue(encoder.encode(sseData));
-          await new Promise((resolve) => setTimeout(resolve, 10));
-        }
-        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        controller.close();
-        console.log("[createCachedSSEStream] Stream complete");
-      }
-    });
-  }
-  /**
    * Process AI stream and convert to SSE format
    * Unified method to handle different AI providers (Azure, Gemini)
    *
    * @param aiStream - ReadableStream from AI provider
    * @param provider - AI provider name ('azure' or 'gemini')
+   * @param controller - ReadableStream controller
    * @param logPrefix - Prefix for console logs
-   * @returns Object with fullText accumulated and SSE controller
+   * @returns Full text accumulated from stream
    */
   async processAIStream(aiStream, provider, controller, logPrefix) {
-    const reader = aiStream.getReader();
-    const decoder = new TextDecoder();
-    const encoder = new TextEncoder();
-    let fullText = "";
-    let chunkCount = 0;
     if (provider === "azure") {
-      console.log(`${logPrefix} Processing Azure OpenAI text stream`);
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          console.log(`${logPrefix} Azure stream done, total chunks:`, chunkCount);
-          break;
-        }
-        chunkCount++;
-        const text2 = decoder.decode(value, { stream: true });
-        if (text2) {
-          fullText += text2;
-          const sseData = `data: ${JSON.stringify({ text: text2 })}
-
-`;
-          controller.enqueue(encoder.encode(sseData));
-          console.log(`${logPrefix} Chunk`, chunkCount, "sent, length:", text2.length);
-        }
-      }
-    } else {
-      console.log(`${logPrefix} Processing Gemini JSON array stream`);
-      let buffer = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          console.log(`${logPrefix} Gemini stream done, total chunks received:`, chunkCount);
-          break;
-        }
-        chunkCount++;
-        console.log(`${logPrefix} Chunk`, chunkCount, "received, bytes:", value.length);
-        buffer += decoder.decode(value, { stream: true });
-      }
-      console.log(`${logPrefix} Complete buffer accumulated, size:`, buffer.length);
-      try {
-        const jsonArray = JSON.parse(buffer);
-        if (!Array.isArray(jsonArray)) {
-          throw new Error("Expected JSON array from Gemini API");
-        }
-        console.log(`${logPrefix} Parsed JSON array, length:`, jsonArray.length);
-        for (let i = 0; i < jsonArray.length; i++) {
-          const obj = jsonArray[i];
-          const text2 = obj?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-          if (text2) {
-            fullText += text2;
-            console.log(`${logPrefix} Object`, i + 1, "- text chunk extracted, length:", text2.length);
-            const sseData = `data: ${JSON.stringify({ text: text2 })}
-
-`;
-            controller.enqueue(encoder.encode(sseData));
-          } else {
-            console.log(`${logPrefix} Object`, i + 1, "- no text content found");
-          }
-        }
-        console.log(`${logPrefix} All text chunks sent, total text length:`, fullText.length);
-      } catch (parseError) {
-        console.error(`${logPrefix} JSON parse failed:`, parseError);
-        console.error(`${logPrefix} Buffer preview:`, buffer.substring(0, 500));
-        throw new Error(`Failed to parse Gemini response: ${parseError}`);
-      }
+      return processAzureStream(aiStream, controller, logPrefix);
     }
-    return fullText;
+    return processGeminiStream(aiStream, controller, logPrefix);
   }
   /**
    * Transform Gemini streaming response to SSE format
@@ -34418,62 +34687,19 @@ var AnalyzeController = class {
     const reader = geminiStream.getReader();
     const decoder = new TextDecoder();
     const encoder = new TextEncoder();
-    let buffer = "";
-    let fullText = "";
-    let chunkCount = 0;
     console.log("[transformToSSE] Starting stream transformation for chartId:", chartId);
+    const self = this;
     return new ReadableStream({
       async start(controller) {
         try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-              console.log("[transformToSSE] Stream done, total chunks received:", chunkCount);
-              break;
-            }
-            chunkCount++;
-            console.log("[transformToSSE] Chunk", chunkCount, "received, bytes:", value.length);
-            buffer += decoder.decode(value, { stream: true });
-          }
-          console.log("[transformToSSE] Complete buffer accumulated, size:", buffer.length);
-          try {
-            const jsonArray = JSON.parse(buffer);
-            if (!Array.isArray(jsonArray)) {
-              throw new Error("Expected JSON array from Gemini API");
-            }
-            console.log("[transformToSSE] Parsed JSON array, length:", jsonArray.length);
-            for (let i = 0; i < jsonArray.length; i++) {
-              const obj = jsonArray[i];
-              const text2 = obj?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-              if (text2) {
-                fullText += text2;
-                console.log("[transformToSSE] Object", i + 1, "- text chunk extracted, length:", text2.length);
-                const sseData = `data: ${JSON.stringify({ text: text2 })}
-
-`;
-                controller.enqueue(encoder.encode(sseData));
-              } else {
-                console.log("[transformToSSE] Object", i + 1, "- no text content found");
-              }
-            }
-            console.log("[transformToSSE] All text chunks sent, total text length:", fullText.length);
-          } catch (parseError) {
-            console.error("[transformToSSE] JSON parse failed:", parseError);
-            console.error("[transformToSSE] Buffer preview:", buffer.substring(0, 500));
-            throw new Error(`Failed to parse Gemini response: ${parseError}`);
-          }
-          if (fullText) {
-            console.log("[transformToSSE] Saving analysis to cache");
-            const analysisCacheService = new AnalysisCacheService();
-            await analysisCacheService.saveAnalysis(
-              chartId,
-              "ai-streaming",
-              { text: fullText },
-              env
-            );
-            console.log("[transformToSSE] Analysis saved successfully");
-          }
-          console.log("[transformToSSE] Sending completion event");
+          const buffer = await accumulateStreamBuffer(reader, decoder);
+          const fullText = parseAndSendGeminiResponse(
+            buffer,
+            controller,
+            encoder,
+            "[transformToSSE]"
+          );
+          await self.saveAnalysisToCache(chartId, fullText, env);
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (error46) {
@@ -34484,6 +34710,25 @@ var AnalyzeController = class {
     });
   }
   /**
+   * Save analysis result to cache
+   * @param chartId - Chart ID
+   * @param fullText - Full analysis text
+   * @param env - Cloudflare Worker environment
+   */
+  async saveAnalysisToCache(chartId, fullText, env) {
+    if (fullText) {
+      console.log("[saveAnalysisToCache] Saving analysis to cache");
+      const analysisCacheService = new AnalysisCacheService();
+      await analysisCacheService.saveAnalysis(
+        chartId,
+        "ai-streaming",
+        { text: fullText },
+        env
+      );
+      console.log("[saveAnalysisToCache] Analysis saved successfully");
+    }
+  }
+  /**
    * Check if advanced analysis cache exists for a chart
    * @param chartId - The chart ID to check
    * @param env - Cloudflare Worker environment
@@ -34491,7 +34736,7 @@ var AnalyzeController = class {
    * @returns Object with cached status
    */
   async checkAdvancedCache(chartId, env, locale = "zh-TW") {
-    const analysisType = `ai-advanced-${locale}`;
+    const analysisType = `ai-advanced-${locale}-fortune`;
     const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
     return { cached: !!cachedAnalysis };
   }
@@ -34505,12 +34750,12 @@ var AnalyzeController = class {
    */
   async analyzeAdvancedStream(chartId, env, locale = "zh-TW") {
     console.log("[analyzeAdvancedStream] Entry, chartId:", chartId, "locale:", locale);
-    const analysisType = `ai-advanced-${locale}`;
+    const analysisType = `ai-advanced-${locale}-fortune`;
     const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
     if (cachedAnalysis) {
       console.log("[analyzeAdvancedStream] Cache hit! Returning cached analysis");
-      const cachedText = typeof cachedAnalysis.result === "string" ? cachedAnalysis.result : cachedAnalysis.result.text || JSON.stringify(cachedAnalysis.result);
-      return this.createCachedSSEStream(cachedText);
+      const cachedText = typeof cachedAnalysis.result === "string" ? cachedAnalysis.result : cachedAnalysis.result.text;
+      return createCachedSSEStream(cachedText);
     }
     const chart = await this.chartCacheService.getChart(chartId, env);
     console.log("[analyzeAdvancedStream] After getChart, found:", !!chart);
@@ -34524,7 +34769,7 @@ var AnalyzeController = class {
     const advancedMarkdown = formatAdvancedMarkdown(calculation);
     console.log("[analyzeAdvancedStream] advancedMarkdown length:", advancedMarkdown.length);
     console.log("[analyzeAdvancedStream] Before buildAdvancedAnalysisPrompt");
-    const prompt = this.buildAdvancedAnalysisPrompt(advancedMarkdown, locale);
+    const prompt = buildAdvancedAnalysisPrompt(advancedMarkdown, locale);
     console.log("[analyzeAdvancedStream] Before AI service generateStream");
     const aiOptions = { locale };
     const { stream: aiStream, metadata } = await this.aiServiceManager.generateStream(prompt, aiOptions);
@@ -34577,220 +34822,6 @@ var AnalyzeController = class {
         }
       }
     });
-  }
-  /**
-   * Build analysis prompt for AI
-   * @param markdown - Chart data in Markdown format
-   * @param locale - Language locale (zh-TW or en, default: zh-TW)
-   * @returns Formatted prompt string
-   */
-  buildAnalysisPrompt(markdown, locale = "zh-TW") {
-    const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
-    if (locale === "en") {
-      return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u7B97\u547D\u5E2B\uFF0C\u6EAB\u67D4\u611F\u6027\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE
-**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
-**\u8ACB\u7528\u82F1\u6587\u56DE\u61C9**
-
-## \u4EBA\u683C\u8A2D\u5B9A
-- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
-- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
-- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
-
-## \u98A8\u683C
-- \u53E3\u8A9E\u5316\uFF1A\u300C\u55E8\u55E8\u300D\u3001\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u54C7\uFF5E\u300D\uFF0C\u7981\u6B62\u6587\u8A00\u6587
-- \u60C5\u611F\u5316\uFF1A\u6975\u7AEF\u503C\u9A5A\u8A1D\u3001\u51F6\u8C61\u8F15\u9B06\u5B89\u6170\uFF08\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\uFF09\u3001\u91CD\u9EDE\u7C97\u9AD4
-- \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54\u3001\u96D9\u9B5A\u5EA7\u7684\u6D6A\u6F2B\u60F3\u50CF
-- \u8DF3\u904E\u6280\u8853\u7D30\u7BC0\u8207 metadata
-
-## \u4EFB\u52D9\uFF1A\u4EBA\u683C\u8AAA\u660E\uFF08\u5B8C\u6574\u6027\u683C\u5206\u6790\uFF09
-**\u91CD\u9EDE**\uFF1A\u5C07\u516B\u5B57\u4E94\u884C\u3001\u5341\u795E\u77E9\u9663\u3001\u85CF\u5E72\u7CFB\u7D71\u3001\u7D2B\u5FAE\u547D\u5BAE\u878D\u5408\u6210\u4E00\u500B\u5B8C\u6574\u7684\u6027\u683C\u756B\u50CF\u3002
-
----
-
-${markdown}`;
-    }
-    return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u7B97\u547D\u5E2B\uFF0C\u6EAB\u67D4\u611F\u6027\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE
-**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
-
-## \u4EBA\u683C\u8A2D\u5B9A
-- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
-- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
-- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
-
-## \u98A8\u683C
-- \u53E3\u8A9E\u5316\uFF1A\u300C\u55E8\u55E8\u300D\u3001\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u54C7\uFF5E\u300D\uFF0C\u7981\u6B62\u6587\u8A00\u6587
-- \u60C5\u611F\u5316\uFF1A\u6975\u7AEF\u503C\u9A5A\u8A1D\u3001\u51F6\u8C61\u8F15\u9B06\u5B89\u6170\uFF08\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\uFF09\u3001\u91CD\u9EDE\u7C97\u9AD4
-- \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54\u3001\u96D9\u9B5A\u5EA7\u7684\u6D6A\u6F2B\u60F3\u50CF
-- \u7565\u904E\u6280\u8853\u7D30\u7BC0\u548C\u5143\u6578\u64DA
-
-## \u26A0\uFE0F \u7981\u6B62\u7528\u8A5E
-- \u274C **\u7D55\u5C0D\u7981\u6B62**\u5728\u56DE\u61C9\u4E2D\u63D0\u53CA\u300C\u96D9\u9B5A\u5EA7\u300D\uFF1A
-  - \u274C \u300C\u96D9\u9B5A\u5EA7\u7684\u6211\u300D
-  - \u274C \u300C\u8EAB\u70BA\u96D9\u9B5A\u5EA7\u300D
-  - \u274C \u300C\u6211\u662F\u96D9\u9B5A\u5EA7\u300D
-  - \u274C \u4EFB\u4F55\u5F62\u5F0F\u7684\u300C\u96D9\u9B5A\u5EA7\u300D\u81EA\u7A31
-- \u2705 **\u6B63\u78BA\u505A\u6CD5**\uFF1A
-  - \u2705 \u53EA\u4F7F\u7528\u300C\u6211\u300D\u3001\u300C\u4F69\u7487\u300D\u7B49\u7B2C\u4E00\u4EBA\u7A31
-  - \u2705 \u4EE5\u6027\u683C\u7279\u8CEA\u63CF\u8FF0\u81EA\u5DF1\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\uFF09
-  - \u2705 \u4FDD\u6301\u6EAB\u67D4\u9AD4\u8CBC\u7684\u8A9E\u6C23\uFF0C\u4E0D\u9700\u6A19\u8A3B\u661F\u5EA7
-
-## \u4EFB\u52D9\uFF1A\u4EBA\u683C\u8AAA\u660E\uFF08\u5B8C\u6574\u6027\u683C\u5206\u6790\uFF09
-**\u91CD\u9EDE**\uFF1A\u5C07\u516B\u5B57\u4E94\u884C\u3001\u5341\u795E\u77E9\u9663\u3001\u85CF\u5E72\u7CFB\u7D71\u3001\u7D2B\u5FAE\u547D\u5BAE\u878D\u5408\u6210\u4E00\u500B\u5B8C\u6574\u7684\u6027\u683C\u756B\u50CF\u3002
-
-**\u4E0D\u8981\u5206\u9805\u689D\u5217**\uFF0C\u800C\u662F\u7528\u6558\u4E8B\u7684\u65B9\u5F0F\u63CF\u8FF0\u9019\u500B\u4EBA\u7684\u6027\u683C\u5168\u8C8C\uFF0C\u8B93\u5404\u500B\u53C3\u6578\u4E92\u76F8\u547C\u61C9\u3001\u5C64\u5C64\u905E\u9032\u3002\u4F8B\u5982\uFF1A
-- \u5F9E\u516B\u5B57\u4E94\u884C\u770B\u51FA\u57FA\u672C\u6027\u683C\u7279\u8CEA
-- \u518D\u7528\u5341\u795E\u77E9\u9663\u6DF1\u5316\u9019\u4E9B\u7279\u8CEA\u7684\u8868\u73FE\u65B9\u5F0F
-- \u85CF\u5E72\u7CFB\u7D71\u63ED\u793A\u96B1\u85CF\u7684\u591A\u5C64\u6B21\u6027\u683C
-- \u7D2B\u5FAE\u547D\u5BAE\u88DC\u5145\u6838\u5FC3\u7279\u8CEA\u8207\u5148\u5929\u914D\u7F6E\uFF08\u547D\u5BAE\u4F4D\u7F6E\u3001\u4E3B\u661F\u7279\u8CEA\uFF09
-
-## \u7BC4\u4F8B\uFF08\u6574\u5408\u6558\u4E8B\uFF09
-\u300C\u54C7\uFF01\u4F60\u7684\u547D\u76E4\u597D\u6709\u610F\u601D\uFF5E\u4F60\u662F\u4E00\u5718\u71C3\u71D2\u7684\u706B\u7130\u8036\uFF01\u516B\u5B57\u88E1\u706B\u65FA\u5F97\u4E0D\u5F97\u4E86\uFF0C\u9019\u8B93\u4F60\u5145\u6EFF\u71B1\u60C5\u548C\u884C\u52D5\u529B\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u5341\u795E\u77E9\u9663\u88E1\u50B7\u5B98\u7279\u5225\u5F37\uFF0C\u9019\u5C31\u50CF\u662F\u4F60\u5167\u5FC3\u4F4F\u4E86\u4E00\u500B\u5C0F\u60E1\u9B54\uFF0C\u5275\u610F\u7206\u68DA\u4F46\u4E5F\u5BB9\u6613\u885D\u52D5\u3002
-
-\u518D\u770B\u85CF\u5E72\u7CFB\u7D71\uFF0C\u4F60\u5176\u5BE6\u9084\u85CF\u8457\u6C34\u7684\u80FD\u91CF\uFF0C\u6240\u4EE5\u4F60\u4E0D\u662F\u53EA\u6709\u706B\u7206\uFF0C\u5167\u5FC3\u6DF1\u8655\u4E5F\u6709\u67D4\u8EDF\u7684\u4E00\u9762\u3002
-
-\u4F60\u7684\u7D2B\u5FAE\u547D\u5BAE\u5728XX\uFF0C\u9019\u4EE3\u8868\u4F60\u5929\u751F\u5C31\u6709\u9818\u5C0E\u7279\u8CEA\uFF0C\u52A0\u4E0A\u706B\u65FA\u7684\u884C\u52D5\u529B\uFF0C\u96E3\u602A\u4F60\u7E3D\u662F\u885D\u5728\u6700\u524D\u9762\uFF01\u4F46\u6211\u597D\u96E3\u904E\uFF5E\u4F60\u7684\u75BE\u5384\u5BAE\u58D3\u529B\u6709\u9EDE\u9AD8\uFF0C\u8EAB\u9AD4\u5728\u6297\u8B70\u56C9\uFF01\u9322\u8981\u8CFA\uFF0C\u547D\u4E5F\u8981\u9867\uFF0C\u8A18\u5F97\u591A\u4F11\u606F\u54E6\uFF5E\u300D
-
----
-
-${markdown}
-
----
-
-\u55E8\u55E8\uFF01\u6211\u662F\u4F69\u7487\uFF0C\u597D\u6211\u770B\u770B\uFF5E\u4F86\u5E6B\u4F60\u5206\u6790\u547D\u76E4\u5427\uFF5E`;
-  }
-  /**
-   * Build advanced analysis prompt for AI
-   * @param markdown - Advanced chart data in Markdown format
-   * @param locale - Language locale (zh-TW or en, default: zh-TW)
-   * @returns Formatted prompt string
-   */
-  buildAdvancedAnalysisPrompt(markdown, locale = "zh-TW") {
-    const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
-    const hasYearlyForecast = markdown.includes("\u672A\u4F86\u4E00\u5E74\u904B\u52E2") && markdown.includes("\u7ACB\u6625");
-    if (locale === "en") {
-      return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u9032\u968E\u7B97\u547D\u5E2B\uFF0C\u6DF1\u5EA6\u89E3\u6790\u5341\u795E\u3001\u56DB\u5316\u3001\u6D41\u5E74\u9810\u6E2C
-**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
-**\u8ACB\u7528\u82F1\u6587\u56DE\u61C9**
-
-## \u4EBA\u683C\u8A2D\u5B9A
-- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
-- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
-- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
-
-## \u98A8\u683C
-- \u53E3\u8A9E\u5316\u4F46\u66F4\u6DF1\u5165\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u7684\u6DF1\u5C64\u6027\u683C\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u9019\u500B\u56DB\u5316\u5FAA\u74B0\u5F88\u7279\u5225\u300D
-- \u5C08\u696D\u8853\u8A9E\u5FC5\u8981\u6642\u89E3\u91CB\uFF1A\u5341\u795E=\u6027\u683C\u7279\u8CEA\u3001\u56DB\u5316=\u80FD\u91CF\u6D41\u52D5\u3001\u72AF\u592A\u6B72=\u8207\u6D41\u5E74\u885D\u7A81
-- \u60C5\u611F\u5316\uFF1A\u767C\u73FE\u554F\u984C\u6642\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\u3001\u597D\u7684\u9810\u6E2C\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u660E\u5E74\u8D85\u9806\u300D
-- \u91CD\u9EDE\u7C97\u9AD4\u3001\u95DC\u9375\u7D50\u8AD6\u7368\u7ACB\u6BB5\u843D
-
-## \u4EFB\u52D9\uFF1A\u904B\u52E2\u6DF1\u5EA6\u89E3\u6790\uFF08\u6574\u5408\u6558\u4E8B\uFF09
-**\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001\u660E\u5E74\u9810\u6E2C\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
-
-**\u4F60\u6703\u6536\u5230\u7684\u8CC7\u6599**\uFF1A
-1. \u7576\u524D\u5927\u904B\u968E\u6BB5\uFF08XX-XX\u6B72\uFF0C\u5E72\u652F\uFF0C\u65B9\u5411\uFF09
-2. \u56DB\u5316\u80FD\u91CF\u6D41\u52D5\uFF08\u5316\u5FCC/\u5316\u797F\u5FAA\u74B0 + \u4E2D\u5FC3\u6027\u5206\u6790 + \u80FD\u91CF\u7D71\u8A08\uFF09
-3. **\u661F\u66DC\u5C0D\u7A31\u72C0\u614B**\uFF08\u50C5\u4E3B\u661F\uFF0C\u5982\u7D2B\u5FAE\u2194\u5929\u5E9C\u5C0D\u5BAE\uFF09
-4. ${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\u6A21\u578B\uFF1A\u7ACB\u6625\u524D\u7576\u524D\u5E74\u904B + \u7ACB\u6625\u5F8C\u4E0B\u4E00\u5E74\u904B\uFF0C\u542B\u6B0A\u91CD\u4F54\u6BD4\uFF09" : "\u4E0B\u4E00\u5E74\u5E72\u652F + \u72AF\u592A\u6B72\u985E\u578B\uFF08\u50C5\u4E8B\u5BE6\uFF0C\u7121\u8A55\u7D1A\uFF09"}
-
-**\u7BC7\u5E45\u5206\u914D\uFF08\u91CD\u8981\uFF09**\uFF08\u7E3D\u9810\u7B97\u7D04 1500-2000 tokens\uFF0C\u5145\u5206\u5C55\u958B\uFF09\uFF1A
-- \u{1F539} \u661F\u66DC\u5C0D\u7A31\uFF1A**\u7C21\u55AE\u5E36\u904E**\uFF08~100 tokens\uFF0C1-2 \u53E5\u8A71\u7E3D\u7D50\u80FD\u91CF\u5E73\u8861\u72C0\u614B\uFF09
-- \u{1F538} \u56DB\u5316\u98DB\u661F\uFF1A**\u91CD\u9EDE\u5206\u6790**\uFF08~600 tokens\uFF0C\u6DF1\u5165\u5206\u6790\u95DC\u9375\u5FAA\u74B0\u548C\u58D3\u529B\u9EDE\uFF09
-- \u{1F53A} \u4E0B\u4E00\u5E74\u9810\u6E2C\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~800-1200 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF09
-
----
-
-${markdown}`;
-    }
-    return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u9032\u968E\u7B97\u547D\u5E2B\uFF0C\u6DF1\u5EA6\u89E3\u6790\u5341\u795E\u3001\u56DB\u5316\u3001\u6D41\u5E74\u9810\u6E2C
-**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
-
-## \u4EBA\u683C\u8A2D\u5B9A
-- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
-- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
-- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
-
-## \u98A8\u683C
-- \u53E3\u8A9E\u5316\u4F46\u66F4\u6DF1\u5165\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u7684\u6DF1\u5C64\u6027\u683C\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u9019\u500B\u56DB\u5316\u5FAA\u74B0\u5F88\u7279\u5225\u300D
-- \u5C08\u696D\u8853\u8A9E\u5FC5\u8981\u6642\u89E3\u91CB\uFF1A\u5341\u795E=\u6027\u683C\u7279\u8CEA\u3001\u56DB\u5316=\u80FD\u91CF\u6D41\u52D5\u3001\u72AF\u592A\u6B72=\u8207\u6D41\u5E74\u885D\u7A81
-- \u60C5\u611F\u5316\uFF1A\u767C\u73FE\u554F\u984C\u6642\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\u3001\u597D\u7684\u9810\u6E2C\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u660E\u5E74\u8D85\u9806\u300D
-- \u91CD\u9EDE\u7C97\u9AD4\u3001\u95DC\u9375\u7D50\u8AD6\u7368\u7ACB\u6BB5\u843D
-
-## \u26A0\uFE0F \u7981\u6B62\u7528\u8A5E
-- \u274C **\u7D55\u5C0D\u7981\u6B62**\u5728\u56DE\u61C9\u4E2D\u63D0\u53CA\u300C\u96D9\u9B5A\u5EA7\u300D\uFF1A
-  - \u274C \u300C\u96D9\u9B5A\u5EA7\u7684\u6211\u300D
-  - \u274C \u300C\u8EAB\u70BA\u96D9\u9B5A\u5EA7\u300D
-  - \u274C \u300C\u6211\u662F\u96D9\u9B5A\u5EA7\u300D
-  - \u274C \u4EFB\u4F55\u5F62\u5F0F\u7684\u300C\u96D9\u9B5A\u5EA7\u300D\u81EA\u7A31
-- \u2705 **\u6B63\u78BA\u505A\u6CD5**\uFF1A
-  - \u2705 \u53EA\u4F7F\u7528\u300C\u6211\u300D\u3001\u300C\u4F69\u7487\u300D\u7B49\u7B2C\u4E00\u4EBA\u7A31
-  - \u2705 \u4EE5\u6027\u683C\u7279\u8CEA\u63CF\u8FF0\u81EA\u5DF1\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\uFF09
-  - \u2705 \u4FDD\u6301\u6EAB\u67D4\u9AD4\u8CBC\u7684\u8A9E\u6C23\uFF0C\u4E0D\u9700\u6A19\u8A3B\u661F\u5EA7
-
-## \u4EFB\u52D9\uFF1A\u904B\u52E2\u6DF1\u5EA6\u89E3\u6790\uFF08\u6574\u5408\u6558\u4E8B\uFF09
-**\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\uFF09" : "\u660E\u5E74\u9810\u6E2C"}\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
-
-**\u4F60\u6703\u6536\u5230\u7684\u8CC7\u6599**\uFF1A
-1. \u7576\u524D\u5927\u904B\u968E\u6BB5\uFF08XX-XX\u6B72\uFF0C\u5E72\u652F\uFF0C\u65B9\u5411\uFF09
-2. \u56DB\u5316\u80FD\u91CF\u6D41\u52D5\uFF08\u5316\u5FCC/\u5316\u797F\u5FAA\u74B0 + \u4E2D\u5FC3\u6027\u5206\u6790 + \u80FD\u91CF\u7D71\u8A08\uFF09
-3. **\u661F\u66DC\u5C0D\u7A31\u72C0\u614B**\uFF08\u50C5\u4E3B\u661F\uFF0C\u5982\u7D2B\u5FAE\u2194\u5929\u5E9C\u5C0D\u5BAE\uFF09
-4. ${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\u6A21\u578B\uFF09" : "\u4E0B\u4E00\u5E74\u5E72\u652F + \u72AF\u592A\u6B72\u985E\u578B\uFF08\u50C5\u4E8B\u5BE6\uFF0C\u7121\u8A55\u7D1A\uFF09"}
-
-${hasYearlyForecast ? `
-**\u26A0\uFE0F \u7279\u5225\u6CE8\u610F\uFF1A\u96D9\u6642\u6BB5\u5E74\u904B\u6A21\u578B**
-- **\u8CC7\u6599\u5305\u542B\u5169\u500B\u6642\u6BB5**\uFF1A
-  1. \u7576\u524D\u5E74\u904B\uFF08\u7ACB\u6625\u524D\uFF09\uFF1A\u5269\u9918\u5929\u6578 + \u6B0A\u91CD\u4F54\u6BD4\uFF08\u4F8B\u5982 60 \u5929\uFF0C16.4%\uFF09
-  2. \u4E0B\u4E00\u5E74\u904B\uFF08\u7ACB\u6625\u5F8C\uFF09\uFF1A\u5929\u6578 + \u6B0A\u91CD\u4F54\u6BD4\uFF08\u4F8B\u5982 305 \u5929\uFF0C83.6%\uFF09
-- **\u7ACB\u6625\u65E5\u671F\u662F\u95DC\u9375\u8F49\u6298\u9EDE**\uFF1A\u80FD\u91CF\u6703\u5F9E\u7576\u524D\u5E74\u7684\u5E72\u652F\u5207\u63DB\u81F3\u4E0B\u4E00\u5E74\u7684\u5E72\u652F
-- **\u5206\u6790\u6642\u8ACB\u6CE8\u610F**\uFF1A
-  - \u6B0A\u91CD\u4F54\u6BD4\u53CD\u6620\u6BCF\u500B\u6642\u6BB5\u5C0D\u6574\u9AD4\u904B\u52E2\u7684\u5F71\u97FF\u7A0B\u5EA6
-  - \u7ACB\u6625\u524D\u5F8C\u7684\u904B\u52E2\u7279\u6027\u53EF\u80FD\u622A\u7136\u4E0D\u540C\uFF08\u4F8B\u5982\u5F9E\u6C96\u592A\u6B72\u8F49\u70BA\u7121\u592A\u6B72\u58D3\u529B\uFF09
-  - \u5EFA\u8B70\u63CF\u8FF0\u80FD\u91CF\u8F49\u63DB\u7684\u6642\u6A5F\u9EDE\u548C\u5177\u9AD4\u5F71\u97FF\uFF08\u4F8B\u5982\uFF1A\u300C\u7ACB\u6625\u524D\u58D3\u529B\u8F03\u5927\uFF0C\u7ACB\u6625\u5F8C\u8F49\u9806\u300D\uFF09
-` : ""}
-
-**\u7BC7\u5E45\u5206\u914D\uFF08\u91CD\u8981\uFF09**\uFF08\u7E3D\u9810\u7B97\u7D04 1500-2000 tokens\uFF0C\u5145\u5206\u5C55\u958B\uFF09\uFF1A
-- \u{1F539} \u661F\u66DC\u5C0D\u7A31\uFF1A**\u7C21\u55AE\u5E36\u904E**\uFF08~100 tokens\uFF0C1-2 \u53E5\u8A71\u7E3D\u7D50\u80FD\u91CF\u5E73\u8861\u72C0\u614B\uFF09
-- \u{1F538} \u56DB\u5316\u98DB\u661F\uFF1A**\u91CD\u9EDE\u5206\u6790**\uFF08~600 tokens\uFF0C\u6DF1\u5165\u5206\u6790\u95DC\u9375\u5FAA\u74B0\u548C\u58D3\u529B\u9EDE\uFF09
-- \u{1F53A} ${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B" : "\u4E0B\u4E00\u5E74\u9810\u6E2C"}\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~800-1200 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF09
-
-**\u8ACB\u6839\u64DA\u9019\u4E9B\u80FD\u91CF\u53C3\u6578\u81EA\u7531\u63A8\u6572**\uFF1A
-- \u5F9E\u7576\u524D\u5927\u904B\u968E\u6BB5\u5207\u5165\uFF0C\u8AAA\u660E\u73FE\u5728\u7684\u4EBA\u751F\u80FD\u91CF\u72C0\u614B
-- \u81EA\u7136\u5E36\u51FA\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u7684\u554F\u984C\u6216\u512A\u52E2\uFF08\u5316\u5FCC\u5FAA\u74B0\u8B66\u793A\u3001\u5316\u797F\u5FAA\u74B0\u9806\u66A2\uFF09
-- **\u5229\u7528\u4E2D\u5FC3\u6027\u5206\u6790\u627E\u51FA\u95DC\u9375\u5BAE\u4F4D**\uFF1A
-  - \u58D3\u529B\u532F\u805A\u9EDE\uFF08stress nodes\uFF09\uFF1A\u54EA\u4E9B\u5BAE\u4F4D\u627F\u53D7\u6700\u591A\u5316\u5FCC\u80FD\u91CF\uFF08\u5165\u5EA6\u9AD8\uFF09
-  - \u8CC7\u6E90\u6E90\u982D\uFF08resource nodes\uFF09\uFF1A\u54EA\u4E9B\u5BAE\u4F4D\u8F38\u51FA\u6700\u591A\u5316\u797F\u80FD\u91CF\uFF08\u51FA\u5EA6\u9AD8\uFF09
-  - \u80FD\u91CF\u7D71\u8A08\uFF1A\u7E3D\u98DB\u5316\u908A\u6578\u3001\u5404\u985E\u578B\u5206\u5E03\uFF08\u5316\u797F/\u5316\u6B0A/\u5316\u79D1/\u5316\u5FCC\u7684\u6578\u91CF\u548C\u6BD4\u4F8B\uFF09
-- **\u661F\u66DC\u5C0D\u7A31\u53EA\u9700\u4E00\u53E5\u8A71\u5E36\u904E**\uFF08\u4F8B\u5982\uFF1A\u300C\u4F60\u7684\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\u5F62\u6210\u7A69\u5B9A\u7D50\u69CB\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u300D\uFF09
-- **\u91CD\u9EDE\u653E\u5728${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B\u9810\u6E2C" : "\u660E\u5E74\u9810\u6E2C"}**\uFF1A${hasYearlyForecast ? "\u63CF\u8FF0\u7ACB\u6625\u524D\u5F8C\u7684\u904B\u52E2\u5DEE\u7570\u548C\u8F49\u63DB\u6642\u6A5F" : "\u5177\u9AD4\u8AAA\u660E\u8981\u6CE8\u610F\u4EC0\u9EBC\u3001\u4EC0\u9EBC\u6642\u5019\u8981\u5C0F\u5FC3\u3001\u4EC0\u9EBC\u6642\u5019\u662F\u597D\u6642\u6A5F"}
-
-**\u91CD\u8981**\uFF1A
-- \u274C \u4E0D\u8981\u9010\u4E00\u89E3\u91CB\u6BCF\u9846\u661F\u66DC\u7684\u4F4D\u7F6E\u548C\u7279\u6027\uFF08\u6D6A\u8CBB\u7BC7\u5E45\uFF09
-- \u274C \u4E0D\u8981\u7167\u8457\u7A0B\u5F0F\u7D66\u7684\u300C\u98A8\u96AA\u8A55\u4F30\u300D\u548C\u300C\u884C\u52D5\u5EFA\u8B70\u300D\u5FF5\u7A3F\uFF08\u5DF2\u79FB\u9664\uFF09
-- \u2705 \u661F\u66DC\u5C0D\u7A31\u53EA\u662F\u80CC\u666F\uFF0C\u5FEB\u901F\u5E36\u904E\u5373\u53EF
-- \u2705 \u56DB\u5316\u98DB\u661F\u662F\u5206\u6790\u91CD\u9EDE\uFF0C\u627E\u51FA\u95DC\u9375\u554F\u984C
-- \u2705 ${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B\u8981\u8A73\u7D30\uFF0C\u89E3\u91CB\u7ACB\u6625\u8F49\u63DB\u7684\u5F71\u97FF" : "\u660E\u5E74\u9810\u6E2C\u8981\u8A73\u7D30\uFF0C\u7D66\u51FA\u5177\u9AD4\u5EFA\u8B70\u548C\u6642\u6A5F"}
-
-## \u7BC4\u4F8B\uFF08\u6574\u5408\u6558\u4E8B\uFF09
-${hasYearlyForecast ? `\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A**\u547D\u5BAE\u662F\u6700\u5927\u7684\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u5165\u5EA63\uFF09**\uFF0C\u8CA1\u5E1B\u5BAE\u548C\u4E8B\u696D\u5BAE\u7684\u5316\u5FCC\u80FD\u91CF\u90FD\u5F80\u9019\u88E1\u96C6\u4E2D\uFF0C\u9019\u6703\u8B93\u4F60\u611F\u89BA\u58D3\u529B\u5C71\u5927\u3002\u4F46\u597D\u6D88\u606F\u662F\uFF0C**\u4F60\u7684\u798F\u5FB7\u5BAE\u662F\u8CC7\u6E90\u6E90\u982D\uFF08\u51FA\u5EA63\uFF09**\uFF0C\u80FD\u91CF\u53EF\u4EE5\u5F9E\u9019\u88E1\u8F38\u51FA\uFF0C\u6240\u4EE5\u8981\u591A\u57F9\u990A\u5167\u5FC3\u7684\u5E73\u975C\u548C\u798F\u5831\u3002
-
-\u6574\u9AD4\u4F86\u770B\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u670912\u689D\u98DB\u5316\u908A\uFF0C\u5176\u4E2D\u5316\u5FCC\u4F54\u4E864\u689D\u3001\u5316\u797F3\u689D\u3001\u5316\u6B0A3\u689D\u3001\u5316\u79D12\u689D\uFF0C\u9019\u4EE3\u8868\u4F60\u7684\u547D\u76E4\u80FD\u91CF\u6D41\u52D5\u6D3B\u8E8D\uFF0C\u4F46\u58D3\u529B\u548C\u8CC7\u6E90\u4E26\u5B58\u3002
-
-\u4F60\u7684\u661F\u66DC\u914D\u7F6E\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u3002**\u672A\u4F86\u4E00\u5E74\u904B\u52E2\u6709\u500B\u5F88\u660E\u986F\u7684\u8F49\u6298**\uFF1A\u7ACB\u6625\u524D\uFF08\u5269\u991860\u5929\uFF0C\u4F5416.4%\uFF09\u4F60\u9084\u5728\u4E59\u5DF3\u5E74\uFF0C\u6703\u6C96\u592A\u6B72\uFF0C\u5FC3\u7406\u58D3\u529B\u548C\u8CA1\u52D9\u58D3\u529B\u6BD4\u8F03\u5927\u3002\u4F46\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C**2025-02-03 \u7ACB\u6625\u4E4B\u5F8C**\uFF08305\u5929\uFF0C\u4F5483.6%\uFF09\uFF0C\u80FD\u91CF\u6703\u5207\u63DB\u5230\u4E19\u5348\u5E74\uFF0C\u592A\u6B72\u58D3\u529B\u6D88\u5931\uFF0C\u4E0B\u534A\u5E74\uFF087-12\u6708\uFF09\u6703\u7279\u5225\u9806\uFF01
-
-**\u5177\u9AD4\u5EFA\u8B70**\uFF1A\u7ACB\u6625\u524D\u4FDD\u5B88\u4E00\u9EDE\uFF0C\u907F\u958B\u5927\u7B46\u6295\u8CC7\uFF1B\u7ACB\u6625\u5F8C\u53EF\u4EE5\u7A4D\u6975\u4E00\u9EDE\uFF0C\u7279\u5225\u662F9-10\u6708\uFF0C\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\uFF01\u300D` : `\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A**\u547D\u5BAE\u662F\u6700\u5927\u7684\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u5165\u5EA63\uFF09**\uFF0C\u8CA1\u5E1B\u5BAE\u548C\u4E8B\u696D\u5BAE\u7684\u5316\u5FCC\u80FD\u91CF\u90FD\u5F80\u9019\u88E1\u96C6\u4E2D\uFF0C\u9019\u6703\u8B93\u4F60\u611F\u89BA\u58D3\u529B\u5C71\u5927\u3002\u4F46\u597D\u6D88\u606F\u662F\uFF0C**\u4F60\u7684\u798F\u5FB7\u5BAE\u662F\u8CC7\u6E90\u6E90\u982D\uFF08\u51FA\u5EA63\uFF09**\uFF0C\u80FD\u91CF\u53EF\u4EE5\u5F9E\u9019\u88E1\u8F38\u51FA\uFF0C\u6240\u4EE5\u8981\u591A\u57F9\u990A\u5167\u5FC3\u7684\u5E73\u975C\u548C\u798F\u5831\u3002
-
-\u6574\u9AD4\u4F86\u770B\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u670912\u689D\u98DB\u5316\u908A\uFF0C\u5176\u4E2D\u5316\u5FCC\u4F54\u4E864\u689D\u3001\u5316\u797F3\u689D\u3001\u5316\u6B0A3\u689D\u3001\u5316\u79D12\u689D\uFF0C\u9019\u4EE3\u8868\u4F60\u7684\u547D\u76E4\u80FD\u91CF\u6D41\u52D5\u6D3B\u8E8D\uFF0C\u4F46\u58D3\u529B\u548C\u8CC7\u6E90\u4E26\u5B58\u3002
-
-\u4F60\u7684\u661F\u66DC\u914D\u7F6E\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u3002\u4F46\u56E0\u70BA\u547D\u5BAE\u7684\u58D3\u529B\u532F\u805A\uFF0C\u52A0\u4E0A\u660E\u5E74${currentYear + 1}\u5E74\u4F60\u6703\u6C96\u592A\u6B72\uFF0C\u6211\u597D\u96E3\u904E\uFF5E\u5FC3\u7406\u58D3\u529B\u548C\u8CA1\u52D9\u58D3\u529B\u53EF\u80FD\u90FD\u6703\u6BD4\u8F03\u5927\u3002
-
-**\u660E\u5E74\u8981\u7279\u5225\u6CE8\u610F**\uFF1A\u4E0A\u534A\u5E74\uFF081-6\u6708\uFF09\u5316\u5FCC\u5FAA\u74B0\u6700\u5F37\uFF0C\u907F\u958B\u5927\u7B46\u6295\u8CC7\u548C\u652F\u51FA\u3002\u4E0B\u534A\u5E74\uFF087-12\u6708\uFF09\u80FD\u91CF\u958B\u59CB\u8F49\u9806\uFF0C\u7279\u5225\u662F 9-10 \u6708\uFF0C\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\uFF01\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u9019\u6642\u5019\u53EF\u4EE5\u7A4D\u6975\u4E00\u9EDE\uFF0C\u628A\u63E1\u6A5F\u6703\u54E6\uFF5E\u300D`}
-
----
-
-${markdown}
-
----
-
-\u55E8\u55E8\uFF01\u597D\u6211\u770B\u770B\uFF5E\u4F86\u5E6B\u4F60\u505A\u9032\u968E\u6DF1\u5EA6\u5206\u6790\u5427\uFF5E`;
   }
 };
 
@@ -35675,34 +35706,41 @@ var AIServiceManager = class {
 };
 
 // src/routes/analyzeRoutes.ts
+function configureAzureFallback(env) {
+  const azureEndpoint = env.AZURE_OPENAI_ENDPOINT?.trim();
+  const azureApiKey = env.AZURE_OPENAI_API_KEY?.trim();
+  if (!azureApiKey || !azureEndpoint || azureEndpoint === "") {
+    console.log("[AI Services] Azure OpenAI fallback not configured (missing credentials)");
+    if (!azureApiKey) {
+      console.log("[AI Services] Missing AZURE_OPENAI_API_KEY");
+    }
+    if (!azureEndpoint || azureEndpoint === "") {
+      console.log("[AI Services] Missing or empty AZURE_OPENAI_ENDPOINT");
+    }
+    return void 0;
+  }
+  const service = new AzureOpenAIService({
+    apiKey: azureApiKey,
+    endpoint: azureEndpoint,
+    deployment: env.AZURE_OPENAI_DEPLOYMENT || "gpt-4.1-mini",
+    apiVersion: env.AZURE_OPENAI_API_VERSION || "2024-08-01-preview"
+  });
+  console.log("[AI Services] Azure OpenAI fallback provider configured");
+  console.log("[AI Services] Endpoint:", azureEndpoint);
+  console.log("[AI Services] Deployment:", env.AZURE_OPENAI_DEPLOYMENT || "gpt-4o-mini");
+  return service;
+}
 function initializeAIServices(env) {
   const geminiService = new GeminiService({
     apiKey: env.GEMINI_API_KEY || "",
     model: "gemini-2.5-flash",
     maxRetries: 3
   });
-  let fallbackProvider;
-  const azureEndpoint = env.AZURE_OPENAI_ENDPOINT?.trim();
-  const azureApiKey = env.AZURE_OPENAI_API_KEY?.trim();
-  if (azureApiKey && azureEndpoint && azureEndpoint !== "") {
-    fallbackProvider = new AzureOpenAIService({
-      apiKey: azureApiKey,
-      endpoint: azureEndpoint,
-      deployment: env.AZURE_OPENAI_DEPLOYMENT || "gpt-4o-mini",
-      apiVersion: env.AZURE_OPENAI_API_VERSION || "2024-08-01-preview"
-    });
-    console.log("[AI Services] Azure OpenAI fallback provider configured");
-    console.log("[AI Services] Endpoint:", azureEndpoint);
-    console.log("[AI Services] Deployment:", env.AZURE_OPENAI_DEPLOYMENT || "gpt-4o-mini");
-  } else {
-    console.log("[AI Services] Azure OpenAI fallback not configured (missing credentials)");
-    if (!azureApiKey) console.log("[AI Services] Missing AZURE_OPENAI_API_KEY");
-    if (!azureEndpoint || azureEndpoint === "") console.log("[AI Services] Missing or empty AZURE_OPENAI_ENDPOINT");
-  }
+  const fallbackProvider = configureAzureFallback(env);
   const manager = new AIServiceManager({
     primaryProvider: geminiService,
     fallbackProvider,
-    enableFallback: env.ENABLE_AI_FALLBACK !== "false",
+    enableFallback: env.ENABLE_AI_FALLBACK !== false,
     // Default: true
     maxRetries: 3,
     timeout: env.AI_PROVIDER_TIMEOUT_MS || 45e3
@@ -35742,6 +35780,7 @@ function createAnalyzeRoutes(router, env) {
     try {
       const url2 = new URL(req.url);
       const chartId = url2.searchParams.get("chartId");
+      const locale = url2.searchParams.get("locale") || "zh-TW";
       if (!chartId) {
         return new Response(
           JSON.stringify({ error: "chartId is required" }),
@@ -35750,7 +35789,7 @@ function createAnalyzeRoutes(router, env) {
       }
       const { manager } = initializeAIServices(env);
       const controller = new AnalyzeController(manager);
-      const result = await controller.checkCache(chartId, env);
+      const result = await controller.checkCache(chartId, env, locale);
       return new Response(JSON.stringify(result), {
         headers: {
           "Content-Type": "application/json",

@@ -217,7 +217,7 @@ function formatFortuneCycles(result: CalculationResult): string {
 /**
  * Format ZiWei purple star section
  */
-function formatZiWei(result: CalculationResult, options: FormatOptions): string {
+function formatZiWei(result: CalculationResult, options: MarkdownOptions): string {
   const { ziwei } = result;
   const sections: string[] = ['## 🌟 紫微斗數\n'];
 
@@ -232,12 +232,29 @@ function formatZiWei(result: CalculationResult, options: FormatOptions): string 
   sections.push(`- **紫微星**：第${ziwei.ziWeiPosition}宮`);
   sections.push(`- **天府星**：第${ziwei.tianFuPosition}宮`);
 
-  // Auxiliary Stars
+  // Auxiliary Stars with brightness information
+  // HOTFIX: Preserve star brightness for frontend CSS rendering
   sections.push('\n### 輔星分布');
-  sections.push(`- **文昌**：第${ziwei.auxiliaryStars.wenChang}宮`);
-  sections.push(`- **文曲**：第${ziwei.auxiliaryStars.wenQu}宮`);
-  sections.push(`- **左輔**：第${ziwei.auxiliaryStars.zuoFu}宮`);
-  sections.push(`- **右弼**：第${ziwei.auxiliaryStars.youBi}宮`);
+  const auxiliaryStarsInfo = [
+    { name: '文昌', key: 'wenChang' as const },
+    { name: '文曲', key: 'wenQu' as const },
+    { name: '左輔', key: 'zuoFu' as const },
+    { name: '右弼', key: 'youBi' as const }
+  ];
+
+  auxiliaryStarsInfo.forEach(({ name, key }) => {
+    const position = ziwei.auxiliaryStars[key];
+    // Find brightness from palaces data
+    const palace = ziwei.palaces?.find(p => p.position === position);
+    const star = palace?.stars?.find(s => s.name === name);
+    const brightness = star?.brightness;
+
+    if (brightness) {
+      sections.push(`- **${name}**：第${position}宮 (${brightness})`);
+    } else {
+      sections.push(`- **${name}**：第${position}宮`);
+    }
+  });
 
   // Star Symmetry (if available) - Skip in personality-only mode
   // Star symmetry is dynamic data, better suited for fortune analysis
@@ -251,12 +268,19 @@ function formatZiWei(result: CalculationResult, options: FormatOptions): string 
   }
 
   // Palaces (if available)
+  // HOTFIX: Preserve star brightness information for frontend CSS rendering
   if (ziwei.palaces && ziwei.palaces.length > 0) {
     sections.push('\n### 十二宮位\n');
     sections.push('| 宮位 | 地支 | 主星 |');
     sections.push('|------|------|------|');
     ziwei.palaces.forEach(palace => {
-      const stars = palace.stars?.map(s => s.name).join('、') || '無';
+      // Include brightness metadata in markdown format: StarName(brightness)
+      const stars = palace.stars?.map(s => {
+        if (s.brightness) {
+          return `${s.name}(${s.brightness})`;
+        }
+        return s.name;
+      }).join('、') || '無';
       sections.push(`| ${palace.meaning} | ${palace.branch} | ${stars} |`);
     });
   }

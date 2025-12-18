@@ -921,3 +921,14 @@
 - 2025-12-18: CI/CD Standards Adjustment - Modified test.yml to allow ESLint failures without blocking deployment pipeline
 - 2025-12-18: LanguageSelector Test Fixes - Fixed TypeScript import errors and removed unused variables in test files
 - 2025-12-18: Staging Deployment Success - Version ef950857-35ef-47f9-a44e-684d838873a4 deployed with working personality and fortune analysis streams
+
+## 2025-12-18: Font Rendering & Cache Issues Hotfix
+
+### 決策：生產環境字型渲染漸層與快取交叉污染修復
+- **背景**: AI 整合後產生兩個關鍵問題：後端輸出破壞前端特殊字型渲染漸層；兩種分析切換時快取到另一邊內容
+- **影響**:
+  - **字型渲染修復**: markdownFormatter 保留星曜亮度資訊格式 `星曜名稱(brightness)`，前端 StarBrightnessIndicator 可正確渲染語意色彩（廟、旺、得地）
+  - **快取隔離修復**: 更新快取鍵格式為 `ai-streaming-${locale}-personality` 和 `ai-advanced-${locale}-fortune`，徹底隔離性格分析與運勢分析
+  - **代碼品質提升**: 修復所有 ESLint 錯誤（D1Database 全域定義、語法錯誤、複雜度重構），代碼模組化為 promptBuilder/streamProcessor/cacheUtilities
+- **技術細節**: 向後相容設計，舊快取自然過期，前端無需修改，構建驗證通過
+- **狀態**: 完成 ✓（準備部署生產環境）

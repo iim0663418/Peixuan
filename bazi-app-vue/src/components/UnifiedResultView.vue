@@ -103,7 +103,12 @@
               :md="6"
             >
               <div class="star-card">
-                <div class="star-name">{{ formatStarName(String(star)) }}</div>
+                <div class="star-name">
+                  {{ formatStarName(String(star)) }}
+                  <StarBrightnessIndicator
+                    :brightness="getStarBrightness(String(star), pos) || ''"
+                  />
+                </div>
                 <div class="star-position">{{ pos }}宮</div>
               </div>
             </el-col>
@@ -178,6 +183,7 @@ import TechnicalDetailsCard from './TechnicalDetailsCard.vue';
 import DeveloperCard from './DeveloperCard.vue';
 import TaiSuiCard from './TaiSuiCard.vue';
 import AnnualFortuneCard from './AnnualFortuneCard.vue';
+import StarBrightnessIndicator from './StarBrightnessIndicator.vue';
 import {
   STEM_TO_ELEMENT,
   BRANCH_TO_ELEMENT,
@@ -254,6 +260,20 @@ const formatStarName = (key: string): string => {
     youBi: '右弼',
   };
   return nameMap[key] || key;
+};
+
+const getStarBrightness = (starKey: string, position: number): string | undefined => {
+  const starName = formatStarName(starKey);
+  const palaces = props.result.ziwei.palaces;
+  if (!palaces || !Array.isArray(palaces)) return undefined;
+
+  // 找到對應宮位
+  const palace = palaces.find((p: any) => p.position === position);
+  if (!palace || !palace.stars) return undefined;
+
+  // 找到對應星曜
+  const star = palace.stars.find((s: any) => s.name === starName);
+  return star ? star.brightness : undefined;
 };
 </script>
 

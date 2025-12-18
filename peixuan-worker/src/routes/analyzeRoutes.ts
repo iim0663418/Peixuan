@@ -3,16 +3,49 @@
  * Provides AI-powered analysis endpoint
  */
 
-import type { AutoRouter } from 'itty-router';
-import { AnalyzeController } from '../controllers/analyzeController';
+import type { AutoRouter, IRequest } from 'itty-router';
+import type { Env } from '../index';
+import { AnalyzeController, type AnalyzeRequest } from '../controllers/analyzeController';
 import { GeminiService } from '../services/geminiService';
 import { AzureOpenAIService } from '../services/azureOpenAIService';
 import { AIServiceManager } from '../services/aiServiceManager';
 
 /**
+ * Configure Azure OpenAI fallback provider
+ */
+function configureAzureFallback(env: Env): AzureOpenAIService | undefined {
+  const azureEndpoint = env.AZURE_OPENAI_ENDPOINT?.trim();
+  const azureApiKey = env.AZURE_OPENAI_API_KEY?.trim();
+
+  if (!azureApiKey || !azureEndpoint || azureEndpoint === '') {
+    console.log('[AI Services] Azure OpenAI fallback not configured (missing credentials)');
+    if (!azureApiKey) {
+      console.log('[AI Services] Missing AZURE_OPENAI_API_KEY');
+    }
+    if (!azureEndpoint || azureEndpoint === '') {
+      console.log('[AI Services] Missing or empty AZURE_OPENAI_ENDPOINT');
+    }
+    return undefined;
+  }
+
+  const service = new AzureOpenAIService({
+    apiKey: azureApiKey,
+    endpoint: azureEndpoint,
+    deployment: env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4.1-mini',
+    apiVersion: env.AZURE_OPENAI_API_VERSION || '2024-08-01-preview',
+  });
+
+  console.log('[AI Services] Azure OpenAI fallback provider configured');
+  console.log('[AI Services] Endpoint:', azureEndpoint);
+  console.log('[AI Services] Deployment:', env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4o-mini');
+
+  return service;
+}
+
+/**
  * Initialize AI services with fallback support
  */
-function initializeAIServices(env: any): { manager: AIServiceManager } {
+function initializeAIServices(env: Env): { manager: AIServiceManager } {
   // Initialize primary provider (Gemini)
   const geminiService = new GeminiService({
     apiKey: env.GEMINI_API_KEY || '',
@@ -21,31 +54,13 @@ function initializeAIServices(env: any): { manager: AIServiceManager } {
   });
 
   // Initialize fallback provider (Azure OpenAI) if configured
-  let fallbackProvider;
-  const azureEndpoint = env.AZURE_OPENAI_ENDPOINT?.trim();
-  const azureApiKey = env.AZURE_OPENAI_API_KEY?.trim();
-
-  if (azureApiKey && azureEndpoint && azureEndpoint !== '') {
-    fallbackProvider = new AzureOpenAIService({
-      apiKey: azureApiKey,
-      endpoint: azureEndpoint,
-      deployment: env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4o-mini',
-      apiVersion: env.AZURE_OPENAI_API_VERSION || '2024-08-01-preview',
-    });
-    console.log('[AI Services] Azure OpenAI fallback provider configured');
-    console.log('[AI Services] Endpoint:', azureEndpoint);
-    console.log('[AI Services] Deployment:', env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4o-mini');
-  } else {
-    console.log('[AI Services] Azure OpenAI fallback not configured (missing credentials)');
-    if (!azureApiKey) console.log('[AI Services] Missing AZURE_OPENAI_API_KEY');
-    if (!azureEndpoint || azureEndpoint === '') console.log('[AI Services] Missing or empty AZURE_OPENAI_ENDPOINT');
-  }
+  const fallbackProvider = configureAzureFallback(env);
 
   // Create AI service manager
   const manager = new AIServiceManager({
     primaryProvider: geminiService,
     fallbackProvider,
-    enableFallback: env.ENABLE_AI_FALLBACK !== 'false', // Default: true
+    enableFallback: env.ENABLE_AI_FALLBACK !== false, // Default: true
     maxRetries: 3,
     timeout: env.AI_PROVIDER_TIMEOUT_MS || 45000,
   });
@@ -56,7 +71,7 @@ function initializeAIServices(env: any): { manager: AIServiceManager } {
   return { manager };
 }
 
-export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: any) {
+export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: Env) {
   /**
    * POST /api/v1/analyze
    * 
@@ -78,7 +93,7 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
    *   usage?: { promptTokens, completionTokens, totalTokens }
    * }
    */
-  router.post('/api/v1/analyze', async (req: any) => {
+  router.post('/api/v1/analyze', async (req: IRequest) => {
     try {
       // Initialize AI services
       const { manager } = initializeAIServices(env);
@@ -91,7 +106,7 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
       }
 
       const controller = new AnalyzeController(manager);
-      const input = await req.json();
+      const input = await req.json() as AnalyzeRequest;
       const result = await controller.analyze(input);
 
       return result; // AutoRouter will convert to JSON Response
@@ -119,10 +134,11 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
    *   cached: boolean
    * }
    */
-  router.get('/api/v1/analyze/check', async (req: any) => {
+  router.get('/api/v1/analyze/check', async (req: IRequest) => {
     try {
       const url = new URL(req.url);
       const chartId = url.searchParams.get('chartId');
+      const locale = url.searchParams.get('locale') || 'zh-TW';
 
       if (!chartId) {
         return new Response(
@@ -133,7 +149,7 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
 
       const { manager } = initializeAIServices(env);
       const controller = new AnalyzeController(manager);
-      const result = await controller.checkCache(chartId, env);
+      const result = await controller.checkCache(chartId, env, locale);
 
       return new Response(JSON.stringify(result), {
         headers: {
@@ -164,7 +180,7 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
    * - Format: SSE events with incremental analysis text
    * - Final event: "data: [DONE]\n\n"
    */
-  router.get('/api/v1/analyze/stream', async (req: any) => {
+  router.get('/api/v1/analyze/stream', async (req: IRequest) => {
     try {
       // Parse URL and get chartId from query params
       const url = new URL(req.url);
@@ -269,7 +285,7 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
    *   cached: boolean
    * }
    */
-  router.get('/api/v1/analyze/advanced/check', async (req: any) => {
+  router.get('/api/v1/analyze/advanced/check', async (req: IRequest) => {
     try {
       const url = new URL(req.url);
       const chartId = url.searchParams.get('chartId');
@@ -315,7 +331,7 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
    * - Format: SSE events with incremental advanced analysis text
    * - Final event: "data: [DONE]\n\n"
    */
-  router.get('/api/v1/analyze/advanced/stream', async (req: any) => {
+  router.get('/api/v1/analyze/advanced/stream', async (req: IRequest) => {
     try {
       // Parse URL and get chartId from query params
       const url = new URL(req.url);

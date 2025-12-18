@@ -26,13 +26,13 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/personality',
     name: 'personality',
-    component: () => import('../views/AIAnalysisView.vue'),
+    component: () => import('../views/UnifiedAIAnalysisView.vue'),
     meta: { title: '佩璇性格分析 - 佩璇' },
   },
   {
     path: '/fortune',
     name: 'fortune',
-    component: () => import('../views/AdvancedAnalysisView.vue'),
+    component: () => import('../views/UnifiedAIAnalysisView.vue'),
     meta: { title: '佩璇運勢分析 - 佩璇' },
   },
   // 向後兼容 (Backward compatibility redirects)

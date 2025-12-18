@@ -5,6 +5,56 @@
 
 import type { AutoRouter } from 'itty-router';
 import { AnalyzeController } from '../controllers/analyzeController';
+import { GeminiService } from '../services/geminiService';
+import { AzureOpenAIService } from '../services/azureOpenAIService';
+import { AIServiceManager } from '../services/aiServiceManager';
+
+/**
+ * Initialize AI services with fallback support
+ */
+function initializeAIServices(env: any): { manager: AIServiceManager } {
+  // Initialize primary provider (Gemini)
+  const geminiService = new GeminiService({
+    apiKey: env.GEMINI_API_KEY || '',
+    model: 'gemini-2.5-flash',
+    maxRetries: 3,
+  });
+
+  // Initialize fallback provider (Azure OpenAI) if configured
+  let fallbackProvider;
+  const azureEndpoint = env.AZURE_OPENAI_ENDPOINT?.trim();
+  const azureApiKey = env.AZURE_OPENAI_API_KEY?.trim();
+
+  if (azureApiKey && azureEndpoint && azureEndpoint !== '') {
+    fallbackProvider = new AzureOpenAIService({
+      apiKey: azureApiKey,
+      endpoint: azureEndpoint,
+      deployment: env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4o-mini',
+      apiVersion: env.AZURE_OPENAI_API_VERSION || '2024-08-01-preview',
+    });
+    console.log('[AI Services] Azure OpenAI fallback provider configured');
+    console.log('[AI Services] Endpoint:', azureEndpoint);
+    console.log('[AI Services] Deployment:', env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4o-mini');
+  } else {
+    console.log('[AI Services] Azure OpenAI fallback not configured (missing credentials)');
+    if (!azureApiKey) console.log('[AI Services] Missing AZURE_OPENAI_API_KEY');
+    if (!azureEndpoint || azureEndpoint === '') console.log('[AI Services] Missing or empty AZURE_OPENAI_ENDPOINT');
+  }
+
+  // Create AI service manager
+  const manager = new AIServiceManager({
+    primaryProvider: geminiService,
+    fallbackProvider,
+    enableFallback: env.ENABLE_AI_FALLBACK !== 'false', // Default: true
+    maxRetries: 3,
+    timeout: env.AI_PROVIDER_TIMEOUT_MS || 45000,
+  });
+
+  console.log('[AI Services] Initialized with primary:', geminiService.getName(),
+    'fallback:', fallbackProvider?.getName() || 'none');
+
+  return { manager };
+}
 
 export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: any) {
   /**
@@ -30,17 +80,17 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
    */
   router.post('/api/v1/analyze', async (req: any) => {
     try {
-      // Get Gemini API key from environment
-      const geminiApiKey = env.GEMINI_API_KEY;
+      // Initialize AI services
+      const { manager } = initializeAIServices(env);
 
-      if (!geminiApiKey) {
+      if (!env.GEMINI_API_KEY) {
         return new Response(
           JSON.stringify({ error: 'Gemini API key not configured' }),
           { status: 500, headers: { 'Content-Type': 'application/json' } }
         );
       }
 
-      const controller = new AnalyzeController(geminiApiKey);
+      const controller = new AnalyzeController(manager);
       const input = await req.json();
       const result = await controller.analyze(input);
 
@@ -81,8 +131,8 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
         );
       }
 
-      const geminiApiKey = env.GEMINI_API_KEY;
-      const controller = new AnalyzeController(geminiApiKey);
+      const { manager } = initializeAIServices(env);
+      const controller = new AnalyzeController(manager);
       const result = await controller.checkCache(chartId, env);
 
       return new Response(JSON.stringify(result), {
@@ -129,10 +179,10 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
         );
       }
 
-      // Get Gemini API key from environment
-      const geminiApiKey = env.GEMINI_API_KEY;
+      // Initialize AI services
+      const { manager } = initializeAIServices(env);
 
-      if (!geminiApiKey) {
+      if (!env.GEMINI_API_KEY) {
         return new Response(
           JSON.stringify({ error: 'Gemini API key not configured' }),
           { status: 500, headers: { 'Content-Type': 'application/json' } }
@@ -140,7 +190,7 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
       }
 
       // Create controller and call analyzeStream
-      const controller = new AnalyzeController(geminiApiKey);
+      const controller = new AnalyzeController(manager);
       const stream = await controller.analyzeStream(chartId, env, locale);
 
       // Return Response with SSE headers
@@ -232,8 +282,8 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
         );
       }
 
-      const geminiApiKey = env.GEMINI_API_KEY;
-      const controller = new AnalyzeController(geminiApiKey);
+      const { manager } = initializeAIServices(env);
+      const controller = new AnalyzeController(manager);
       const result = await controller.checkAdvancedCache(chartId, env, locale);
 
       return new Response(JSON.stringify(result), {
@@ -280,10 +330,10 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
         );
       }
 
-      // Get Gemini API key from environment
-      const geminiApiKey = env.GEMINI_API_KEY;
+      // Initialize AI services
+      const { manager } = initializeAIServices(env);
 
-      if (!geminiApiKey) {
+      if (!env.GEMINI_API_KEY) {
         return new Response(
           JSON.stringify({ error: 'Gemini API key not configured' }),
           { status: 500, headers: { 'Content-Type': 'application/json' } }
@@ -291,7 +341,7 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
       }
 
       // Create controller and call analyzeAdvancedStream
-      const controller = new AnalyzeController(geminiApiKey);
+      const controller = new AnalyzeController(manager);
       const stream = await controller.analyzeAdvancedStream(chartId, env, locale);
 
       // Return Response with SSE headers

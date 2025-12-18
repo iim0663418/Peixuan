@@ -15,7 +15,16 @@ import { AutoRouter } from 'itty-router';
 export interface Env {
 	DB: D1Database;
 	CACHE?: KVNamespace;
+	// Gemini API Configuration
 	GEMINI_API_KEY?: string;
+	// Azure OpenAI Configuration
+	AZURE_OPENAI_API_KEY?: string;
+	AZURE_OPENAI_ENDPOINT?: string;
+	AZURE_OPENAI_DEPLOYMENT?: string;
+	AZURE_OPENAI_API_VERSION?: string;
+	// AI Service Configuration
+	AI_PROVIDER_TIMEOUT_MS?: number;
+	ENABLE_AI_FALLBACK?: boolean;
 }
 
 // 確保 anonymous 用戶存在
@@ -43,6 +52,39 @@ async function handleAPI(request: Request, env: Env): Promise<Response> {
 		return new Response(JSON.stringify({ status: 'ok' }), {
 			headers: { 'Content-Type': 'application/json' }
 		});
+	}
+
+	// 錯誤報告端點
+	if (path === '/api/error-report' && method === 'POST') {
+		try {
+			const errorData = await request.json();
+			// 記錄錯誤到控制台（在 Cloudflare Workers 中會記錄到日誌）
+			console.error('[ERROR_REPORT]', {
+				timestamp: new Date().toISOString(),
+				userAgent: request.headers.get('user-agent'),
+				...errorData
+			});
+
+			// TODO: 可以選擇將錯誤保存到資料庫或發送到監控服務
+			// 例如：await saveErrorToDatabase(env.DB, errorData);
+
+			return new Response(JSON.stringify({
+				success: true,
+				message: '錯誤報告已記錄'
+			}), {
+				status: 200,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		} catch (error: any) {
+			console.error('[ERROR_REPORT] Failed to process error report:', error);
+			return new Response(JSON.stringify({
+				success: false,
+				error: '無法處理錯誤報告'
+			}), {
+				status: 500,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
 	}
 
 	// Register unified routes with AutoRouter

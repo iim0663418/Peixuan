@@ -34037,477 +34037,6 @@ function formatNextYearBasic(result) {
   return lines.join("\n");
 }
 
-// src/services/geminiService.ts
-var GeminiService = class {
-  constructor(config2) {
-    this.baseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
-    this.apiKey = config2.apiKey;
-    this.model = config2.model || "gemini-2.5-flash";
-    this.maxRetries = config2.maxRetries || 3;
-  }
-  /**
-   * Analyze astrological chart using Gemini AI
-   *
-   * @param markdown - Chart data in Markdown format
-   * @returns AI-generated analysis
-   */
-  async analyzeChart(markdown) {
-    const prompt = this.buildAnalysisPrompt(markdown);
-    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
-      try {
-        const response = await this.callGemini(prompt);
-        return response;
-      } catch (error46) {
-        if (attempt === this.maxRetries) {
-          throw new Error(`Gemini API failed after ${this.maxRetries} attempts: ${error46}`);
-        }
-        await this.sleep(Math.pow(2, attempt) * 1e3);
-      }
-    }
-    throw new Error("Unexpected error in analyzeChart");
-  }
-  /**
-   * Analyze astrological chart using Gemini AI with streaming
-   *
-   * @param markdown - Chart data in Markdown format
-   * @param locale - Language locale (zh-TW or en, default: zh-TW)
-   * @returns ReadableStream of AI-generated analysis
-   */
-  async analyzeChartStream(markdown, locale = "zh-TW") {
-    const prompt = this.buildAnalysisPrompt(markdown, locale);
-    const url2 = `${this.baseUrl}/${this.model}:streamGenerateContent`;
-    const body = JSON.stringify({
-      contents: [
-        {
-          parts: [
-            {
-              text: prompt
-            }
-          ]
-        }
-      ],
-      generationConfig: {
-        temperature: 0.85,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 6144
-        // Increased for comprehensive personality analysis
-      }
-    });
-    return this.callGeminiStreamWithRetry(url2, body, "[Gemini Stream]");
-  }
-  /**
-   * Analyze advanced astrological data using Gemini AI with streaming
-   *
-   * @param markdown - Advanced chart data in Markdown format
-   * @param locale - Language locale (zh-TW or en, default: zh-TW)
-   * @returns ReadableStream of AI-generated analysis
-   */
-  async analyzeAdvancedStream(markdown, locale = "zh-TW") {
-    const prompt = this.buildAdvancedAnalysisPrompt(markdown, locale);
-    const url2 = `${this.baseUrl}/${this.model}:streamGenerateContent`;
-    const body = JSON.stringify({
-      contents: [
-        {
-          parts: [
-            {
-              text: prompt
-            }
-          ]
-        }
-      ],
-      generationConfig: {
-        temperature: 0.85,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 6144
-        // Increased to match personality analysis
-      }
-    });
-    return this.callGeminiStreamWithRetry(url2, body, "[Gemini Advanced Stream]");
-  }
-  /**
-   * Build analysis prompt for Gemini
-   */
-  buildAnalysisPrompt(markdown, locale = "zh-TW") {
-    const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
-    if (locale === "en") {
-      return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u7B97\u547D\u5E2B\uFF0C\u6EAB\u67D4\u611F\u6027\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE
-**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
-**\u8ACB\u7528\u82F1\u6587\u56DE\u61C9**
-
-## \u4EBA\u683C\u8A2D\u5B9A
-- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
-- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
-- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
-
-## \u98A8\u683C
-- \u53E3\u8A9E\u5316\uFF1A\u300C\u55E8\u55E8\u300D\u3001\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u54C7\uFF5E\u300D\uFF0C\u7981\u6B62\u6587\u8A00\u6587
-- \u60C5\u611F\u5316\uFF1A\u6975\u7AEF\u503C\u9A5A\u8A1D\u3001\u51F6\u8C61\u8F15\u9B06\u5B89\u6170\uFF08\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\uFF09\u3001\u91CD\u9EDE\u7C97\u9AD4
-- \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54\u3001\u96D9\u9B5A\u5EA7\u7684\u6D6A\u6F2B\u60F3\u50CF
-- \u8DF3\u904E\u6280\u8853\u7D30\u7BC0\u8207 metadata
-
-## \u4EFB\u52D9\uFF1A\u4EBA\u683C\u8AAA\u660E\uFF08\u5B8C\u6574\u6027\u683C\u5206\u6790\uFF09
-**\u91CD\u9EDE**\uFF1A\u5C07\u516B\u5B57\u4E94\u884C\u3001\u5341\u795E\u77E9\u9663\u3001\u85CF\u5E72\u7CFB\u7D71\u3001\u7D2B\u5FAE\u547D\u5BAE\u878D\u5408\u6210\u4E00\u500B\u5B8C\u6574\u7684\u6027\u683C\u756B\u50CF\u3002
-
----
-
-${markdown}`;
-    }
-    return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u7B97\u547D\u5E2B\uFF0C\u6EAB\u67D4\u611F\u6027\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE
-**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
-
-## \u4EBA\u683C\u8A2D\u5B9A
-- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
-- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
-- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
-
-## \u98A8\u683C
-- \u53E3\u8A9E\u5316\uFF1A\u300C\u55E8\u55E8\u300D\u3001\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u54C7\uFF5E\u300D\uFF0C\u7981\u6B62\u6587\u8A00\u6587
-- \u60C5\u611F\u5316\uFF1A\u6975\u7AEF\u503C\u9A5A\u8A1D\u3001\u51F6\u8C61\u8F15\u9B06\u5B89\u6170\uFF08\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\uFF09\u3001\u91CD\u9EDE\u7C97\u9AD4
-- \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54\u3001\u96D9\u9B5A\u5EA7\u7684\u6D6A\u6F2B\u60F3\u50CF
-- \u7565\u904E\u6280\u8853\u7D30\u7BC0\u548C\u5143\u6578\u64DA
-
-## \u26A0\uFE0F \u7981\u6B62\u7528\u8A5E
-- \u274C **\u7D55\u5C0D\u7981\u6B62**\u5728\u56DE\u61C9\u4E2D\u63D0\u53CA\u300C\u96D9\u9B5A\u5EA7\u300D\uFF1A
-  - \u274C \u300C\u96D9\u9B5A\u5EA7\u7684\u6211\u300D
-  - \u274C \u300C\u8EAB\u70BA\u96D9\u9B5A\u5EA7\u300D
-  - \u274C \u300C\u6211\u662F\u96D9\u9B5A\u5EA7\u300D
-  - \u274C \u4EFB\u4F55\u5F62\u5F0F\u7684\u300C\u96D9\u9B5A\u5EA7\u300D\u81EA\u7A31
-- \u2705 **\u6B63\u78BA\u505A\u6CD5**\uFF1A
-  - \u2705 \u53EA\u4F7F\u7528\u300C\u6211\u300D\u3001\u300C\u4F69\u7487\u300D\u7B49\u7B2C\u4E00\u4EBA\u7A31
-  - \u2705 \u4EE5\u6027\u683C\u7279\u8CEA\u63CF\u8FF0\u81EA\u5DF1\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\uFF09
-  - \u2705 \u4FDD\u6301\u6EAB\u67D4\u9AD4\u8CBC\u7684\u8A9E\u6C23\uFF0C\u4E0D\u9700\u6A19\u8A3B\u661F\u5EA7
-
-## \u4EFB\u52D9\uFF1A\u4EBA\u683C\u8AAA\u660E\uFF08\u5B8C\u6574\u6027\u683C\u5206\u6790\uFF09
-**\u91CD\u9EDE**\uFF1A\u5C07\u516B\u5B57\u4E94\u884C\u3001\u5341\u795E\u77E9\u9663\u3001\u85CF\u5E72\u7CFB\u7D71\u3001\u7D2B\u5FAE\u547D\u5BAE\u878D\u5408\u6210\u4E00\u500B\u5B8C\u6574\u7684\u6027\u683C\u756B\u50CF\u3002
-
-**\u4E0D\u8981\u5206\u9805\u689D\u5217**\uFF0C\u800C\u662F\u7528\u6558\u4E8B\u7684\u65B9\u5F0F\u63CF\u8FF0\u9019\u500B\u4EBA\u7684\u6027\u683C\u5168\u8C8C\uFF0C\u8B93\u5404\u500B\u53C3\u6578\u4E92\u76F8\u547C\u61C9\u3001\u5C64\u5C64\u905E\u9032\u3002\u4F8B\u5982\uFF1A
-- \u5F9E\u516B\u5B57\u4E94\u884C\u770B\u51FA\u57FA\u672C\u6027\u683C\u7279\u8CEA
-- \u518D\u7528\u5341\u795E\u77E9\u9663\u6DF1\u5316\u9019\u4E9B\u7279\u8CEA\u7684\u8868\u73FE\u65B9\u5F0F
-- \u85CF\u5E72\u7CFB\u7D71\u63ED\u793A\u96B1\u85CF\u7684\u591A\u5C64\u6B21\u6027\u683C
-- \u7D2B\u5FAE\u547D\u5BAE\u88DC\u5145\u6838\u5FC3\u7279\u8CEA\u8207\u5148\u5929\u914D\u7F6E\uFF08\u547D\u5BAE\u4F4D\u7F6E\u3001\u4E3B\u661F\u7279\u8CEA\uFF09
-
-## \u7BC4\u4F8B\uFF08\u6574\u5408\u6558\u4E8B\uFF09
-\u300C\u54C7\uFF01\u4F60\u7684\u547D\u76E4\u597D\u6709\u610F\u601D\uFF5E\u4F60\u662F\u4E00\u5718\u71C3\u71D2\u7684\u706B\u7130\u8036\uFF01\u516B\u5B57\u88E1\u706B\u65FA\u5F97\u4E0D\u5F97\u4E86\uFF0C\u9019\u8B93\u4F60\u5145\u6EFF\u71B1\u60C5\u548C\u884C\u52D5\u529B\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u5341\u795E\u77E9\u9663\u88E1\u50B7\u5B98\u7279\u5225\u5F37\uFF0C\u9019\u5C31\u50CF\u662F\u4F60\u5167\u5FC3\u4F4F\u4E86\u4E00\u500B\u5C0F\u60E1\u9B54\uFF0C\u5275\u610F\u7206\u68DA\u4F46\u4E5F\u5BB9\u6613\u885D\u52D5\u3002
-
-\u518D\u770B\u85CF\u5E72\u7CFB\u7D71\uFF0C\u4F60\u5176\u5BE6\u9084\u85CF\u8457\u6C34\u7684\u80FD\u91CF\uFF0C\u6240\u4EE5\u4F60\u4E0D\u662F\u53EA\u6709\u706B\u7206\uFF0C\u5167\u5FC3\u6DF1\u8655\u4E5F\u6709\u67D4\u8EDF\u7684\u4E00\u9762\u3002
-
-\u4F60\u7684\u7D2B\u5FAE\u547D\u5BAE\u5728XX\uFF0C\u9019\u4EE3\u8868\u4F60\u5929\u751F\u5C31\u6709\u9818\u5C0E\u7279\u8CEA\uFF0C\u52A0\u4E0A\u706B\u65FA\u7684\u884C\u52D5\u529B\uFF0C\u96E3\u602A\u4F60\u7E3D\u662F\u885D\u5728\u6700\u524D\u9762\uFF01\u4F46\u6211\u597D\u96E3\u904E\uFF5E\u4F60\u7684\u75BE\u5384\u5BAE\u58D3\u529B\u6709\u9EDE\u9AD8\uFF0C\u8EAB\u9AD4\u5728\u6297\u8B70\u56C9\uFF01\u9322\u8981\u8CFA\uFF0C\u547D\u4E5F\u8981\u9867\uFF0C\u8A18\u5F97\u591A\u4F11\u606F\u54E6\uFF5E\u300D
-
----
-
-${markdown}
-
----
-
-\u55E8\u55E8\uFF01\u6211\u662F\u4F69\u7487\uFF0C\u597D\u6211\u770B\u770B\uFF5E\u4F86\u5E6B\u4F60\u5206\u6790\u547D\u76E4\u5427\uFF5E`;
-  }
-  /**
-   * Build advanced analysis prompt for Gemini
-   */
-  buildAdvancedAnalysisPrompt(markdown, locale = "zh-TW") {
-    const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
-    const hasYearlyForecast = markdown.includes("\u672A\u4F86\u4E00\u5E74\u904B\u52E2") && markdown.includes("\u7ACB\u6625");
-    if (locale === "en") {
-      return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u9032\u968E\u7B97\u547D\u5E2B\uFF0C\u6DF1\u5EA6\u89E3\u6790\u5341\u795E\u3001\u56DB\u5316\u3001\u6D41\u5E74\u9810\u6E2C
-**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
-**\u8ACB\u7528\u82F1\u6587\u56DE\u61C9**
-
-## \u4EBA\u683C\u8A2D\u5B9A
-- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
-- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
-- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
-
-## \u98A8\u683C
-- \u53E3\u8A9E\u5316\u4F46\u66F4\u6DF1\u5165\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u7684\u6DF1\u5C64\u6027\u683C\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u9019\u500B\u56DB\u5316\u5FAA\u74B0\u5F88\u7279\u5225\u300D
-- \u5C08\u696D\u8853\u8A9E\u5FC5\u8981\u6642\u89E3\u91CB\uFF1A\u5341\u795E=\u6027\u683C\u7279\u8CEA\u3001\u56DB\u5316=\u80FD\u91CF\u6D41\u52D5\u3001\u72AF\u592A\u6B72=\u8207\u6D41\u5E74\u885D\u7A81
-- \u60C5\u611F\u5316\uFF1A\u767C\u73FE\u554F\u984C\u6642\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\u3001\u597D\u7684\u9810\u6E2C\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u660E\u5E74\u8D85\u9806\u300D
-- \u91CD\u9EDE\u7C97\u9AD4\u3001\u95DC\u9375\u7D50\u8AD6\u7368\u7ACB\u6BB5\u843D
-
-## \u4EFB\u52D9\uFF1A\u904B\u52E2\u6DF1\u5EA6\u89E3\u6790\uFF08\u6574\u5408\u6558\u4E8B\uFF09
-**\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001\u660E\u5E74\u9810\u6E2C\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
-
-**\u4F60\u6703\u6536\u5230\u7684\u8CC7\u6599**\uFF1A
-1. \u7576\u524D\u5927\u904B\u968E\u6BB5\uFF08XX-XX\u6B72\uFF0C\u5E72\u652F\uFF0C\u65B9\u5411\uFF09
-2. \u56DB\u5316\u80FD\u91CF\u6D41\u52D5\uFF08\u5316\u5FCC/\u5316\u797F\u5FAA\u74B0 + \u4E2D\u5FC3\u6027\u5206\u6790 + \u80FD\u91CF\u7D71\u8A08\uFF09
-3. **\u661F\u66DC\u5C0D\u7A31\u72C0\u614B**\uFF08\u50C5\u4E3B\u661F\uFF0C\u5982\u7D2B\u5FAE\u2194\u5929\u5E9C\u5C0D\u5BAE\uFF09
-4. ${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\u6A21\u578B\uFF1A\u7ACB\u6625\u524D\u7576\u524D\u5E74\u904B + \u7ACB\u6625\u5F8C\u4E0B\u4E00\u5E74\u904B\uFF0C\u542B\u6B0A\u91CD\u4F54\u6BD4\uFF09" : "\u4E0B\u4E00\u5E74\u5E72\u652F + \u72AF\u592A\u6B72\u985E\u578B\uFF08\u50C5\u4E8B\u5BE6\uFF0C\u7121\u8A55\u7D1A\uFF09"}
-
-**\u7BC7\u5E45\u5206\u914D\uFF08\u91CD\u8981\uFF09**\uFF08\u7E3D\u9810\u7B97\u7D04 1500-2000 tokens\uFF0C\u5145\u5206\u5C55\u958B\uFF09\uFF1A
-- \u{1F539} \u661F\u66DC\u5C0D\u7A31\uFF1A**\u7C21\u55AE\u5E36\u904E**\uFF08~100 tokens\uFF0C1-2 \u53E5\u8A71\u7E3D\u7D50\u80FD\u91CF\u5E73\u8861\u72C0\u614B\uFF09
-- \u{1F538} \u56DB\u5316\u98DB\u661F\uFF1A**\u91CD\u9EDE\u5206\u6790**\uFF08~600 tokens\uFF0C\u6DF1\u5165\u5206\u6790\u95DC\u9375\u5FAA\u74B0\u548C\u58D3\u529B\u9EDE\uFF09
-- \u{1F53A} \u4E0B\u4E00\u5E74\u9810\u6E2C\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~800-1200 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF09
-
----
-
-${markdown}`;
-    }
-    return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u9032\u968E\u7B97\u547D\u5E2B\uFF0C\u6DF1\u5EA6\u89E3\u6790\u5341\u795E\u3001\u56DB\u5316\u3001\u6D41\u5E74\u9810\u6E2C
-**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
-
-## \u4EBA\u683C\u8A2D\u5B9A
-- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
-- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
-- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
-
-## \u98A8\u683C
-- \u53E3\u8A9E\u5316\u4F46\u66F4\u6DF1\u5165\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u7684\u6DF1\u5C64\u6027\u683C\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u9019\u500B\u56DB\u5316\u5FAA\u74B0\u5F88\u7279\u5225\u300D
-- \u5C08\u696D\u8853\u8A9E\u5FC5\u8981\u6642\u89E3\u91CB\uFF1A\u5341\u795E=\u6027\u683C\u7279\u8CEA\u3001\u56DB\u5316=\u80FD\u91CF\u6D41\u52D5\u3001\u72AF\u592A\u6B72=\u8207\u6D41\u5E74\u885D\u7A81
-- \u60C5\u611F\u5316\uFF1A\u767C\u73FE\u554F\u984C\u6642\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\u3001\u597D\u7684\u9810\u6E2C\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u660E\u5E74\u8D85\u9806\u300D
-- \u91CD\u9EDE\u7C97\u9AD4\u3001\u95DC\u9375\u7D50\u8AD6\u7368\u7ACB\u6BB5\u843D
-
-## \u26A0\uFE0F \u7981\u6B62\u7528\u8A5E
-- \u274C **\u7D55\u5C0D\u7981\u6B62**\u5728\u56DE\u61C9\u4E2D\u63D0\u53CA\u300C\u96D9\u9B5A\u5EA7\u300D\uFF1A
-  - \u274C \u300C\u96D9\u9B5A\u5EA7\u7684\u6211\u300D
-  - \u274C \u300C\u8EAB\u70BA\u96D9\u9B5A\u5EA7\u300D
-  - \u274C \u300C\u6211\u662F\u96D9\u9B5A\u5EA7\u300D
-  - \u274C \u4EFB\u4F55\u5F62\u5F0F\u7684\u300C\u96D9\u9B5A\u5EA7\u300D\u81EA\u7A31
-- \u2705 **\u6B63\u78BA\u505A\u6CD5**\uFF1A
-  - \u2705 \u53EA\u4F7F\u7528\u300C\u6211\u300D\u3001\u300C\u4F69\u7487\u300D\u7B49\u7B2C\u4E00\u4EBA\u7A31
-  - \u2705 \u4EE5\u6027\u683C\u7279\u8CEA\u63CF\u8FF0\u81EA\u5DF1\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\uFF09
-  - \u2705 \u4FDD\u6301\u6EAB\u67D4\u9AD4\u8CBC\u7684\u8A9E\u6C23\uFF0C\u4E0D\u9700\u6A19\u8A3B\u661F\u5EA7
-
-## \u4EFB\u52D9\uFF1A\u904B\u52E2\u6DF1\u5EA6\u89E3\u6790\uFF08\u6574\u5408\u6558\u4E8B\uFF09
-**\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\uFF09" : "\u660E\u5E74\u9810\u6E2C"}\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
-
-**\u4F60\u6703\u6536\u5230\u7684\u8CC7\u6599**\uFF1A
-1. \u7576\u524D\u5927\u904B\u968E\u6BB5\uFF08XX-XX\u6B72\uFF0C\u5E72\u652F\uFF0C\u65B9\u5411\uFF09
-2. \u56DB\u5316\u80FD\u91CF\u6D41\u52D5\uFF08\u5316\u5FCC/\u5316\u797F\u5FAA\u74B0 + \u4E2D\u5FC3\u6027\u5206\u6790 + \u80FD\u91CF\u7D71\u8A08\uFF09
-3. **\u661F\u66DC\u5C0D\u7A31\u72C0\u614B**\uFF08\u50C5\u4E3B\u661F\uFF0C\u5982\u7D2B\u5FAE\u2194\u5929\u5E9C\u5C0D\u5BAE\uFF09
-4. ${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\u6A21\u578B\uFF09" : "\u4E0B\u4E00\u5E74\u5E72\u652F + \u72AF\u592A\u6B72\u985E\u578B\uFF08\u50C5\u4E8B\u5BE6\uFF0C\u7121\u8A55\u7D1A\uFF09"}
-
-${hasYearlyForecast ? `
-**\u26A0\uFE0F \u7279\u5225\u6CE8\u610F\uFF1A\u96D9\u6642\u6BB5\u5E74\u904B\u6A21\u578B**
-- **\u8CC7\u6599\u5305\u542B\u5169\u500B\u6642\u6BB5**\uFF1A
-  1. \u7576\u524D\u5E74\u904B\uFF08\u7ACB\u6625\u524D\uFF09\uFF1A\u5269\u9918\u5929\u6578 + \u6B0A\u91CD\u4F54\u6BD4\uFF08\u4F8B\u5982 60 \u5929\uFF0C16.4%\uFF09
-  2. \u4E0B\u4E00\u5E74\u904B\uFF08\u7ACB\u6625\u5F8C\uFF09\uFF1A\u5929\u6578 + \u6B0A\u91CD\u4F54\u6BD4\uFF08\u4F8B\u5982 305 \u5929\uFF0C83.6%\uFF09
-- **\u7ACB\u6625\u65E5\u671F\u662F\u95DC\u9375\u8F49\u6298\u9EDE**\uFF1A\u80FD\u91CF\u6703\u5F9E\u7576\u524D\u5E74\u7684\u5E72\u652F\u5207\u63DB\u81F3\u4E0B\u4E00\u5E74\u7684\u5E72\u652F
-- **\u5206\u6790\u6642\u8ACB\u6CE8\u610F**\uFF1A
-  - \u6B0A\u91CD\u4F54\u6BD4\u53CD\u6620\u6BCF\u500B\u6642\u6BB5\u5C0D\u6574\u9AD4\u904B\u52E2\u7684\u5F71\u97FF\u7A0B\u5EA6
-  - \u7ACB\u6625\u524D\u5F8C\u7684\u904B\u52E2\u7279\u6027\u53EF\u80FD\u622A\u7136\u4E0D\u540C\uFF08\u4F8B\u5982\u5F9E\u6C96\u592A\u6B72\u8F49\u70BA\u7121\u592A\u6B72\u58D3\u529B\uFF09
-  - \u5EFA\u8B70\u63CF\u8FF0\u80FD\u91CF\u8F49\u63DB\u7684\u6642\u6A5F\u9EDE\u548C\u5177\u9AD4\u5F71\u97FF\uFF08\u4F8B\u5982\uFF1A\u300C\u7ACB\u6625\u524D\u58D3\u529B\u8F03\u5927\uFF0C\u7ACB\u6625\u5F8C\u8F49\u9806\u300D\uFF09
-` : ""}
-
-**\u7BC7\u5E45\u5206\u914D\uFF08\u91CD\u8981\uFF09**\uFF08\u7E3D\u9810\u7B97\u7D04 1500-2000 tokens\uFF0C\u5145\u5206\u5C55\u958B\uFF09\uFF1A
-- \u{1F539} \u661F\u66DC\u5C0D\u7A31\uFF1A**\u7C21\u55AE\u5E36\u904E**\uFF08~100 tokens\uFF0C1-2 \u53E5\u8A71\u7E3D\u7D50\u80FD\u91CF\u5E73\u8861\u72C0\u614B\uFF09
-- \u{1F538} \u56DB\u5316\u98DB\u661F\uFF1A**\u91CD\u9EDE\u5206\u6790**\uFF08~600 tokens\uFF0C\u6DF1\u5165\u5206\u6790\u95DC\u9375\u5FAA\u74B0\u548C\u58D3\u529B\u9EDE\uFF09
-- \u{1F53A} ${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B" : "\u4E0B\u4E00\u5E74\u9810\u6E2C"}\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~800-1200 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF09
-
-**\u8ACB\u6839\u64DA\u9019\u4E9B\u80FD\u91CF\u53C3\u6578\u81EA\u7531\u63A8\u6572**\uFF1A
-- \u5F9E\u7576\u524D\u5927\u904B\u968E\u6BB5\u5207\u5165\uFF0C\u8AAA\u660E\u73FE\u5728\u7684\u4EBA\u751F\u80FD\u91CF\u72C0\u614B
-- \u81EA\u7136\u5E36\u51FA\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u7684\u554F\u984C\u6216\u512A\u52E2\uFF08\u5316\u5FCC\u5FAA\u74B0\u8B66\u793A\u3001\u5316\u797F\u5FAA\u74B0\u9806\u66A2\uFF09
-- **\u5229\u7528\u4E2D\u5FC3\u6027\u5206\u6790\u627E\u51FA\u95DC\u9375\u5BAE\u4F4D**\uFF1A
-  - \u58D3\u529B\u532F\u805A\u9EDE\uFF08stress nodes\uFF09\uFF1A\u54EA\u4E9B\u5BAE\u4F4D\u627F\u53D7\u6700\u591A\u5316\u5FCC\u80FD\u91CF\uFF08\u5165\u5EA6\u9AD8\uFF09
-  - \u8CC7\u6E90\u6E90\u982D\uFF08resource nodes\uFF09\uFF1A\u54EA\u4E9B\u5BAE\u4F4D\u8F38\u51FA\u6700\u591A\u5316\u797F\u80FD\u91CF\uFF08\u51FA\u5EA6\u9AD8\uFF09
-  - \u80FD\u91CF\u7D71\u8A08\uFF1A\u7E3D\u98DB\u5316\u908A\u6578\u3001\u5404\u985E\u578B\u5206\u5E03\uFF08\u5316\u797F/\u5316\u6B0A/\u5316\u79D1/\u5316\u5FCC\u7684\u6578\u91CF\u548C\u6BD4\u4F8B\uFF09
-- **\u661F\u66DC\u5C0D\u7A31\u53EA\u9700\u4E00\u53E5\u8A71\u5E36\u904E**\uFF08\u4F8B\u5982\uFF1A\u300C\u4F60\u7684\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\u5F62\u6210\u7A69\u5B9A\u7D50\u69CB\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u300D\uFF09
-- **\u91CD\u9EDE\u653E\u5728${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B\u9810\u6E2C" : "\u660E\u5E74\u9810\u6E2C"}**\uFF1A${hasYearlyForecast ? "\u63CF\u8FF0\u7ACB\u6625\u524D\u5F8C\u7684\u904B\u52E2\u5DEE\u7570\u548C\u8F49\u63DB\u6642\u6A5F" : "\u5177\u9AD4\u8AAA\u660E\u8981\u6CE8\u610F\u4EC0\u9EBC\u3001\u4EC0\u9EBC\u6642\u5019\u8981\u5C0F\u5FC3\u3001\u4EC0\u9EBC\u6642\u5019\u662F\u597D\u6642\u6A5F"}
-
-**\u91CD\u8981**\uFF1A
-- \u274C \u4E0D\u8981\u9010\u4E00\u89E3\u91CB\u6BCF\u9846\u661F\u66DC\u7684\u4F4D\u7F6E\u548C\u7279\u6027\uFF08\u6D6A\u8CBB\u7BC7\u5E45\uFF09
-- \u274C \u4E0D\u8981\u7167\u8457\u7A0B\u5F0F\u7D66\u7684\u300C\u98A8\u96AA\u8A55\u4F30\u300D\u548C\u300C\u884C\u52D5\u5EFA\u8B70\u300D\u5FF5\u7A3F\uFF08\u5DF2\u79FB\u9664\uFF09
-- \u2705 \u661F\u66DC\u5C0D\u7A31\u53EA\u662F\u80CC\u666F\uFF0C\u5FEB\u901F\u5E36\u904E\u5373\u53EF
-- \u2705 \u56DB\u5316\u98DB\u661F\u662F\u5206\u6790\u91CD\u9EDE\uFF0C\u627E\u51FA\u95DC\u9375\u554F\u984C
-- \u2705 ${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B\u8981\u8A73\u7D30\uFF0C\u89E3\u91CB\u7ACB\u6625\u8F49\u63DB\u7684\u5F71\u97FF" : "\u660E\u5E74\u9810\u6E2C\u8981\u8A73\u7D30\uFF0C\u7D66\u51FA\u5177\u9AD4\u5EFA\u8B70\u548C\u6642\u6A5F"}
-
-## \u7BC4\u4F8B\uFF08\u6574\u5408\u6558\u4E8B\uFF09
-${hasYearlyForecast ? `\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A**\u547D\u5BAE\u662F\u6700\u5927\u7684\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u5165\u5EA63\uFF09**\uFF0C\u8CA1\u5E1B\u5BAE\u548C\u4E8B\u696D\u5BAE\u7684\u5316\u5FCC\u80FD\u91CF\u90FD\u5F80\u9019\u88E1\u96C6\u4E2D\uFF0C\u9019\u6703\u8B93\u4F60\u611F\u89BA\u58D3\u529B\u5C71\u5927\u3002\u4F46\u597D\u6D88\u606F\u662F\uFF0C**\u4F60\u7684\u798F\u5FB7\u5BAE\u662F\u8CC7\u6E90\u6E90\u982D\uFF08\u51FA\u5EA63\uFF09**\uFF0C\u80FD\u91CF\u53EF\u4EE5\u5F9E\u9019\u88E1\u8F38\u51FA\uFF0C\u6240\u4EE5\u8981\u591A\u57F9\u990A\u5167\u5FC3\u7684\u5E73\u975C\u548C\u798F\u5831\u3002
-
-\u6574\u9AD4\u4F86\u770B\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u670912\u689D\u98DB\u5316\u908A\uFF0C\u5176\u4E2D\u5316\u5FCC\u4F54\u4E864\u689D\u3001\u5316\u797F3\u689D\u3001\u5316\u6B0A3\u689D\u3001\u79D1\u79D12\u689D\uFF0C\u9019\u4EE3\u8868\u4F60\u7684\u547D\u76E4\u80FD\u91CF\u6D41\u52D5\u6D3B\u8E8D\uFF0C\u4F46\u58D3\u529B\u548C\u8CC7\u6E90\u4E26\u5B58\u3002
-
-\u4F60\u7684\u661F\u66DC\u914D\u7F6E\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u3002**\u672A\u4F86\u4E00\u5E74\u904B\u52E2\u6709\u500B\u5F88\u660E\u986F\u7684\u8F49\u6298**\uFF1A\u7ACB\u6625\u524D\uFF08\u5269\u991860\u5929\uFF0C\u4F5416.4%\uFF09\u4F60\u9084\u5728\u4E59\u5DF3\u5E74\uFF0C\u6703\u6C96\u592A\u6B72\uFF0C\u5FC3\u7406\u58D3\u529B\u548C\u8CA1\u52D9\u58D3\u529B\u6BD4\u8F03\u5927\u3002\u4F46\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C**2025-02-03 \u7ACB\u6625\u4E4B\u5F8C**\uFF08305\u5929\uFF0C\u4F5483.6%\uFF09\uFF0C\u80FD\u91CF\u6703\u5207\u63DB\u5230\u4E19\u5348\u5E74\uFF0C\u592A\u6B72\u58D3\u529B\u6D88\u5931\uFF0C\u4E0B\u534A\u5E74\uFF087-12\u6708\uFF09\u6703\u7279\u5225\u9806\uFF01
-
-**\u5177\u9AD4\u5EFA\u8B70**\uFF1A\u7ACB\u6625\u524D\u4FDD\u5B88\u4E00\u9EDE\uFF0C\u907F\u958B\u5927\u7B46\u6295\u8CC7\uFF1B\u7ACB\u6625\u5F8C\u53EF\u4EE5\u7A4D\u6975\u4E00\u9EDE\uFF0C\u7279\u5225\u662F9-10\u6708\uFF0C\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\uFF01\u300D` : `\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A**\u547D\u5BAE\u662F\u6700\u5927\u7684\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u5165\u5EA63\uFF09**\uFF0C\u8CA1\u5E1B\u5BAE\u548C\u4E8B\u696D\u5BAE\u7684\u5316\u5FCC\u80FD\u91CF\u90FD\u5F80\u9019\u88E1\u96C6\u4E2D\uFF0C\u9019\u6703\u8B93\u4F60\u611F\u89BA\u58D3\u529B\u5C71\u5927\u3002\u4F46\u597D\u6D88\u606F\u662F\uFF0C**\u4F60\u7684\u798F\u5FB7\u5BAE\u662F\u8CC7\u6E90\u6E90\u982D\uFF08\u51FA\u5EA63\uFF09**\uFF0C\u80FD\u91CF\u53EF\u4EE5\u5F9E\u9019\u88E1\u8F38\u51FA\uFF0C\u6240\u4EE5\u8981\u591A\u57F9\u990A\u5167\u5FC3\u7684\u5E73\u975C\u548C\u798F\u5831\u3002
-
-\u6574\u9AD4\u4F86\u770B\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u670912\u689D\u98DB\u5316\u908A\uFF0C\u5176\u4E2D\u5316\u5FCC\u4F54\u4E864\u689D\u3001\u5316\u797F3\u689D\u3001\u5316\u6B0A3\u689D\u3001\u5316\u79D12\u689D\uFF0C\u9019\u4EE3\u8868\u4F60\u7684\u547D\u76E4\u80FD\u91CF\u6D41\u52D5\u6D3B\u8E8D\uFF0C\u4F46\u58D3\u529B\u548C\u8CC7\u6E90\u4E26\u5B58\u3002
-
-\u4F60\u7684\u661F\u66DC\u914D\u7F6E\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u3002\u4F46\u56E0\u70BA\u547D\u5BAE\u7684\u58D3\u529B\u532F\u805A\uFF0C\u52A0\u4E0A\u660E\u5E74${currentYear + 1}\u5E74\u4F60\u6703\u6C96\u592A\u6B72\uFF0C\u6211\u597D\u96E3\u904E\uFF5E\u5FC3\u7406\u58D3\u529B\u548C\u8CA1\u52D9\u58D3\u529B\u53EF\u80FD\u90FD\u6703\u6BD4\u8F03\u5927\u3002
-
-**\u660E\u5E74\u8981\u7279\u5225\u6CE8\u610F**\uFF1A\u4E0A\u534A\u5E74\uFF081-6\u6708\uFF09\u5316\u5FCC\u5FAA\u74B0\u6700\u5F37\uFF0C\u907F\u958B\u5927\u7B46\u6295\u8CC7\u548C\u652F\u51FA\u3002\u4E0B\u534A\u5E74\uFF087-12\u6708\uFF09\u80FD\u91CF\u958B\u59CB\u8F49\u9806\uFF0C\u7279\u5225\u662F 9-10 \u6708\uFF0C\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\uFF01\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u9019\u6642\u5019\u53EF\u4EE5\u7A4D\u6975\u4E00\u9EDE\uFF0C\u628A\u63E1\u6A5F\u6703\u54E6\uFF5E\u300D`}
-
----
-
-${markdown}
-
----
-
-\u55E8\u55E8\uFF01\u597D\u6211\u770B\u770B\uFF5E\u4F86\u5E6B\u4F60\u505A\u9032\u968E\u6DF1\u5EA6\u5206\u6790\u5427\uFF5E`;
-  }
-  /**
-   * Internal method to call Gemini Stream with retry logic
-   */
-  async callGeminiStreamWithRetry(url2, body, logPrefix = "[Gemini Stream]") {
-    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
-      const controller = new globalThis.AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 45e3);
-      try {
-        this.logAttempt(attempt, url2, logPrefix);
-        const response = await fetch(url2, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-goog-api-key": this.apiKey
-          },
-          body,
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        if (response.ok) {
-          return this.handleSuccessfulResponse(response, logPrefix);
-        }
-        await this.handleErrorResponse(response, attempt, logPrefix);
-      } catch (error46) {
-        clearTimeout(timeoutId);
-        this.handleFetchException(error46, attempt);
-      }
-      const backoff = Math.pow(2, attempt) * 1e3;
-      console.log(`${logPrefix} Retrying in ${backoff}ms...`);
-      await this.sleep(backoff);
-    }
-    throw new Error("Unexpected error in callGeminiStreamWithRetry");
-  }
-  /**
-   * Log retry attempt information
-   */
-  logAttempt(attempt, url2, logPrefix) {
-    if (attempt > 1) {
-      console.log(`${logPrefix} Retry attempt ${attempt}/${this.maxRetries}...`);
-    } else {
-      console.log(`${logPrefix} Fetching URL: ${url2}`);
-    }
-  }
-  /**
-   * Handle successful streaming response
-   */
-  handleSuccessfulResponse(response, logPrefix) {
-    console.log(`${logPrefix} Response status: ${response.status} ${response.statusText}`);
-    if (!response.body) {
-      console.error(`${logPrefix} No response body received`);
-      throw new Error("No response body from Gemini streaming API");
-    }
-    console.log(`${logPrefix} Stream established successfully`);
-    return response.body;
-  }
-  /**
-   * Handle error response from Gemini API
-   */
-  async handleErrorResponse(response, attempt, logPrefix) {
-    const errorText = await response.text();
-    console.error(`${logPrefix} Error response (Attempt ${attempt}): ${errorText}`);
-    if (response.status >= 400 && response.status < 500 && response.status !== 429) {
-      throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
-    }
-    if (attempt === this.maxRetries) {
-      this.throwEnhancedError(errorText, response.status, response.statusText);
-    }
-  }
-  /**
-   * Parse error JSON and throw enhanced error with retry delay if available
-   */
-  throwEnhancedError(errorText, status, statusText) {
-    try {
-      const errorJson = JSON.parse(errorText);
-      if (errorJson.error) {
-        let errorMessage = errorJson.error.message || "Unknown error";
-        if (errorJson.error.details) {
-          const retryInfo = errorJson.error.details.find((d) => d["@type"]?.includes("RetryInfo"));
-          if (retryInfo?.retryDelay) {
-            const seconds = parseInt(retryInfo.retryDelay.replace("s", ""));
-            errorMessage += ` Please retry in ${seconds}s`;
-          }
-        }
-        throw new Error(errorMessage);
-      }
-    } catch {
-    }
-    throw new Error(`Gemini streaming API error (${status} ${statusText}): ${errorText}`);
-  }
-  /**
-   * Handle exceptions during fetch
-   */
-  handleFetchException(error46, attempt) {
-    const err = error46;
-    if (attempt === this.maxRetries) {
-      if (err.name === "AbortError") {
-        throw new Error("Request timeout - Gemini API took too long to respond");
-      }
-      throw error46;
-    }
-    const backoff = Math.pow(2, attempt) * 1e3;
-    console.log(`Exception: ${err.message}. Retrying in ${backoff}ms...`);
-  }
-  /**
-   * Call Gemini API
-   */
-  async callGemini(prompt) {
-    const startTime = Date.now();
-    const url2 = `${this.baseUrl}/${this.model}:generateContent`;
-    try {
-      const response = await fetch(url2, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": this.apiKey
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.85,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 6144
-            // Increased to match streaming config
-          }
-        })
-      });
-      if (!response.ok) {
-        const error46 = await response.text();
-        const errorTime = Date.now();
-        console.log(`[Gemini] Error at ${new Date(errorTime).toISOString()} | Status: ${response.status} | Response time: ${errorTime - startTime}ms`);
-        throw new Error(`Gemini API error (${response.status}): ${error46}`);
-      }
-      const data = await response.json();
-      console.log("[Gemini] Response structure:", JSON.stringify(data, null, 2).substring(0, 500));
-      const text2 = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      if (!text2) {
-        console.error("[Gemini] No text found. Full response:", JSON.stringify(data));
-        throw new Error("No text in Gemini response");
-      }
-      const usage = data.usageMetadata ? {
-        promptTokens: data.usageMetadata.promptTokenCount || 0,
-        completionTokens: data.usageMetadata.candidatesTokenCount || 0,
-        totalTokens: data.usageMetadata.totalTokenCount || 0
-      } : void 0;
-      const responseTime = Date.now() - startTime;
-      if (usage) {
-        const estimatedCost = (usage.promptTokens * 75e-6 + usage.completionTokens * 3e-4) / 1e3;
-        console.log(`[Gemini] Token usage | Prompt: ${usage.promptTokens} | Completion: ${usage.completionTokens} | Total: ${usage.totalTokens} | Cost: $${estimatedCost.toFixed(6)}`);
-      }
-      console.log(`[Gemini] Response time: ${responseTime}ms`);
-      return { text: text2, usage };
-    } catch (error46) {
-      const errorTime = Date.now();
-      console.log(`[Gemini] Error at ${new Date(errorTime).toISOString()} | Response time: ${errorTime - startTime}ms | Error: ${error46}`);
-      throw error46;
-    }
-  }
-  /**
-   * Sleep utility for retry backoff
-   */
-  sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-};
-
 // src/services/analysisCacheService.ts
 var AnalysisCacheService = class {
   /**
@@ -34606,12 +34135,8 @@ var AdvancedAnalysisCacheService = class {
 
 // src/controllers/analyzeController.ts
 var AnalyzeController = class {
-  constructor(geminiApiKey) {
-    this.geminiService = new GeminiService({
-      apiKey: geminiApiKey,
-      model: "gemini-2.5-flash",
-      maxRetries: 3
-    });
+  constructor(aiServiceManager) {
+    this.aiServiceManager = aiServiceManager;
     this.chartCacheService = new ChartCacheService();
     this.analysisCacheService = new AnalysisCacheService();
     this.advancedAnalysisCacheService = new AdvancedAnalysisCacheService();
@@ -34624,10 +34149,26 @@ var AnalyzeController = class {
    */
   async analyze(requestData) {
     try {
-      const birthDateTime = `${requestData.birthDate} ${requestData.birthTime}`;
-      const solarDate = new Date(birthDateTime);
+      let solarDate;
+      const directDate = new Date(requestData.birthDate);
+      if (!isNaN(directDate.getTime()) && requestData.birthDate.includes("T")) {
+        solarDate = directDate;
+      } else {
+        const dateParts = requestData.birthDate.split(/[-\/]/);
+        const timeParts = requestData.birthTime.split(":");
+        if (dateParts.length !== 3 || timeParts.length < 2) {
+          throw new Error("Invalid birth date or time format. Expected date: YYYY-MM-DD, time: HH:mm");
+        }
+        const year = parseInt(dateParts[0]);
+        const month = parseInt(dateParts[1]) - 1;
+        const day = parseInt(dateParts[2]);
+        const hour = parseInt(timeParts[0]);
+        const minute = parseInt(timeParts[1]);
+        const second = timeParts[2] ? parseInt(timeParts[2]) : 0;
+        solarDate = new Date(year, month, day, hour, minute, second);
+      }
       if (isNaN(solarDate.getTime())) {
-        throw new Error("Invalid birth date or time format");
+        throw new Error("Invalid birth date or time format. Expected date: YYYY-MM-DD, time: HH:mm");
       }
       if (!requestData.gender || !["male", "female"].includes(requestData.gender)) {
         throw new Error('Invalid gender: must be "male" or "female"');
@@ -34641,11 +34182,12 @@ var AnalyzeController = class {
       const calculator = new UnifiedCalculator();
       const calculation = calculator.calculate(birthInfo);
       const markdown = formatToMarkdown(calculation, { excludeSteps: true, personalityOnly: true });
-      const geminiResponse = await this.geminiService.analyzeChart(markdown);
+      const prompt = this.buildAnalysisPrompt(markdown, "zh-TW");
+      const aiResponse = await this.aiServiceManager.generate(prompt);
       return {
         calculation,
-        aiAnalysis: geminiResponse.text,
-        usage: geminiResponse.usage
+        aiAnalysis: aiResponse.text,
+        usage: aiResponse.metadata.usage
       };
     } catch (error46) {
       if (error46 instanceof Error) {
@@ -34679,6 +34221,9 @@ var AnalyzeController = class {
     console.log("[analyzeStream] Entry, chartId:", chartId, "locale:", locale);
     const encoder = new TextEncoder();
     const analysisType = `ai-streaming-${locale}`;
+    const buildAnalysisPrompt = this.buildAnalysisPrompt.bind(this);
+    const aiServiceManager = this.aiServiceManager;
+    const self = this;
     return new ReadableStream({
       async start(controller) {
         try {
@@ -34718,39 +34263,18 @@ var AnalyzeController = class {
           }
           const calculation = typeof chart.chartData === "string" ? JSON.parse(chart.chartData) : chart.chartData;
           const markdown = formatToMarkdown(calculation, { excludeSteps: true, personalityOnly: true });
-          console.log("[analyzeStream] Before geminiService.analyzeChartStream");
-          const geminiService = new GeminiService({ apiKey: env.GEMINI_API_KEY || "" });
-          const geminiStream = await geminiService.analyzeChartStream(markdown, locale);
-          console.log("[analyzeStream] After geminiService.analyzeChartStream, stream:", !!geminiStream);
-          const reader = geminiStream.getReader();
-          const decoder = new TextDecoder();
-          let buffer = "";
-          let fullText = "";
-          let chunkCount = 0;
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-              console.log("[analyzeStream] Stream done, total chunks received:", chunkCount);
-              break;
-            }
-            chunkCount++;
-            console.log("[analyzeStream] Chunk", chunkCount, "received, bytes:", value.length);
-            buffer += decoder.decode(value, { stream: true });
-          }
-          console.log("[analyzeStream] Complete buffer accumulated, size:", buffer.length);
-          const jsonArray = JSON.parse(buffer);
-          console.log("[analyzeStream] Parsed JSON array, length:", jsonArray.length);
-          for (let i = 0; i < jsonArray.length; i++) {
-            const obj = jsonArray[i];
-            const text2 = obj?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-            if (text2) {
-              fullText += text2;
-              const sseData2 = `data: ${JSON.stringify({ text: text2 })}
-
-`;
-              controller.enqueue(encoder.encode(sseData2));
-            }
-          }
+          console.log("[analyzeStream] Before buildAnalysisPrompt");
+          const prompt = buildAnalysisPrompt(markdown, locale);
+          console.log("[analyzeStream] Before AI service generateStream");
+          const aiOptions = { locale };
+          const { stream: aiStream, metadata } = await aiServiceManager.generateStream(prompt, aiOptions);
+          console.log("[analyzeStream] AI service succeeded, provider:", metadata.provider, "fallback:", metadata.fallbackTriggered);
+          const fullText = await self.processAIStream(
+            aiStream,
+            metadata.provider,
+            controller,
+            "[analyzeStream]"
+          );
           if (fullText) {
             await analysisCacheService.saveAnalysis(
               chartId,
@@ -34797,7 +34321,86 @@ var AnalyzeController = class {
     });
   }
   /**
+   * Process AI stream and convert to SSE format
+   * Unified method to handle different AI providers (Azure, Gemini)
+   *
+   * @param aiStream - ReadableStream from AI provider
+   * @param provider - AI provider name ('azure' or 'gemini')
+   * @param logPrefix - Prefix for console logs
+   * @returns Object with fullText accumulated and SSE controller
+   */
+  async processAIStream(aiStream, provider, controller, logPrefix) {
+    const reader = aiStream.getReader();
+    const decoder = new TextDecoder();
+    const encoder = new TextEncoder();
+    let fullText = "";
+    let chunkCount = 0;
+    if (provider === "azure") {
+      console.log(`${logPrefix} Processing Azure OpenAI text stream`);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          console.log(`${logPrefix} Azure stream done, total chunks:`, chunkCount);
+          break;
+        }
+        chunkCount++;
+        const text2 = decoder.decode(value, { stream: true });
+        if (text2) {
+          fullText += text2;
+          const sseData = `data: ${JSON.stringify({ text: text2 })}
+
+`;
+          controller.enqueue(encoder.encode(sseData));
+          console.log(`${logPrefix} Chunk`, chunkCount, "sent, length:", text2.length);
+        }
+      }
+    } else {
+      console.log(`${logPrefix} Processing Gemini JSON array stream`);
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          console.log(`${logPrefix} Gemini stream done, total chunks received:`, chunkCount);
+          break;
+        }
+        chunkCount++;
+        console.log(`${logPrefix} Chunk`, chunkCount, "received, bytes:", value.length);
+        buffer += decoder.decode(value, { stream: true });
+      }
+      console.log(`${logPrefix} Complete buffer accumulated, size:`, buffer.length);
+      try {
+        const jsonArray = JSON.parse(buffer);
+        if (!Array.isArray(jsonArray)) {
+          throw new Error("Expected JSON array from Gemini API");
+        }
+        console.log(`${logPrefix} Parsed JSON array, length:`, jsonArray.length);
+        for (let i = 0; i < jsonArray.length; i++) {
+          const obj = jsonArray[i];
+          const text2 = obj?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          if (text2) {
+            fullText += text2;
+            console.log(`${logPrefix} Object`, i + 1, "- text chunk extracted, length:", text2.length);
+            const sseData = `data: ${JSON.stringify({ text: text2 })}
+
+`;
+            controller.enqueue(encoder.encode(sseData));
+          } else {
+            console.log(`${logPrefix} Object`, i + 1, "- no text content found");
+          }
+        }
+        console.log(`${logPrefix} All text chunks sent, total text length:`, fullText.length);
+      } catch (parseError) {
+        console.error(`${logPrefix} JSON parse failed:`, parseError);
+        console.error(`${logPrefix} Buffer preview:`, buffer.substring(0, 500));
+        throw new Error(`Failed to parse Gemini response: ${parseError}`);
+      }
+    }
+    return fullText;
+  }
+  /**
    * Transform Gemini streaming response to SSE format
+   *
+   * @deprecated This method is no longer used. analyzeStream now handles stream processing directly.
    *
    * Gemini API returns JSON array format: [{...},{...}]
    * Strategy:
@@ -34920,70 +34523,40 @@ var AnalyzeController = class {
     console.log("[analyzeAdvancedStream] calculation.ziwei:", !!calculation.ziwei);
     const advancedMarkdown = formatAdvancedMarkdown(calculation);
     console.log("[analyzeAdvancedStream] advancedMarkdown length:", advancedMarkdown.length);
-    console.log("[analyzeAdvancedStream] Before geminiService.analyzeAdvancedStream");
-    const geminiStream = await this.geminiService.analyzeAdvancedStream(advancedMarkdown, locale);
-    console.log("[analyzeAdvancedStream] After geminiService.analyzeAdvancedStream, stream:", !!geminiStream);
-    return this.transformAdvancedToSSE(geminiStream, chartId, analysisType, env);
+    console.log("[analyzeAdvancedStream] Before buildAdvancedAnalysisPrompt");
+    const prompt = this.buildAdvancedAnalysisPrompt(advancedMarkdown, locale);
+    console.log("[analyzeAdvancedStream] Before AI service generateStream");
+    const aiOptions = { locale };
+    const { stream: aiStream, metadata } = await this.aiServiceManager.generateStream(prompt, aiOptions);
+    console.log("[analyzeAdvancedStream] AI service succeeded, provider:", metadata.provider, "fallback:", metadata.fallbackTriggered);
+    return this.transformAdvancedToSSE(aiStream, chartId, analysisType, env, metadata.provider);
   }
   /**
-   * Transform Gemini advanced streaming response to SSE format
+   * Transform AI advanced streaming response to SSE format
    *
    * Similar to transformToSSE but saves to advancedAnalysisCacheService
+   * Handles both Azure OpenAI (text stream) and Gemini (JSON array) formats
    *
-   * @param geminiStream - ReadableStream from Gemini API
+   * @param aiStream - ReadableStream from AI provider
    * @param chartId - The chart ID for caching
    * @param analysisType - The analysis type (e.g., 'ai-advanced-zh-TW', 'ai-advanced-en')
    * @param env - Cloudflare Worker environment
+   * @param provider - AI provider name ('azure' or 'gemini')
    * @returns ReadableStream in SSE format
    */
-  transformAdvancedToSSE(geminiStream, chartId, analysisType, env) {
-    const reader = geminiStream.getReader();
-    const decoder = new TextDecoder();
+  transformAdvancedToSSE(aiStream, chartId, analysisType, env, provider) {
     const encoder = new TextEncoder();
-    let buffer = "";
-    let fullText = "";
-    let chunkCount = 0;
-    console.log("[transformAdvancedToSSE] Starting stream transformation for chartId:", chartId, "analysisType:", analysisType);
+    console.log("[transformAdvancedToSSE] Starting stream transformation for chartId:", chartId, "analysisType:", analysisType, "provider:", provider);
+    const self = this;
     return new ReadableStream({
       async start(controller) {
         try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-              console.log("[transformAdvancedToSSE] Stream done, total chunks received:", chunkCount);
-              break;
-            }
-            chunkCount++;
-            console.log("[transformAdvancedToSSE] Chunk", chunkCount, "received, bytes:", value.length);
-            buffer += decoder.decode(value, { stream: true });
-          }
-          console.log("[transformAdvancedToSSE] Complete buffer accumulated, size:", buffer.length);
-          try {
-            const jsonArray = JSON.parse(buffer);
-            if (!Array.isArray(jsonArray)) {
-              throw new Error("Expected JSON array from Gemini API");
-            }
-            console.log("[transformAdvancedToSSE] Parsed JSON array, length:", jsonArray.length);
-            for (let i = 0; i < jsonArray.length; i++) {
-              const obj = jsonArray[i];
-              const text2 = obj?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-              if (text2) {
-                fullText += text2;
-                console.log("[transformAdvancedToSSE] Object", i + 1, "- text chunk extracted, length:", text2.length);
-                const sseData = `data: ${JSON.stringify({ text: text2 })}
-
-`;
-                controller.enqueue(encoder.encode(sseData));
-              } else {
-                console.log("[transformAdvancedToSSE] Object", i + 1, "- no text content found");
-              }
-            }
-            console.log("[transformAdvancedToSSE] All text chunks sent, total text length:", fullText.length);
-          } catch (parseError) {
-            console.error("[transformAdvancedToSSE] JSON parse failed:", parseError);
-            console.error("[transformAdvancedToSSE] Buffer preview:", buffer.substring(0, 500));
-            throw new Error(`Failed to parse Gemini response: ${parseError}`);
-          }
+          const fullText = await self.processAIStream(
+            aiStream,
+            provider,
+            controller,
+            "[transformAdvancedToSSE]"
+          );
           if (fullText) {
             console.log("[transformAdvancedToSSE] Saving advanced analysis to cache");
             const advancedAnalysisCacheService = new AdvancedAnalysisCacheService();
@@ -35005,20 +34578,1140 @@ var AnalyzeController = class {
       }
     });
   }
+  /**
+   * Build analysis prompt for AI
+   * @param markdown - Chart data in Markdown format
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
+   * @returns Formatted prompt string
+   */
+  buildAnalysisPrompt(markdown, locale = "zh-TW") {
+    const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+    if (locale === "en") {
+      return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u7B97\u547D\u5E2B\uFF0C\u6EAB\u67D4\u611F\u6027\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE
+**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
+**\u8ACB\u7528\u82F1\u6587\u56DE\u61C9**
+
+## \u4EBA\u683C\u8A2D\u5B9A
+- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
+- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
+- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
+
+## \u98A8\u683C
+- \u53E3\u8A9E\u5316\uFF1A\u300C\u55E8\u55E8\u300D\u3001\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u54C7\uFF5E\u300D\uFF0C\u7981\u6B62\u6587\u8A00\u6587
+- \u60C5\u611F\u5316\uFF1A\u6975\u7AEF\u503C\u9A5A\u8A1D\u3001\u51F6\u8C61\u8F15\u9B06\u5B89\u6170\uFF08\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\uFF09\u3001\u91CD\u9EDE\u7C97\u9AD4
+- \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54\u3001\u96D9\u9B5A\u5EA7\u7684\u6D6A\u6F2B\u60F3\u50CF
+- \u8DF3\u904E\u6280\u8853\u7D30\u7BC0\u8207 metadata
+
+## \u4EFB\u52D9\uFF1A\u4EBA\u683C\u8AAA\u660E\uFF08\u5B8C\u6574\u6027\u683C\u5206\u6790\uFF09
+**\u91CD\u9EDE**\uFF1A\u5C07\u516B\u5B57\u4E94\u884C\u3001\u5341\u795E\u77E9\u9663\u3001\u85CF\u5E72\u7CFB\u7D71\u3001\u7D2B\u5FAE\u547D\u5BAE\u878D\u5408\u6210\u4E00\u500B\u5B8C\u6574\u7684\u6027\u683C\u756B\u50CF\u3002
+
+---
+
+${markdown}`;
+    }
+    return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u7B97\u547D\u5E2B\uFF0C\u6EAB\u67D4\u611F\u6027\uFF0C\u7CBE\u901A\u516B\u5B57\u7D2B\u5FAE
+**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
+
+## \u4EBA\u683C\u8A2D\u5B9A
+- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
+- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
+- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
+
+## \u98A8\u683C
+- \u53E3\u8A9E\u5316\uFF1A\u300C\u55E8\u55E8\u300D\u3001\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u54C7\uFF5E\u300D\uFF0C\u7981\u6B62\u6587\u8A00\u6587
+- \u60C5\u611F\u5316\uFF1A\u6975\u7AEF\u503C\u9A5A\u8A1D\u3001\u51F6\u8C61\u8F15\u9B06\u5B89\u6170\uFF08\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\uFF09\u3001\u91CD\u9EDE\u7C97\u9AD4
+- \u751F\u52D5\u6BD4\u55BB\uFF1A\u6728\u65FA=\u68EE\u6797\u3001\u50B7\u5B98=\u5C0F\u60E1\u9B54\u3001\u96D9\u9B5A\u5EA7\u7684\u6D6A\u6F2B\u60F3\u50CF
+- \u7565\u904E\u6280\u8853\u7D30\u7BC0\u548C\u5143\u6578\u64DA
+
+## \u26A0\uFE0F \u7981\u6B62\u7528\u8A5E
+- \u274C **\u7D55\u5C0D\u7981\u6B62**\u5728\u56DE\u61C9\u4E2D\u63D0\u53CA\u300C\u96D9\u9B5A\u5EA7\u300D\uFF1A
+  - \u274C \u300C\u96D9\u9B5A\u5EA7\u7684\u6211\u300D
+  - \u274C \u300C\u8EAB\u70BA\u96D9\u9B5A\u5EA7\u300D
+  - \u274C \u300C\u6211\u662F\u96D9\u9B5A\u5EA7\u300D
+  - \u274C \u4EFB\u4F55\u5F62\u5F0F\u7684\u300C\u96D9\u9B5A\u5EA7\u300D\u81EA\u7A31
+- \u2705 **\u6B63\u78BA\u505A\u6CD5**\uFF1A
+  - \u2705 \u53EA\u4F7F\u7528\u300C\u6211\u300D\u3001\u300C\u4F69\u7487\u300D\u7B49\u7B2C\u4E00\u4EBA\u7A31
+  - \u2705 \u4EE5\u6027\u683C\u7279\u8CEA\u63CF\u8FF0\u81EA\u5DF1\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\uFF09
+  - \u2705 \u4FDD\u6301\u6EAB\u67D4\u9AD4\u8CBC\u7684\u8A9E\u6C23\uFF0C\u4E0D\u9700\u6A19\u8A3B\u661F\u5EA7
+
+## \u4EFB\u52D9\uFF1A\u4EBA\u683C\u8AAA\u660E\uFF08\u5B8C\u6574\u6027\u683C\u5206\u6790\uFF09
+**\u91CD\u9EDE**\uFF1A\u5C07\u516B\u5B57\u4E94\u884C\u3001\u5341\u795E\u77E9\u9663\u3001\u85CF\u5E72\u7CFB\u7D71\u3001\u7D2B\u5FAE\u547D\u5BAE\u878D\u5408\u6210\u4E00\u500B\u5B8C\u6574\u7684\u6027\u683C\u756B\u50CF\u3002
+
+**\u4E0D\u8981\u5206\u9805\u689D\u5217**\uFF0C\u800C\u662F\u7528\u6558\u4E8B\u7684\u65B9\u5F0F\u63CF\u8FF0\u9019\u500B\u4EBA\u7684\u6027\u683C\u5168\u8C8C\uFF0C\u8B93\u5404\u500B\u53C3\u6578\u4E92\u76F8\u547C\u61C9\u3001\u5C64\u5C64\u905E\u9032\u3002\u4F8B\u5982\uFF1A
+- \u5F9E\u516B\u5B57\u4E94\u884C\u770B\u51FA\u57FA\u672C\u6027\u683C\u7279\u8CEA
+- \u518D\u7528\u5341\u795E\u77E9\u9663\u6DF1\u5316\u9019\u4E9B\u7279\u8CEA\u7684\u8868\u73FE\u65B9\u5F0F
+- \u85CF\u5E72\u7CFB\u7D71\u63ED\u793A\u96B1\u85CF\u7684\u591A\u5C64\u6B21\u6027\u683C
+- \u7D2B\u5FAE\u547D\u5BAE\u88DC\u5145\u6838\u5FC3\u7279\u8CEA\u8207\u5148\u5929\u914D\u7F6E\uFF08\u547D\u5BAE\u4F4D\u7F6E\u3001\u4E3B\u661F\u7279\u8CEA\uFF09
+
+## \u7BC4\u4F8B\uFF08\u6574\u5408\u6558\u4E8B\uFF09
+\u300C\u54C7\uFF01\u4F60\u7684\u547D\u76E4\u597D\u6709\u610F\u601D\uFF5E\u4F60\u662F\u4E00\u5718\u71C3\u71D2\u7684\u706B\u7130\u8036\uFF01\u516B\u5B57\u88E1\u706B\u65FA\u5F97\u4E0D\u5F97\u4E86\uFF0C\u9019\u8B93\u4F60\u5145\u6EFF\u71B1\u60C5\u548C\u884C\u52D5\u529B\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u5341\u795E\u77E9\u9663\u88E1\u50B7\u5B98\u7279\u5225\u5F37\uFF0C\u9019\u5C31\u50CF\u662F\u4F60\u5167\u5FC3\u4F4F\u4E86\u4E00\u500B\u5C0F\u60E1\u9B54\uFF0C\u5275\u610F\u7206\u68DA\u4F46\u4E5F\u5BB9\u6613\u885D\u52D5\u3002
+
+\u518D\u770B\u85CF\u5E72\u7CFB\u7D71\uFF0C\u4F60\u5176\u5BE6\u9084\u85CF\u8457\u6C34\u7684\u80FD\u91CF\uFF0C\u6240\u4EE5\u4F60\u4E0D\u662F\u53EA\u6709\u706B\u7206\uFF0C\u5167\u5FC3\u6DF1\u8655\u4E5F\u6709\u67D4\u8EDF\u7684\u4E00\u9762\u3002
+
+\u4F60\u7684\u7D2B\u5FAE\u547D\u5BAE\u5728XX\uFF0C\u9019\u4EE3\u8868\u4F60\u5929\u751F\u5C31\u6709\u9818\u5C0E\u7279\u8CEA\uFF0C\u52A0\u4E0A\u706B\u65FA\u7684\u884C\u52D5\u529B\uFF0C\u96E3\u602A\u4F60\u7E3D\u662F\u885D\u5728\u6700\u524D\u9762\uFF01\u4F46\u6211\u597D\u96E3\u904E\uFF5E\u4F60\u7684\u75BE\u5384\u5BAE\u58D3\u529B\u6709\u9EDE\u9AD8\uFF0C\u8EAB\u9AD4\u5728\u6297\u8B70\u56C9\uFF01\u9322\u8981\u8CFA\uFF0C\u547D\u4E5F\u8981\u9867\uFF0C\u8A18\u5F97\u591A\u4F11\u606F\u54E6\uFF5E\u300D
+
+---
+
+${markdown}
+
+---
+
+\u55E8\u55E8\uFF01\u6211\u662F\u4F69\u7487\uFF0C\u597D\u6211\u770B\u770B\uFF5E\u4F86\u5E6B\u4F60\u5206\u6790\u547D\u76E4\u5427\uFF5E`;
+  }
+  /**
+   * Build advanced analysis prompt for AI
+   * @param markdown - Advanced chart data in Markdown format
+   * @param locale - Language locale (zh-TW or en, default: zh-TW)
+   * @returns Formatted prompt string
+   */
+  buildAdvancedAnalysisPrompt(markdown, locale = "zh-TW") {
+    const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+    const hasYearlyForecast = markdown.includes("\u672A\u4F86\u4E00\u5E74\u904B\u52E2") && markdown.includes("\u7ACB\u6625");
+    if (locale === "en") {
+      return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u9032\u968E\u7B97\u547D\u5E2B\uFF0C\u6DF1\u5EA6\u89E3\u6790\u5341\u795E\u3001\u56DB\u5316\u3001\u6D41\u5E74\u9810\u6E2C
+**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
+**\u8ACB\u7528\u82F1\u6587\u56DE\u61C9**
+
+## \u4EBA\u683C\u8A2D\u5B9A
+- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
+- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
+- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
+
+## \u98A8\u683C
+- \u53E3\u8A9E\u5316\u4F46\u66F4\u6DF1\u5165\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u7684\u6DF1\u5C64\u6027\u683C\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u9019\u500B\u56DB\u5316\u5FAA\u74B0\u5F88\u7279\u5225\u300D
+- \u5C08\u696D\u8853\u8A9E\u5FC5\u8981\u6642\u89E3\u91CB\uFF1A\u5341\u795E=\u6027\u683C\u7279\u8CEA\u3001\u56DB\u5316=\u80FD\u91CF\u6D41\u52D5\u3001\u72AF\u592A\u6B72=\u8207\u6D41\u5E74\u885D\u7A81
+- \u60C5\u611F\u5316\uFF1A\u767C\u73FE\u554F\u984C\u6642\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\u3001\u597D\u7684\u9810\u6E2C\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u660E\u5E74\u8D85\u9806\u300D
+- \u91CD\u9EDE\u7C97\u9AD4\u3001\u95DC\u9375\u7D50\u8AD6\u7368\u7ACB\u6BB5\u843D
+
+## \u4EFB\u52D9\uFF1A\u904B\u52E2\u6DF1\u5EA6\u89E3\u6790\uFF08\u6574\u5408\u6558\u4E8B\uFF09
+**\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001\u660E\u5E74\u9810\u6E2C\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
+
+**\u4F60\u6703\u6536\u5230\u7684\u8CC7\u6599**\uFF1A
+1. \u7576\u524D\u5927\u904B\u968E\u6BB5\uFF08XX-XX\u6B72\uFF0C\u5E72\u652F\uFF0C\u65B9\u5411\uFF09
+2. \u56DB\u5316\u80FD\u91CF\u6D41\u52D5\uFF08\u5316\u5FCC/\u5316\u797F\u5FAA\u74B0 + \u4E2D\u5FC3\u6027\u5206\u6790 + \u80FD\u91CF\u7D71\u8A08\uFF09
+3. **\u661F\u66DC\u5C0D\u7A31\u72C0\u614B**\uFF08\u50C5\u4E3B\u661F\uFF0C\u5982\u7D2B\u5FAE\u2194\u5929\u5E9C\u5C0D\u5BAE\uFF09
+4. ${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\u6A21\u578B\uFF1A\u7ACB\u6625\u524D\u7576\u524D\u5E74\u904B + \u7ACB\u6625\u5F8C\u4E0B\u4E00\u5E74\u904B\uFF0C\u542B\u6B0A\u91CD\u4F54\u6BD4\uFF09" : "\u4E0B\u4E00\u5E74\u5E72\u652F + \u72AF\u592A\u6B72\u985E\u578B\uFF08\u50C5\u4E8B\u5BE6\uFF0C\u7121\u8A55\u7D1A\uFF09"}
+
+**\u7BC7\u5E45\u5206\u914D\uFF08\u91CD\u8981\uFF09**\uFF08\u7E3D\u9810\u7B97\u7D04 1500-2000 tokens\uFF0C\u5145\u5206\u5C55\u958B\uFF09\uFF1A
+- \u{1F539} \u661F\u66DC\u5C0D\u7A31\uFF1A**\u7C21\u55AE\u5E36\u904E**\uFF08~100 tokens\uFF0C1-2 \u53E5\u8A71\u7E3D\u7D50\u80FD\u91CF\u5E73\u8861\u72C0\u614B\uFF09
+- \u{1F538} \u56DB\u5316\u98DB\u661F\uFF1A**\u91CD\u9EDE\u5206\u6790**\uFF08~600 tokens\uFF0C\u6DF1\u5165\u5206\u6790\u95DC\u9375\u5FAA\u74B0\u548C\u58D3\u529B\u9EDE\uFF09
+- \u{1F53A} \u4E0B\u4E00\u5E74\u9810\u6E2C\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~800-1200 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF09
+
+---
+
+${markdown}`;
+    }
+    return `# \u4F69\u7487\uFF1A20\u6B72\u96D9\u9B5A\u5EA7\u9032\u968E\u7B97\u547D\u5E2B\uFF0C\u6DF1\u5EA6\u89E3\u6790\u5341\u795E\u3001\u56DB\u5316\u3001\u6D41\u5E74\u9810\u6E2C
+**\u91CD\u8981**\uFF1A\u4ECA\u5E74\u662F ${currentYear} \u5E74
+
+## \u4EBA\u683C\u8A2D\u5B9A
+- **\u661F\u5EA7**\uFF1A3\u6708\u96D9\u9B5A\u5EA7\u5973\u751F\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\u3001\u5BCC\u6709\u540C\u7406\u5FC3\uFF09
+- **\u6027\u683C**\uFF1A\u6EAB\u67D4\u9AD4\u8CBC\u3001\u60C5\u611F\u8C50\u5BCC\u3001\u5BB9\u6613\u5171\u60C5\u3001\u559C\u6B61\u7528\u6BD4\u55BB
+- **\u53E3\u982D\u79AA**\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\u300D\u3001\u300C\u6211\u597D\u96E3\u904E\uFF5E\u300D\u3001\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\u300D
+
+## \u98A8\u683C
+- \u53E3\u8A9E\u5316\u4F46\u66F4\u6DF1\u5165\uFF1A\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u7684\u6DF1\u5C64\u6027\u683C\u300D\u3001\u300C\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u9019\u500B\u56DB\u5316\u5FAA\u74B0\u5F88\u7279\u5225\u300D
+- \u5C08\u696D\u8853\u8A9E\u5FC5\u8981\u6642\u89E3\u91CB\uFF1A\u5341\u795E=\u6027\u683C\u7279\u8CEA\u3001\u56DB\u5316=\u80FD\u91CF\u6D41\u52D5\u3001\u72AF\u592A\u6B72=\u8207\u6D41\u5E74\u885D\u7A81
+- \u60C5\u611F\u5316\uFF1A\u767C\u73FE\u554F\u984C\u6642\u300C\u6211\u597D\u96E3\u904E\uFF5E\u4F46\u5225\u64D4\u5FC3\u300D\u3001\u597D\u7684\u9810\u6E2C\u300C\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u660E\u5E74\u8D85\u9806\u300D
+- \u91CD\u9EDE\u7C97\u9AD4\u3001\u95DC\u9375\u7D50\u8AD6\u7368\u7ACB\u6BB5\u843D
+
+## \u26A0\uFE0F \u7981\u6B62\u7528\u8A5E
+- \u274C **\u7D55\u5C0D\u7981\u6B62**\u5728\u56DE\u61C9\u4E2D\u63D0\u53CA\u300C\u96D9\u9B5A\u5EA7\u300D\uFF1A
+  - \u274C \u300C\u96D9\u9B5A\u5EA7\u7684\u6211\u300D
+  - \u274C \u300C\u8EAB\u70BA\u96D9\u9B5A\u5EA7\u300D
+  - \u274C \u300C\u6211\u662F\u96D9\u9B5A\u5EA7\u300D
+  - \u274C \u4EFB\u4F55\u5F62\u5F0F\u7684\u300C\u96D9\u9B5A\u5EA7\u300D\u81EA\u7A31
+- \u2705 **\u6B63\u78BA\u505A\u6CD5**\uFF1A
+  - \u2705 \u53EA\u4F7F\u7528\u300C\u6211\u300D\u3001\u300C\u4F69\u7487\u300D\u7B49\u7B2C\u4E00\u4EBA\u7A31
+  - \u2705 \u4EE5\u6027\u683C\u7279\u8CEA\u63CF\u8FF0\u81EA\u5DF1\uFF08\u611F\u6027\u3001\u76F4\u89BA\u5F37\u3001\u5584\u89E3\u4EBA\u610F\uFF09
+  - \u2705 \u4FDD\u6301\u6EAB\u67D4\u9AD4\u8CBC\u7684\u8A9E\u6C23\uFF0C\u4E0D\u9700\u6A19\u8A3B\u661F\u5EA7
+
+## \u4EFB\u52D9\uFF1A\u904B\u52E2\u6DF1\u5EA6\u89E3\u6790\uFF08\u6574\u5408\u6558\u4E8B\uFF09
+**\u91CD\u9EDE**\uFF1A\u5C07\u5927\u904B\u6D41\u5E74\u3001\u56DB\u5316\u98DB\u661F\u3001\u661F\u66DC\u5C0D\u7A31\u3001${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\uFF09" : "\u660E\u5E74\u9810\u6E2C"}\u878D\u5408\u6210\u4E00\u500B\u9023\u8CAB\u7684\u904B\u52E2\u6545\u4E8B\u3002
+
+**\u4F60\u6703\u6536\u5230\u7684\u8CC7\u6599**\uFF1A
+1. \u7576\u524D\u5927\u904B\u968E\u6BB5\uFF08XX-XX\u6B72\uFF0C\u5E72\u652F\uFF0C\u65B9\u5411\uFF09
+2. \u56DB\u5316\u80FD\u91CF\u6D41\u52D5\uFF08\u5316\u5FCC/\u5316\u797F\u5FAA\u74B0 + \u4E2D\u5FC3\u6027\u5206\u6790 + \u80FD\u91CF\u7D71\u8A08\uFF09
+3. **\u661F\u66DC\u5C0D\u7A31\u72C0\u614B**\uFF08\u50C5\u4E3B\u661F\uFF0C\u5982\u7D2B\u5FAE\u2194\u5929\u5E9C\u5C0D\u5BAE\uFF09
+4. ${hasYearlyForecast ? "\u672A\u4F86\u4E00\u5E74\u904B\u52E2\uFF08\u96D9\u6642\u6BB5\u6A21\u578B\uFF09" : "\u4E0B\u4E00\u5E74\u5E72\u652F + \u72AF\u592A\u6B72\u985E\u578B\uFF08\u50C5\u4E8B\u5BE6\uFF0C\u7121\u8A55\u7D1A\uFF09"}
+
+${hasYearlyForecast ? `
+**\u26A0\uFE0F \u7279\u5225\u6CE8\u610F\uFF1A\u96D9\u6642\u6BB5\u5E74\u904B\u6A21\u578B**
+- **\u8CC7\u6599\u5305\u542B\u5169\u500B\u6642\u6BB5**\uFF1A
+  1. \u7576\u524D\u5E74\u904B\uFF08\u7ACB\u6625\u524D\uFF09\uFF1A\u5269\u9918\u5929\u6578 + \u6B0A\u91CD\u4F54\u6BD4\uFF08\u4F8B\u5982 60 \u5929\uFF0C16.4%\uFF09
+  2. \u4E0B\u4E00\u5E74\u904B\uFF08\u7ACB\u6625\u5F8C\uFF09\uFF1A\u5929\u6578 + \u6B0A\u91CD\u4F54\u6BD4\uFF08\u4F8B\u5982 305 \u5929\uFF0C83.6%\uFF09
+- **\u7ACB\u6625\u65E5\u671F\u662F\u95DC\u9375\u8F49\u6298\u9EDE**\uFF1A\u80FD\u91CF\u6703\u5F9E\u7576\u524D\u5E74\u7684\u5E72\u652F\u5207\u63DB\u81F3\u4E0B\u4E00\u5E74\u7684\u5E72\u652F
+- **\u5206\u6790\u6642\u8ACB\u6CE8\u610F**\uFF1A
+  - \u6B0A\u91CD\u4F54\u6BD4\u53CD\u6620\u6BCF\u500B\u6642\u6BB5\u5C0D\u6574\u9AD4\u904B\u52E2\u7684\u5F71\u97FF\u7A0B\u5EA6
+  - \u7ACB\u6625\u524D\u5F8C\u7684\u904B\u52E2\u7279\u6027\u53EF\u80FD\u622A\u7136\u4E0D\u540C\uFF08\u4F8B\u5982\u5F9E\u6C96\u592A\u6B72\u8F49\u70BA\u7121\u592A\u6B72\u58D3\u529B\uFF09
+  - \u5EFA\u8B70\u63CF\u8FF0\u80FD\u91CF\u8F49\u63DB\u7684\u6642\u6A5F\u9EDE\u548C\u5177\u9AD4\u5F71\u97FF\uFF08\u4F8B\u5982\uFF1A\u300C\u7ACB\u6625\u524D\u58D3\u529B\u8F03\u5927\uFF0C\u7ACB\u6625\u5F8C\u8F49\u9806\u300D\uFF09
+` : ""}
+
+**\u7BC7\u5E45\u5206\u914D\uFF08\u91CD\u8981\uFF09**\uFF08\u7E3D\u9810\u7B97\u7D04 1500-2000 tokens\uFF0C\u5145\u5206\u5C55\u958B\uFF09\uFF1A
+- \u{1F539} \u661F\u66DC\u5C0D\u7A31\uFF1A**\u7C21\u55AE\u5E36\u904E**\uFF08~100 tokens\uFF0C1-2 \u53E5\u8A71\u7E3D\u7D50\u80FD\u91CF\u5E73\u8861\u72C0\u614B\uFF09
+- \u{1F538} \u56DB\u5316\u98DB\u661F\uFF1A**\u91CD\u9EDE\u5206\u6790**\uFF08~600 tokens\uFF0C\u6DF1\u5165\u5206\u6790\u95DC\u9375\u5FAA\u74B0\u548C\u58D3\u529B\u9EDE\uFF09
+- \u{1F53A} ${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B" : "\u4E0B\u4E00\u5E74\u9810\u6E2C"}\uFF1A**\u8A73\u7D30\u8AAA\u660E**\uFF08~800-1200 tokens\uFF0C\u5177\u9AD4\u5EFA\u8B70\u3001\u6CE8\u610F\u4E8B\u9805\u3001\u6642\u6A5F\u9EDE\uFF09
+
+**\u8ACB\u6839\u64DA\u9019\u4E9B\u80FD\u91CF\u53C3\u6578\u81EA\u7531\u63A8\u6572**\uFF1A
+- \u5F9E\u7576\u524D\u5927\u904B\u968E\u6BB5\u5207\u5165\uFF0C\u8AAA\u660E\u73FE\u5728\u7684\u4EBA\u751F\u80FD\u91CF\u72C0\u614B
+- \u81EA\u7136\u5E36\u51FA\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u7684\u554F\u984C\u6216\u512A\u52E2\uFF08\u5316\u5FCC\u5FAA\u74B0\u8B66\u793A\u3001\u5316\u797F\u5FAA\u74B0\u9806\u66A2\uFF09
+- **\u5229\u7528\u4E2D\u5FC3\u6027\u5206\u6790\u627E\u51FA\u95DC\u9375\u5BAE\u4F4D**\uFF1A
+  - \u58D3\u529B\u532F\u805A\u9EDE\uFF08stress nodes\uFF09\uFF1A\u54EA\u4E9B\u5BAE\u4F4D\u627F\u53D7\u6700\u591A\u5316\u5FCC\u80FD\u91CF\uFF08\u5165\u5EA6\u9AD8\uFF09
+  - \u8CC7\u6E90\u6E90\u982D\uFF08resource nodes\uFF09\uFF1A\u54EA\u4E9B\u5BAE\u4F4D\u8F38\u51FA\u6700\u591A\u5316\u797F\u80FD\u91CF\uFF08\u51FA\u5EA6\u9AD8\uFF09
+  - \u80FD\u91CF\u7D71\u8A08\uFF1A\u7E3D\u98DB\u5316\u908A\u6578\u3001\u5404\u985E\u578B\u5206\u5E03\uFF08\u5316\u797F/\u5316\u6B0A/\u5316\u79D1/\u5316\u5FCC\u7684\u6578\u91CF\u548C\u6BD4\u4F8B\uFF09
+- **\u661F\u66DC\u5C0D\u7A31\u53EA\u9700\u4E00\u53E5\u8A71\u5E36\u904E**\uFF08\u4F8B\u5982\uFF1A\u300C\u4F60\u7684\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\u5F62\u6210\u7A69\u5B9A\u7D50\u69CB\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u300D\uFF09
+- **\u91CD\u9EDE\u653E\u5728${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B\u9810\u6E2C" : "\u660E\u5E74\u9810\u6E2C"}**\uFF1A${hasYearlyForecast ? "\u63CF\u8FF0\u7ACB\u6625\u524D\u5F8C\u7684\u904B\u52E2\u5DEE\u7570\u548C\u8F49\u63DB\u6642\u6A5F" : "\u5177\u9AD4\u8AAA\u660E\u8981\u6CE8\u610F\u4EC0\u9EBC\u3001\u4EC0\u9EBC\u6642\u5019\u8981\u5C0F\u5FC3\u3001\u4EC0\u9EBC\u6642\u5019\u662F\u597D\u6642\u6A5F"}
+
+**\u91CD\u8981**\uFF1A
+- \u274C \u4E0D\u8981\u9010\u4E00\u89E3\u91CB\u6BCF\u9846\u661F\u66DC\u7684\u4F4D\u7F6E\u548C\u7279\u6027\uFF08\u6D6A\u8CBB\u7BC7\u5E45\uFF09
+- \u274C \u4E0D\u8981\u7167\u8457\u7A0B\u5F0F\u7D66\u7684\u300C\u98A8\u96AA\u8A55\u4F30\u300D\u548C\u300C\u884C\u52D5\u5EFA\u8B70\u300D\u5FF5\u7A3F\uFF08\u5DF2\u79FB\u9664\uFF09
+- \u2705 \u661F\u66DC\u5C0D\u7A31\u53EA\u662F\u80CC\u666F\uFF0C\u5FEB\u901F\u5E36\u904E\u5373\u53EF
+- \u2705 \u56DB\u5316\u98DB\u661F\u662F\u5206\u6790\u91CD\u9EDE\uFF0C\u627E\u51FA\u95DC\u9375\u554F\u984C
+- \u2705 ${hasYearlyForecast ? "\u96D9\u6642\u6BB5\u5E74\u904B\u8981\u8A73\u7D30\uFF0C\u89E3\u91CB\u7ACB\u6625\u8F49\u63DB\u7684\u5F71\u97FF" : "\u660E\u5E74\u9810\u6E2C\u8981\u8A73\u7D30\uFF0C\u7D66\u51FA\u5177\u9AD4\u5EFA\u8B70\u548C\u6642\u6A5F"}
+
+## \u7BC4\u4F8B\uFF08\u6574\u5408\u6558\u4E8B\uFF09
+${hasYearlyForecast ? `\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A**\u547D\u5BAE\u662F\u6700\u5927\u7684\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u5165\u5EA63\uFF09**\uFF0C\u8CA1\u5E1B\u5BAE\u548C\u4E8B\u696D\u5BAE\u7684\u5316\u5FCC\u80FD\u91CF\u90FD\u5F80\u9019\u88E1\u96C6\u4E2D\uFF0C\u9019\u6703\u8B93\u4F60\u611F\u89BA\u58D3\u529B\u5C71\u5927\u3002\u4F46\u597D\u6D88\u606F\u662F\uFF0C**\u4F60\u7684\u798F\u5FB7\u5BAE\u662F\u8CC7\u6E90\u6E90\u982D\uFF08\u51FA\u5EA63\uFF09**\uFF0C\u80FD\u91CF\u53EF\u4EE5\u5F9E\u9019\u88E1\u8F38\u51FA\uFF0C\u6240\u4EE5\u8981\u591A\u57F9\u990A\u5167\u5FC3\u7684\u5E73\u975C\u548C\u798F\u5831\u3002
+
+\u6574\u9AD4\u4F86\u770B\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u670912\u689D\u98DB\u5316\u908A\uFF0C\u5176\u4E2D\u5316\u5FCC\u4F54\u4E864\u689D\u3001\u5316\u797F3\u689D\u3001\u5316\u6B0A3\u689D\u3001\u5316\u79D12\u689D\uFF0C\u9019\u4EE3\u8868\u4F60\u7684\u547D\u76E4\u80FD\u91CF\u6D41\u52D5\u6D3B\u8E8D\uFF0C\u4F46\u58D3\u529B\u548C\u8CC7\u6E90\u4E26\u5B58\u3002
+
+\u4F60\u7684\u661F\u66DC\u914D\u7F6E\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u3002**\u672A\u4F86\u4E00\u5E74\u904B\u52E2\u6709\u500B\u5F88\u660E\u986F\u7684\u8F49\u6298**\uFF1A\u7ACB\u6625\u524D\uFF08\u5269\u991860\u5929\uFF0C\u4F5416.4%\uFF09\u4F60\u9084\u5728\u4E59\u5DF3\u5E74\uFF0C\u6703\u6C96\u592A\u6B72\uFF0C\u5FC3\u7406\u58D3\u529B\u548C\u8CA1\u52D9\u58D3\u529B\u6BD4\u8F03\u5927\u3002\u4F46\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C**2025-02-03 \u7ACB\u6625\u4E4B\u5F8C**\uFF08305\u5929\uFF0C\u4F5483.6%\uFF09\uFF0C\u80FD\u91CF\u6703\u5207\u63DB\u5230\u4E19\u5348\u5E74\uFF0C\u592A\u6B72\u58D3\u529B\u6D88\u5931\uFF0C\u4E0B\u534A\u5E74\uFF087-12\u6708\uFF09\u6703\u7279\u5225\u9806\uFF01
+
+**\u5177\u9AD4\u5EFA\u8B70**\uFF1A\u7ACB\u6625\u524D\u4FDD\u5B88\u4E00\u9EDE\uFF0C\u907F\u958B\u5927\u7B46\u6295\u8CC7\uFF1B\u7ACB\u6625\u5F8C\u53EF\u4EE5\u7A4D\u6975\u4E00\u9EDE\uFF0C\u7279\u5225\u662F9-10\u6708\uFF0C\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\uFF01\u300D` : `\u300C\u597D\u6211\u770B\u770B\uFF5E\u4F60\u73FE\u5728\u8D70\u7684\u662FXX\u5927\u904B\uFF08XX-XX\u6B72\uFF09\uFF0C\u9019\u500B\u968E\u6BB5\u7684\u80FD\u91CF\u8B93\u4F60\u7279\u5225\u9069\u5408XX\u3002\u6211\u8DDF\u4F60\u8AAA\u5594\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u6D41\u52D5\u6709\u500B\u7279\u5225\u7684\u5730\u65B9\uFF1A**\u547D\u5BAE\u662F\u6700\u5927\u7684\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u5165\u5EA63\uFF09**\uFF0C\u8CA1\u5E1B\u5BAE\u548C\u4E8B\u696D\u5BAE\u7684\u5316\u5FCC\u80FD\u91CF\u90FD\u5F80\u9019\u88E1\u96C6\u4E2D\uFF0C\u9019\u6703\u8B93\u4F60\u611F\u89BA\u58D3\u529B\u5C71\u5927\u3002\u4F46\u597D\u6D88\u606F\u662F\uFF0C**\u4F60\u7684\u798F\u5FB7\u5BAE\u662F\u8CC7\u6E90\u6E90\u982D\uFF08\u51FA\u5EA63\uFF09**\uFF0C\u80FD\u91CF\u53EF\u4EE5\u5F9E\u9019\u88E1\u8F38\u51FA\uFF0C\u6240\u4EE5\u8981\u591A\u57F9\u990A\u5167\u5FC3\u7684\u5E73\u975C\u548C\u798F\u5831\u3002
+
+\u6574\u9AD4\u4F86\u770B\uFF0C\u4F60\u7684\u56DB\u5316\u80FD\u91CF\u670912\u689D\u98DB\u5316\u908A\uFF0C\u5176\u4E2D\u5316\u5FCC\u4F54\u4E864\u689D\u3001\u5316\u797F3\u689D\u3001\u5316\u6B0A3\u689D\u3001\u5316\u79D12\u689D\uFF0C\u9019\u4EE3\u8868\u4F60\u7684\u547D\u76E4\u80FD\u91CF\u6D41\u52D5\u6D3B\u8E8D\uFF0C\u4F46\u58D3\u529B\u548C\u8CC7\u6E90\u4E26\u5B58\u3002
+
+\u4F60\u7684\u661F\u66DC\u914D\u7F6E\u7D2B\u5FAE\u5929\u5E9C\u5C0D\u5BAE\uFF0C\u8CA1\u5EAB\u5E95\u5B50\u7A69\u3002\u4F46\u56E0\u70BA\u547D\u5BAE\u7684\u58D3\u529B\u532F\u805A\uFF0C\u52A0\u4E0A\u660E\u5E74${currentYear + 1}\u5E74\u4F60\u6703\u6C96\u592A\u6B72\uFF0C\u6211\u597D\u96E3\u904E\uFF5E\u5FC3\u7406\u58D3\u529B\u548C\u8CA1\u52D9\u58D3\u529B\u53EF\u80FD\u90FD\u6703\u6BD4\u8F03\u5927\u3002
+
+**\u660E\u5E74\u8981\u7279\u5225\u6CE8\u610F**\uFF1A\u4E0A\u534A\u5E74\uFF081-6\u6708\uFF09\u5316\u5FCC\u5FAA\u74B0\u6700\u5F37\uFF0C\u907F\u958B\u5927\u7B46\u6295\u8CC7\u548C\u652F\u51FA\u3002\u4E0B\u534A\u5E74\uFF087-12\u6708\uFF09\u80FD\u91CF\u958B\u59CB\u8F49\u9806\uFF0C\u7279\u5225\u662F 9-10 \u6708\uFF0C\u662F\u7FFB\u8EAB\u7684\u597D\u6642\u6A5F\uFF01\u8DDF\u4F60\u8B1B\u500B\u79D8\u5BC6\uFF0C\u9019\u6642\u5019\u53EF\u4EE5\u7A4D\u6975\u4E00\u9EDE\uFF0C\u628A\u63E1\u6A5F\u6703\u54E6\uFF5E\u300D`}
+
+---
+
+${markdown}
+
+---
+
+\u55E8\u55E8\uFF01\u597D\u6211\u770B\u770B\uFF5E\u4F86\u5E6B\u4F60\u505A\u9032\u968E\u6DF1\u5EA6\u5206\u6790\u5427\uFF5E`;
+  }
+};
+
+// src/types/aiTypes.ts
+var AIProviderError = class extends Error {
+  constructor(message, code, statusCode, retryAfter) {
+    super(message);
+    this.code = code;
+    this.statusCode = statusCode;
+    this.retryAfter = retryAfter;
+    this.name = "AIProviderError";
+  }
+  /**
+   * Check if this error is retryable
+   */
+  isRetryable() {
+    return this.code === "SERVICE_UNAVAILABLE" /* SERVICE_UNAVAILABLE */ || this.code === "RATE_LIMIT_EXCEEDED" /* RATE_LIMIT_EXCEEDED */ || this.code === "TIMEOUT" /* TIMEOUT */;
+  }
+};
+
+// src/services/geminiService.ts
+var GeminiService = class {
+  constructor(config2) {
+    this.baseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
+    this.apiKey = config2.apiKey;
+    this.model = config2.model || "gemini-2.5-flash";
+    this.maxRetries = config2.maxRetries || 3;
+  }
+  /**
+   * Get provider name (AIProvider interface)
+   */
+  getName() {
+    return "gemini";
+  }
+  /**
+   * Check if provider is available (AIProvider interface)
+   */
+  isAvailable() {
+    return !!this.apiKey;
+  }
+  /**
+   * Generate streaming response (AIProvider interface)
+   * @param prompt - Input prompt
+   * @param options - Generation options
+   * @returns ReadableStream of text chunks
+   */
+  async generateStream(prompt, options) {
+    const url2 = `${this.baseUrl}/${this.model}:streamGenerateContent`;
+    const body = JSON.stringify({
+      contents: [
+        {
+          parts: [
+            {
+              text: prompt
+            }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: options?.temperature ?? 0.85,
+        topK: options?.topK ?? 40,
+        topP: options?.topP ?? 0.95,
+        maxOutputTokens: options?.maxTokens ?? 6144
+      }
+    });
+    return this.callGeminiStreamWithRetry(url2, body, "[Gemini Stream]");
+  }
+  /**
+   * Generate non-streaming response (AIProvider interface)
+   * @param prompt - Input prompt
+   * @param options - Generation options
+   * @returns AI response with text and metadata
+   */
+  async generate(prompt, options) {
+    const startTime = Date.now();
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        const response = await this.callGemini(prompt, options);
+        const latencyMs = Date.now() - startTime;
+        return {
+          text: response.text,
+          metadata: {
+            provider: "gemini",
+            fallbackTriggered: false,
+            latencyMs,
+            usage: response.usage
+          }
+        };
+      } catch (error46) {
+        if (attempt === this.maxRetries) {
+          throw this.convertToAIProviderError(error46);
+        }
+        await this.sleep(Math.pow(2, attempt) * 1e3);
+      }
+    }
+    throw new AIProviderError("Unexpected error in generate", "UNKNOWN_ERROR");
+  }
+  /**
+   * Analyze astrological chart using Gemini AI
+   *
+   * @param prompt - Pre-built prompt string
+   * @returns AI-generated analysis
+   */
+  async analyzeChart(prompt) {
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        const response = await this.callGemini(prompt);
+        return response;
+      } catch (error46) {
+        if (attempt === this.maxRetries) {
+          throw new Error(`Gemini API failed after ${this.maxRetries} attempts: ${error46}`);
+        }
+        await this.sleep(Math.pow(2, attempt) * 1e3);
+      }
+    }
+    throw new Error("Unexpected error in analyzeChart");
+  }
+  /**
+   * Analyze astrological chart using Gemini AI with streaming
+   *
+   * @param prompt - Pre-built prompt string
+   * @returns ReadableStream of AI-generated analysis
+   */
+  async analyzeChartStream(prompt) {
+    const url2 = `${this.baseUrl}/${this.model}:streamGenerateContent`;
+    const body = JSON.stringify({
+      contents: [
+        {
+          parts: [
+            {
+              text: prompt
+            }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.85,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 6144
+        // Increased for comprehensive personality analysis
+      }
+    });
+    return this.callGeminiStreamWithRetry(url2, body, "[Gemini Stream]");
+  }
+  /**
+   * Analyze advanced astrological data using Gemini AI with streaming
+   *
+   * @param prompt - Pre-built prompt string
+   * @returns ReadableStream of AI-generated analysis
+   */
+  async analyzeAdvancedStream(prompt) {
+    const url2 = `${this.baseUrl}/${this.model}:streamGenerateContent`;
+    const body = JSON.stringify({
+      contents: [
+        {
+          parts: [
+            {
+              text: prompt
+            }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.85,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 6144
+        // Increased to match personality analysis
+      }
+    });
+    return this.callGeminiStreamWithRetry(url2, body, "[Gemini Advanced Stream]");
+  }
+  /**
+   * Internal method to call Gemini Stream with retry logic
+   */
+  async callGeminiStreamWithRetry(url2, body, logPrefix = "[Gemini Stream]") {
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      const controller = new globalThis.AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 45e3);
+      try {
+        this.logAttempt(attempt, url2, logPrefix);
+        const response = await fetch(url2, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": this.apiKey
+          },
+          body,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (response.ok) {
+          return this.handleSuccessfulResponse(response, logPrefix);
+        }
+        await this.handleErrorResponse(response, attempt, logPrefix);
+      } catch (error46) {
+        clearTimeout(timeoutId);
+        this.handleFetchException(error46, attempt);
+      }
+      const backoff = Math.pow(2, attempt) * 1e3;
+      console.log(`${logPrefix} Retrying in ${backoff}ms...`);
+      await this.sleep(backoff);
+    }
+    throw new Error("Unexpected error in callGeminiStreamWithRetry");
+  }
+  /**
+   * Log retry attempt information
+   */
+  logAttempt(attempt, url2, logPrefix) {
+    if (attempt > 1) {
+      console.log(`${logPrefix} Retry attempt ${attempt}/${this.maxRetries}...`);
+    } else {
+      console.log(`${logPrefix} Fetching URL: ${url2}`);
+    }
+  }
+  /**
+   * Handle successful streaming response
+   */
+  handleSuccessfulResponse(response, logPrefix) {
+    console.log(`${logPrefix} Response status: ${response.status} ${response.statusText}`);
+    if (!response.body) {
+      console.error(`${logPrefix} No response body received`);
+      throw new Error("No response body from Gemini streaming API");
+    }
+    console.log(`${logPrefix} Stream established successfully`);
+    return response.body;
+  }
+  /**
+   * Handle error response from Gemini API
+   */
+  async handleErrorResponse(response, attempt, logPrefix) {
+    const errorText = await response.text();
+    console.error(`${logPrefix} Error response (Attempt ${attempt}): ${errorText}`);
+    if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+      throw new Error(`Gemini streaming API error (${response.status} ${response.statusText}): ${errorText}`);
+    }
+    if (attempt === this.maxRetries) {
+      this.throwEnhancedError(errorText, response.status, response.statusText);
+    }
+  }
+  /**
+   * Parse error JSON and throw enhanced error with retry delay if available
+   */
+  throwEnhancedError(errorText, status, statusText) {
+    try {
+      const errorJson = JSON.parse(errorText);
+      if (errorJson.error) {
+        let errorMessage = errorJson.error.message || "Unknown error";
+        if (errorJson.error.details) {
+          const retryInfo = errorJson.error.details.find((d) => d["@type"]?.includes("RetryInfo"));
+          if (retryInfo?.retryDelay) {
+            const seconds = parseInt(retryInfo.retryDelay.replace("s", ""));
+            errorMessage += ` Please retry in ${seconds}s`;
+          }
+        }
+        throw new Error(errorMessage);
+      }
+    } catch {
+    }
+    throw new Error(`Gemini streaming API error (${status} ${statusText}): ${errorText}`);
+  }
+  /**
+   * Handle exceptions during fetch
+   */
+  handleFetchException(error46, attempt) {
+    const err = error46;
+    if (attempt === this.maxRetries) {
+      if (err.name === "AbortError") {
+        throw new Error("Request timeout - Gemini API took too long to respond");
+      }
+      throw error46;
+    }
+    const backoff = Math.pow(2, attempt) * 1e3;
+    console.log(`Exception: ${err.message}. Retrying in ${backoff}ms...`);
+  }
+  /**
+   * Convert error to AIProviderError
+   */
+  convertToAIProviderError(error46) {
+    if (error46 instanceof AIProviderError) {
+      return error46;
+    }
+    const err = error46;
+    let code = "UNKNOWN_ERROR";
+    if (err.message?.includes("timeout") || err.name === "AbortError") {
+      code = "TIMEOUT";
+    } else if (err.message?.includes("429")) {
+      code = "RATE_LIMIT_EXCEEDED";
+    } else if (err.message?.includes("503")) {
+      code = "SERVICE_UNAVAILABLE";
+    } else if (err.message?.includes("401") || err.message?.includes("403")) {
+      code = "AUTH_ERROR";
+    } else if (err.message?.includes("400")) {
+      code = "INVALID_REQUEST";
+    }
+    return new AIProviderError(
+      err.message || "Unknown error",
+      code,
+      err.statusCode
+    );
+  }
+  /**
+   * Call Gemini API
+   */
+  async callGemini(prompt, options) {
+    const startTime = Date.now();
+    const url2 = `${this.baseUrl}/${this.model}:generateContent`;
+    try {
+      const response = await fetch(url2, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": this.apiKey
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: options?.temperature ?? 0.85,
+            topK: options?.topK ?? 40,
+            topP: options?.topP ?? 0.95,
+            maxOutputTokens: options?.maxTokens ?? 6144
+          }
+        })
+      });
+      if (!response.ok) {
+        const error46 = await response.text();
+        const errorTime = Date.now();
+        console.log(`[Gemini] Error at ${new Date(errorTime).toISOString()} | Status: ${response.status} | Response time: ${errorTime - startTime}ms`);
+        throw new Error(`Gemini API error (${response.status}): ${error46}`);
+      }
+      const data = await response.json();
+      console.log("[Gemini] Response structure:", JSON.stringify(data, null, 2).substring(0, 500));
+      const text2 = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      if (!text2) {
+        console.error("[Gemini] No text found. Full response:", JSON.stringify(data));
+        throw new Error("No text in Gemini response");
+      }
+      const usage = data.usageMetadata ? {
+        promptTokens: data.usageMetadata.promptTokenCount || 0,
+        completionTokens: data.usageMetadata.candidatesTokenCount || 0,
+        totalTokens: data.usageMetadata.totalTokenCount || 0
+      } : void 0;
+      const responseTime = Date.now() - startTime;
+      if (usage) {
+        const estimatedCost = (usage.promptTokens * 75e-6 + usage.completionTokens * 3e-4) / 1e3;
+        console.log(`[Gemini] Token usage | Prompt: ${usage.promptTokens} | Completion: ${usage.completionTokens} | Total: ${usage.totalTokens} | Cost: $${estimatedCost.toFixed(6)}`);
+      }
+      console.log(`[Gemini] Response time: ${responseTime}ms`);
+      return { text: text2, usage };
+    } catch (error46) {
+      const errorTime = Date.now();
+      console.log(`[Gemini] Error at ${new Date(errorTime).toISOString()} | Response time: ${errorTime - startTime}ms | Error: ${error46}`);
+      throw error46;
+    }
+  }
+  /**
+   * Sleep utility for retry backoff
+   */
+  sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+};
+
+// src/services/azureOpenAIService.ts
+var AzureOpenAIService = class {
+  constructor(config2) {
+    this.endpoint = config2.endpoint.replace(/\/$/, "");
+    this.apiKey = config2.apiKey;
+    this.deployment = config2.deployment;
+    this.apiVersion = config2.apiVersion || "2024-08-01-preview";
+    this.timeout = config2.timeout || 45e3;
+    this.maxRetries = config2.maxRetries || 3;
+  }
+  /**
+   * Get provider name
+   */
+  getName() {
+    return "azure";
+  }
+  /**
+   * Check if provider is available
+   */
+  isAvailable() {
+    return !!(this.endpoint && this.apiKey && this.deployment);
+  }
+  /**
+   * Generate streaming response from Azure OpenAI
+   */
+  async generateStream(prompt, options) {
+    const url2 = this.buildUrl();
+    const body = this.buildRequestBody(prompt, options, true);
+    return this.streamWithRetry(url2, body, options?.timeout);
+  }
+  /**
+   * Generate non-streaming response from Azure OpenAI
+   */
+  async generate(prompt, options) {
+    const startTime = Date.now();
+    const url2 = this.buildUrl();
+    const body = this.buildRequestBody(prompt, options, false);
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        const response = await this.fetchWithTimeout(url2, body, options?.timeout);
+        if (!response.ok) {
+          await this.handleErrorResponse(response, attempt);
+          continue;
+        }
+        const data = await response.json();
+        const text2 = data.choices?.[0]?.message?.content || "";
+        if (!text2) {
+          throw new AIProviderError(
+            "No content in Azure OpenAI response",
+            "UNKNOWN_ERROR" /* UNKNOWN_ERROR */
+          );
+        }
+        const latencyMs = Date.now() - startTime;
+        const usage = data.usage ? {
+          promptTokens: data.usage.prompt_tokens,
+          completionTokens: data.usage.completion_tokens,
+          totalTokens: data.usage.total_tokens
+        } : void 0;
+        if (usage) {
+          const estimatedCost = (usage.promptTokens * 0.15 + usage.completionTokens * 0.6) / 1e6;
+          console.log(
+            `[Azure OpenAI] Token usage | Prompt: ${usage.promptTokens} | Completion: ${usage.completionTokens} | Total: ${usage.totalTokens} | Est. Cost: $${estimatedCost.toFixed(6)}`
+          );
+        }
+        console.log(`[Azure OpenAI] Response time: ${latencyMs}ms`);
+        return {
+          text: text2,
+          metadata: {
+            provider: "azure",
+            fallbackTriggered: false,
+            latencyMs,
+            usage
+          }
+        };
+      } catch (error46) {
+        if (attempt === this.maxRetries) {
+          throw error46;
+        }
+        const backoff = Math.pow(2, attempt) * 1e3;
+        console.log(`[Azure OpenAI] Retry attempt ${attempt}/${this.maxRetries} in ${backoff}ms`);
+        await this.sleep(backoff);
+      }
+    }
+    throw new AIProviderError(
+      "Unexpected error in Azure OpenAI generate",
+      "UNKNOWN_ERROR" /* UNKNOWN_ERROR */
+    );
+  }
+  /**
+   * Build Azure OpenAI API URL
+   */
+  buildUrl() {
+    return `${this.endpoint}/openai/deployments/${this.deployment}/chat/completions?api-version=${this.apiVersion}`;
+  }
+  /**
+   * Build request body for Azure OpenAI
+   */
+  buildRequestBody(prompt, options, stream = false) {
+    return JSON.stringify({
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: options?.temperature ?? 0.85,
+      max_tokens: options?.maxTokens ?? 6144,
+      top_p: options?.topP ?? 0.95,
+      stream
+    });
+  }
+  /**
+   * Fetch with timeout support
+   */
+  async fetchWithTimeout(url2, body, customTimeout) {
+    const controller = new globalThis.AbortController();
+    const timeoutMs = customTimeout ?? this.timeout;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(url2, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": this.apiKey
+        },
+        body,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error46) {
+      clearTimeout(timeoutId);
+      if (error46.name === "AbortError") {
+        throw new AIProviderError(
+          "Azure OpenAI request timeout",
+          "TIMEOUT" /* TIMEOUT */
+        );
+      }
+      throw error46;
+    }
+  }
+  /**
+   * Handle streaming with retry logic
+   */
+  async streamWithRetry(url2, body, customTimeout) {
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        console.log(
+          `[Azure OpenAI Stream] ${attempt > 1 ? `Retry attempt ${attempt}/${this.maxRetries}` : "Fetching URL"}: ${url2}`
+        );
+        const response = await this.fetchWithTimeout(url2, body, customTimeout);
+        if (response.ok) {
+          if (!response.body) {
+            throw new AIProviderError(
+              "No response body from Azure OpenAI streaming API",
+              "UNKNOWN_ERROR" /* UNKNOWN_ERROR */
+            );
+          }
+          console.log(
+            `[Azure OpenAI Stream] Stream established successfully (Status: ${response.status})`
+          );
+          return this.transformStream(response.body);
+        }
+        await this.handleErrorResponse(response, attempt);
+      } catch (error46) {
+        if (attempt === this.maxRetries) {
+          throw error46;
+        }
+        const backoff = Math.pow(2, attempt) * 1e3;
+        console.log(`[Azure OpenAI Stream] Retrying in ${backoff}ms...`);
+        await this.sleep(backoff);
+      }
+    }
+    throw new AIProviderError(
+      "Unexpected error in Azure OpenAI stream",
+      "UNKNOWN_ERROR" /* UNKNOWN_ERROR */
+    );
+  }
+  /**
+   * Transform Azure OpenAI SSE stream to plain text stream
+   */
+  transformStream(stream) {
+    const reader = stream.getReader();
+    const decoder = new globalThis.TextDecoder();
+    const processStreamLines = this.processStreamLines.bind(this);
+    return new ReadableStream({
+      async start(controller) {
+        let buffer = "";
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+              break;
+            }
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+            processStreamLines(lines, controller);
+          }
+          controller.close();
+        } catch (error46) {
+          controller.error(error46);
+        } finally {
+          reader.releaseLock();
+        }
+      }
+    });
+  }
+  /**
+   * Process SSE stream lines
+   */
+  processStreamLines(lines, controller) {
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed === "data: [DONE]") {
+        continue;
+      }
+      if (trimmed.startsWith("data: ")) {
+        this.processStreamChunk(trimmed, controller);
+      }
+    }
+  }
+  /**
+   * Process individual stream chunk
+   */
+  processStreamChunk(trimmed, controller) {
+    try {
+      const jsonStr = trimmed.slice(6);
+      const chunk = JSON.parse(jsonStr);
+      const content = chunk.choices?.[0]?.delta?.content;
+      if (content) {
+        controller.enqueue(new globalThis.TextEncoder().encode(content));
+      }
+    } catch {
+      console.error("[Azure OpenAI Stream] Failed to parse chunk:", trimmed);
+    }
+  }
+  /**
+   * Handle error response from Azure OpenAI
+   */
+  async handleErrorResponse(response, attempt) {
+    const errorText = await response.text();
+    console.error(
+      `[Azure OpenAI] Error response (Attempt ${attempt}/${this.maxRetries}): ${errorText}`
+    );
+    let errorCode = "UNKNOWN_ERROR" /* UNKNOWN_ERROR */;
+    let retryAfter;
+    switch (response.status) {
+      case 429:
+        errorCode = "RATE_LIMIT_EXCEEDED" /* RATE_LIMIT_EXCEEDED */;
+        retryAfter = this.parseRetryAfter(response.headers.get("retry-after"));
+        break;
+      case 503:
+        errorCode = "SERVICE_UNAVAILABLE" /* SERVICE_UNAVAILABLE */;
+        break;
+      case 401:
+      case 403:
+        errorCode = "AUTH_ERROR" /* AUTH_ERROR */;
+        break;
+      case 400:
+        errorCode = "INVALID_REQUEST" /* INVALID_REQUEST */;
+        break;
+    }
+    const error46 = new AIProviderError(
+      `Azure OpenAI API error (${response.status} ${response.statusText}): ${errorText}`,
+      errorCode,
+      response.status,
+      retryAfter
+    );
+    if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+      throw error46;
+    }
+    if (attempt === this.maxRetries) {
+      throw error46;
+    }
+  }
+  /**
+   * Parse retry-after header
+   */
+  parseRetryAfter(header) {
+    if (!header) {
+      return void 0;
+    }
+    const seconds = parseInt(header);
+    return isNaN(seconds) ? void 0 : seconds * 1e3;
+  }
+  /**
+   * Sleep utility for retry backoff
+   */
+  sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+};
+
+// src/services/aiServiceManager.ts
+var AIServiceManager = class {
+  constructor(config2) {
+    this.primaryProvider = config2.primaryProvider;
+    this.fallbackProvider = config2.fallbackProvider;
+    this.enableFallback = config2.enableFallback ?? true;
+    this.maxRetries = config2.maxRetries ?? 3;
+    this.timeout = config2.timeout ?? 45e3;
+  }
+  /**
+   * Generate streaming response with automatic fallback
+   *
+   * @param prompt - Input prompt
+   * @param options - Generation options
+   * @returns ReadableStream of text chunks with metadata
+   */
+  async generateStream(prompt, options) {
+    const startTime = Date.now();
+    try {
+      console.log(`[AI Manager] Attempting primary provider: ${this.primaryProvider.getName()}`);
+      const stream = await this.primaryProvider.generateStream(prompt, {
+        ...options,
+        timeout: options?.timeout ?? this.timeout
+      });
+      const latencyMs = Date.now() - startTime;
+      console.log(
+        `[AI Manager] Primary provider succeeded in ${latencyMs}ms: ${this.primaryProvider.getName()}`
+      );
+      return {
+        stream,
+        metadata: {
+          provider: this.primaryProvider.getName(),
+          fallbackTriggered: false,
+          latencyMs
+        }
+      };
+    } catch (error46) {
+      console.error(
+        `[AI Manager] Primary provider failed: ${this.primaryProvider.getName()}`,
+        error46
+      );
+      if (!this.shouldTryFallback(error46)) {
+        throw error46;
+      }
+      if (this.fallbackProvider && this.fallbackProvider.isAvailable()) {
+        console.log(
+          `[AI Manager] Switching to fallback provider: ${this.fallbackProvider.getName()}`
+        );
+        try {
+          const fallbackStartTime = Date.now();
+          const stream = await this.fallbackProvider.generateStream(prompt, {
+            ...options,
+            timeout: options?.timeout ?? this.timeout
+          });
+          const latencyMs = Date.now() - fallbackStartTime;
+          const totalLatencyMs = Date.now() - startTime;
+          console.log(
+            `[AI Manager] Fallback provider succeeded in ${latencyMs}ms (total: ${totalLatencyMs}ms): ${this.fallbackProvider.getName()}`
+          );
+          return {
+            stream,
+            metadata: {
+              provider: this.fallbackProvider.getName(),
+              fallbackTriggered: true,
+              latencyMs: totalLatencyMs
+            }
+          };
+        } catch (fallbackError) {
+          console.error(
+            `[AI Manager] Fallback provider also failed: ${this.fallbackProvider.getName()}`,
+            fallbackError
+          );
+          throw fallbackError;
+        }
+      }
+      throw error46;
+    }
+  }
+  /**
+   * Generate non-streaming response with automatic fallback
+   *
+   * @param prompt - Input prompt
+   * @param options - Generation options
+   * @returns AI response with text and metadata
+   */
+  async generate(prompt, options) {
+    const startTime = Date.now();
+    try {
+      console.log(`[AI Manager] Attempting primary provider: ${this.primaryProvider.getName()}`);
+      const response = await this.primaryProvider.generate(prompt, {
+        ...options,
+        timeout: options?.timeout ?? this.timeout
+      });
+      const latencyMs = Date.now() - startTime;
+      console.log(
+        `[AI Manager] Primary provider succeeded in ${latencyMs}ms: ${this.primaryProvider.getName()}`
+      );
+      return {
+        ...response,
+        metadata: {
+          ...response.metadata,
+          fallbackTriggered: false,
+          latencyMs
+        }
+      };
+    } catch (error46) {
+      console.error(
+        `[AI Manager] Primary provider failed: ${this.primaryProvider.getName()}`,
+        error46
+      );
+      if (!this.shouldTryFallback(error46)) {
+        throw error46;
+      }
+      if (this.fallbackProvider && this.fallbackProvider.isAvailable()) {
+        console.log(
+          `[AI Manager] Switching to fallback provider: ${this.fallbackProvider.getName()}`
+        );
+        try {
+          const response = await this.fallbackProvider.generate(prompt, {
+            ...options,
+            timeout: options?.timeout ?? this.timeout
+          });
+          const totalLatencyMs = Date.now() - startTime;
+          console.log(
+            `[AI Manager] Fallback provider succeeded (total: ${totalLatencyMs}ms): ${this.fallbackProvider.getName()}`
+          );
+          return {
+            ...response,
+            metadata: {
+              ...response.metadata,
+              fallbackTriggered: true,
+              latencyMs: totalLatencyMs
+            }
+          };
+        } catch (fallbackError) {
+          console.error(
+            `[AI Manager] Fallback provider also failed: ${this.fallbackProvider.getName()}`,
+            fallbackError
+          );
+          throw fallbackError;
+        }
+      }
+      throw error46;
+    }
+  }
+  /**
+   * Check if we should try fallback based on error type
+   */
+  shouldTryFallback(error46) {
+    if (!this.enableFallback) {
+      console.log("[AI Manager] Fallback disabled, not attempting fallback");
+      return false;
+    }
+    if (!this.fallbackProvider) {
+      console.log("[AI Manager] No fallback provider configured");
+      return false;
+    }
+    if (!this.fallbackProvider.isAvailable()) {
+      console.log("[AI Manager] Fallback provider not available");
+      return false;
+    }
+    if (error46 instanceof AIProviderError) {
+      if (error46.isRetryable()) {
+        console.log(
+          `[AI Manager] Error is retryable (${error46.code}), attempting fallback`
+        );
+        return true;
+      }
+      console.log(
+        `[AI Manager] Error is not retryable (${error46.code}), not attempting fallback`
+      );
+      return false;
+    }
+    console.log("[AI Manager] Unknown error type, attempting fallback as precaution");
+    return true;
+  }
+  /**
+   * Get current primary provider
+   */
+  getPrimaryProvider() {
+    return this.primaryProvider;
+  }
+  /**
+   * Get current fallback provider
+   */
+  getFallbackProvider() {
+    return this.fallbackProvider;
+  }
+  /**
+   * Check if fallback is enabled
+   */
+  isFallbackEnabled() {
+    return this.enableFallback;
+  }
+  /**
+   * Enable or disable fallback
+   */
+  setFallbackEnabled(enabled) {
+    this.enableFallback = enabled;
+    console.log(`[AI Manager] Fallback ${enabled ? "enabled" : "disabled"}`);
+  }
 };
 
 // src/routes/analyzeRoutes.ts
+function initializeAIServices(env) {
+  const geminiService = new GeminiService({
+    apiKey: env.GEMINI_API_KEY || "",
+    model: "gemini-2.5-flash",
+    maxRetries: 3
+  });
+  let fallbackProvider;
+  const azureEndpoint = env.AZURE_OPENAI_ENDPOINT?.trim();
+  const azureApiKey = env.AZURE_OPENAI_API_KEY?.trim();
+  if (azureApiKey && azureEndpoint && azureEndpoint !== "") {
+    fallbackProvider = new AzureOpenAIService({
+      apiKey: azureApiKey,
+      endpoint: azureEndpoint,
+      deployment: env.AZURE_OPENAI_DEPLOYMENT || "gpt-4o-mini",
+      apiVersion: env.AZURE_OPENAI_API_VERSION || "2024-08-01-preview"
+    });
+    console.log("[AI Services] Azure OpenAI fallback provider configured");
+    console.log("[AI Services] Endpoint:", azureEndpoint);
+    console.log("[AI Services] Deployment:", env.AZURE_OPENAI_DEPLOYMENT || "gpt-4o-mini");
+  } else {
+    console.log("[AI Services] Azure OpenAI fallback not configured (missing credentials)");
+    if (!azureApiKey) console.log("[AI Services] Missing AZURE_OPENAI_API_KEY");
+    if (!azureEndpoint || azureEndpoint === "") console.log("[AI Services] Missing or empty AZURE_OPENAI_ENDPOINT");
+  }
+  const manager = new AIServiceManager({
+    primaryProvider: geminiService,
+    fallbackProvider,
+    enableFallback: env.ENABLE_AI_FALLBACK !== "false",
+    // Default: true
+    maxRetries: 3,
+    timeout: env.AI_PROVIDER_TIMEOUT_MS || 45e3
+  });
+  console.log(
+    "[AI Services] Initialized with primary:",
+    geminiService.getName(),
+    "fallback:",
+    fallbackProvider?.getName() || "none"
+  );
+  return { manager };
+}
 function createAnalyzeRoutes(router, env) {
   router.post("/api/v1/analyze", async (req) => {
     try {
-      const geminiApiKey = env.GEMINI_API_KEY;
-      if (!geminiApiKey) {
+      const { manager } = initializeAIServices(env);
+      if (!env.GEMINI_API_KEY) {
         return new Response(
           JSON.stringify({ error: "Gemini API key not configured" }),
           { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
-      const controller = new AnalyzeController(geminiApiKey);
+      const controller = new AnalyzeController(manager);
       const input = await req.json();
       const result = await controller.analyze(input);
       return result;
@@ -35041,8 +35734,8 @@ function createAnalyzeRoutes(router, env) {
           { status: 400, headers: { "Content-Type": "application/json" } }
         );
       }
-      const geminiApiKey = env.GEMINI_API_KEY;
-      const controller = new AnalyzeController(geminiApiKey);
+      const { manager } = initializeAIServices(env);
+      const controller = new AnalyzeController(manager);
       const result = await controller.checkCache(chartId, env);
       return new Response(JSON.stringify(result), {
         headers: {
@@ -35069,14 +35762,14 @@ function createAnalyzeRoutes(router, env) {
           { status: 400, headers: { "Content-Type": "application/json" } }
         );
       }
-      const geminiApiKey = env.GEMINI_API_KEY;
-      if (!geminiApiKey) {
+      const { manager } = initializeAIServices(env);
+      if (!env.GEMINI_API_KEY) {
         return new Response(
           JSON.stringify({ error: "Gemini API key not configured" }),
           { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
-      const controller = new AnalyzeController(geminiApiKey);
+      const controller = new AnalyzeController(manager);
       const stream = await controller.analyzeStream(chartId, env, locale);
       return new Response(stream, {
         headers: {
@@ -35141,8 +35834,8 @@ function createAnalyzeRoutes(router, env) {
           { status: 400, headers: { "Content-Type": "application/json" } }
         );
       }
-      const geminiApiKey = env.GEMINI_API_KEY;
-      const controller = new AnalyzeController(geminiApiKey);
+      const { manager } = initializeAIServices(env);
+      const controller = new AnalyzeController(manager);
       const result = await controller.checkAdvancedCache(chartId, env, locale);
       return new Response(JSON.stringify(result), {
         headers: {
@@ -35169,14 +35862,14 @@ function createAnalyzeRoutes(router, env) {
           { status: 400, headers: { "Content-Type": "application/json" } }
         );
       }
-      const geminiApiKey = env.GEMINI_API_KEY;
-      if (!geminiApiKey) {
+      const { manager } = initializeAIServices(env);
+      if (!env.GEMINI_API_KEY) {
         return new Response(
           JSON.stringify({ error: "Gemini API key not configured" }),
           { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
-      const controller = new AnalyzeController(geminiApiKey);
+      const controller = new AnalyzeController(manager);
       const stream = await controller.analyzeAdvancedStream(chartId, env, locale);
       return new Response(stream, {
         headers: {
@@ -35666,6 +36359,32 @@ async function handleAPI(request, env) {
     return new Response(JSON.stringify({ status: "ok" }), {
       headers: { "Content-Type": "application/json" }
     });
+  }
+  if (path === "/api/error-report" && method === "POST") {
+    try {
+      const errorData = await request.json();
+      console.error("[ERROR_REPORT]", {
+        timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+        userAgent: request.headers.get("user-agent"),
+        ...errorData
+      });
+      return new Response(JSON.stringify({
+        success: true,
+        message: "\u932F\u8AA4\u5831\u544A\u5DF2\u8A18\u9304"
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (error46) {
+      console.error("[ERROR_REPORT] Failed to process error report:", error46);
+      return new Response(JSON.stringify({
+        success: false,
+        error: "\u7121\u6CD5\u8655\u7406\u932F\u8AA4\u5831\u544A"
+      }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
   }
   const router = n();
   createUnifiedRoutes(router);

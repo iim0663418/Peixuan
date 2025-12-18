@@ -32,9 +32,18 @@
 	],
 	/**
 	 * Environment Variables
-	 * GEMINI_API_KEY is set via GitHub Secrets and wrangler secret
+	 * Sensitive keys (GEMINI_API_KEY, AZURE_OPENAI_API_KEY) are set via GitHub Secrets and wrangler secret
 	 * Do not commit API keys to version control
 	 */
+	"vars": {
+		// Azure OpenAI Configuration (non-sensitive)
+		"AZURE_OPENAI_ENDPOINT": "",
+		"AZURE_OPENAI_DEPLOYMENT": "gpt-4o-mini",
+		"AZURE_OPENAI_API_VERSION": "2024-08-01-preview",
+		// AI Service Configuration
+		"AI_PROVIDER_TIMEOUT_MS": 45000,
+		"ENABLE_AI_FALLBACK": true
+	},
 	/**
 	 * KV Cache (Optional)
 	 * Uncomment to enable KV-based caching

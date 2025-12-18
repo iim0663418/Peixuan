@@ -4,9 +4,9 @@
 整合 Google Gemini AI，提供命理分析的 AI 解讀功能。
 
 ## API 資訊
-- **Model**: gemini-2.5-flash
-- **Endpoint**: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash
-- **API Key**: AIzaSyBJqsHMRDVul3oxgw_PuOznY9Wi3I1XFq8
+- **Model**: gemini-3-flash-preview
+- **Endpoint**: https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview
+- **API Key**: 使用環境變數 GEMINI_API_KEY 配置
 
 ## 實作方案
 

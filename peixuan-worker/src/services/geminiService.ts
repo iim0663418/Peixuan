@@ -57,7 +57,7 @@ export class GeminiService implements AIProvider {
 
   constructor(config: GeminiConfig) {
     this.apiKey = config.apiKey;
-    this.model = config.model || 'gemini-2.5-flash';
+    this.model = config.model || 'gemini-3-flash-preview';
     this.maxRetries = config.maxRetries || 3;
   }
 

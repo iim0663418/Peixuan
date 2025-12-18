@@ -111,7 +111,7 @@ import { AzureOpenAIService } from './services/azureOpenAIService';
 // Create providers
 const geminiProvider = new GeminiService({
   apiKey: env.GEMINI_API_KEY,
-  model: 'gemini-2.5-flash',
+  model: 'gemini-3-flash-preview',
   maxRetries: 3,
 });
 

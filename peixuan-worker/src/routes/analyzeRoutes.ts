@@ -49,7 +49,7 @@ function initializeAIServices(env: Env): { manager: AIServiceManager } {
   // Initialize primary provider (Gemini)
   const geminiService = new GeminiService({
     apiKey: env.GEMINI_API_KEY || '',
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3-flash-preview',
     maxRetries: 3,
   });
 

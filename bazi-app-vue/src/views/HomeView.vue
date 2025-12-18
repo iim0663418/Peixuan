@@ -88,7 +88,9 @@ const quickStart = () => {
     <!-- Services Section (服務卡片區域) -->
     <section class="services-section">
       <div class="section-container">
-        <h2 class="section-title">{{ $t('home.sections.services') }}</h2>
+        <h2 class="section-title">
+          {{ $t('home.sections.services') }}
+        </h2>
         <div class="service-grid">
           <ServiceCard
             v-for="service in services"
@@ -102,7 +104,9 @@ const quickStart = () => {
     <!-- Daily Reminder Section (每日運勢提醒區域) -->
     <section v-if="currentChartId" class="daily-reminder-section">
       <div class="section-container">
-        <h2 class="section-title">{{ $t('home.sections.dailyReminder') }}</h2>
+        <h2 class="section-title">
+          {{ $t('home.sections.dailyReminder') }}
+        </h2>
         <DailyReminderCard :chart-id="currentChartId" />
       </div>
     </section>
@@ -112,15 +116,23 @@ const quickStart = () => {
       <div class="section-container">
         <div class="quick-access-card">
           <div v-if="hasChart" class="quick-access-content">
-            <h3 class="quick-access-title">{{ $t('home.quick_access.welcome_title') }}</h3>
-            <p class="quick-access-desc">{{ $t('home.quick_access.welcome_desc') }}</p>
+            <h3 class="quick-access-title">
+              {{ $t('home.quick_access.welcome_title') }}
+            </h3>
+            <p class="quick-access-desc">
+              {{ $t('home.quick_access.welcome_desc') }}
+            </p>
             <button class="quick-access-btn" @click="quickStart">
               {{ $t('home.quick_access.welcome_btn') }}
             </button>
           </div>
           <div v-else class="quick-access-content">
-            <h3 class="quick-access-title">{{ $t('home.quick_access.start_title') }}</h3>
-            <p class="quick-access-desc">{{ $t('home.quick_access.start_desc') }}</p>
+            <h3 class="quick-access-title">
+              {{ $t('home.quick_access.start_title') }}
+            </h3>
+            <p class="quick-access-desc">
+              {{ $t('home.quick_access.start_desc') }}
+            </p>
             <button class="quick-access-btn" @click="quickStart">
               {{ $t('home.quick_access.start_btn') }}
             </button>
@@ -132,7 +144,9 @@ const quickStart = () => {
     <!-- Features Section (特色說明區域) -->
     <section class="features-section">
       <div class="section-container">
-        <h2 class="section-title">{{ $t('home.sections.features') }}</h2>
+        <h2 class="section-title">
+          {{ $t('home.sections.features') }}
+        </h2>
         <div class="features-grid">
           <div
             v-for="feature in features"
@@ -211,7 +225,11 @@ const quickStart = () => {
   color: var(--primary-color);
   margin: 0 0 var(--space-lg, 1.5rem) 0;
   line-height: var(--line-height-tight);
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-light)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

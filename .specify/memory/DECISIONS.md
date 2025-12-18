@@ -943,3 +943,16 @@
   - **TypeScript 修復**: 修正 marked.js Strong token 類型錯誤，確保類型安全
 - **技術細節**: CSS 方案比 Vue 組件方案更適合 v-html 渲染內容，最小化變更原則，構建驗證通過
 - **狀態**: 完成 ✓（前端渲染問題徹底解決）
+
+## 2025-12-18: Gemini Model Update & ESLint Cleanup
+
+### 決策：更新 Gemini API 模型至 gemini-3-flash-preview
+- **背景**: 測試驗證 gemini-3-flash-preview 模型可正常調用
+- **影響**: 更新 geminiService.ts 預設模型、analyzeRoutes.ts 初始化、相關文檔同步更新
+- **狀態**: 完成 ✓
+
+### 決策：修復前端 ESLint prettier/prettier 錯誤
+- **背景**: UnifiedAIAnalysisView.vue 和 HomeView.vue 存在格式化錯誤
+- **影響**: 修復 linear-gradient 格式、i18n 表達式換行、解決 max-lines 限制
+- **狀態**: 完成 ✓
+

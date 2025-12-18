@@ -120,7 +120,7 @@
 ### 1. 克隆專案
 
 ```bash
-git clone https://github.com/your-username/peixuan.git
+git clone https://github.com/iim0663418/Peixuan.git
 cd peixuan
 ```
 
@@ -537,7 +537,7 @@ npm run lint        # 自動修復
 我們歡迎各種形式的貢獻！
 
 ### 如何貢獻
-1. **回報 Bug**: 在 [Issues](https://github.com/your-username/peixuan/issues) 建立詳細的 Bug 報告
+1. **回報 Bug**: 在 [Issues](https://github.com/iim0663418/Peixuan/issues) 建立詳細的 Bug 報告
 2. **建議功能**: 提出新功能想法與使用場景
 3. **提交程式碼**: Fork 專案後提交 Pull Request
 4. **改善文檔**: 修正文檔錯誤或新增說明
@@ -616,6 +616,6 @@ npm run lint        # 自動修復
 
 Made with ❤️ by Peixuan Team
 
-[![Star on GitHub](https://img.shields.io/github/stars/your-username/peixuan?style=social)](https://github.com/your-username/peixuan)
+[![Star on GitHub](https://img.shields.io/github/stars/iim0663418/Peixuan?style=social)](https://github.com/iim0663418/Peixuan)
 
 </div>

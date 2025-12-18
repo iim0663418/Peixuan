@@ -81,6 +81,15 @@ const startStreaming = async () => {
 
   eventSource.onmessage = (event) => {
     try {
+      // Check for [DONE] signal first
+      if (event.data === '[DONE]') {
+        console.log('[SSE] Stream completed');
+        progress.value = 100;
+        isLoading.value = false;
+        eventSource?.close();
+        return;
+      }
+
       const data = JSON.parse(event.data);
       
       if (data.error) {
@@ -109,16 +118,6 @@ const startStreaming = async () => {
     isLoading.value = false;
     eventSource?.close();
   };
-
-  // Handle stream completion
-  eventSource.addEventListener('message', (event) => {
-    if (event.data === '[DONE]') {
-      console.log('[SSE] Stream completed');
-      progress.value = 100;
-      isLoading.value = false;
-      eventSource?.close();
-    }
-  });
 };
 
 const goBack = () => {

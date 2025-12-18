@@ -35036,22 +35036,36 @@ var GeminiService = class {
    * Parse error JSON and throw enhanced error with retry delay if available
    */
   throwEnhancedError(errorText, status, statusText) {
+    let errorMessage = `Gemini streaming API error (${status} ${statusText}): ${errorText}`;
+    let retryAfter;
     try {
       const errorJson = JSON.parse(errorText);
       if (errorJson.error) {
-        let errorMessage = errorJson.error.message || "Unknown error";
+        errorMessage = errorJson.error.message || "Unknown error";
         if (errorJson.error.details) {
           const retryInfo = errorJson.error.details.find((d) => d["@type"]?.includes("RetryInfo"));
           if (retryInfo?.retryDelay) {
             const seconds = parseInt(retryInfo.retryDelay.replace("s", ""));
+            retryAfter = seconds;
             errorMessage += ` Please retry in ${seconds}s`;
           }
         }
-        throw new Error(errorMessage);
       }
     } catch {
     }
-    throw new Error(`Gemini streaming API error (${status} ${statusText}): ${errorText}`);
+    let code;
+    if (status === 429) {
+      code = AIErrorCode.RATE_LIMIT_EXCEEDED;
+    } else if (status === 503) {
+      code = AIErrorCode.SERVICE_UNAVAILABLE;
+    } else if (status === 401 || status === 403) {
+      code = AIErrorCode.AUTH_ERROR;
+    } else if (status === 400) {
+      code = AIErrorCode.INVALID_REQUEST;
+    } else {
+      code = AIErrorCode.UNKNOWN_ERROR;
+    }
+    throw new AIProviderError(errorMessage, code, status, retryAfter);
   }
   /**
    * Handle exceptions during fetch

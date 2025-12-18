@@ -932,3 +932,14 @@
   - **代碼品質提升**: 修復所有 ESLint 錯誤（D1Database 全域定義、語法錯誤、複雜度重構），代碼模組化為 promptBuilder/streamProcessor/cacheUtilities
 - **技術細節**: 向後相容設計，舊快取自然過期，前端無需修改，構建驗證通過
 - **狀態**: 完成 ✓（準備部署生產環境）
+
+## 2025-12-18: Frontend Rendering & State Management Fixes
+
+### 決策：前端 AI 分析粗體漸層與狀態切換修復
+- **背景**: 用戶反饋前端個性、運勢分析粗體星曜漸層效果未正確渲染，且兩種分析間切換會停留在上個頁面內容
+- **影響**:
+  - **星曜漸層渲染修復**: 自定義 marked 渲染器解析 `**星曜名稱(亮度)**` 格式，使用 CSS data 屬性實現 13 種亮度等級的語意色彩漸層（廟=紅色、旺=橙色、得=綠色等）
+  - **狀態切換修復**: 添加 `watch(analysisType)` 監聽路由變更，切換分析類型時自動重置 analysisText、error、progress 狀態並重新載入
+  - **TypeScript 修復**: 修正 marked.js Strong token 類型錯誤，確保類型安全
+- **技術細節**: CSS 方案比 Vue 組件方案更適合 v-html 渲染內容，最小化變更原則，構建驗證通過
+- **狀態**: 完成 ✓（前端渲染問題徹底解決）

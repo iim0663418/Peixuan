@@ -16,3 +16,11 @@
 ./bazi-app-vue/src/utils/storageService.ts:    console.error(`清除 ${analysisType} 資料失敗:`, error);
 ./bazi-app-vue/src/utils/storageService.js:export const clearAnalysisData = (analysisType) => {
 ./bazi-app-vue/src/utils/storageService.js:        switch (analysisType) {
+=== Frontend AI Analysis Components Research ===
+bazi-app-vue/src/views/UnifiedAIAnalysisView.vue
+bazi-app-vue/src/views/AIAnalysisView.legacy.vue
+
+=== Markdown Rendering Research ===
+bazi-app-vue/src/views/UnifiedAIAnalysisView.vue:import { marked } from 'marked';
+bazi-app-vue/src/views/UnifiedAIAnalysisView.vue:  return marked(text) as string;
+bazi-app-vue/src/views/UnifiedAIAnalysisView.vue:        <div class="markdown-body" v-html="renderMarkdown(analysisText)" />

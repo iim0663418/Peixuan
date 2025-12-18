@@ -1,9 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'; // Add 'watch'
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useChartStore } from '@/stores/chartStore';
 import { marked } from 'marked';
+
+// Configure marked renderer once for the application when the module is loaded
+marked.use({
+  renderer: {
+    strong({ text }: { text: string }) {
+      // Regex to match "星曜名稱(brightness)" and capture the name and brightness
+      // Comprehensive list of brightness values for Ziwei Dou Shu
+      const match = text.match(/(.*)\((廟|旺|得地|利|平|不得地|陷|衰|病|死|墓|絕|胎|養)\)/);
+      if (match && match.length === 3) {
+        const starName = match[1];
+        const brightness = match[2];
+        // Return custom HTML with data-brightness attribute
+        return `<strong class="star-brightness" data-brightness="${brightness}">${starName}</strong>`;
+      }
+      // If it doesn't match the pattern, render as a normal strong tag
+      return `<strong>${text}</strong>`;
+    }
+  }
+});
 
 const router = useRouter();
 const route = useRoute();
@@ -24,6 +43,15 @@ const loadingMessage = ref('');
 const loadingHint = ref('');
 
 let eventSource: EventSource | null = null;
+
+// Function to stop the current streaming connection
+const stopStreaming = () => {
+  if (eventSource) {
+    eventSource.close();
+    eventSource = null;
+    console.log('[SSE] Stream closed manually');
+  }
+};
 
 // 動態 API 端點
 const getApiEndpoints = () => {
@@ -51,6 +79,13 @@ const checkCache = async (chartId: string): Promise<boolean> => {
 };
 
 const startStreaming = async () => {
+  stopStreaming(); // Ensure any previous stream is closed
+
+  analysisText.value = ''; // Clear previous content
+  error.value = null;      // Clear previous errors
+  isLoading.value = true;  // Set loading state
+  progress.value = 0;      // Reset progress
+
   const chartId = chartStore.chartId;
 
   if (!chartId) {
@@ -124,15 +159,21 @@ const goBack = () => {
   router.push('/unified');
 };
 
+// Watch for analysisType changes to restart the stream
+watch(analysisType, async (newType, oldType) => {
+  if (newType && newType !== oldType) {
+    console.log(`[AnalysisView] Analysis type changed from "${oldType}" to "${newType}". Restarting stream.`);
+    await startStreaming();
+  }
+}, { immediate: true }); // immediate: true to run on initial component mount
+
 onMounted(() => {
-  startStreaming();
+  // startStreaming is now handled by the immediate watcher, so this can be empty
+  // or used for other non-streaming related on-mount setup.
 });
 
 onUnmounted(() => {
-  if (eventSource) {
-    eventSource.close();
-    eventSource = null;
-  }
+  stopStreaming(); // Ensure stream is closed when component is unmounted
 });
 </script>
 
@@ -354,9 +395,76 @@ onUnmounted(() => {
   margin-bottom: var(--space-md);
 }
 
+/* Default strong style for non-star brightness text */
 .markdown-body :deep(strong) {
-  color: var(--primary);
+  color: var(--text-primary); /* Use a general primary text color by default */
   font-weight: 600;
+}
+
+/* Base style for star brightness, will be overridden by specific brightness levels */
+.markdown-body :deep(strong.star-brightness) {
+  font-weight: 700; /* Make it bolder */
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Specific gradient styles based on data-brightness */
+.markdown-body :deep(strong.star-brightness[data-brightness="廟"]) {
+  background-image: linear-gradient(45deg, #FFD700, #FFA500); /* Gold/Orange */
+}
+
+.markdown-body :deep(strong.star-brightness[data-brightness="旺"]) {
+  background-image: linear-gradient(45deg, #00FF00, #008000); /* Bright Green/Dark Green */
+}
+
+.markdown-body :deep(strong.star-brightness[data-brightness="得地"]) {
+  background-image: linear-gradient(45deg, #87CEEB, #4682B4); /* Sky Blue/Steel Blue */
+}
+
+.markdown-body :deep(strong.star-brightness[data-brightness="利"]) {
+  background-image: linear-gradient(45deg, #FF69B4, #C71585); /* Hot Pink/Medium Violet Red */
+}
+
+.markdown-body :deep(strong.star-brightness[data-brightness="平"]) {
+  background-image: linear-gradient(45deg, #D3D3D3, #A9A9A9); /* Light Gray/Dark Gray */
+}
+
+.markdown-body :deep(strong.star-brightness[data-brightness="不得地"]) {
+  background-image: linear-gradient(45deg, #FF4500, #B22222); /* Orange Red/Firebrick */
+}
+
+.markdown-body :deep(strong.star-brightness[data-brightness="陷"]) {
+  background-image: linear-gradient(45deg, #800000, #400000); /* Maroon/Dark Maroon */
+}
+
+/* Add other brightness levels if necessary */
+.markdown-body :deep(strong.star-brightness[data-brightness="衰"]) {
+  background-image: linear-gradient(45deg, #708090, #2F4F4F); /* Slate Gray/Dark Slate Gray */
+}
+
+.markdown-body :deep(strong.star-brightness[data-brightness="病"]) {
+  background-image: linear-gradient(45deg, #9932CC, #4B0082); /* Dark Orchid/Indigo */
+}
+
+.markdown-body :deep(strong.star-brightness[data-brightness="死"]) {
+  background-image: linear-gradient(45deg, #000000, #36454F); /* Black/Charcoal */
+}
+
+.markdown-body :deep(strong.star-brightness[data-brightness="墓"]) {
+  background-image: linear-gradient(45deg, #A52A2A, #8B0000); /* Brown/Dark Red */
+}
+
+.markdown-body :deep(strong.star-brightness[data-brightness="絕"]) {
+  background-image: linear-gradient(45deg, #483D8B, #191970); /* Dark Slate Blue/Midnight Blue */
+}
+
+.markdown-body :deep(strong.star-brightness[data-brightness="胎"]) {
+  background-image: linear-gradient(45deg, #DAA520, #B8860B); /* Goldenrod/Dark Goldenrod */
+}
+
+.markdown-body :deep(strong.star-brightness[data-brightness="養"]) {
+  background-image: linear-gradient(45deg, #20B2AA, #008B8B); /* Light Sea Green/Dark Cyan */
 }
 
 .cursor {

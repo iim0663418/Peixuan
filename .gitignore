@@ -418,3 +418,6 @@ tasks/
 security-report.json
 vulnerability-report.json
 audit-report.json
+
+# Internal Documentation (Private)
+/doc/

@@ -956,3 +956,15 @@
 - **影響**: 修復 linear-gradient 格式、i18n 表達式換行、解決 max-lines 限制
 - **狀態**: 完成 ✓
 
+
+## 2025-12-18: 金鑰洩漏安全審計與 .gitignore 更新
+
+### 決策：發現並修復 Gemini API 金鑰洩漏風險
+- **背景**: 安全掃描發現 peixuan-worker/.dev.vars 中暴露 Gemini API 金鑰，存在嚴重安全風險
+- **影響**: 
+  - **CRITICAL**: Gemini API 金鑰 AIzaSyBoBbIURiJ0oMMC9yGbKLwQkVKwEkdqTPQ 暴露在版本控制中
+  - **HIGH**: bazi-app-vue/.env.staging 已追蹤到 Git（雖無敏感內容但違反最佳實踐）
+  - 全面更新 .gitignore 涵蓋環境變數、API 金鑰、數據庫文件、IDE 配置、建置產物等
+  - 生成詳細安全審計報告 doc/SECURITY_AUDIT_REPORT.md
+- **立即行動**: 需撤銷暴露金鑰、移除 .env.staging 追蹤、重新配置 Cloudflare Workers Secrets
+- **狀態**: 完成 ✓（.gitignore 已更新，待執行金鑰撤銷操作）

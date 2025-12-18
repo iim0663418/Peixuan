@@ -526,7 +526,7 @@ export interface DailyReminder {
  *
  * @param chartId - 命盤 ID
  * @param date - 查詢日期
- * @param locale - 語言設定 (預設 'zh-TW', 可選 'en', 'zh')
+ * @param locale - 語言設定 (預設 'zh-TW', 可選 'en')
  * @returns 每日運勢提醒資料
  *
  * 快取策略：

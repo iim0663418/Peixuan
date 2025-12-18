@@ -1,395 +1,621 @@
-# 佩璇 - 智能命理分析平台
+# 佩璇 (Peixuan) - 智能命理分析平台
 
-## 🌟 專案概述
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)
+![Vue](https://img.shields.io/badge/Vue.js-3.5-4FC08D.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6.svg)
+![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020.svg)
+![Gemini](https://img.shields.io/badge/Gemini-3.0%20Flash-4285F4.svg)
 
-佩璇是一個創新的命理分析平台，結合傳統八字與紫微斗數，提供多維度、高精度的個人命運洞察。
+> **結合傳統智慧與現代 AI 科技的命理分析平台**
 
-## ✨ 核心特色
+佩璇 (Peixuan) 是一個現代化的智能命理分析平台，融合傳統中國命理學（八字四柱、紫微斗數）與先進的生成式 AI 技術 (Google Gemini)，透過 Cloudflare Workers 邊緣運算架構，為用戶提供快速、精準且富有洞察力的命運分析。
 
-### 🔄 多術數交互驗證系統
-- **創新技術**: 首創八字與紫微斗數交叉驗證
-- **信心度評分**: 量化分析結果的可靠性
-- **智能一致性分析**: 自動識別分析共同點與差異
+## 🌟 核心特色
 
-### 🔐 分層響應設計
-- **匿名用戶**: 基礎分析
-- **會員用戶**: 進階分析
-- **VIP用戶**: 專家級分析
+### 🔮 雙系統命理引擎
+- **八字四柱 (BaZi/四柱八字)**:
+  - 精準計算四柱八字、藏干、十神、納音、五行能量分佈
+  - 支援真太陽時校正（經度補償 + 均時差調整）
+  - 符合傳統命理學計算標準
 
-### 🧠 智能分析模組
-- 性格特質比對
-- 運勢趨勢分析
-- 五行能量分布比較
-- 生命週期驗證
+- **紫微斗數 (ZiWei DouShu/紫微斗數)**:
+  - 完整十二宮位排盤系統
+  - 108 顆星曜安星邏輯（主星、輔星、煞星、化星）
+  - 四化飛星系統（生年四化 + 大限四化 + 流年四化）
+  - 大限、流年運程分析
+
+- **統一計算核心**:
+  - 後端 `UnifiedCalculator` 提供單一真值來源 (Single Source of Truth)
+  - 確保前後端數據一致性，避免計算偏差
+
+### 🤖 AI 智能分析 (Powered by Google Gemini)
+- **Gemini 3.0 Flash Preview 整合**:
+  - 使用最新 Gemini 3.0 Flash Preview 模型
+  - 專為命理分析優化的系統提示詞 (System Prompt)
+  - 支援繁體中文深度語義理解
+
+- **雙模式 AI 分析**:
+  - **性格分析 (佩璇模式)**: 結合八字十神與紫微主星，提供溫暖、口語化的個性深層解讀
+  - **運勢分析 (佩璇模式)**: 專注流年運勢、四化能量流向與星曜對稱性，預測關鍵機遇與挑戰
+
+- **即時串流體驗**:
+  - Server-Sent Events (SSE) 技術實現打字機效果
+  - 無需等待完整回應，即時顯示分析內容
+
+- **智能快取機制**:
+  - 基於 Cloudflare D1 的多層快取策略
+  - 相同命盤直接讀取快取，大幅降低 API 呼叫成本
+  - 降低 AI 分析延遲，提升使用者體驗
+
+### ⚡ Edge-First 現代化架構
+- **全球邊緣網絡部署**:
+  - Cloudflare Workers 在全球 300+ 數據中心運行
+  - 超低延遲 (< 50ms)，無論用戶身處何地
+
+- **Serverless 架構**:
+  - 按需計費，無需維護伺服器
+  - 自動擴展，應對流量高峰
+
+- **響應式前端設計**:
+  - Vue 3 Composition API + TypeScript 開發
+  - Mobile-First 設計理念，完美適配各種螢幕尺寸
+  - Element Plus UI 組件庫，現代化視覺體驗
+
+- **多語言支援**:
+  - Vue I18n 實現國際化 (i18n)
+  - 支援繁體中文、英文
 
 ## 🛠 技術棧
 
-### 後端
-- Node.js 18+
-- TypeScript
-- Express.js
-- JWT 驗證
-- PostgreSQL 15
-- Redis 7
-- 日誌與監控系統
+### 後端 (Cloudflare Ecosystem)
+| 技術 | 版本/說明 | 用途 |
+|------|-----------|------|
+| **Runtime** | Cloudflare Workers | Serverless 邊緣運算環境 |
+| **Language** | TypeScript 5.5+ | 型別安全的 JavaScript 超集 |
+| **Router** | itty-router 5.x | 輕量級路由框架 (< 1KB) |
+| **Database** | Cloudflare D1 | 基於 SQLite 的分散式資料庫 |
+| **ORM** | Drizzle ORM 0.44+ | 型別安全的 SQL ORM |
+| **AI Provider** | Google Gemini API | Gemini 3.0 Flash Preview 模型 |
+| **Calendar** | lunar-typescript 1.8+ | 農曆/陽曆轉換與天文計算 |
+| **Validation** | Zod 4.x | Schema 驗證與型別推斷 |
 
-### 前端
-- Vue 3
-- TypeScript
-- Vite
-- Vue Router
-- Pinia 狀態管理
-- Element Plus UI
-- i18n 國際化
+### 前端 (Modern Web Stack)
+| 技術 | 版本/說明 | 用途 |
+|------|-----------|------|
+| **Framework** | Vue 3.5+ | Composition API + `<script setup>` |
+| **Build Tool** | Vite 6.x | 次世代前端建置工具 |
+| **Language** | TypeScript 5.8+ | 型別安全開發 |
+| **State** | Pinia 3.x | Vue 官方推薦的狀態管理庫 |
+| **UI Library** | Element Plus 2.10+ | Vue 3 UI 組件庫 |
+| **Router** | Vue Router 4.5+ | 官方路由解決方案 |
+| **i18n** | Vue I18n 9.x | 多語言國際化支援 |
+| **HTTP Client** | Axios 1.9+ | Promise-based HTTP 客戶端 |
+| **Calendar** | lunar-typescript 1.8+ | 與後端共用的曆法計算庫 |
+| **Markdown** | marked 17.x | AI 分析結果渲染 |
 
-### 資料處理
-- 紫微斗數計算引擎 (後端實現)
-- 八字排盤演算法 (前端實現，使用 lunar.min.js)
-- 多維度交叉驗證模型
+### 開發工具
+- **Package Manager**: npm / pnpm
+- **Linter**: ESLint 9.x (TypeScript 規則)
+- **Formatter**: Prettier 3.x
+- **Test Framework**: Vitest 3.x (前端) + Cloudflare Vitest Pool (後端)
+- **Deployment**: Wrangler CLI 4.x (Cloudflare 官方部署工具)
 
 ## 🚀 快速開始
 
 ### 環境要求
-- Node.js 18+
-- npm 8+
-- Docker 20.10+ 與 Docker Compose 2.0+ (推薦)
-- Git 2.30+
+- **Node.js**: 20.x 或更高版本
+- **Package Manager**: npm 8+ 或 pnpm 8+
+- **Cloudflare Wrangler CLI**: `npm install -g wrangler@latest`
+- **Cloudflare 帳號**: 用於部署 Workers 和 D1 資料庫
+- **Git**: 用於版本控制
 
-### 環境變數設定
+### ⚠️ 重要：雲端優先開發模式
 
-專案使用環境變數來配置不同環境的設定。請按照以下步驟設定：
+本專案採用 **雲端 Staging 環境進行開發和測試**，不再支援地端開發環境運行。此策略旨在：
+- 避免本地 `esbuild` 開發伺服器的 CSRF 安全風險
+- 確保開發環境與生產環境的一致性
+- 簡化開發流程，減少本地環境配置問題
 
-#### 1. 後端環境變數
-複製環境變數範本並根據需要修改：
-
-```bash
-# 複製環境變數模板
-cp backend-node/.env.example backend-node/.env.dev
-
-# 編輯開發環境變數
-nano backend-node/.env.dev
-```
-
-**主要環境變數說明**：
-
-```
-# 基本配置
-NODE_ENV=development    # 環境類型 (development/test/production)
-PORT=3000               # API 服務埠
-
-# 資料庫配置
-DB_HOST=postgres        # PostgreSQL 主機名
-DB_PORT=5432            # PostgreSQL 埠
-DB_USERNAME=postgres    # 資料庫用戶名
-DB_PASSWORD=devpassword # 資料庫密碼
-DB_NAME=peixuan_dev     # 資料庫名稱
-
-# Redis 配置
-REDIS_HOST=redis        # Redis 主機名
-REDIS_PORT=6379         # Redis 埠
-
-# JWT 配置
-JWT_SECRET=your-secret-key    # JWT 密鑰 (生產環境請使用強密碼)
-JWT_EXPIRES_IN=24h            # Token 有效期
-
-# API 配置
-API_RATE_LIMIT=1000           # API 請求限制
-CALCULATION_RATE_LIMIT=100    # 計算服務請求限制
-
-# 其他配置
-ENABLE_API_DOCS=true          # 是否啟用 API 文檔
-```
-
-#### 2. 前端環境變數
-在 `bazi-app-vue` 目錄中創建 `.env.local` 文件：
+### 1. 克隆專案
 
 ```bash
-# 複製環境變數模板
-cp bazi-app-vue/.env.example bazi-app-vue/.env.local
-
-# 編輯環境變數
-nano bazi-app-vue/.env.local
-```
-
-**主要環境變數說明**：
-
-```
-# API 基礎 URL
-VITE_API_BASE_URL=http://localhost:3000/api/v1
-
-# 功能開關
-VITE_ENABLE_ANALYTICS=false
-VITE_ENABLE_PREMIUM_FEATURES=false
-
-# 其他配置
-VITE_DEFAULT_LOCALE=zh-TW
-```
-
-### 安裝步驟
-
-#### 方法一：使用 Docker (推薦)
-
-```bash
-# 克隆倉庫
 git clone https://github.com/your-username/peixuan.git
-
-# 進入專案目錄
 cd peixuan
-
-# 複製環境變數模板
-cp .env.example .env
-cp backend-node/.env.example backend-node/.env.dev
-
-# 啟動開發環境
-docker-compose -f docker-compose.dev.yml up -d
-
-# 查看日誌
-docker-compose -f docker-compose.dev.yml logs -f
 ```
 
-#### 方法二：本地開發
+### 2. Cloudflare 帳號設定
 
+#### 2.1 登入 Cloudflare
 ```bash
-# 克隆倉庫
-git clone https://github.com/your-username/peixuan.git
+wrangler login
+```
 
-# 進入專案目錄
-cd peixuan
+#### 2.2 取得帳號 ID
+```bash
+wrangler whoami
+# 記下輸出的 Account ID
+```
 
-# 安裝後端依賴
-cd backend-node
+### 3. 設定 Staging 環境
+
+#### 3.1 建立 Staging D1 資料庫
+```bash
+cd peixuan-worker
+wrangler d1 create peixuan-db-staging
+```
+
+記下輸出的 `database_id`，並更新 `wrangler.jsonc` 中的 `env.staging.d1_databases[0].database_id`。
+
+#### 3.2 執行資料庫遷移
+```bash
+wrangler d1 migrations apply peixuan-db-staging --env staging
+```
+
+#### 3.3 設定環境變數 (Secrets)
+
+**取得 Gemini API Key**:
+1. 前往 [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. 建立新的 API Key
+
+**設定到 Cloudflare Workers**:
+```bash
+# 設定 Staging 環境的 Gemini API Key
+wrangler secret put GEMINI_API_KEY --env staging
+# 輸入您的 API Key
+
+# 設定環境標識
+wrangler secret put ENVIRONMENT --env staging
+# 輸入 "staging"
+```
+
+### 4. 部署到 Staging 環境
+
+#### 4.1 後端部署
+```bash
+cd peixuan-worker
 npm install
+npm run build
+wrangler deploy --env staging
+```
 
-# 複製並設定環境變數
-cp .env.example .env.dev
-nano .env.dev
+部署成功後，記下 Worker URL (例如: `https://peixuan-worker-staging.your-subdomain.workers.dev`)
 
-# 啟動後端開發伺服器
-npm run dev
-
-# 安裝前端依賴
+#### 4.2 前端建置與部署
+```bash
 cd ../bazi-app-vue
 npm install
 
-# 複製並設定環境變數
-cp .env.example .env.local
-nano .env.local
+# 設定 Staging API URL
+echo "VITE_API_BASE_URL=https://peixuan-worker-staging.your-subdomain.workers.dev/api/v1" > .env.staging
 
-# 啟動前端開發伺服器
-npm run dev
+# 建置前端
+npm run build
+
+# 複製前端檔案到 Worker 的 public 目錄
+cp -r dist/* ../peixuan-worker/public/
+
+# 重新部署 Worker (包含前端)
+cd ../peixuan-worker
+wrangler deploy --env staging
 ```
 
-## 🔒 安全性
+### 5. 驗證部署
 
-- JWT 身份驗證
-- 基於角色的存取控制
-- 敏感資料加密
-- 多層安全驗證機制
-- API 頻率限制
-- 輸入驗證與消毒
-- CORS 安全配置
+開啟瀏覽器前往您的 Staging Worker URL，您應該看到佩璇命理分析平台的首頁。
 
-## 📊 API 端點
+**測試流程**:
+1. 輸入生日資訊（支援農曆/陽曆）
+2. 點擊「開始分析」
+3. 查看八字排盤與紫微斗數盤
+4. 點擊「AI 分析」獲取性格或運勢分析
 
-### 命運洞悉
-- `POST /api/v1/astrology/integrated-analysis`
-- `POST /api/v1/astrology/confidence-assessment`
+**健康檢查**:
+```bash
+curl https://peixuan-worker-staging.your-subdomain.workers.dev/health
+# 應返回: {"status":"ok"}
+```
 
-### 紫微斗數
-- `POST /api/v1/purple-star/calculate`
-- `GET /api/v1/purple-star/chart`
-- `GET /api/v1/purple-star/health`
+## 📂 專案結構
 
-### 八字
-- `POST /api/v1/bazi/calculate`
-- `GET /api/v1/bazi/chart`
-
-### 用戶認證
-- `POST /api/v1/auth/register`
-- `POST /api/v1/auth/login`
-- `POST /api/v1/auth/refresh`
-
-### 系統監控
-- `GET /health`
-- `GET /metrics`
+```
+Peixuan/
+│
+├── peixuan-worker/                 # 後端 Cloudflare Workers 服務
+│   ├── src/
+│   │   ├── index.ts               # Worker 入口點與路由配置
+│   │   ├── calculation/           # 命理計算核心
+│   │   │   ├── UnifiedCalculator.ts    # 統一計算器 (八字 + 紫微)
+│   │   │   ├── BaziCalculator.ts       # 八字四柱計算
+│   │   │   └── ZiweiCalculator.ts      # 紫微斗數計算
+│   │   ├── routes/                # API 路由
+│   │   │   ├── calculateRoutes.ts      # 排盤計算路由
+│   │   │   └── analyzeRoutes.ts        # AI 分析路由 (SSE)
+│   │   ├── services/              # 業務邏輯服務
+│   │   │   ├── geminiService.ts        # Gemini API 整合
+│   │   │   └── cacheService.ts         # D1 快取服務
+│   │   ├── db/                    # 資料庫層
+│   │   │   ├── schema.ts              # Drizzle ORM Schema
+│   │   │   └── connection.ts          # D1 連接管理
+│   │   └── types/                 # TypeScript 型別定義
+│   ├── drizzle/                   # 資料庫遷移檔案
+│   ├── wrangler.toml              # Cloudflare Workers 配置
+│   └── package.json
+│
+├── bazi-app-vue/                  # 前端 Vue 3 應用
+│   ├── src/
+│   │   ├── App.vue                # 根組件
+│   │   ├── main.ts                # 應用入口
+│   │   ├── components/            # UI 組件
+│   │   │   ├── UnifiedInputForm.vue    # 統一輸入表單
+│   │   │   ├── UnifiedResultView.vue   # 統一結果顯示
+│   │   │   ├── BaziChart.vue           # 八字排盤顯示
+│   │   │   ├── ZiweiChart.vue          # 紫微斗數盤顯示
+│   │   │   └── AIAnalysisPanel.vue     # AI 分析面板 (SSE)
+│   │   ├── views/                 # 頁面視圖
+│   │   │   ├── HomeView.vue            # 首頁
+│   │   │   └── AnalysisView.vue        # 分析頁面
+│   │   ├── stores/                # Pinia 狀態管理
+│   │   │   ├── chartStore.ts           # 命盤狀態
+│   │   │   └── analysisStore.ts        # 分析狀態
+│   │   ├── services/              # API 客戶端
+│   │   │   └── apiService.ts           # Axios HTTP 客戶端
+│   │   ├── router/                # Vue Router 配置
+│   │   ├── i18n/                  # 國際化語言檔案
+│   │   │   └── locales/               # zh_TW, en
+│   │   └── assets/                # 靜態資源 (CSS, 圖片)
+│   ├── public/                    # 公開靜態檔案
+│   ├── vite.config.ts             # Vite 建置配置
+│   └── package.json
+│
+├── doc/                           # 專案文檔
+│   ├── STAGING_SETUP.md           # Staging 環境設定
+│   ├── api/                       # API 文檔
+│   └── decisions/                 # 架構決策記錄 (ADR)
+│
+├── .specify/                      # Specify AI 規格檔案
+│   └── specs/                     # Feature 規格
+│
+├── CLAUDE.md                      # Claude Code 專案指引
+├── README.md                      # 本檔案
+└── LICENSE                        # MIT 授權
 
 ## 🧪 測試
 
-```bash
-# 運行前端單元測試
-cd bazi-app-vue
-npm run test
+### 本地測試 (不運行開發伺服器)
 
-# 運行後端單元測試
-cd backend-node
+#### 後端測試 (peixuan-worker/)
+```bash
+cd peixuan-worker
+
+# 運行所有單元測試
 npm run test
 ```
 
-詳細的測試指南請參考 [TESTING_GUIDE.md](TESTING_GUIDE.md)。
-詳細的部署指南請參考 [DEPLOYMENT_MANUAL.md](DEPLOYMENT_MANUAL.md)。
+**測試範圍**:
+- 八字計算邏輯單元測試
+- 紫微斗數計算邏輯單元測試
+- 工具函數單元測試
+- Mock API 測試
 
-## 📝 專案狀態
+**注意**: 不使用 `test:watch` 模式以避免啟動本地開發伺服器。
 
-### 已完成功能
-- ✅ 設置專案基礎架構
-- ✅ 實現紫微斗數命盤自動排盤
-- ✅ 開發星曜屬性和宮位吉凶高亮功能
-- ✅ 開發流年和大運計算功能
-- ✅ 實現四化飛星功能（含圖論分析、循環檢測、中心性分析）
-- ✅ 開發全程異動記錄和還原功能
-- ✅ 優化命盤演算法效能
-- ✅ 實現國際化（i18n）支持
-- ✅ 開發命盤資料可視化功能
-- ✅ 緊急修復：八字 API 404 錯誤和前端翻譯問題
-- ✅ 紫微斗數計算核心模組開發
-- ✅ 實現紫微斗數精細化計算服務
-- ✅ 整合時區選擇功能於紫微斗數排盤表單
-- ✅ 增強紫微斗數命盤解說功能
-- ✅ 實現多層次命盤解讀功能
-- ✅ 優化會話存儲實現
-- ✅ Cloudflare Workers + D1 部署完成
-- ✅ 統一 API 架構（UnifiedCalculator）
-- ✅ 前端遷移至統一 API
-- ✅ 設計系統套用（Design Tokens）
-- ✅ lunar-typescript 整合（Hybrid Approach）
-- ✅ 藏干/十神計算優化（減少 274 行維護代碼）
-- ✅ 開源專案驗算測試套件
+#### 前端測試 (bazi-app-vue/)
+```bash
+cd bazi-app-vue
 
-### 進行中功能
-- 🔄 實現用戶認證系統
-- 🔄 開發匿名轉會員合併機制
-- 🔄 測試覆蓋補齊
+# 運行所有單元測試
+npm run test
 
-### 待開發功能
-- ⏳ 設計和實現完整 RESTful API
-- ⏳ 開發命運洞悉功能
-- ⏳ 實現第三方 API 接入
-- ⏳ 開發用戶資料和歷史查詢功能
-- ⏳ 實現多設備同步功能
-- ⏳ 開發分層 API 結果功能
-- ⏳ 實現高級用戶權限管理
-- ⏳ 開發分階段 Token 驗證系統
-- ⏳ 實現高級資料合併與衝突處理
-- ⏳ 命運洞悉與命運分析容錯機制
-- ⏳ 紫微斗數計算精化與時間精準度優化
-- ⏳ Redis 分佈式緩存系統配置與部署
-- ⏳ 增強英文本地化界面
-- ⏳ 增強紫微斗數命盤響應式設計
-- ⏳ 增強存儲服務安全性
-- ⏳ 開發命盤比較功能
-- ⏳ 實現命盤解讀自動生成
-- ⏳ 開發命盤互動教學功能
-- ⏳ 實現社區功能
-- ⏳ 實現系統監控和分析
+# UI 模式 (視覺化測試介面)
+npm run test:ui
+```
 
-## 🌈 未來藍圖
+**測試範圍**:
+- Vue 組件單元測試 (Vue Test Utils)
+- Pinia Store 測試
+- API Service Mock 測試
+- 工具函數單元測試
 
-- [ ] 機器學習增強預測
-- [ ] 更多命理系統整合
-- [ ] 個性化推薦引擎
-- [ ] 跨平台移動應用
+### Staging 環境整合測試
 
-## 🏗 專案架構
+完整的整合測試應在 Staging 環境進行：
 
-本專案主要分為前端與後端兩大部分：
+```bash
+# 部署到 Staging 後進行手動測試
+curl https://peixuan-worker-staging.your-subdomain.workers.dev/api/v1/calculate
+```
 
-- **前端 (bazi-app-vue)**
-  - 使用 Vue 3 框架與 TypeScript
-  - 組件化設計，包含命盤輸入、顯示、分析等多個 Vue 組件
-  - 狀態管理使用 Pinia，路由管理使用 Vue Router
-  - 支援多語系 (i18n)
-  - 主要目錄：
-    - `src/components/`：UI 組件
-    - `src/views/`：頁面視圖
-    - `src/services/`：前端服務與 API 呼叫
-    - `src/stores/`：狀態管理
-    - `src/i18n/`：國際化資源
-    - `src/router/`：路由設定
-    - `src/utils/`：工具函數
-    - `src/types/`：TypeScript 類型定義
+使用瀏覽器或 API 測試工具 (Postman、Insomnia) 測試完整的使用者流程。
 
-- **後端 (backend-node)**
-  - 使用 Node.js 與 Express 框架，採用 TypeScript 開發
-  - 提供 RESTful API 端點，處理命理計算與用戶認證
-  - 中介軟體負責身份驗證、權限控制、日誌與監控
-  - 主要目錄：
-    - `src/routes/`：API 路由定義
-    - `src/controllers/`：請求處理控制器
-    - `src/services/`：業務邏輯與命理計算服務
-    - `src/middleware/`：Express 中介軟體
-    - `src/models/`：資料模型
-    - `src/utils/`：工具函式
-    - `src/types/`：型別定義
-    - `src/config/`：配置文件
-    - `src/__tests__/`：單元測試
+## 📦 部署
 
-- **其他**
-  - `docker-compose.yml` 與 Dockerfile 用於容器化部署
-  - `docker-compose.dev.yml` 用於開發環境部署
-  - `docker-compose.test.yml` 用於測試環境部署
-  - `TESTING_GUIDE.md` 提供測試相關說明
-  - `DEPLOYMENT_MANUAL.md` 提供部署相關說明
-  - `.env` 用於環境變數設定
-  - `scripts/` 目錄包含各種自動化腳本
+### 1. 後端部署到 Cloudflare Workers
+
+#### 1.1 準備工作
+```bash
+cd peixuan-worker
+
+# 確保已登入 Cloudflare 帳號
+wrangler login
+
+# 建立 D1 資料庫 (首次部署)
+wrangler d1 create peixuan-db
+
+# 記下 database_id，更新 wrangler.toml 中的 database_id
+```
+
+#### 1.2 部署 Production 環境
+```bash
+# 執行資料庫遷移 (首次或 schema 變更時)
+wrangler d1 migrations apply peixuan-db --remote
+
+# 建置並部署
+npm run build
+npm run deploy
+
+# 或直接部署 (不建置)
+npm run deploy:direct
+```
+
+#### 1.3 設定環境變數 (Secrets)
+```bash
+# 設定 Gemini API Key
+wrangler secret put GEMINI_API_KEY
+# 輸入您的 API Key
+
+# 設定環境標識
+wrangler secret put ENVIRONMENT
+# 輸入 "production"
+```
+
+#### 1.4 驗證部署
+```bash
+# 訪問您的 Worker URL
+https://peixuan-worker.<your-subdomain>.workers.dev/health
+
+# 應該回應 HTTP 200 與健康狀態 JSON
+```
+
+### 2. 前端部署到 Cloudflare Pages
+
+#### 2.1 建置前端
+```bash
+cd bazi-app-vue
+
+# 設定生產環境變數
+echo "VITE_API_BASE_URL=https://peixuan-worker.<your-subdomain>.workers.dev/api/v1" > .env.production
+
+# 執行建置
+npm run build
+
+# 產出位於 dist/ 目錄
+```
+
+#### 2.2 使用 Wrangler 部署到 Pages
+```bash
+# 首次部署，建立新的 Pages 專案
+wrangler pages deploy dist --project-name=peixuan-frontend
+
+# 後續部署
+wrangler pages deploy dist
+```
+
+#### 2.3 或使用 Git 整合自動部署
+1. 前往 [Cloudflare Pages Dashboard](https://dash.cloudflare.com/pages)
+2. 點擊「Create a project」
+3. 連接您的 Git Repository (GitHub/GitLab)
+4. 設定建置命令:
+   - **Build command**: `cd bazi-app-vue && npm install && npm run build`
+   - **Build output directory**: `bazi-app-vue/dist`
+   - **Root directory**: `/`
+5. 設定環境變數:
+   - `VITE_API_BASE_URL`: `https://peixuan-worker.<your-subdomain>.workers.dev/api/v1`
+6. 儲存並部署
+
+#### 2.4 設定自訂網域 (可選)
+- 在 Cloudflare Pages 設定中新增自訂網域
+- 更新 DNS 記錄指向 Cloudflare Pages
+- 自動啟用 HTTPS
+
+### 3. 部署驗證清單
+
+- [ ] 後端 `/health` 端點正常回應
+- [ ] D1 資料庫遷移成功
+- [ ] Gemini API Key 正確設定
+- [ ] 前端可正常訪問
+- [ ] 前端可成功呼叫後端 API
+- [ ] AI 分析功能正常運作
+- [ ] SSE 串流分析正常顯示
+
+## 🔧 開發指南
+
+### ⚡ 雲端優先開發工作流程
+
+#### 1. 本地開發 (僅限程式碼編輯和單元測試)
+```bash
+# 編輯程式碼
+# 運行單元測試 (不啟動開發伺服器)
+cd peixuan-worker
+npm run test
+
+cd ../bazi-app-vue
+npm run test
+```
+
+#### 2. 部署到 Staging 進行整合測試
+```bash
+# 建置並部署後端
+cd peixuan-worker
+npm run build
+wrangler deploy --env staging
+
+# 建置前端
+cd ../bazi-app-vue
+npm run build
+
+# 複製到 Worker public 目錄
+cp -r dist/* ../peixuan-worker/public/
+
+# 重新部署 (包含前端)
+cd ../peixuan-worker
+wrangler deploy --env staging
+```
+
+#### 3. 在 Staging 環境測試
+- 瀏覽器開啟 Staging URL
+- 執行完整的使用者流程測試
+- 驗證 AI 分析、排盤計算等功能
+
+#### 4. 確認無誤後合併到 main 並部署到 Production
+```bash
+git checkout main
+git merge feature/your-feature
+git push origin main
+
+# 部署到 Production
+cd peixuan-worker
+wrangler deploy --env production
+```
+
+### 程式碼風格
+專案使用 ESLint + Prettier 確保程式碼品質與一致性。
+
+```bash
+# 前端 Linting
+cd bazi-app-vue
+npm run lint        # 自動修復
+npm run format      # Prettier 格式化
+
+# 後端 Linting
+cd peixuan-worker
+npm run lint        # 自動修復
+```
+
+### Git Workflow
+1. 從 `main` 分支建立功能分支
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+2. 本地開發並運行單元測試
+   ```bash
+   npm run test
+   ```
+3. 部署到 Staging 並進行整合測試
+   ```bash
+   wrangler deploy --env staging
+   ```
+4. 測試通過後，提交變更並建立 Pull Request
+   ```bash
+   git add .
+   git commit -m "feat: add new feature"
+   git push origin feature/your-feature-name
+   ```
+
+### Commit 訊息規範
+遵循 [Conventional Commits](https://www.conventionalcommits.org/) 規範：
+
+- `feat:` 新功能
+- `fix:` 修復 Bug
+- `docs:` 文檔變更
+- `style:` 程式碼格式調整（不影響功能）
+- `refactor:` 重構（不新增功能或修復 Bug）
+- `test:` 新增或修改測試
+- `chore:` 建置流程或工具變更
+
+### 新增功能流程
+1. 查看 `.specify/specs/` 中的現有規格
+2. 如需新增規格，使用 Specify AI 建立 `.feature` 檔案
+3. 實作功能前先撰寫單元測試 (TDD)
+4. 本地運行測試確保通過
+5. 部署到 Staging 進行整合測試
+6. 更新相關文檔
+7. 提交 Pull Request
 
 ## 🤝 貢獻指南
 
-請閱讀 [CONTRIBUTING.md](CONTRIBUTING.md) 了解如何貢獻代碼。
+我們歡迎各種形式的貢獻！
 
-## 📄 授權
+### 如何貢獻
+1. **回報 Bug**: 在 [Issues](https://github.com/your-username/peixuan/issues) 建立詳細的 Bug 報告
+2. **建議功能**: 提出新功能想法與使用場景
+3. **提交程式碼**: Fork 專案後提交 Pull Request
+4. **改善文檔**: 修正文檔錯誤或新增說明
 
-本專案採用 MIT 授權 - 詳見 [LICENSE](LICENSE) 文件
+### Pull Request 檢查清單
+- [ ] 所有測試通過 (`npm run test`)
+- [ ] ESLint 無錯誤 (`npm run lint`)
+- [ ] 程式碼已格式化 (`npm run format`)
+- [ ] 新功能已新增測試
+- [ ] 相關文檔已更新
+- [ ] Commit 訊息符合規範
 
-### 第三方授權
+### 開發環境建議
+- **IDE**: VS Code (推薦擴充功能: Vue Language Features, ESLint, Prettier)
+- **Node Version Manager**: nvm 或 fnm
+- **Git Client**: 命令列或 GitHub Desktop
 
-本專案使用以下開源軟體，特此致謝：
+## 📖 相關資源
 
-**前端框架**
-- [Vue.js](https://vuejs.org) (MIT) - 漸進式 JavaScript 框架
-- [Element Plus](https://element-plus.org) (MIT) - Vue 3 UI 組件庫
-- [Pinia](https://pinia.vuejs.org) (MIT) - Vue 狀態管理
-- [Vue Router](https://router.vuejs.org) (MIT) - Vue 官方路由
+- **官方文檔**: [docs/](./doc/)
+- **API 文檔**: [doc/api/](./doc/api/)
+- **架構決策**: [doc/decisions/](./doc/decisions/)
+- **Cloudflare Workers**: https://developers.cloudflare.com/workers/
+- **Vue 3**: https://vuejs.org/
+- **Gemini API**: https://ai.google.dev/
 
-**後端框架**
-- [Cloudflare Workers](https://workers.cloudflare.com) (Apache-2.0) - Serverless 運算平台
-- [Drizzle ORM](https://orm.drizzle.team) (Apache-2.0) - TypeScript ORM
-- [itty-router](https://github.com/kwhitley/itty-router) (MIT) - 輕量級路由
+## 🙏 致謝
 
-**工具庫**
-- [Chart.js](https://www.chartjs.org) (MIT) - 圖表視覺化
-- [axios](https://axios-http.com) (MIT) - HTTP 客戶端
-- [lunar-typescript](https://github.com/6tail/lunar-typescript) (MIT) - 農曆計算
+- [lunar-typescript](https://github.com/6tail/lunar-typescript) - 農曆計算庫
+- [Cloudflare](https://cloudflare.com/) - Edge Computing 平台
+- [Google Gemini](https://ai.google.dev/) - AI 分析引擎
+- [Vue.js](https://vuejs.org/) - 前端框架
+- [Element Plus](https://element-plus.org/) - UI 組件庫
 
-完整授權清單請參考 [LICENSES.md](LICENSES.md)
+## 📄 授權 (License)
 
-### 第三方授權
+本專案採用 **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License** (CC BY-NC-SA 4.0) 授權。
 
-本專案使用以下開源軟體，特此致謝：
+[![License: CC BY-NC-SA 4.0](https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-**前端框架**
-- [Vue.js](https://vuejs.org) (MIT) - 漸進式 JavaScript 框架
-- [Element Plus](https://element-plus.org) (MIT) - Vue 3 UI 組件庫
-- [Pinia](https://pinia.vuejs.org) (MIT) - Vue 狀態管理
-- [Vue Router](https://router.vuejs.org) (MIT) - Vue 官方路由
+### 授權摘要 (License Summary)
 
-**後端框架**
-- [Cloudflare Workers](https://workers.cloudflare.com) (Apache-2.0) - Serverless 運算平台
-- [Drizzle ORM](https://orm.drizzle.team) (Apache-2.0) - TypeScript ORM
-- [itty-router](https://github.com/kwhitley/itty-router) (MIT) - 輕量級路由
+**您可以自由地：**
+- ✅ **分享** — 以任何媒介或格式重製及散布本素材
+- ✅ **修改** — 重混、轉換本素材、及依本素材建立新素材
 
-**工具庫**
-- [Chart.js](https://www.chartjs.org) (MIT) - 圖表視覺化
-- [axios](https://axios-http.com) (MIT) - HTTP 客戶端
-- [lunar-typescript](https://github.com/6tail/lunar-typescript) (MIT) - 農曆計算
+**惟須遵守下列條件：**
+- 📝 **姓名標示** — 您必須給予適當表彰並提供授權條款連結
+- 🚫 **非商業性** — 您不得將本素材進行商業目的之使用
+- ♻️ **相同方式分享** — 若您重混、轉換本素材，須依相同授權條款散布
 
-完整授權清單請參考 [LICENSES.md](LICENSES.md)
+### 使用限制 (Usage Restrictions)
 
-## 聯繫我們
+#### ✅ 允許的使用方式
+- 個人學習與研究
+- 教育用途（非營利教學）
+- 開源專案整合（需遵守相同授權）
+- 非營利組織使用
 
-- 電子郵件：support@peixuan.com
-- 社群論壇：[討論區連結]
-- 技術支持：[支持連結]
+#### ❌ 禁止的使用方式
+- 任何形式的商業販售或收費服務
+- 將本軟體作為付費產品的一部分
+- 在商業環境中使用以獲取經濟利益
+- 移除或修改授權聲明與版權資訊
+
+#### 📧 商業授權洽詢
+如需商業使用授權，請聯繫專案維護者討論授權條款。
+
+詳細授權條款請參閱 [LICENSE](LICENSE) 檔案。
 
 ---
 
-**免責聲明**：本平台提供的分析僅供參考，不應作為重大決策的唯一依據。
+<div align="center">
+
+**佩璇 (Peixuan)** - 結合傳統智慧與現代科技的命理分析平台
+
+Made with ❤️ by Peixuan Team
+
+[![Star on GitHub](https://img.shields.io/github/stars/your-username/peixuan?style=social)](https://github.com/your-username/peixuan)
+
+</div>

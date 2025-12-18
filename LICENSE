@@ -1,24 +1,118 @@
-This is free and unencumbered software released into the public domain.
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled
-binary, for any purpose, commercial or non-commercial, and by any
-means.
+Copyright (c) 2025 Peixuan Team
 
-In jurisdictions that recognize copyright laws, the author or authors
-of this software dedicate any and all copyright interest in the
-software to the public domain. We make this dedication for the benefit
-of the public at large and to the detriment of our heirs and
-successors. We intend this dedication to be an overt act of
-relinquishment in perpetuity of all present and future rights to this
-software under copyright law.
+本專案採用創用 CC 姓名標示-非商業性-相同方式分享 4.0 國際授權條款授權。
+This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
+您可自由地：
+You are free to:
 
-For more information, please refer to <https://unlicense.org>
+  分享 (Share) — 以任何媒介或格式重製及散布本素材
+  Share — copy and redistribute the material in any medium or format
+
+  修改 (Adapt) — 重混、轉換本素材、及依本素材建立新素材
+  Adapt — remix, transform, and build upon the material
+
+惟須遵守下列條件：
+Under the following terms:
+
+  姓名標示 (Attribution) — 您必須給予適當表彰、提供指向本授權條款的連結，
+  以及指出（本作品的原始版本）是否已被變更。您可以任何合理方式為之，
+  但不得以任何方式暗示授權人為您或您的使用方式背書。
+
+  Attribution — You must give appropriate credit, provide a link to the license,
+  and indicate if changes were made. You may do so in any reasonable manner,
+  but not in any way that suggests the licensor endorses you or your use.
+
+  非商業性 (NonCommercial) — 您不得將本素材進行商業目的之使用。
+
+  NonCommercial — You may not use the material for commercial purposes.
+
+  相同方式分享 (ShareAlike) — 若您重混、轉換本素材，或依本素材建立新素材，
+  您必須依本素材的授權條款來散布您的貢獻物。
+
+  ShareAlike — If you remix, transform, or build upon the material,
+  you must distribute your contributions under the same license as the original.
+
+不得增加額外限制 — 您不能增設法律條款或科技措施，來限制別人依授權條款本已許可的作為。
+No additional restrictions — You may not apply legal terms or technological measures
+that legally restrict others from doing anything the license permits.
+
+聲明：
+Notices:
+
+  您不必因為公眾領域的作品要素，或因著作權例外或限制所允許的利用，而遵守本授權條款。
+  You do not have to comply with the license for elements of the material in the public domain
+  or where your use is permitted by an applicable exception or limitation.
+
+  不提供擔保。本授權條款未必能完全提供您預期用途所需要的所有許可。
+  例如：形象權、隱私權、著作人格權等其他權利，可能限制您利用本素材的方式。
+  No warranties are given. The license may not give you all of the permissions necessary
+  for your intended use. For example, other rights such as publicity, privacy,
+  or moral rights may limit how you use the material.
+
+完整授權條款：
+Full License Text:
+https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+
+授權條款摘要：
+License Summary:
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+================================================================================
+
+使用限制說明 (Usage Restrictions)
+================================================================================
+
+本軟體專案包含的所有程式碼、文檔、設計及其他創作內容，均受上述 CC BY-NC-SA 4.0 授權保護。
+
+All code, documentation, design, and other creative content in this software project
+are protected under the CC BY-NC-SA 4.0 license stated above.
+
+✅ 允許的使用方式 (Permitted Uses):
+  - 個人學習與研究
+    Personal learning and research
+  - 教育用途（學校、培訓機構等非營利教學）
+    Educational purposes (schools, training institutions, etc., non-profit teaching)
+  - 開源專案整合（需遵守相同授權條款）
+    Open source project integration (must follow the same license terms)
+  - 非營利組織使用
+    Non-profit organization use
+
+❌ 禁止的使用方式 (Prohibited Uses):
+  - 任何形式的商業販售或收費服務
+    Any form of commercial sale or paid services
+  - 將本軟體或其衍生作品作為付費產品的一部分
+    Including this software or derivative works as part of a paid product
+  - 在商業環境中使用以獲取直接或間接經濟利益
+    Using in a commercial environment to obtain direct or indirect economic benefits
+  - 移除或修改授權聲明與版權資訊
+    Removing or modifying license statements and copyright information
+
+📧 商業授權洽詢 (Commercial Licensing Inquiry):
+  如需商業使用授權，請聯繫專案維護者討論授權條款。
+  For commercial use licensing, please contact the project maintainers to discuss licensing terms.
+
+  Email: [請在此填入聯絡信箱 / Please fill in contact email here]
+
+================================================================================
+
+免責聲明 (Disclaimer)
+================================================================================
+
+本軟體按「現狀」提供，不提供任何明示或暗示的擔保，包括但不限於適銷性、
+特定用途適用性及未侵權的擔保。在任何情況下，作者或版權持有人均不對任何索賠、
+損害或其他責任負責，無論是在合約訴訟、侵權行為或其他方面，
+由本軟體或本軟體的使用或其他交易引起、產生或與之相關。
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+命理分析結果僅供參考，不應作為人生重大決策的唯一依據。
+The astrological analysis results are for reference only and should not be used as
+the sole basis for major life decisions.

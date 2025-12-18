@@ -12,8 +12,6 @@
     >
       <option value="zh_TW">繁體中文</option>
       <option value="en">English</option>
-      <!-- 暫時隱藏簡體中文選項 -->
-      <!-- <option value="zh">简体中文</option> -->
     </select>
   </div>
 </template>
@@ -33,10 +31,6 @@ function loadLanguagePreference(): string {
     if (savedLocale && ['en', 'zh_TW'].includes(savedLocale)) {
       return savedLocale;
     }
-    // 如果保存的是簡體中文，預設切換到繁體中文
-    if (savedLocale === 'zh') {
-      return 'zh_TW';
-    }
   } catch (error) {
     console.warn(
       'Failed to load language preference from sessionStorage:',
@@ -52,11 +46,7 @@ function loadLanguagePreference(): string {
       if (browserLang.startsWith('en')) {
         return 'en';
       }
-      // 繁體中文環境 (zh-TW, zh-HK, zh-Hant)
-      if (browserLang.startsWith('zh-TW') || browserLang.startsWith('zh-HK') || browserLang.includes('Hant')) {
-        return 'zh_TW';
-      }
-      // 簡體中文環境也導向繁體中文
+      // 所有中文環境（包括繁體、簡體）都使用繁體中文
       if (browserLang.startsWith('zh')) {
         return 'zh_TW';
       }

@@ -2,12 +2,10 @@ import { createI18n } from 'vue-i18n';
 
 // 使用 import 引入 JSON 檔案
 import en from './locales/en.json';
-import zh from './locales/zh.json';
 import zh_TW from './locales/zh_TW.json';
 
 const messages = {
   en,
-  zh,
   zh_TW,
 };
 
@@ -16,7 +14,7 @@ function getUserPreferredLanguage(): string {
   const savedLang =
     localStorage.getItem('preferred-language') ||
     sessionStorage.getItem('preferred-language');
-  if (savedLang && ['zh_TW', 'zh', 'en'].includes(savedLang)) {
+  if (savedLang && ['zh_TW', 'en'].includes(savedLang)) {
     return savedLang;
   }
 
@@ -25,8 +23,9 @@ function getUserPreferredLanguage(): string {
   if (lang.startsWith('zh-TW') || lang.startsWith('zh-Hant')) {
     return 'zh_TW';
   }
-  if (lang.startsWith('zh-CN') || lang.startsWith('zh-Hans')) {
-    return 'zh';
+  // 所有其他中文變體（包括簡體中文）也使用繁體中文
+  if (lang.startsWith('zh')) {
+    return 'zh_TW';
   }
   if (lang.startsWith('en')) {
     return 'en';
@@ -49,11 +48,6 @@ const additionalMessages: Record<string, any> = {
   en: {
     common: {
       language: 'Language',
-    },
-  },
-  zh: {
-    common: {
-      language: '語言',
     },
   },
   zh_TW: {

@@ -36,11 +36,6 @@ const createTestI18n = (locale = 'en') => {
           language: 'Language',
         },
       },
-      zh: {
-        common: {
-          language: '语言',
-        },
-      },
       zh_TW: {
         common: {
           language: '語言',
@@ -142,8 +137,8 @@ describe('LanguageSelector', () => {
     expect(i18n.global.locale.value).toBe('en');
   });
 
-  it('converts simplified Chinese (zh) to traditional Chinese (zh_TW)', () => {
-    // 模擬 sessionStorage 返回簡體中文
+  it('falls back to default when unsupported locale is stored', () => {
+    // 模擬 sessionStorage 返回不支援的語言代碼（如舊的簡體中文代碼）
     sessionStorageMock.getItem.mockReturnValue('zh');
 
     const i18n = createTestI18n('en');
@@ -153,8 +148,8 @@ describe('LanguageSelector', () => {
       },
     });
 
-    // 驗證語言已轉換為繁體中文
-    expect(i18n.global.locale.value).toBe('zh_TW');
+    // 驗證語言已回退到預設語言
+    expect(i18n.global.locale.value).toBe('en');
   });
 
   it('handles invalid storage values gracefully', () => {

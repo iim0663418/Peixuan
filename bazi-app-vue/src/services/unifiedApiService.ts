@@ -537,7 +537,7 @@ export interface DailyReminder {
 export async function getDailyReminder(
   chartId: string,
   date: Date,
-  locale: string = 'zh-TW',
+  locale = 'zh-TW',
 ): Promise<DailyReminder> {
   const dateKey = date.toISOString().split('T')[0];
   const cacheKey = `daily-reminder-${chartId}-${dateKey}-${locale}`;
@@ -551,9 +551,12 @@ export async function getDailyReminder(
     }
 
     // API 調用
-    const response = await axios.get<DailyReminder>(`${BASE_URL}/daily-reminder`, {
-      params: { chartId, date: date.toISOString(), locale },
-    });
+    const response = await axios.get<DailyReminder>(
+      `${BASE_URL}/daily-reminder`,
+      {
+        params: { chartId, date: date.toISOString(), locale },
+      },
+    );
 
     // 永久快取（日期固定，結果不變）
     localStorage.setItem(cacheKey, JSON.stringify(response.data));

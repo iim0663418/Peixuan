@@ -24,7 +24,9 @@
           </div>
         </div>
         <div class="timeline-legend">
-          <span class="legend-current">{{ $t('annualFortune.yearlyForecast.currentYear') }}</span>
+          <span class="legend-current">{{
+            $t('annualFortune.yearlyForecast.currentYear')
+          }}</span>
           <span v-if="yearlyForecast.periods.length > 1" class="legend-next">
             {{ $t('annualFortune.yearlyForecast.nextYear') }}
           </span>
@@ -41,17 +43,26 @@
         >
           <div class="period-header">
             <h5>
-              {{ index === 0
-                ? $t('annualFortune.yearlyForecast.currentYear')
-                : $t('annualFortune.yearlyForecast.nextYear')
+              {{
+                index === 0
+                  ? $t('annualFortune.yearlyForecast.currentYear')
+                  : $t('annualFortune.yearlyForecast.nextYear')
               }}
             </h5>
             <div class="badges">
               <el-tag type="info" size="small">
-                {{ $t('annualFortune.yearlyForecast.durationDays', { days: period.durationDays }) }}
+                {{
+                  $t('annualFortune.yearlyForecast.durationDays', {
+                    days: period.durationDays,
+                  })
+                }}
               </el-tag>
               <el-tag :type="index === 0 ? 'primary' : 'success'" size="small">
-                {{ $t('annualFortune.yearlyForecast.weightPercent', { percent: (period.weight * 100).toFixed(1) }) }}
+                {{
+                  $t('annualFortune.yearlyForecast.weightPercent', {
+                    percent: (period.weight * 100).toFixed(1),
+                  })
+                }}
               </el-tag>
             </div>
           </div>
@@ -64,7 +75,8 @@
                 {{ getPalaceName(period.annualLifePalacePosition) }}
               </el-descriptions-item>
               <el-descriptions-item :label="$t('common.period')">
-                {{ formatDate(period.startDate) }} - {{ formatDate(period.endDate) }}
+                {{ formatDate(period.startDate) }} -
+                {{ formatDate(period.endDate) }}
               </el-descriptions-item>
             </el-descriptions>
           </div>
@@ -82,10 +94,14 @@
         <template #default>
           <div class="transition-content">
             <p>
-              {{ $t('annualFortune.yearlyForecast.remainingDays', {
-                days: yearlyForecast.periods[0].durationDays,
-                year: yearlyForecast.periods[0].annualPillar.stem + yearlyForecast.periods[0].annualPillar.branch
-              }) }}
+              {{
+                $t('annualFortune.yearlyForecast.remainingDays', {
+                  days: yearlyForecast.periods[0].durationDays,
+                  year:
+                    yearlyForecast.periods[0].annualPillar.stem +
+                    yearlyForecast.periods[0].annualPillar.branch,
+                })
+              }}
             </p>
             <p>
               立春日期: {{ formatDate(yearlyForecast.periods[1].startDate) }}
@@ -101,7 +117,8 @@
         <h4>{{ $t('fortune.title') }}</h4>
         <el-descriptions :column="2" border size="small">
           <el-descriptions-item :label="$t('baziChart.yearPillar')">
-            {{ annualFortune.annualPillar.stem }}{{ annualFortune.annualPillar.branch }}
+            {{ annualFortune.annualPillar.stem
+            }}{{ annualFortune.annualPillar.branch }}
           </el-descriptions-item>
           <el-descriptions-item label="流年命宮">
             {{ getPalaceName(annualFortune.annualLifePalacePosition) }}
@@ -150,8 +167,18 @@ interface Props {
 const props = defineProps<Props>();
 
 const PALACE_NAMES = [
-  '子', '丑', '寅', '卯', '辰', '巳',
-  '午', '未', '申', '酉', '戌', '亥'
+  '子',
+  '丑',
+  '寅',
+  '卯',
+  '辰',
+  '巳',
+  '午',
+  '未',
+  '申',
+  '酉',
+  '戌',
+  '亥',
 ];
 
 const getPalaceName = (position: number): string => {

@@ -323,8 +323,12 @@ onUnmounted(() => {
   margin: 0 auto var(--space-lg);
 }
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 .loading-text {
   font-size: var(--font-size-lg);
@@ -459,13 +463,28 @@ onUnmounted(() => {
   font-weight: bold;
 }
 @keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 @media (max-width: 768px) {
-  .ai-analysis-view { padding: var(--space-lg) var(--space-md); }
-  .container { padding: var(--space-xl); }
-  .back-btn { position: static; margin-bottom: var(--space-md); }
-  .title { font-size: var(--font-size-2xl); }
+  .ai-analysis-view {
+    padding: var(--space-lg) var(--space-md);
+  }
+  .container {
+    padding: var(--space-xl);
+  }
+  .back-btn {
+    position: static;
+    margin-bottom: var(--space-md);
+  }
+  .title {
+    font-size: var(--font-size-2xl);
+  }
 }
 </style>

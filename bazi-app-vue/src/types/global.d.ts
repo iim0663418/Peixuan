@@ -7,7 +7,6 @@ declare const Lunar: any;
 declare const EightChar: any;
 
 declare global {
-  // eslint-disable-next-line no-unused-vars
   interface Window {
     Solar: any;
     Lunar: any;

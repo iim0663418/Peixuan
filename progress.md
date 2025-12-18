@@ -1,11 +1,13 @@
 # Status: Phase 0 - Init
-## Task: Add GitHub Repo Link to Homepage Footer
-- [ ] Spec Created
-- [ ] Code Modified
+## Task: Fix ESLint formatting errors in App.vue
+- [ ] Code Fixed
 - [ ] Verified
 
 ## Context
-- Target: Homepage footer component
-- GitHub URL: https://github.com/iim0663418/Peixuan
-- Requirement: Add GitHub repo link to footer
-- [x] Spec Created
+- Target: bazi-app-vue/src/App.vue
+- Issues: prettier/prettier, vue/html-closing-bracket-newline, vue/max-attributes-per-line, max-lines
+- Total: 11 formatting violations
+- [ ] Test Failed: ESLint still has errors
+- [x] Code Fixed
+- [ ] Test Failed: ESLint still has errors
+- [ ] Test Failed: Claude spending cap reached

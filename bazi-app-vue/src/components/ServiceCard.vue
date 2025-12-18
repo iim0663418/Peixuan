@@ -58,14 +58,14 @@ const getColorVars = (color: string) => {
   <div
     class="service-card"
     :class="`service-card--${service.color}`"
-    @click="handleClick"
     role="button"
     tabindex="0"
+    @click="handleClick"
     @keydown.enter="handleClick"
     @keydown.space.prevent="handleClick"
   >
     <!-- 卡片頂部裝飾條 -->
-    <div class="service-card__accent"></div>
+    <div class="service-card__accent" />
 
     <!-- 服務圖標 -->
     <div class="service-card__icon">{{ service.icon }}</div>
@@ -126,7 +126,11 @@ const getColorVars = (color: string) => {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+  background: linear-gradient(
+    90deg,
+    var(--primary-color),
+    var(--primary-light)
+  );
   transition: height var(--transition-normal);
 }
 
@@ -136,7 +140,11 @@ const getColorVars = (color: string) => {
 
 /* 顏色變體 */
 .service-card--primary .service-card__accent {
-  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+  background: linear-gradient(
+    90deg,
+    var(--primary-color),
+    var(--primary-light)
+  );
 }
 
 .service-card--success .service-card__accent {

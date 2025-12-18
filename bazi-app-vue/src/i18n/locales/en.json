@@ -386,7 +386,8 @@
     "tagline": "Traditional Wisdom, Modern Precision",
     "contact": "Contact",
     "copyright": "© 2025 {appName}",
-    "rights": "All Rights Reserved"
+    "rights": "All Rights Reserved",
+    "github": "GitHub Repository"
   },
   "unifiedForm": {
     "birth_info": "Birth Information",

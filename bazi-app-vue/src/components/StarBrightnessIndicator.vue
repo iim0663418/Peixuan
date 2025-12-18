@@ -1,7 +1,7 @@
 <template>
-  <span 
-    v-if="brightness" 
-    class="star-brightness" 
+  <span
+    v-if="brightness"
+    class="star-brightness"
     :class="brightnessClass"
     :title="brightnessText"
   >
@@ -20,24 +20,31 @@ const props = defineProps<Props>();
 
 const brightnessMap: Record<string, { text: string; class: string }> = {
   // English keys (from backend)
-  'temple': { text: '廟', class: 'brightness-temple' },
-  'prosperous': { text: '旺', class: 'brightness-prosperous' },
-  'advantageous': { text: '得', class: 'brightness-advantageous' },
-  'neutral': { text: '平', class: 'brightness-neutral' },
-  'trapped': { text: '陷', class: 'brightness-trapped' },
+  temple: { text: '廟', class: 'brightness-temple' },
+  prosperous: { text: '旺', class: 'brightness-prosperous' },
+  advantageous: { text: '得', class: 'brightness-advantageous' },
+  neutral: { text: '平', class: 'brightness-neutral' },
+  trapped: { text: '陷', class: 'brightness-trapped' },
   // Chinese keys (fallback)
-  '廟': { text: '廟', class: 'brightness-temple' },
-  '旺': { text: '旺', class: 'brightness-prosperous' },
-  '得': { text: '得', class: 'brightness-advantageous' },
-  '利': { text: '利', class: 'brightness-neutral' },
-  '平': { text: '平', class: 'brightness-neutral' },
-  '不': { text: '不', class: 'brightness-neutral' },
-  '陷': { text: '陷', class: 'brightness-trapped' },
+  廟: { text: '廟', class: 'brightness-temple' },
+  旺: { text: '旺', class: 'brightness-prosperous' },
+  得: { text: '得', class: 'brightness-advantageous' },
+  利: { text: '利', class: 'brightness-neutral' },
+  平: { text: '平', class: 'brightness-neutral' },
+  不: { text: '不', class: 'brightness-neutral' },
+  陷: { text: '陷', class: 'brightness-trapped' },
 };
 
 const normalizedBrightness = computed(() => {
-  if (!props.brightness) return null;
-  return brightnessMap[props.brightness] || { text: props.brightness, class: 'brightness-neutral' };
+  if (!props.brightness) {
+    return null;
+  }
+  return (
+    brightnessMap[props.brightness] || {
+      text: props.brightness,
+      class: 'brightness-neutral',
+    }
+  );
 });
 
 const brightnessText = computed(() => normalizedBrightness.value?.text || '');

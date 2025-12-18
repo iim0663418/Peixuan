@@ -979,3 +979,15 @@
   - ✅ .env.staging 已被追蹤但無敏感內容
   - ✅ Git 狀態乾淨，無未追蹤的敏感檔案
 - **狀態**: 完成 ✓（安全狀態良好）
+
+## 2025-12-18: GitHub Footer Link 實作完成
+
+### 決策：在首頁頁尾添加 GitHub 倉庫連結
+- **背景**: 用戶要求在首頁頁尾加入 GitHub repo 位置以提升專案可見度
+- **影響**: 
+  - 新增 i18n 翻譯（中文「GitHub 開源專案」、英文「GitHub Repository」）
+  - 更新 App.vue 頁尾組件添加 GitHub 連結與 SVG 圖標
+  - 連結指向 https://github.com/iim0663418/Peixuan，新分頁開啟
+  - CSS 樣式與現有頁尾設計一致，包含 hover 動畫效果
+  - 建置驗證通過，無破壞性變更
+- **狀態**: 完成 ✓（已整合至頁尾聯絡區段）

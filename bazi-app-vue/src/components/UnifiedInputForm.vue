@@ -31,7 +31,9 @@
     <el-form-item :label="$t('unifiedForm.gender')" prop="gender">
       <el-radio-group v-model="formData.gender">
         <el-radio value="male">{{ $t('unifiedForm.gender_male') }}</el-radio>
-        <el-radio value="female">{{ $t('unifiedForm.gender_female') }}</el-radio>
+        <el-radio value="female">{{
+          $t('unifiedForm.gender_female')
+        }}</el-radio>
       </el-radio-group>
     </el-form-item>
 
@@ -190,7 +192,11 @@
           class="submit-btn"
           @click="submitForm"
         >
-          {{ hasCache ? $t('unifiedForm.submit_button_cached') : $t('unifiedForm.submit_button') }}
+          {{
+            hasCache
+              ? $t('unifiedForm.submit_button_cached')
+              : $t('unifiedForm.submit_button')
+          }}
         </el-button>
         <el-popover
           v-if="hasCache"
@@ -599,7 +605,9 @@ const formRules = {
       trigger: ['change', 'blur'],
     },
   ],
-  gender: [{ required: true, message: '請選擇性別', trigger: ['change', 'blur'] }],
+  gender: [
+    { required: true, message: '請選擇性別', trigger: ['change', 'blur'] },
+  ],
   longitude: [
     { required: true, message: '請輸入經度', trigger: ['change', 'blur'] },
     { type: 'number', message: '經度必須是數字', trigger: ['change', 'blur'] },
@@ -749,7 +757,7 @@ const detectLeapMonth = () => {
     const solar = Solar.fromYmd(
       parseInt(formData.birthDate.split('-')[0]),
       parseInt(formData.birthDate.split('-')[1]),
-      parseInt(formData.birthDate.split('-')[2])
+      parseInt(formData.birthDate.split('-')[2]),
     );
     const lunar = solar.getLunar();
     const month = lunar.getMonth();

@@ -26,7 +26,9 @@ const props = defineProps<Props>();
 
 // 狀態管理
 const reminderText = ref<string>('');
-const tags = ref<Array<{ label: string; type: 'success' | 'warning' | 'info' }>>([]);
+const tags = ref<
+  Array<{ label: string; type: 'success' | 'warning' | 'info' }>
+>([]);
 const loading = ref<boolean>(false);
 const cached = ref<boolean>(false);
 const error = ref<boolean>(false);
@@ -39,7 +41,11 @@ const loadReminder = async () => {
   error.value = false;
 
   try {
-    const result: DailyReminder = await getDailyReminder(props.chartId, new Date(), locale.value);
+    const result: DailyReminder = await getDailyReminder(
+      props.chartId,
+      new Date(),
+      locale.value,
+    );
     reminderText.value = result.text;
     tags.value = result.tags;
     cached.value = result.cached;

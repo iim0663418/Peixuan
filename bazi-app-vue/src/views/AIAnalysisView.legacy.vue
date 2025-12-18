@@ -24,7 +24,9 @@ const renderMarkdown = (text: string): string => {
 
 const checkCache = async (chartId: string): Promise<boolean> => {
   try {
-    const response = await fetch(`/api/v1/analyze/check?chartId=${chartId}&locale=${locale.value}`);
+    const response = await fetch(
+      `/api/v1/analyze/check?chartId=${chartId}&locale=${locale.value}`,
+    );
     const data = await response.json();
     return data.cached || false;
   } catch (err) {
@@ -34,7 +36,7 @@ const checkCache = async (chartId: string): Promise<boolean> => {
 };
 
 const startStreaming = async () => {
-  const chartId = chartStore.chartId;
+  const { chartId } = chartStore;
 
   if (!chartId) {
     error.value = t('personality.error_no_chart');
@@ -64,7 +66,7 @@ const startStreaming = async () => {
   eventSource.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
-      
+
       if (data.error) {
         console.error('[SSE] Backend error:', data.error);
         error.value = data.error;
@@ -148,7 +150,9 @@ onUnmounted(() => {
         <div class="error-icon">💫</div>
         <h3>{{ $t('personality.error_no_chart_title') }}</h3>
         <p class="error-message">{{ error }}</p>
-        <button class="retry-btn" @click="goBack">{{ $t('personality.btn_go_calculate') }}</button>
+        <button class="retry-btn" @click="goBack">
+          {{ $t('personality.btn_go_calculate') }}
+        </button>
       </div>
 
       <!-- 分析內容 -->

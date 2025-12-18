@@ -36,7 +36,7 @@ const checkCache = async (chartId: string): Promise<boolean> => {
 };
 
 const startStreaming = async () => {
-  const chartId = chartStore.chartId;
+  const { chartId } = chartStore;
 
   if (!chartId) {
     error.value = t('fortune.error_no_chart');
@@ -66,7 +66,7 @@ const startStreaming = async () => {
   eventSource.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
-      
+
       if (data.error) {
         console.error('[SSE] Backend error:', data.error);
         error.value = data.error;
@@ -150,7 +150,9 @@ onUnmounted(() => {
         <div class="error-icon">💫</div>
         <h3>{{ $t('fortune.error_no_chart_title') }}</h3>
         <p class="error-message">{{ error }}</p>
-        <button class="retry-btn" @click="goBack">{{ $t('fortune.btn_go_calculate') }}</button>
+        <button class="retry-btn" @click="goBack">
+          {{ $t('fortune.btn_go_calculate') }}
+        </button>
       </div>
 
       <!-- 分析內容 -->

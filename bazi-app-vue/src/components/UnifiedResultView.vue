@@ -262,14 +262,21 @@ const formatStarName = (key: string): string => {
   return nameMap[key] || key;
 };
 
-const getStarBrightness = (starKey: string, position: number): string | undefined => {
+const getStarBrightness = (
+  starKey: string,
+  position: number,
+): string | undefined => {
   const starName = formatStarName(starKey);
-  const palaces = props.result.ziwei.palaces;
-  if (!palaces || !Array.isArray(palaces)) return undefined;
+  const { palaces } = props.result.ziwei;
+  if (!palaces || !Array.isArray(palaces)) {
+    return undefined;
+  }
 
   // 找到對應宮位
   const palace = palaces.find((p: any) => p.position === position);
-  if (!palace || !palace.stars) return undefined;
+  if (!palace || !palace.stars) {
+    return undefined;
+  }
 
   // 找到對應星曜
   const star = palace.stars.find((s: any) => s.name === starName);

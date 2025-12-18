@@ -13,7 +13,8 @@
     </el-card>
 
     <el-card v-else-if="error" class="result-card error">
-      <el-alert type="error" :title="error" show-icon :closable="false" />
+      <el-alert type="error" :title="error" show-icon
+:closable="false" />
     </el-card>
 
     <el-card v-else-if="result" class="result-card">
@@ -38,15 +39,14 @@
           <p class="dialog-subtitle">{{ $t('unifiedView.dialog_subtitle') }}</p>
         </div>
       </template>
-      
+
       <div class="analysis-choices">
-        <div
-          class="choice-card"
-          @click="handleAnalysisChoice('/ai-analysis')"
-        >
+        <div class="choice-card" @click="handleAnalysisChoice('/ai-analysis')">
           <div class="choice-icon">🌟</div>
           <div class="choice-info">
-            <h4 class="choice-title">{{ $t('unifiedView.personality_title') }}</h4>
+            <h4 class="choice-title">
+              {{ $t('unifiedView.personality_title') }}
+            </h4>
             <p class="choice-desc">{{ $t('unifiedView.personality_desc') }}</p>
           </div>
           <div class="choice-arrow">→</div>
@@ -66,7 +66,9 @@
       </div>
 
       <template #footer>
-        <el-button @click="showAnalysisDialog = false">{{ $t('unifiedView.later_button') }}</el-button>
+        <el-button @click="showAnalysisDialog = false">{{
+          $t('unifiedView.later_button')
+        }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -563,11 +565,11 @@ h4 {
     transform: none;
     box-shadow: none;
   }
-  
+
   .choice-card:hover {
     transform: none;
   }
-  
+
   .choice-card:active {
     transform: scale(0.98);
   }

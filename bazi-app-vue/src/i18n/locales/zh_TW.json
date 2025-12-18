@@ -359,7 +359,8 @@
     "tagline": "傳統命理智慧，現代科技精算",
     "contact": "聯絡資訊",
     "copyright": "© 2025 {appName}",
-    "rights": "版權所有，保留一切權利"
+    "rights": "版權所有，保留一切權利",
+    "github": "GitHub 開源專案"
   },
   "unifiedForm": {
     "birth_info": "出生資訊",

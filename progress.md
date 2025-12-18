@@ -1,7 +1,11 @@
-# Status: Phase 3 Complete
-## Active Context
-- Last Verified: Security Audit & Key Leakage Fix
-- Next: Ready for new request
+# Status: Phase 0 - Init
+## Task: Add GitHub Repo Link to Homepage Footer
+- [ ] Spec Created
+- [ ] Code Modified
+- [ ] Verified
 
+## Context
+- Target: Homepage footer component
+- GitHub URL: https://github.com/iim0663418/Peixuan
+- Requirement: Add GitHub repo link to footer
 - [x] Spec Created
-- [x] Risk Assessment Created

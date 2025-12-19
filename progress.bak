@@ -1,116 +1,35 @@
-# Status: Phase 0 - Init
+# Status: Phase 0 - Task Planning
 ## Active Context
-- Timestamp: 2025-12-19 08:03:45
-- Task: 檢查 bazi-app-vue/src/components 冗餘程式碼
-- State: 分析組件使用情況
+- Timestamp: 2025-12-19 13:55:47
+- Task: Phase 2 視覺增強
+- State: 準備安排新任務
 
-## Analysis Plan
-1. 列出所有組件檔案
-2. 檢查每個組件的引用情況
-3. 識別未使用的組件
-4. 建議歸檔或刪除策略
+## Task Analysis
+基於 Phase 1 成功實施，現在進入 Phase 2 視覺增強：
+
+### Phase 2 優先任務清單
+1. **內容區塊層次感**
+   - [ ] H2/H3 標題視覺增強
+   - [ ] 段落間視覺呼吸感
+   - [ ] 表格樣式優化
+
+2. **背景氛圍動效**
+   - [ ] 微妙的背景浮動動畫
+   - [ ] 神秘感光暈效果
+   - [ ] 性能優化的 CSS 動畫
+
+3. **載入狀態優化**
+   - [ ] 更有趣的載入動畫
+   - [ ] 載入文字漸層效果
+   - [ ] 進度條視覺增強
+
+### 技術要點
+- 利用現有設計系統變數
+- 保持性能和無障礙性
+- 漸進增強原則
+- 與 Phase 1 視覺協調
 
 ## Next Actions
-- 掃描組件目錄
-- 分析引用關係
-- 生成清理建議
-## Analysis Complete
-
-### 發現的冗餘程式碼
-
-#### 1. 未使用的 Vue 組件
-- ❌ **CompactReadingView.vue**: 0 次引用，僅有編譯產物
-- ❌ **SummaryReadingView.vue**: 0 次引用，僅有編譯產物
-
-#### 2. 孤立的編譯產物 (.js 檔案)
-- ❌ **StarSpinnerLoading.vue.js**: 無對應 .vue 檔案
-- ❌ **MysticBackground.vue.js**: 無對應 .vue 檔案  
-- ❌ **WuXingChart.legacy.vue.js**: 無對應 .vue 檔案
-
-#### 3. 所有其他編譯產物 (.vue.js)
-- ❌ **23 個 .vue.js 檔案**: 編譯產物，應該被 .gitignore
-
-### 清理建議
-
-#### 立即刪除 (安全)
-1. **孤立編譯產物**: StarSpinnerLoading.vue.js, MysticBackground.vue.js, WuXingChart.legacy.vue.js
-2. **所有 .vue.js 編譯產物**: 23 個檔案
-
-#### 需要確認後處理
-1. **reading-levels/ 目錄**: CompactReadingView.vue, SummaryReadingView.vue
-   - 可能是未來功能或已廢棄功能
-   - 建議移至 archive/ 目錄或完全刪除
-
-### 統計
-- 🔍 **總組件數**: 19 個 .vue 檔案
-- ✅ **使用中組件**: 17 個
-- ❌ **未使用組件**: 2 個
-- 🗑️ **冗餘檔案**: 26 個 (.js 編譯產物)
-### 冗餘程式碼清理完成
-
-#### 已刪除項目
-- ✅ **reading-levels/ 目錄**: 完全移除
-  - CompactReadingView.vue (未使用)
-  - SummaryReadingView.vue (未使用)
-- ✅ **所有 .vue.js 編譯產物**: 26 個檔案已刪除
-  - 包含孤立檔案: StarSpinnerLoading.vue.js, MysticBackground.vue.js, WuXingChart.legacy.vue.js
-  - 包含所有組件的編譯產物
-
-#### 清理結果
-- 🔍 **剩餘 .vue 檔案**: 18 個 (全部使用中)
-- 🗑️ **剩餘 .js 檔案**: 0 個
-- ✅ **清理檔案總數**: 28 個
-
-#### 狀態
-- ✅ 所有冗餘程式碼已清理
-- ✅ 組件目錄結構簡潔
-- ✅ 無未使用組件
-- ✅ 無編譯產物污染
-### 編譯產物清理完成（修正版）
-
-#### 實際清理的項目
-- ✅ **reading-levels/ 目錄**: 已刪除
-  - CompactReadingView.vue (未使用)
-  - SummaryReadingView.vue (未使用)
-- ✅ **所有 .js.map 編譯產物**: 23 個檔案已刪除
-  - 包含所有組件的 source map 檔案
-
-#### 發現的其他檔案
-- ⚠️ **PurpleStarChartDisplay.vue.bak**: 備份檔案，可考慮刪除
-
-#### 最終清理結果
-- 🔍 **剩餘 .vue 檔案**: 18 個 (全部使用中)
-- 🗑️ **剩餘 .js 檔案**: 0 個
-- 🗑️ **剩餘 .js.map 檔案**: 0 個
-- 🗑️ **剩餘 .d.ts 檔案**: 0 個
-- ✅ **清理檔案總數**: 25+ 個
-
-#### 狀態
-- ✅ 所有編譯產物已清理
-- ✅ 組件目錄結構乾淨
-- ✅ 無未使用組件
-- ✅ 無編譯產物污染
-
-#### 備註
-- 之前遺漏了 .js.map 檔案，現已全部清理
-- 發現一個 .bak 備份檔案，可選擇性刪除
-### AnnualFortuneCard.vue ESLint 錯誤修復完成
-
-#### 移除的未使用變數
-- [x] 第 138 行: 移除 computed 導入
-- [x] 第 139 行: 移除 GanZhi 類型導入
-- [x] 第 167 行: 移除 props 變數賦值
-
-#### 修復詳情
-- computed: 組件中沒有使用任何 computed 函數
-- GanZhi: 未使用的類型導入（組件內部定義了自己的介面）
-- props: defineProps 返回值未被使用，改為直接調用
-
-#### 修復的錯誤
-- ✅ 3 個 no-unused-vars 錯誤
-- ✅ 3 個 @typescript-eslint/no-unused-vars 錯誤
-
-#### 狀態
-- ✅ 所有 ESLint 錯誤已修復
-- ✅ 代碼更加簡潔
-- ✅ 功能保持不變
+- 選擇具體實施項目
+- 建立 .feature 規格
+- 開始代碼實作

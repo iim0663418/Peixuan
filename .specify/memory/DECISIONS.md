@@ -156,3 +156,20 @@
 - **跳過任務**: 資料遷移（Task 2-3）、KV 快取（Task 5）
 - **技術選型**: itty-router（輕量級）、Drizzle ORM（類型安全/D1 原生支援）
 - **狀態**: ✓
+
+- [DECISION] 2025-12-19: Verified Phase 1 Visual Enhancements. Code/Spec aligned with Constitution.
+  - Punctuation-aware typewriter pacing implemented
+  - Enhanced gradient rendering system (general bold + quoted stars + star brightness)
+  - Micro-interaction hover effects with accessibility support
+  - Back button fixes (translation + responsive positioning)
+  - File splitting resolved ESLint max-lines violation
+  - Successfully deployed to Staging environment
+
+- [DECISION] 2025-12-19: Verified Phase 2 Visual Enhancements. Code/Spec aligned with Constitution.
+  - Content block visual hierarchy implemented (H2/H3 gradient accents)
+  - Subtle background atmospheric effects with floating orbs
+  - Enhanced loading states with gradient animations and premium spinner
+  - File splitting resolved ESLint max-lines violation (739→464 lines)
+  - CSS modularization improved maintainability
+  - Full accessibility support with prefers-reduced-motion
+  - Successfully deployed to Staging environment

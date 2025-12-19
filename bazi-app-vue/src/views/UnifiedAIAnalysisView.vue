@@ -4,27 +4,11 @@ import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useChartStore } from '@/stores/chartStore';
 import { marked } from 'marked';
+import { setupKeywordHighlighting } from '@/utils/keywordHighlighting';
+import './UnifiedAIAnalysisView.css';
 
 // Configure marked renderer once for the application when the module is loaded
-marked.use({
-  renderer: {
-    strong({ text }: { text: string }) {
-      // Regex to match "星曜名稱(brightness)" and capture the name and brightness
-      // Comprehensive list of brightness values for Ziwei Dou Shu
-      const match = text.match(
-        /(.*)\((廟|旺|得地|利|平|不得地|陷|衰|病|死|墓|絕|胎|養)\)/,
-      );
-      if (match && match.length === 3) {
-        const starName = match[1];
-        const brightness = match[2];
-        // Return custom HTML with data-brightness attribute
-        return `<strong class="star-brightness" data-brightness="${brightness}">${starName}</strong>`;
-      }
-      // If it doesn't match the pattern, render as a normal strong tag
-      return `<strong>${text}</strong>`;
-    },
-  },
-});
+setupKeywordHighlighting();
 
 const router = useRouter();
 const route = useRoute();
@@ -38,6 +22,7 @@ const analysisType = computed(() => route.name as 'personality' | 'fortune');
 const i18nPrefix = computed(() => analysisType.value);
 
 const analysisText = ref('');
+const displayedText = ref('');
 const isLoading = ref(true);
 const error = ref<string | null>(null);
 const progress = ref(0);
@@ -45,6 +30,40 @@ const loadingMessage = ref('');
 const loadingHint = ref('');
 
 let eventSource: EventSource | null = null;
+let typewriterQueue: string[] = [];
+let isTyping = false;
+
+// Typewriter effect with punctuation-aware pacing
+const typewriterEffect = async () => {
+  if (isTyping || typewriterQueue.length === 0) {
+    return;
+  }
+
+  isTyping = true;
+
+  while (typewriterQueue.length > 0) {
+    const char = typewriterQueue.shift();
+    if (!char) {
+      break;
+    }
+    displayedText.value += char;
+
+    // Dynamic delay based on punctuation
+    let delay = 30; // Base typing speed (30ms per character)
+
+    if (char === '，' || char === ',') {
+      delay = 200; // Short pause for commas
+    } else if (char === '。' || char === '.') {
+      delay = 400; // Medium pause for periods
+    } else if (char === '\n') {
+      delay = 800; // Significant pause for paragraph breaks
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  isTyping = false;
+};
 
 // Function to stop the current streaming connection
 const stopStreaming = () => {
@@ -89,6 +108,8 @@ const startStreaming = async () => {
   stopStreaming(); // Ensure any previous stream is closed
 
   analysisText.value = ''; // Clear previous content
+  displayedText.value = ''; // Clear displayed text
+  typewriterQueue = []; // Clear typewriter queue
   error.value = null; // Clear previous errors
   isLoading.value = true; // Set loading state
   progress.value = 0; // Reset progress
@@ -146,6 +167,13 @@ const startStreaming = async () => {
 
       if (data.text) {
         analysisText.value += data.text;
+        // Add new characters to typewriter queue
+        const chars = data.text.split('');
+        typewriterQueue.push(...chars);
+        // Start typewriter effect if not already running
+        if (!isTyping) {
+          typewriterEffect();
+        }
         progress.value = Math.min(progress.value + 2, 95);
       }
     } catch (err) {
@@ -165,7 +193,7 @@ const startStreaming = async () => {
 };
 
 const goBack = () => {
-  router.push('/unified');
+  router.push({ name: 'unified' });
 };
 
 // Watch for analysisType changes to restart the stream
@@ -194,11 +222,17 @@ onUnmounted(() => {
 
 <template>
   <div class="ai-analysis-view">
+    <!-- Phase 2: Atmospheric Background Effects -->
+    <div class="atmospheric-bg" aria-hidden="true">
+      <div class="floating-orb orb-1" />
+      <div class="floating-orb orb-2" />
+      <div class="floating-orb orb-3" />
+    </div>
     <div class="container">
       <!-- 標題區域 -->
       <div class="header">
         <button class="back-btn" @click="goBack">
-          ← {{ $t('common.back') }}
+          {{ $t(`${i18nPrefix}.btn_back`) }}
         </button>
         <h1 class="title">
           {{ $t(`navigation.${analysisType}`) }}
@@ -245,7 +279,7 @@ onUnmounted(() => {
 
         <!-- Markdown 渲染 -->
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <div class="markdown-body" v-html="renderMarkdown(analysisText)" />
+        <div class="markdown-body" v-html="renderMarkdown(displayedText)" />
 
         <!-- 打字機效果游標 -->
         <span v-if="progress < 100" class="cursor">▋</span>
@@ -259,7 +293,10 @@ onUnmounted(() => {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: var(--space-3xl) var(--space-lg);
+  position: relative;
+  overflow: hidden;
 }
+
 .container {
   max-width: 800px;
   margin: 0 auto;
@@ -267,21 +304,24 @@ onUnmounted(() => {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   padding: var(--space-3xl);
+  position: relative;
+  z-index: 1;
 }
 .header {
+  position: relative;
   text-align: center;
   margin-bottom: var(--space-2xl);
 }
 .back-btn {
   position: absolute;
-  left: var(--space-lg);
-  top: var(--space-lg);
+  left: 0;
+  top: 0;
   background: none;
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
   font-size: var(--font-size-base);
-  padding: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-sm);
   transition: all 0.2s ease;
 }
@@ -312,33 +352,6 @@ onUnmounted(() => {
 .loading {
   text-align: center;
   padding: var(--space-3xl);
-}
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--bg-tertiary);
-  border-top: 4px solid var(--primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto var(--space-lg);
-}
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-.loading-text {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: var(--space-sm);
-}
-.loading-hint {
-  color: var(--text-secondary);
-  font-size: var(--font-size-base);
 }
 .error {
   text-align: center;
@@ -376,35 +389,32 @@ onUnmounted(() => {
 }
 .progress-bar {
   width: 100%;
-  height: 4px;
+  height: 6px;
   background: var(--bg-tertiary);
   border-radius: var(--radius-sm);
   margin-bottom: var(--space-xl);
   overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-  border-radius: var(--radius-sm);
-  transition: width 0.3s ease;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 .markdown-body {
   line-height: 1.8;
   color: var(--text-primary);
 }
-.markdown-body :deep(h1),
-.markdown-body :deep(h2),
-.markdown-body :deep(h3) {
+.markdown-body :deep(h1) {
   color: var(--text-primary);
   margin-top: var(--space-xl);
   margin-bottom: var(--space-md);
 }
 .markdown-body :deep(p) {
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
+  line-height: var(--line-height-loose);
 }
 .markdown-body :deep(strong) {
-  color: var(--text-primary);
   font-weight: 600;
+  background-image: var(--gradient-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .markdown-body :deep(strong.star-brightness) {
   font-weight: 700;
@@ -412,51 +422,6 @@ onUnmounted(() => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
-/* Specific gradient styles based on data-brightness */
-.markdown-body :deep(strong.star-brightness[data-brightness='廟']) {
-  background-image: linear-gradient(45deg, #ffd700, #ffa500);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='旺']) {
-  background-image: linear-gradient(45deg, #00ff00, #008000);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='得地']) {
-  background-image: linear-gradient(45deg, #87ceeb, #4682b4);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='利']) {
-  background-image: linear-gradient(45deg, #ff69b4, #c71585);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='平']) {
-  background-image: linear-gradient(45deg, #d3d3d3, #a9a9a9);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='不得地']) {
-  background-image: linear-gradient(45deg, #ff4500, #b22222);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='陷']) {
-  background-image: linear-gradient(45deg, #800000, #400000);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='衰']) {
-  background-image: linear-gradient(45deg, #708090, #2f4f4f);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='病']) {
-  background-image: linear-gradient(45deg, #9932cc, #4b0082);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='死']) {
-  background-image: linear-gradient(45deg, #000000, #36454f);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='墓']) {
-  background-image: linear-gradient(45deg, #a52a2a, #8b0000);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='絕']) {
-  background-image: linear-gradient(45deg, #483d8b, #191970);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='胎']) {
-  background-image: linear-gradient(45deg, #daa520, #b8860b);
-}
-.markdown-body :deep(strong.star-brightness[data-brightness='養']) {
-  background-image: linear-gradient(45deg, #20b2aa, #008b8b);
-}
-
 .cursor {
   color: var(--primary);
   animation: blink 1s infinite;
@@ -477,14 +442,23 @@ onUnmounted(() => {
     padding: var(--space-lg) var(--space-md);
   }
   .container {
-    padding: var(--space-xl);
+    padding: var(--space-xl) var(--space-md);
+  }
+  .header {
+    text-align: left;
   }
   .back-btn {
     position: static;
+    display: block;
     margin-bottom: var(--space-md);
+    padding: var(--space-xs) 0;
   }
   .title {
     font-size: var(--font-size-2xl);
+    text-align: center;
+  }
+  .subtitle {
+    text-align: center;
   }
 }
 </style>

@@ -3,12 +3,15 @@
  * Provides AI-powered analysis endpoint
  */
 
-import type { AutoRouter, IRequest } from 'itty-router';
+import type { Router, IRequest } from 'itty-router';
 import type { Env } from '../index';
 import { AnalyzeController, type AnalyzeRequest } from '../controllers/analyzeController';
 import { GeminiService } from '../services/geminiService';
 import { AzureOpenAIService } from '../services/azureOpenAIService';
 import { AIServiceManager } from '../services/aiServiceManager';
+import { AgenticGeminiService } from '../services/agenticGeminiService';
+import { AgenticAzureService } from '../services/agenticAzureService';
+import { ChartCacheService } from '../services/chartCacheService';
 
 /**
  * Configure Azure OpenAI fallback provider
@@ -71,7 +74,7 @@ function initializeAIServices(env: Env): { manager: AIServiceManager } {
   return { manager };
 }
 
-export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: Env) {
+export function createAnalyzeRoutes(router: Router, env: Env) {
   /**
    * POST /api/v1/analyze
    * 
@@ -223,12 +226,14 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
     } catch (error) {
       console.error('Analyze stream error:', error);
 
-      // Convert error to Peixuan-style message
-      let errorMessage = '哎呀～佩璇遇到了一些小問題呢...';
-      
+      // Convert error to Peixuan-style message (locale-aware)
+      let errorMessage = locale === 'zh-TW'
+        ? '哎呀～佩璇遇到了一些小問題呢...'
+        : 'Oops, Peixuan encountered a small issue...';
+
       if (error instanceof Error) {
         const errMsg = error.message.toLowerCase();
-        
+
         // Handle quota exceeded (429)
         if (errMsg.includes('quota') || errMsg.includes('429')) {
           // Try to extract retry delay
@@ -236,18 +241,28 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
           if (retryMatch) {
             const seconds = parseInt(retryMatch[1]);
             const minutes = Math.ceil(seconds / 60);
-            errorMessage = `佩璇累了，需要休息一下喔～請等 ${minutes} 分鐘後再來找我吧！✨`;
+            errorMessage = locale === 'zh-TW'
+              ? `佩璇累了，需要休息一下喔～請等 ${minutes} 分鐘後再來找我吧！✨`
+              : `Peixuan needs a rest~ Please try again in ${minutes} minutes! ✨`;
           } else {
-            errorMessage = '佩璇今天太忙了，需要休息一下～請稍後再來找我喔！💫';
+            errorMessage = locale === 'zh-TW'
+              ? '佩璇今天太忙了，需要休息一下～請稍後再來找我喔！💫'
+              : 'Peixuan is quite busy today~ Please try again later! 💫';
           }
         }
         // Handle other errors
         else if (errMsg.includes('not found')) {
-          errorMessage = '咦？佩璇找不到你的命盤資料耶...要不要重新算一次呢？🔮';
+          errorMessage = locale === 'zh-TW'
+            ? '咦？佩璇找不到你的命盤資料耶...要不要重新算一次呢？🔮'
+            : 'Hmm? Peixuan cannot find your chart... Would you like to recalculate? 🔮';
         } else if (errMsg.includes('timeout')) {
-          errorMessage = '哎呀～佩璇算得太專心，時間有點久了...要不要再試一次呢？⏰';
+          errorMessage = locale === 'zh-TW'
+            ? '哎呀～佩璇算得太專心，時間有點久了...要不要再試一次呢？⏰'
+            : 'Oops~ Peixuan was too focused, took a bit long... Try again? ⏰';
         } else {
-          errorMessage = `佩璇遇到了一些小狀況：${error.message} 💭`;
+          errorMessage = locale === 'zh-TW'
+            ? `佩璇遇到了一些小狀況：${error.message} 💭`
+            : `Peixuan encountered an issue: ${error.message} 💭`;
         }
       }
 
@@ -374,29 +389,305 @@ export function createAnalyzeRoutes(router: ReturnType<typeof AutoRouter>, env: 
     } catch (error) {
       console.error('Analyze advanced stream error:', error);
 
-      // Convert error to Peixuan-style message
-      let errorMessage = '哎呀～佩璇遇到了一些小問題呢...';
-      
+      // Convert error to Peixuan-style message (locale-aware)
+      let errorMessage = locale === 'zh-TW'
+        ? '哎呀～佩璇遇到了一些小問題呢...'
+        : 'Oops, Peixuan encountered a small issue...';
+
       if (error instanceof Error) {
         const errMsg = error.message.toLowerCase();
-        
+
         // Handle quota exceeded (429)
         if (errMsg.includes('quota') || errMsg.includes('429')) {
           const retryMatch = error.message.match(/retry in (\d+)/i);
           if (retryMatch) {
             const seconds = parseInt(retryMatch[1]);
             const minutes = Math.ceil(seconds / 60);
-            errorMessage = `佩璇累了，需要休息一下喔～請等 ${minutes} 分鐘後再來找我吧！✨`;
+            errorMessage = locale === 'zh-TW'
+              ? `佩璇累了，需要休息一下喔～請等 ${minutes} 分鐘後再來找我吧！✨`
+              : `Peixuan needs a rest~ Please try again in ${minutes} minutes! ✨`;
           } else {
-            errorMessage = '佩璇今天太忙了，需要休息一下～請稍後再來找我喔！💫';
+            errorMessage = locale === 'zh-TW'
+              ? '佩璇今天太忙了，需要休息一下～請稍後再來找我喔！💫'
+              : 'Peixuan is quite busy today~ Please try again later! 💫';
           }
         }
         else if (errMsg.includes('not found')) {
-          errorMessage = '咦？佩璇找不到你的命盤資料耶...要不要重新算一次呢？🔮';
+          errorMessage = locale === 'zh-TW'
+            ? '咦？佩璇找不到你的命盤資料耶...要不要重新算一次呢？🔮'
+            : 'Hmm? Peixuan cannot find your chart... Would you like to recalculate? 🔮';
         } else if (errMsg.includes('timeout')) {
-          errorMessage = '哎呀～佩璇算得太專心，時間有點久了...要不要再試一次呢？⏰';
+          errorMessage = locale === 'zh-TW'
+            ? '哎呀～佩璇算得太專心，時間有點久了...要不要再試一次呢？⏰'
+            : 'Oops~ Peixuan was too focused, took a bit long... Try again? ⏰';
         } else {
-          errorMessage = `佩璇遇到了一些小狀況：${error.message} 💭`;
+          errorMessage = locale === 'zh-TW'
+            ? `佩璇遇到了一些小狀況：${error.message} 💭`
+            : `Peixuan encountered an issue: ${error.message} 💭`;
+        }
+      }
+
+      // Return error in SSE format
+      const errorStream = new ReadableStream({
+        start(controller) {
+          const encoder = new TextEncoder();
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: errorMessage })}\n\n`));
+          controller.close();
+        }
+      });
+
+      return new Response(errorStream, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+          'Access-Control-Allow-Origin': '*',
+        }
+      });
+    }
+  });
+
+  /**
+   * POST /api/v1/daily-insight/stream
+   *
+   * Streams daily insight with agentic AI reasoning using Server-Sent Events (SSE)
+   * Supports automatic fallback from Gemini to Azure OpenAI on rate limit/service unavailable errors
+   *
+   * Request body:
+   * - chartId: string (required) - The ID of the chart to analyze
+   * - question: string (required) - User's daily question (kept private, not logged in URLs)
+   * - locale: string (optional) - Language locale (zh-TW or en, default: zh-TW)
+   *
+   * Response:
+   * - Content-Type: text/event-stream
+   * - Format: SSE events with agent state updates and final answer
+   * - State updates: { state: string } - Agent's current action
+   * - Text chunks: { text: string } - Incremental answer
+   * - Final event: "data: [DONE]\n\n"
+   */
+  router.post('/api/v1/daily-insight/stream', async (req: IRequest) => {
+    console.log('[daily-insight/stream] Route handler called');
+    try {
+      // Parse request body
+      const body = await req.json() as { chartId?: string; question?: string; locale?: string };
+      const chartId = body.chartId;
+      const question = body.question;
+      const locale = body.locale || 'zh-TW';
+
+      // Log only metadata, not the sensitive question content
+      console.log('[daily-insight/stream] Request received:', {
+        chartId,
+        hasQuestion: !!question,
+        questionLength: question?.length || 0,
+        locale
+      });
+
+      // Validate required parameters
+      if (!chartId) {
+        return new Response(
+          JSON.stringify({ error: 'Missing chartId parameter' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      if (!question) {
+        return new Response(
+          JSON.stringify({ error: 'Missing question parameter' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Check daily limit
+      const { DailyQuestionLimitService } = await import('../services/dailyQuestionLimitService');
+      const limitService = new DailyQuestionLimitService(env);
+      const hasExceededLimit = await limitService.checkDailyLimit(chartId);
+
+      if (hasExceededLimit) {
+        const hoursUntilNext = limitService.getTimeUntilNextQuestion();
+        const errorMessage = locale === 'zh-TW'
+          ? `今天已經問過佩璇了喔～明天再來問新問題吧！還有 ${hoursUntilNext} 小時就可以再問囉 ✨`
+          : `You've already asked Peixuan today~ Come back tomorrow for a new question! ${hoursUntilNext} hours to go ✨`;
+
+        return new Response(
+          JSON.stringify({ error: errorMessage, code: 'DAILY_LIMIT_EXCEEDED' }),
+          { status: 429, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Fetch chart data from cache
+      const chartCacheService = new ChartCacheService();
+      const chart = await chartCacheService.getChart(chartId, env);
+
+      if (!chart) {
+        return new Response(
+          JSON.stringify({ error: 'Chart not found' }),
+          { status: 404, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Parse chart calculation result
+      const calculationResult = typeof chart.chartData === 'string'
+        ? JSON.parse(chart.chartData)
+        : chart.chartData;
+
+      let stream: ReadableStream;
+      let usedFallback = false;
+
+      // Try Gemini first
+      if (env.GEMINI_API_KEY) {
+        try {
+          console.log('[Daily Insight] Using primary provider: Gemini');
+          
+          // Prepare Azure fallback service
+          let azureFallback;
+          if (env.AZURE_OPENAI_ENDPOINT && env.AZURE_OPENAI_API_KEY) {
+            const { AgenticAzureService } = await import('../services/agenticAzureService');
+            azureFallback = new AgenticAzureService({
+              endpoint: env.AZURE_OPENAI_ENDPOINT,
+              apiKey: env.AZURE_OPENAI_API_KEY,
+              deployment: env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4.1-mini',
+              apiVersion: env.AZURE_OPENAI_API_VERSION || '2024-08-01-preview',
+              maxRetries: 3,
+              maxIterations: 5
+            });
+          }
+
+          const agenticService = new AgenticGeminiService(
+            env.GEMINI_API_KEY,
+            'gemini-3-flash-preview',
+            3,  // maxRetries
+            5,  // maxIterations
+            azureFallback  // Fallback service
+          );
+
+          // Create stream and test for immediate errors by reading first chunk
+          const originalStream = await agenticService.generateDailyInsight(
+            question,
+            calculationResult,
+            locale
+          );
+
+          const reader = originalStream.getReader();
+          const firstChunk = await reader.read(); // This will throw if stream has error
+
+          // If we got here, stream started successfully
+          // Create a new stream that includes the first chunk
+          stream = new ReadableStream({
+            async start(controller) {
+              try {
+                // Enqueue the first chunk we already read
+                if (!firstChunk.done && firstChunk.value) {
+                  controller.enqueue(firstChunk.value);
+                }
+
+                // Continue reading the rest
+                while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) break;
+                  controller.enqueue(value);
+                }
+                controller.close();
+              } catch (err) {
+                controller.error(err);
+              }
+            }
+          });
+
+        } catch (error) {
+          const shouldFallback = error instanceof Error &&
+            (error.message.includes('429') ||
+             error.message.includes('503') ||
+             error.message.toLowerCase().includes('quota') ||
+             error.message.toLowerCase().includes('unavailable'));
+
+          if (shouldFallback && env.ENABLE_AI_FALLBACK !== false) {
+            console.log('[Daily Insight] Primary provider failed, attempting fallback to Azure');
+
+            // Configure Azure fallback
+            const azureEndpoint = env.AZURE_OPENAI_ENDPOINT?.trim();
+            const azureApiKey = env.AZURE_OPENAI_API_KEY?.trim();
+
+            if (azureApiKey && azureEndpoint) {
+              console.log('[Daily Insight] Using fallback provider: Azure OpenAI');
+              const azureService = new AgenticAzureService({
+                endpoint: azureEndpoint,
+                apiKey: azureApiKey,
+                deployment: env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4.1-mini',
+                apiVersion: env.AZURE_OPENAI_API_VERSION || '2024-08-01-preview',
+                maxRetries: 3,
+                maxIterations: 5
+              });
+
+              stream = await azureService.generateDailyInsight(
+                question,
+                calculationResult,
+                locale
+              );
+              usedFallback = true;
+            } else {
+              console.log('[Daily Insight] Azure fallback not configured, throwing error');
+              throw error;
+            }
+          } else {
+            throw error;
+          }
+        }
+      } else {
+        return new Response(
+          JSON.stringify({ error: 'No AI providers configured' }),
+          { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      if (usedFallback) {
+        console.log('[Daily Insight] Successfully used Azure OpenAI fallback');
+      }
+
+      // Record the daily question (async, don't wait)
+      limitService.recordDailyQuestion(chartId, question, 'SSE stream completed').catch(err => {
+        console.error('[Daily Insight] Failed to record question:', err);
+      });
+
+      // Return SSE stream
+      return new Response(stream!, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
+      });
+
+    } catch (error) {
+      console.error('[Daily Insight] Error:', error);
+
+      // Convert error to Peixuan-style message (locale-aware)
+      let errorMessage = locale === 'zh-TW'
+        ? '哎呀～佩璇在分析每日問題時遇到了一些小狀況...'
+        : 'Oops~ Peixuan encountered an issue while analyzing your daily question...';
+
+      if (error instanceof Error) {
+        const errMsg = error.message.toLowerCase();
+
+        if (errMsg.includes('quota') || errMsg.includes('429')) {
+          errorMessage = locale === 'zh-TW'
+            ? '佩璇今天太忙了,需要休息一下～請稍後再來找我喔！💫'
+            : 'Peixuan is quite busy today~ Please try again later! 💫';
+        } else if (errMsg.includes('not found')) {
+          errorMessage = locale === 'zh-TW'
+            ? '咦？佩璇找不到你的命盤資料耶...要不要重新算一次呢？🔮'
+            : 'Hmm? Peixuan cannot find your chart... Would you like to recalculate? 🔮';
+        } else if (errMsg.includes('timeout')) {
+          errorMessage = locale === 'zh-TW'
+            ? '哎呀～佩璇思考得太投入,時間有點久了...要不要再試一次呢？⏰'
+            : 'Oops~ Peixuan was too deep in thought, took a bit long... Try again? ⏰';
+        } else {
+          errorMessage = locale === 'zh-TW'
+            ? `佩璇遇到了一些小狀況：${error.message} 💭`
+            : `Peixuan encountered an issue: ${error.message} 💭`;
         }
       }
 

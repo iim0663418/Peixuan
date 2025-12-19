@@ -1,4 +1,4 @@
-import type { AutoRouter } from 'itty-router';
+import type { Router } from 'itty-router';
 import { UnifiedController } from '../controllers/unifiedController';
 
 /**
@@ -9,7 +9,7 @@ import { UnifiedController } from '../controllers/unifiedController';
  *
  * Reference: IMPLEMENTATION_PLAN_PHASE1.md Sprint A Task A2
  */
-export function createUnifiedRoutes(router: ReturnType<typeof AutoRouter>) {
+export function createUnifiedRoutes(router: Router) {
   /**
    * POST /api/v1/calculate
    *

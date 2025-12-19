@@ -94,12 +94,17 @@ async function handleAPI(request: Request, env: Env): Promise<Response> {
 	createChartRoutes(router);
 	createDailyReminderRoutes(router, env);
 
+	// Debug: Log incoming request
+	console.log('[handleAPI] Incoming request:', method, path);
+
 	// Try unified routes first using fetch() instead of handle()
 	try {
 		const unifiedResponse = await router.fetch(request, env);
+		console.log('[handleAPI] Router response status:', unifiedResponse?.status);
 		if (unifiedResponse && unifiedResponse.status !== 404) {
 			return unifiedResponse;
 		}
+		console.log('[handleAPI] Router returned 404, continuing to legacy routes');
 	} catch (error) {
 		console.error('[handleAPI] Router error:', error);
 		// Continue to other routes

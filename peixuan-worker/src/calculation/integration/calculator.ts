@@ -409,7 +409,7 @@ export class UnifiedCalculator {
       description: 'Calculate month pillar using solar longitude'
     });
 
-    const day = calculateDayPillar(solarDate);
+    const day = calculateDayPillar(julianDay);
     const dayStemIndex = ganZhiToIndex(day) % 10;
     calculationSteps.push({
       step: 'dayPillar',

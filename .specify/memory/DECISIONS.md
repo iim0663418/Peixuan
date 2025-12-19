@@ -194,3 +194,16 @@
   - Fixed ESLint/Prettier formatting conflicts
   - Full accessibility support with prefers-reduced-motion
   - Successfully deployed to Staging environment
+
+- [DECISION] 2025-12-19: Verified Daily Question Feature - Phase 1 Backend Complete. Code/Spec aligned with Constitution.
+  - Agentic AI system with ReAct pattern (Daily Question feature)
+  - Function Calling integration with Gemini API (3 tools: get_bazi_profile, get_ziwei_chart, get_daily_transit)
+  - 80ode reuse through modular architecture
+  - Dual AI provider backup system (Gemini + Azure OpenAI)
+  - Daily limit enforcement (one question per chartId per day)
+  - Enhanced Peixuan personality (20-year-old, warm, empathetic with signature phrases)
+  - Critical bug fix: Day pillar calculation (all charts showing 癸 → correct stems)
+  - Bilingual support (zh-TW/en) with proper locale handling
+  - SSE streaming for real-time agent thoughts and responses
+  - Privacy protection (GET → POST to prevent sensitive questions in URL logs)
+  - Comprehensive testing and validation complete

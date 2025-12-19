@@ -1,7 +1,7 @@
 import { marked } from 'marked';
 
 /**
- * Configures the marked renderer for star brightness effects.
+ * Configures the marked renderer for star brightness effects and format-based highlighting.
  * This function should be called once when the module is loaded to set up the markdown renderer.
  */
 export function setupKeywordHighlighting(): void {
@@ -20,13 +20,24 @@ export function setupKeywordHighlighting(): void {
           return `<strong class="star-brightness" data-brightness="${brightness}">${starName}</strong>`;
         }
 
-        // Priority 2: Match quoted star names like 「天府星」 or 「七殺」
+        // Priority 2: Match palace statistics like 子女宮（入度 8）
+        const palaceStatMatch = text.match(/(.+?宮)（(.+?)）/);
+        if (palaceStatMatch) {
+          // Replace the palace stat portion with styled span
+          const styledText = text.replace(
+            /(.+?宮)（(.+?)）/g,
+            '<span class="palace-stat">$1（$2）</span>',
+          );
+          return `<strong>${styledText}</strong>`;
+        }
+
+        // Priority 3: Match quoted content like 「天府星」 or 「任何內容」
         const quotedMatch = text.match(/「(.+?)」/);
         if (quotedMatch) {
           // Replace the quoted portion with styled span, keep rest as normal strong
           const styledText = text.replace(
             /「(.+?)」/g,
-            '<span class="quoted-star">「$1」</span>',
+            '<span class="quoted-content">「$1」</span>',
           );
           return `<strong>${styledText}</strong>`;
         }

@@ -206,12 +206,6 @@ class UnifiedApiService {
       // Type assertion needed because axios types expect ApiResponse but backend returns CalculationResult
       const backendResult = response.data as unknown as any;
 
-      // Debug: Log wuxingDistribution structure
-      console.log(
-        'Backend wuxingDistribution:',
-        backendResult.bazi?.wuxingDistribution,
-      );
-
       // Adapt backend format to frontend format
       const result: CalculationResult = {
         chartId: backendResult.chartId, // Preserve chartId from backend
@@ -297,52 +291,6 @@ class UnifiedApiService {
                 balance: backendResult.bazi.wuxingDistribution.balance,
               }
             : undefined,
-          // Debug: Log adapted wuxingDistribution
-          ...(backendResult.bazi.wuxingDistribution &&
-            console.log('Adapted wuxingDistribution:', {
-              raw: {
-                木:
-                  (backendResult.bazi.wuxingDistribution.raw.tiangan['Wood'] ||
-                    0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
-                    'Wood'
-                  ] || 0),
-                火:
-                  (backendResult.bazi.wuxingDistribution.raw.tiangan['Fire'] ||
-                    0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
-                    'Fire'
-                  ] || 0),
-                土:
-                  (backendResult.bazi.wuxingDistribution.raw.tiangan['Earth'] ||
-                    0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
-                    'Earth'
-                  ] || 0),
-                金:
-                  (backendResult.bazi.wuxingDistribution.raw.tiangan['Metal'] ||
-                    0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
-                    'Metal'
-                  ] || 0),
-                水:
-                  (backendResult.bazi.wuxingDistribution.raw.tiangan['Water'] ||
-                    0) +
-                  (backendResult.bazi.wuxingDistribution.raw.hiddenStems[
-                    'Water'
-                  ] || 0),
-              },
-              adjusted: {
-                木: backendResult.bazi.wuxingDistribution.adjusted['Wood'] || 0,
-                火: backendResult.bazi.wuxingDistribution.adjusted['Fire'] || 0,
-                土:
-                  backendResult.bazi.wuxingDistribution.adjusted['Earth'] || 0,
-                金:
-                  backendResult.bazi.wuxingDistribution.adjusted['Metal'] || 0,
-                水:
-                  backendResult.bazi.wuxingDistribution.adjusted['Water'] || 0,
-              },
-            })),
           // Parse Date strings in fortuneCycles
           fortuneCycles: backendResult.bazi.fortuneCycles
             ? {

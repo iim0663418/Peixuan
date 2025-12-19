@@ -299,14 +299,15 @@
   cursor: pointer;
 }
 
-/* Quoted Star Names Styling - for patterns like 「天府星」 */
-.markdown-body :deep(strong .quoted-star) {
+/* Quoted Content Styling - for patterns like 「天府星」 or 「任何內容」 */
+.markdown-body :deep(strong .quoted-content) {
   font-weight: 700;
   background-image: linear-gradient(
     135deg,
-    var(--purple-star) 0%,
-    var(--purple-star-light) 50%,
-    var(--bazi-orange-light) 100%
+    #20b2aa 0%,
+    #48d1cc 33%,
+    #40e0d0 66%,
+    #00ced1 100%
   );
   background-clip: text;
   -webkit-background-clip: text;
@@ -315,10 +316,34 @@
   display: inline-block;
 }
 
-.markdown-body :deep(strong .quoted-star:hover) {
+.markdown-body :deep(strong .quoted-content:hover) {
   transform: scale(1.05);
   filter: brightness(1.15);
-  text-shadow: 0 0 6px rgba(153, 50, 204, 0.3);
+  text-shadow: 0 0 6px rgba(32, 178, 170, 0.4);
+  cursor: pointer;
+}
+
+/* Palace Statistics Styling - for patterns like 子女宮（入度 8） */
+.markdown-body :deep(strong .palace-stat) {
+  font-weight: 700;
+  background-image: linear-gradient(
+    135deg,
+    #ffd700 0%,
+    #ffed4e 33%,
+    #f59e0b 66%,
+    #daa520 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: var(--transition-normal);
+  display: inline-block;
+}
+
+.markdown-body :deep(strong .palace-stat:hover) {
+  transform: scale(1.05);
+  filter: brightness(1.15);
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
   cursor: pointer;
 }
 
@@ -631,11 +656,19 @@
     transform: none;
   }
 
-  .markdown-body :deep(strong .quoted-star) {
+  .markdown-body :deep(strong .quoted-content) {
     transition: none;
   }
 
-  .markdown-body :deep(strong .quoted-star:hover) {
+  .markdown-body :deep(strong .quoted-content:hover) {
+    transform: none;
+  }
+
+  .markdown-body :deep(strong .palace-stat) {
+    transition: none;
+  }
+
+  .markdown-body :deep(strong .palace-stat:hover) {
     transform: none;
   }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useChartStore } from '@/stores/chartStore';
@@ -9,6 +9,10 @@ import './UnifiedAIAnalysisView.css';
 
 // Configure marked renderer once for the application when the module is loaded
 setupKeywordHighlighting();
+
+// Phase 3: Intersection Observer for scroll-triggered animations
+// eslint-disable-next-line no-undef
+let intersectionObserver: IntersectionObserver | null = null;
 
 const router = useRouter();
 const route = useRoute();
@@ -210,13 +214,79 @@ watch(
   { immediate: true },
 ); // immediate: true to run on initial component mount
 
+// Phase 3: Setup Intersection Observer for scroll-triggered animations
+const setupScrollAnimations = () => {
+  // Check if user prefers reduced motion
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  ).matches;
+
+  if (prefersReducedMotion) {
+    return; // Skip animations if user prefers reduced motion
+  }
+
+  // Create Intersection Observer
+  // eslint-disable-next-line no-undef
+  intersectionObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+        }
+      });
+    },
+    {
+      threshold: 0.1, // Trigger when 10% of element is visible
+      rootMargin: '0px 0px -50px 0px', // Trigger slightly before element enters viewport
+    },
+  );
+
+  // Observe all elements that should animate on scroll
+  const observeElements = () => {
+    const markdownBody = document.querySelector('.markdown-body');
+    if (!markdownBody) {
+      return;
+    }
+
+    // Add scroll-reveal class to elements
+    const revealElements = markdownBody.querySelectorAll(
+      'h2, h3, table, blockquote, pre',
+    );
+    revealElements.forEach((el) => {
+      el.classList.add('scroll-reveal');
+      intersectionObserver?.observe(el);
+    });
+  };
+
+  // Wait for content to be rendered, then observe
+  nextTick(() => {
+    observeElements();
+  });
+};
+
+// Watch for displayedText changes to setup animations for new content
+watch(displayedText, () => {
+  if (displayedText.value) {
+    nextTick(() => {
+      setupScrollAnimations();
+    });
+  }
+});
+
 onMounted(() => {
   // startStreaming is now handled by the immediate watcher, so this can be empty
   // or used for other non-streaming related on-mount setup.
+  setupScrollAnimations();
 });
 
 onUnmounted(() => {
   stopStreaming(); // Ensure stream is closed when component is unmounted
+
+  // Phase 3: Cleanup Intersection Observer
+  if (intersectionObserver) {
+    intersectionObserver.disconnect();
+    intersectionObserver = null;
+  }
 });
 </script>
 

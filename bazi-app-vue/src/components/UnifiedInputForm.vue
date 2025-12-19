@@ -3,7 +3,7 @@
     ref="unifiedForm"
     :model="formData"
     :rules="formRules"
-    :validate-on-rule-change="true"
+    :validate-on-rule-change="false"
     label-position="top"
     @submit.prevent="submitForm"
   >
@@ -362,12 +362,20 @@ const fillCityCoordinates = (cityValue: string) => {
   clearGeocodeStatus();
 };
 
+// Track if user has interacted with the form to prevent premature validation
+const hasUserInteracted = ref(false);
+
 // 從 sessionStorage 加載保存的時區資訊
 onMounted(() => {
   const savedTimezone = getTimeZoneInfo();
   if (savedTimezone && savedTimezone.timeZone) {
     formData.timezone = savedTimezone.timeZone;
   }
+
+  // Mark as interacted after initial mount to allow validation on subsequent changes
+  setTimeout(() => {
+    hasUserInteracted.value = true;
+  }, 100);
 });
 
 // Watch for initialData changes and populate form
@@ -388,11 +396,11 @@ watch(
   { immediate: true },
 );
 
-// Real-time validation for form fields
+// Real-time validation for form fields (only after user interaction)
 watch(
   () => formData.birthDate,
   () => {
-    if (unifiedForm.value) {
+    if (unifiedForm.value && hasUserInteracted.value) {
       unifiedForm.value.validateField('birthDate');
     }
     detectLeapMonth();
@@ -402,7 +410,7 @@ watch(
 watch(
   () => formData.birthTime,
   () => {
-    if (unifiedForm.value) {
+    if (unifiedForm.value && hasUserInteracted.value) {
       unifiedForm.value.validateField('birthTime');
     }
   },
@@ -411,7 +419,7 @@ watch(
 watch(
   () => formData.gender,
   () => {
-    if (unifiedForm.value) {
+    if (unifiedForm.value && hasUserInteracted.value) {
       unifiedForm.value.validateField('gender');
     }
   },
@@ -420,7 +428,7 @@ watch(
 watch(
   () => [formData.longitude, formData.latitude, formData.timezone],
   () => {
-    if (unifiedForm.value) {
+    if (unifiedForm.value && hasUserInteracted.value) {
       unifiedForm.value.validateField('location');
     }
   },

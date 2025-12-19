@@ -151,7 +151,7 @@ export function useFormValidation() {
 
         callback();
       },
-      trigger: ['change', 'blur'],
+      trigger: 'blur',
     },
   ];
 

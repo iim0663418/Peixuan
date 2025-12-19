@@ -322,6 +322,267 @@
   cursor: pointer;
 }
 
+/* Phase 3: Deep Interactive Effects - Table Row Hover Animations */
+.markdown-body :deep(table) {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: box-shadow 0.3s ease;
+}
+
+.markdown-body :deep(table:hover) {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(153, 50, 204, 0.08);
+}
+
+.markdown-body :deep(tr) {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.2s ease;
+  will-change: transform;
+}
+
+.markdown-body :deep(tbody tr:hover) {
+  transform: scale(1.02) translateZ(0);
+  background: linear-gradient(
+    90deg,
+    rgba(153, 50, 204, 0.03) 0%,
+    rgba(153, 50, 204, 0.01) 100%
+  );
+  position: relative;
+  z-index: 1;
+}
+
+.markdown-body :deep(tbody tr:hover td) {
+  box-shadow: 0 2px 8px rgba(153, 50, 204, 0.08);
+}
+
+/* Phase 3: Card Flip Effects */
+.markdown-body :deep(.card-flip-container) {
+  perspective: 1000px;
+  transition: transform 0.3s ease;
+}
+
+.markdown-body :deep(.card-flip-inner) {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.markdown-body :deep(.card-flip-container:hover .card-flip-inner) {
+  transform: rotateY(5deg) rotateX(2deg);
+}
+
+/* Phase 3: Scroll Parallax Effects */
+.container {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.parallax-layer {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Phase 3: Advanced Animation System - Fade-in with Staggered Timing */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+.markdown-body :deep(h2),
+.markdown-body :deep(h3),
+.markdown-body :deep(p),
+.markdown-body :deep(ul),
+.markdown-body :deep(ol),
+.markdown-body :deep(table) {
+  animation: fade-in-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  will-change: transform, opacity;
+}
+
+.markdown-body :deep(h2) {
+  animation-delay: 0.05s;
+}
+
+.markdown-body :deep(h3) {
+  animation-delay: 0.1s;
+}
+
+.markdown-body :deep(p:nth-of-type(1)) {
+  animation-delay: 0.15s;
+}
+
+.markdown-body :deep(p:nth-of-type(2)) {
+  animation-delay: 0.2s;
+}
+
+.markdown-body :deep(p:nth-of-type(3)) {
+  animation-delay: 0.25s;
+}
+
+.markdown-body :deep(ul),
+.markdown-body :deep(ol) {
+  animation-delay: 0.3s;
+}
+
+.markdown-body :deep(table) {
+  animation-delay: 0.35s;
+}
+
+/* Phase 3: Progressive Loading Animation */
+@keyframes progressive-load {
+  from {
+    opacity: 0;
+    transform: translateX(-10px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateZ(0);
+  }
+}
+
+.markdown-body :deep(li) {
+  animation: progressive-load 0.4s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+}
+
+.markdown-body :deep(li:nth-child(1)) {
+  animation-delay: 0.1s;
+}
+
+.markdown-body :deep(li:nth-child(2)) {
+  animation-delay: 0.15s;
+}
+
+.markdown-body :deep(li:nth-child(3)) {
+  animation-delay: 0.2s;
+}
+
+.markdown-body :deep(li:nth-child(4)) {
+  animation-delay: 0.25s;
+}
+
+.markdown-body :deep(li:nth-child(5)) {
+  animation-delay: 0.3s;
+}
+
+/* Phase 3: Scroll-Triggered Animations (via Intersection Observer in component) */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px) translateZ(0);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) translateZ(0);
+}
+
+/* Phase 3: Visual Detail Polish - Multi-layer Shadows */
+.container {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.08),
+    0 16px 48px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.03);
+}
+
+.markdown-body :deep(h2) {
+  box-shadow: 0 2px 8px rgba(153, 50, 204, 0.04),
+    0 4px 16px rgba(153, 50, 204, 0.02);
+}
+
+/* Phase 3: Glow Effects on Focus */
+.back-btn:focus-visible,
+.retry-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(153, 50, 204, 0.1), 0 0 0 5px rgba(153, 50, 204, 0.2),
+    0 0 20px rgba(153, 50, 204, 0.3);
+  transform: translateY(-2px);
+}
+
+.markdown-body :deep(a:focus-visible) {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(153, 50, 204, 0.3), 0 0 12px rgba(153, 50, 204, 0.4);
+  border-radius: var(--radius-xs);
+}
+
+/* Phase 3: Enhanced Text Shadows for Better Readability */
+.title {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.08),
+    0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.markdown-body :deep(h2) {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(153, 50, 204, 0.05);
+}
+
+.markdown-body :deep(h3) {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+/* Phase 3: Gradient Borders */
+.recalc-notice {
+  position: relative;
+  border: none;
+}
+
+.recalc-notice::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-md);
+  padding: 2px;
+  background: linear-gradient(135deg, #ffd700, #ffed4e, #f59e0b);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+.markdown-body :deep(blockquote) {
+  position: relative;
+  border-left: none;
+  padding-left: var(--space-lg);
+  margin-left: 0;
+}
+
+.markdown-body :deep(blockquote::before) {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(
+    180deg,
+    var(--purple-star) 0%,
+    var(--purple-star-light) 50%,
+    var(--bazi-orange) 100%
+  );
+  border-radius: var(--radius-xs);
+  box-shadow: 0 0 8px rgba(153, 50, 204, 0.3);
+}
+
+/* Phase 3: GPU Acceleration for Performance */
+.floating-orb,
+.spinner,
+.spinner::after,
+.progress-fill,
+.cursor,
+.markdown-body :deep(strong.star-brightness),
+.markdown-body :deep(tr),
+.back-btn,
+.retry-btn {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
 /* Phase 2: Accessibility - Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   /* Disable atmospheric background animations */
@@ -375,6 +636,44 @@
   }
 
   .markdown-body :deep(strong .quoted-star:hover) {
+    transform: none;
+  }
+
+  /* Phase 3: Disable new animations for reduced-motion */
+  .markdown-body :deep(h2),
+  .markdown-body :deep(h3),
+  .markdown-body :deep(p),
+  .markdown-body :deep(ul),
+  .markdown-body :deep(ol),
+  .markdown-body :deep(table),
+  .markdown-body :deep(li) {
+    animation: none;
+  }
+
+  .markdown-body :deep(tr) {
+    transition: none;
+  }
+
+  .markdown-body :deep(tbody tr:hover) {
+    transform: none;
+  }
+
+  .markdown-body :deep(.card-flip-inner) {
+    transition: none;
+  }
+
+  .markdown-body :deep(.card-flip-container:hover .card-flip-inner) {
+    transform: none;
+  }
+
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .back-btn:focus-visible,
+  .retry-btn:focus-visible {
     transform: none;
   }
 }

@@ -287,9 +287,17 @@ const getStarBrightness = (
 <style scoped>
 /* Design tokens applied - 2025-11-30 */
 /* RWD optimization - 2025-12-03 */
+/* Phase 3 visual enhancements - 2025-12-19 */
 
 .unified-result {
   width: 100%;
+}
+
+/* Phase 3: Multi-layer shadows for depth */
+:deep(.el-descriptions),
+:deep(.el-card) {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.08),
+    0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 /* Mobile-first: Tab navigation optimization */
@@ -354,7 +362,19 @@ const getStarBrightness = (
   border-radius: var(--radius-md);
   padding: var(--space-lg);
   margin-bottom: var(--space-lg);
-  box-shadow: var(--shadow-sm);
+  /* Phase 3: Multi-layer shadows */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.08),
+    0 8px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+/* Phase 3: Card flip effect on hover */
+.section:hover {
+  transform: translateY(-2px) translateZ(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.12),
+    0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
 h4 {
@@ -362,6 +382,23 @@ h4 {
   color: var(--text-primary);
   margin: 0 0 var(--space-md) 0;
   font-weight: var(--font-weight-semibold);
+  /* Phase 3: Enhanced text shadow for better readability */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  /* Phase 3: Gradient border bottom */
+  position: relative;
+  padding-bottom: var(--space-sm);
+}
+
+h4::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--info) 0%, var(--success) 100%);
+  border-radius: var(--radius-xs);
+  box-shadow: 0 1px 4px rgba(53, 126, 221, 0.3);
 }
 
 /* Mobile: Stack hidden stems vertically with Flexbox */
@@ -447,9 +484,21 @@ h4 {
   background: var(--bg-secondary);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  /* Phase 3: Multi-layer shadows */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.08);
   margin-bottom: var(--space-md);
   min-height: 44px;
+  /* Phase 3: Interactive effects */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+/* Phase 3: Card hover effect */
+.star-card:hover {
+  transform: translateY(-2px) scale(1.02) translateZ(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.12),
+    0 8px 20px rgba(53, 126, 221, 0.15);
 }
 
 @media (min-width: 768px) {
@@ -493,6 +542,55 @@ h4 {
 
   .section {
     margin-bottom: var(--space-2xl);
+  }
+}
+
+/* Phase 3: Glow effects on focus for accessibility */
+:deep(.el-tabs__item):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(53, 126, 221, 0.3), 0 0 12px rgba(53, 126, 221, 0.4);
+  border-radius: var(--radius-sm);
+}
+
+:deep(.el-button):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(53, 126, 221, 0.1), 0 0 0 5px rgba(53, 126, 221, 0.2),
+    0 0 20px rgba(53, 126, 221, 0.3);
+}
+
+/* Phase 3: Enhanced table row hover effects */
+:deep(.el-descriptions__body tr) {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.2s ease;
+  transform: translateZ(0);
+}
+
+:deep(.el-descriptions__body tr:hover) {
+  transform: scale(1.01) translateZ(0);
+  background: linear-gradient(
+    90deg,
+    rgba(53, 126, 221, 0.03) 0%,
+    rgba(53, 126, 221, 0.01) 100%
+  );
+}
+
+/* Phase 3: Accessibility - Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .section,
+  .star-card,
+  :deep(.el-descriptions__body tr) {
+    transition: none;
+  }
+
+  .section:hover,
+  .star-card:hover,
+  :deep(.el-descriptions__body tr:hover) {
+    transform: none;
+  }
+
+  :deep(.el-tabs__item):focus-visible,
+  :deep(.el-button):focus-visible {
+    animation: none;
   }
 }
 </style>

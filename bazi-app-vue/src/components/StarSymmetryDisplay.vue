@@ -61,16 +61,20 @@ const symmetries = computed(() => {
 </script>
 
 <style scoped>
+/* Design tokens applied - 2025-11-30 */
+/* Phase 3 visual enhancements - 2025-12-19 */
+
 .star-symmetry-display {
   padding: 16px;
 }
 
-/* Design tokens applied - 2025-11-30 */
 h4 {
   margin: 0 0 16px 0;
   font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
+  /* Phase 3: Enhanced text shadow for better readability */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .symmetry-grid {
@@ -84,28 +88,63 @@ h4 {
   border-radius: 4px;
   border: 1px solid var(--border-light);
   background: var(--bg-secondary);
-  transition: all 0.3s;
+  /* Phase 3: Multi-layer shadows */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
 }
 
 .symmetry-item:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  /* Phase 3: Enhanced hover with multi-layer shadows */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.12),
+    0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px) scale(1.02) translateZ(0);
 }
 
 /* Disable hover effects on touch devices */
 @media (hover: none) {
   .symmetry-item:hover {
-    box-shadow: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.08);
     transform: none;
   }
 }
 
+/* Phase 3: Gradient borders for symmetry types */
 .symmetry-opposite {
-  border-left: 3px solid var(--info);
+  position: relative;
+  border-left: none;
+  padding-left: 16px;
+}
+
+.symmetry-opposite::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--info) 0%, var(--info-lightest) 100%);
+  border-radius: var(--radius-xs);
+  box-shadow: 0 0 8px rgba(53, 126, 221, 0.3);
 }
 
 .symmetry-pair {
-  border-left: 3px solid var(--success);
+  position: relative;
+  border-left: none;
+  padding-left: 16px;
+}
+
+.symmetry-pair::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--success) 0%, var(--success-lightest) 100%);
+  border-radius: var(--radius-xs);
+  box-shadow: 0 0 8px rgba(103, 194, 58, 0.3);
 }
 
 .star-pair {
@@ -168,6 +207,17 @@ h4 {
 @media (max-width: 768px) {
   .symmetry-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Phase 3: Accessibility - Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .symmetry-item {
+    transition: none;
+  }
+
+  .symmetry-item:hover {
+    transform: none;
   }
 }
 </style>

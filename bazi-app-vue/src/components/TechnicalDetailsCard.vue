@@ -186,7 +186,9 @@ pre {
   font-weight: 600;
   color: var(--info);
   /* Phase 3: Smooth transitions */
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 :deep(.el-collapse-item__header):hover {
@@ -196,7 +198,9 @@ pre {
 /* Phase 3: Glow effect on focus */
 :deep(.el-collapse-item__header):focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(53, 126, 221, 0.3), 0 0 12px rgba(53, 126, 221, 0.4);
+  box-shadow:
+    0 0 0 2px rgba(53, 126, 221, 0.3),
+    0 0 12px rgba(53, 126, 221, 0.4);
   border-radius: var(--radius-sm);
 }
 
@@ -209,14 +213,17 @@ pre {
 
 /* Phase 3: Card transitions */
 :deep(.el-card) {
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+  transition:
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateZ(0);
 }
 
 :deep(.el-card):hover {
   transform: translateY(-2px) translateZ(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 /* Phase 3: Accessibility - Respect prefers-reduced-motion */

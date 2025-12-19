@@ -77,22 +77,20 @@ export function useGeocoding() {
           // 單一結果直接填入
           setGeocodeStatus('地址解析成功！座標已自動填入', 'success');
           return result.candidates[0];
-        } else {
-          // 多個結果讓用戶選擇
-          setGeocodeStatus(
-            `找到 ${result.candidates.length} 個匹配地址，請選擇最準確的`,
-            'warning',
-          );
-          return null;
         }
-      } else {
+        // 多個結果讓用戶選擇
         setGeocodeStatus(
-          result.error || '找不到匹配的地址，請檢查地址格式',
-          'danger',
+          `找到 ${result.candidates.length} 個匹配地址，請選擇最準確的`,
+          'warning',
         );
-        candidateAddresses.value = [];
         return null;
       }
+      setGeocodeStatus(
+        result.error || '找不到匹配的地址，請檢查地址格式',
+        'danger',
+      );
+      candidateAddresses.value = [];
+      return null;
     } catch (error) {
       console.error('Geocoding error:', error);
       setGeocodeStatus('地址解析失敗，請稍後再試', 'danger');
@@ -128,7 +126,9 @@ export function useGeocoding() {
   // 選擇候選地址
   const selectCandidate = (index: number) => {
     if (candidateAddresses.value[index]) {
-      const coords = fillCoordinatesFromCandidate(candidateAddresses.value[index]);
+      const coords = fillCoordinatesFromCandidate(
+        candidateAddresses.value[index],
+      );
       setGeocodeStatus('座標已填入，請確認是否正確', 'success');
 
       // 隱藏候選列表

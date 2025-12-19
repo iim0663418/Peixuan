@@ -80,15 +80,9 @@
                 result.ziwei.bodyPalace.position
               }}宮)
             </el-descriptions-item>
-            <el-descriptions-item label="五行局"
-              >{{ result.ziwei.bureau }}局</el-descriptions-item
-            >
-            <el-descriptions-item label="紫微星"
-              >{{ result.ziwei.ziWeiPosition }}宮</el-descriptions-item
-            >
-            <el-descriptions-item label="天府星"
-              >{{ result.ziwei.tianFuPosition }}宮</el-descriptions-item
-            >
+            <el-descriptions-item label="五行局">{{ result.ziwei.bureau }}局</el-descriptions-item>
+            <el-descriptions-item label="紫微星">{{ result.ziwei.ziWeiPosition }}宮</el-descriptions-item>
+            <el-descriptions-item label="天府星">{{ result.ziwei.tianFuPosition }}宮</el-descriptions-item>
           </el-descriptions>
         </div>
 
@@ -296,7 +290,9 @@ const getStarBrightness = (
 /* Phase 3: Multi-layer shadows for depth */
 :deep(.el-descriptions),
 :deep(.el-card) {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.08),
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.08),
     0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
@@ -363,9 +359,12 @@ const getStarBrightness = (
   padding: var(--space-lg);
   margin-bottom: var(--space-lg);
   /* Phase 3: Multi-layer shadows */
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.08),
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.08),
     0 8px 16px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateZ(0);
 }
@@ -373,7 +372,9 @@ const getStarBrightness = (
 /* Phase 3: Card flip effect on hover */
 .section:hover {
   transform: translateY(-2px) translateZ(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.12),
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.12),
     0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
@@ -485,11 +486,14 @@ h4::after {
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   /* Phase 3: Multi-layer shadows */
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.08);
   margin-bottom: var(--space-md);
   min-height: 44px;
   /* Phase 3: Interactive effects */
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateZ(0);
 }
@@ -497,7 +501,9 @@ h4::after {
 /* Phase 3: Card hover effect */
 .star-card:hover {
   transform: translateY(-2px) scale(1.02) translateZ(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.12),
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.12),
     0 8px 20px rgba(53, 126, 221, 0.15);
 }
 
@@ -548,19 +554,24 @@ h4::after {
 /* Phase 3: Glow effects on focus for accessibility */
 :deep(.el-tabs__item):focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(53, 126, 221, 0.3), 0 0 12px rgba(53, 126, 221, 0.4);
+  box-shadow:
+    0 0 0 2px rgba(53, 126, 221, 0.3),
+    0 0 12px rgba(53, 126, 221, 0.4);
   border-radius: var(--radius-sm);
 }
 
 :deep(.el-button):focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(53, 126, 221, 0.1), 0 0 0 5px rgba(53, 126, 221, 0.2),
+  box-shadow:
+    0 0 0 3px rgba(53, 126, 221, 0.1),
+    0 0 0 5px rgba(53, 126, 221, 0.2),
     0 0 20px rgba(53, 126, 221, 0.3);
 }
 
 /* Phase 3: Enhanced table row hover effects */
 :deep(.el-descriptions__body tr) {
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+  transition:
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     background-color 0.2s ease;
   transform: translateZ(0);
 }

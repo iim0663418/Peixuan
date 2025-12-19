@@ -13,8 +13,7 @@
     </el-card>
 
     <el-card v-else-if="error" class="result-card error">
-      <el-alert type="error" :title="error" show-icon
-:closable="false" />
+      <el-alert type="error" :title="error" show-icon :closable="false" />
     </el-card>
 
     <el-card v-else-if="result" class="result-card">
@@ -82,8 +81,13 @@ import UnifiedInputForm from '../components/UnifiedInputForm.vue';
 import UnifiedResultView from '../components/UnifiedResultView.vue';
 import unifiedApiService, {
   type CalculationResult,
+  type UnifiedCalculateRequest,
 } from '../services/unifiedApiService';
 import { useChartStore } from '../stores/chartStore';
+import {
+  loadCachedChart as loadChart,
+  // type BackendChartResponse,
+} from '../utils/chartCache';
 
 const chartStore = useChartStore();
 const router = useRouter();
@@ -93,7 +97,7 @@ const error = ref('');
 const result = ref<CalculationResult | null>(null);
 const showAnalysisDialog = ref(false);
 
-const handleSubmit = async (birthInfo: any) => {
+const handleSubmit = async (birthInfo: UnifiedCalculateRequest) => {
   loading.value = true;
   error.value = '';
   result.value = null;
@@ -110,15 +114,17 @@ const handleSubmit = async (birthInfo: any) => {
         birthDate: birthInfo.birthDate,
         birthTime: birthInfo.birthTime,
         gender: birthInfo.gender,
-        longitude: birthInfo.longitude,
+        longitude: birthInfo.longitude ?? 121.5,
       },
       createdAt: new Date(),
     });
 
     ElMessage.success('計算完成');
     showAnalysisDialog.value = true;
-  } catch (err: any) {
-    error.value = err.message || '計算失敗，請稍後再試';
+  } catch (err: unknown) {
+    const errorMessage =
+      err instanceof Error ? err.message : '計算失敗，請稍後再試';
+    error.value = errorMessage;
     ElMessage.error(error.value);
   } finally {
     loading.value = false;
@@ -135,99 +141,30 @@ onMounted(async () => {
 
   // Try to load cached chart result
   if (chartId) {
-    try {
-      loading.value = true;
+    loading.value = true;
+    const cachedResult = await loadChart(chartId);
 
-      const url = `/api/charts/${chartId}`;
+    if (cachedResult) {
+      result.value = cachedResult;
 
-      const response = await fetch(url);
+      // Update chartStore to enable AI analysis buttons
+      chartStore.setCurrentChart({
+        chartId,
+        calculation: cachedResult,
+        metadata: {
+          birthDate: cachedResult.input.solarDate,
+          birthTime:
+            cachedResult.input.solarDate.split('T')[1]?.slice(0, 5) || '00:00',
+          gender: cachedResult.input.gender,
+          longitude: cachedResult.input.longitude ?? 0,
+        },
+        createdAt: new Date(cachedResult.timestamp),
+      });
 
-      if (response.ok) {
-        const data = await response.json();
-
-        // 轉換後端格式為前端格式
-        const { chartData } = data;
-        const backendWuxing = chartData.bazi.wuxingDistribution;
-
-        result.value = {
-          input: chartData.input,
-          bazi: {
-            ...chartData.bazi,
-            fourPillars: {
-              year: {
-                gan: chartData.bazi.fourPillars.year.stem,
-                zhi: chartData.bazi.fourPillars.year.branch,
-              },
-              month: {
-                gan: chartData.bazi.fourPillars.month.stem,
-                zhi: chartData.bazi.fourPillars.month.branch,
-              },
-              day: {
-                gan: chartData.bazi.fourPillars.day.stem,
-                zhi: chartData.bazi.fourPillars.day.branch,
-              },
-              hour: {
-                gan: chartData.bazi.fourPillars.hour.stem,
-                zhi: chartData.bazi.fourPillars.hour.branch,
-              },
-            },
-            // 轉換 wuxingDistribution: 英文鍵 → 中文鍵
-            wuxingDistribution: {
-              raw: {
-                木:
-                  (backendWuxing.raw.tiangan?.Wood || 0) +
-                  (backendWuxing.raw.hiddenStems?.Wood || 0),
-                火:
-                  (backendWuxing.raw.tiangan?.Fire || 0) +
-                  (backendWuxing.raw.hiddenStems?.Fire || 0),
-                土:
-                  (backendWuxing.raw.tiangan?.Earth || 0) +
-                  (backendWuxing.raw.hiddenStems?.Earth || 0),
-                金:
-                  (backendWuxing.raw.tiangan?.Metal || 0) +
-                  (backendWuxing.raw.hiddenStems?.Metal || 0),
-                水:
-                  (backendWuxing.raw.tiangan?.Water || 0) +
-                  (backendWuxing.raw.hiddenStems?.Water || 0),
-              },
-              adjusted: {
-                木: backendWuxing.adjusted?.Wood || 0,
-                火: backendWuxing.adjusted?.Fire || 0,
-                土: backendWuxing.adjusted?.Earth || 0,
-                金: backendWuxing.adjusted?.Metal || 0,
-                水: backendWuxing.adjusted?.Water || 0,
-              },
-            },
-          },
-          ziwei: chartData.ziwei,
-          annualFortune: chartData.annualFortune,
-          timestamp: chartData.timestamp,
-        } as any;
-
-        // 更新 chartStore 以啟用 AI 分析按鈕
-        if (result.value) {
-          chartStore.setCurrentChart({
-            chartId: data.id,
-            calculation: result.value,
-            metadata: data.metadata,
-            createdAt: new Date(data.createdAt),
-          });
-        }
-
-        ElMessage.success('已載入上次的命盤結果');
-      } else {
-        console.warn(
-          '[UnifiedView] Response not OK:',
-          response.status,
-          response.statusText,
-        );
-      }
-    } catch (err) {
-      console.error('[UnifiedView] Failed to load cached chart:', err);
-      // Silently fail, user can recalculate
-    } finally {
-      loading.value = false;
+      ElMessage.success('已載入上次的命盤結果');
     }
+
+    loading.value = false;
   }
 });
 </script>

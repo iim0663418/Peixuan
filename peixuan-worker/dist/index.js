@@ -13648,7 +13648,7 @@ var init_calculator = __esm({
           output: month,
           description: "Calculate month pillar using solar longitude"
         });
-        const day = calculateDayPillar(solarDate);
+        const day = calculateDayPillar(julianDay);
         const dayStemIndex = ganZhiToIndex(day) % 10;
         calculationSteps.push({
           step: "dayPillar",
@@ -14493,8 +14493,7 @@ var init_purpleStarController = __esm({
 });
 
 // node_modules/drizzle-orm/entity.js
-var entityKind = Symbol.for("drizzle:entityKind");
-var hasOwnEntityKind = Symbol.for("drizzle:hasOwnEntityKind");
+var entityKind = /* @__PURE__ */ Symbol.for("drizzle:entityKind");
 function is(value, type) {
   if (!value || typeof value !== "object") {
     return false;
@@ -14551,17 +14550,17 @@ var NoopLogger = class {
 };
 
 // node_modules/drizzle-orm/table.utils.js
-var TableName = Symbol.for("drizzle:Name");
+var TableName = /* @__PURE__ */ Symbol.for("drizzle:Name");
 
 // node_modules/drizzle-orm/table.js
-var Schema = Symbol.for("drizzle:Schema");
-var Columns = Symbol.for("drizzle:Columns");
-var ExtraConfigColumns = Symbol.for("drizzle:ExtraConfigColumns");
-var OriginalName = Symbol.for("drizzle:OriginalName");
-var BaseName = Symbol.for("drizzle:BaseName");
-var IsAlias = Symbol.for("drizzle:IsAlias");
-var ExtraConfigBuilder = Symbol.for("drizzle:ExtraConfigBuilder");
-var IsDrizzleTable = Symbol.for("drizzle:IsDrizzleTable");
+var Schema = /* @__PURE__ */ Symbol.for("drizzle:Schema");
+var Columns = /* @__PURE__ */ Symbol.for("drizzle:Columns");
+var ExtraConfigColumns = /* @__PURE__ */ Symbol.for("drizzle:ExtraConfigColumns");
+var OriginalName = /* @__PURE__ */ Symbol.for("drizzle:OriginalName");
+var BaseName = /* @__PURE__ */ Symbol.for("drizzle:BaseName");
+var IsAlias = /* @__PURE__ */ Symbol.for("drizzle:IsAlias");
+var ExtraConfigBuilder = /* @__PURE__ */ Symbol.for("drizzle:ExtraConfigBuilder");
+var IsDrizzleTable = /* @__PURE__ */ Symbol.for("drizzle:IsDrizzleTable");
 var Table = class {
   static [entityKind] = "Table";
   /** @internal */
@@ -15171,7 +15170,7 @@ var PgEnumObjectColumn = class extends PgColumn {
     return this.enum.enumName;
   }
 };
-var isPgEnumSym = Symbol.for("drizzle:isPgEnum");
+var isPgEnumSym = /* @__PURE__ */ Symbol.for("drizzle:isPgEnum");
 function isPgEnum(obj) {
   return !!obj && typeof obj === "function" && isPgEnumSym in obj && obj[isPgEnumSym] === true;
 }
@@ -15262,7 +15261,7 @@ var tracer = {
 };
 
 // node_modules/drizzle-orm/view-common.js
-var ViewBaseConfig = Symbol.for("drizzle:ViewBaseConfig");
+var ViewBaseConfig = /* @__PURE__ */ Symbol.for("drizzle:ViewBaseConfig");
 
 // node_modules/drizzle-orm/sql/sql.js
 var FakePrimitiveParam = class {
@@ -15626,7 +15625,7 @@ function fillPlaceholders(params, values) {
     return p2;
   });
 }
-var IsDrizzleView = Symbol.for("drizzle:IsDrizzleView");
+var IsDrizzleView = /* @__PURE__ */ Symbol.for("drizzle:IsDrizzleView");
 var View = class {
   static [entityKind] = "View";
   /** @internal */
@@ -15779,8 +15778,8 @@ function getColumnNameAndConfig(a2, b) {
 var textDecoder = typeof TextDecoder === "undefined" ? null : new TextDecoder();
 
 // node_modules/drizzle-orm/pg-core/table.js
-var InlineForeignKeys = Symbol.for("drizzle:PgInlineForeignKeys");
-var EnableRLS = Symbol.for("drizzle:EnableRLS");
+var InlineForeignKeys = /* @__PURE__ */ Symbol.for("drizzle:PgInlineForeignKeys");
+var EnableRLS = /* @__PURE__ */ Symbol.for("drizzle:EnableRLS");
 var PgTable = class extends Table {
   static [entityKind] = "PgTable";
   /** @internal */
@@ -16976,7 +16975,7 @@ function getSQLiteColumnBuilders() {
 }
 
 // node_modules/drizzle-orm/sqlite-core/table.js
-var InlineForeignKeys2 = Symbol.for("drizzle:SQLiteInlineForeignKeys");
+var InlineForeignKeys2 = /* @__PURE__ */ Symbol.for("drizzle:SQLiteInlineForeignKeys");
 var SQLiteTable = class extends Table {
   static [entityKind] = "SQLiteTable";
   /** @internal */
@@ -20482,7 +20481,7 @@ function $constructor(name, initializer3, params) {
   Object.defineProperty(_, "name", { value: name });
   return _;
 }
-var $brand = Symbol("zod_brand");
+var $brand = /* @__PURE__ */ Symbol("zod_brand");
 var $ZodAsyncError = class extends Error {
   constructor() {
     super(`Encountered Promise during synchronous parse. Use .parseAsync() instead.`);
@@ -20628,7 +20627,7 @@ function floatSafeRemainder(val, step) {
   const stepInt = Number.parseInt(step.toFixed(decCount).replace(".", ""));
   return valInt % stepInt / 10 ** decCount;
 }
-var EVALUATING = Symbol("evaluating");
+var EVALUATING = /* @__PURE__ */ Symbol("evaluating");
 function defineLazy(object2, key, getter) {
   let value = void 0;
   Object.defineProperty(object2, key, {
@@ -29711,8 +29710,8 @@ function yo_default() {
 
 // node_modules/zod/v4/core/registries.js
 var _a;
-var $output = Symbol("ZodOutput");
-var $input = Symbol("ZodInput");
+var $output = /* @__PURE__ */ Symbol("ZodOutput");
+var $input = /* @__PURE__ */ Symbol("ZodInput");
 var $ZodRegistry = class {
   constructor() {
     this._map = /* @__PURE__ */ new WeakMap();
@@ -34847,7 +34846,7 @@ var GeminiService = class {
   constructor(config2) {
     this.baseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
     this.apiKey = config2.apiKey;
-    this.model = config2.model || "gemini-2.5-flash";
+    this.model = config2.model || "gemini-3-flash-preview";
     this.maxRetries = config2.maxRetries || 3;
   }
   /**
@@ -35733,7 +35732,7 @@ function configureAzureFallback(env) {
 function initializeAIServices(env) {
   const geminiService = new GeminiService({
     apiKey: env.GEMINI_API_KEY || "",
-    model: "gemini-2.5-flash",
+    model: "gemini-3-flash-preview",
     maxRetries: 3
   });
   const fallbackProvider = configureAzureFallback(env);

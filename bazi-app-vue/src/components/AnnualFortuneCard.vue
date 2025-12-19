@@ -135,9 +135,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { GanZhi } from '@/services/unifiedApiService';
-
 // Local interface definitions
 interface YearlyPeriod {
   annualPillar: { stem: string; branch: string };
@@ -164,7 +161,7 @@ interface Props {
   annualFortune?: AnnualFortune;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const PALACE_NAMES = [
   '子',

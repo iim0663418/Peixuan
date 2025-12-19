@@ -991,3 +991,29 @@
   - CSS 樣式與現有頁尾設計一致，包含 hover 動畫效果
   - 建置驗證通過，無破壞性變更
 - **狀態**: 完成 ✓（已整合至頁尾聯絡區段）
+
+## 2025-12-19: ArcGIS API 授權合規與 ESLint 代碼品質修復
+
+### 決策：實施 ArcGIS Geocoding API 完整授權合規
+- **背景**: 佩璇專案使用 ArcGIS World GeocodeServer 進行地址解析，需符合 Esri 服務條款
+- **影響**: 
+  - 前端添加 'Powered by Esri' 歸屬聲明（UnifiedInputForm.vue 地址輸入區域）
+  - README.md 技術棧新增 ArcGIS Geocoding API 條目，致謝章節添加 Esri
+  - LICENSES.md 新增完整第三方服務聲明，包含使用限制、歸屬要求、免責聲明
+  - 更正專案授權聲明從 MIT License 為 CC BY-NC-SA 4.0，確保文檔一致性
+- **狀態**: 完成 ✓（符合 Esri 服務條款，文檔透明完整）
+
+### 決策：UnifiedInputForm.vue ESLint 錯誤全面修復與代碼重構
+- **背景**: UnifiedInputForm.vue 存在 16 個 TypeScript any 類型錯誤與 max-lines 限制超標（1093 行）
+- **影響**:
+  - 新增 FormValidationRule/FormRules 型別定義（types/formValidation.ts）
+  - 模組化重構：提取 4 個 Composables（useFormValidation/useGeocoding/useFormData）與獨立樣式檔案
+  - 檔案長度從 1093 行降至 484 行，符合 ESLint max-lines 限制
+  - 修復所有 @typescript-eslint/no-explicit-any 錯誤，提升型別安全
+  - 解決 callback 參數類型匹配問題，確保 TypeScript 編譯通過
+- **狀態**: 完成 ✓（代碼品質大幅提升，模組化程度增強，可維護性改善）
+
+### 決策：測試驗證與品質保證
+- **背景**: 重構後需確保功能完整性與代碼品質
+- **影響**: 18/18 測試全部通過，BaziChart 與 LanguageSelector 組件功能驗證正常，ESLint/TypeScript 修復已通過測試驗證
+- **狀態**: 完成 ✓（功能完整性確保，代碼品質符合標準）

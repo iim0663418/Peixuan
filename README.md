@@ -93,6 +93,7 @@
 | **HTTP Client** | Axios 1.9+ | Promise-based HTTP 客戶端 |
 | **Calendar** | lunar-typescript 1.8+ | 與後端共用的曆法計算庫 |
 | **Markdown** | marked 17.x | AI 分析結果渲染 |
+| **Geocoding** | ArcGIS Geocoding API | 地址解析與經緯度查詢 (Esri 服務) |
 
 ### 開發工具
 - **Package Manager**: npm / pnpm
@@ -571,6 +572,13 @@ npm run lint        # 自動修復
 - [Google Gemini](https://ai.google.dev/) - AI 分析引擎
 - [Vue.js](https://vuejs.org/) - 前端框架
 - [Element Plus](https://element-plus.org/) - UI 組件庫
+- [Esri ArcGIS](https://www.esri.com/) - 地址解析與地理編碼服務
+
+### 地理編碼服務聲明
+
+本應用使用 Esri 的 ArcGIS Geocoding API 提供地址解析功能，將使用者輸入的地址轉換為地理座標（經緯度），以計算真太陽時校正。地址解析功能遵循 [Esri 服務條款](https://www.esri.com/en-us/legal/terms/full-master-agreement)。
+
+所有地理編碼結果均由 Esri 提供，本平台已在相關功能中添加適當的歸屬聲明。
 
 ## 📄 授權 (License)
 

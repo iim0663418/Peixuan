@@ -3,17 +3,27 @@ import { useI18n } from 'vue-i18n'
 
 export function useDailyQuestion(chartId: string) {
   const { t } = useI18n()
-  
+
   const question = ref('')
   const response = ref('')
   const isAsking = ref(false)
   const currentStatus = ref('')
   const hasAskedToday = ref(false)
   const error = ref('')
+  const estimatedTime = ref(0)
+  const progressPhase = ref(0)
 
   const dailyLimitMessage = computed(() => {
     return t('dailyQuestion.dailyLimit.message')
   })
+
+  // Smart time estimation based on question complexity
+  const estimateResponseTime = (questionText: string): number => {
+    const length = questionText.trim().length
+    if (length < 20) return 30 // Short question: 30s
+    if (length < 50) return 45 // Medium question: 45s
+    return 60 // Long/complex question: 60s
+  }
 
   const checkDailyLimit = async () => {
     try {
@@ -37,6 +47,27 @@ export function useDailyQuestion(chartId: string) {
     response.value = ''
     currentStatus.value = ''
     error.value = ''
+    progressPhase.value = 0
+    estimatedTime.value = estimateResponseTime(questionText)
+
+    // Progressive status messaging for warm UX
+    const statusTimeline = [
+      { delay: 0, phase: 0, key: 'status.analyzing' },
+      { delay: estimatedTime.value * 0.25 * 1000, phase: 1, key: 'status.consulting' },
+      { delay: estimatedTime.value * 0.5 * 1000, phase: 2, key: 'status.interpreting' },
+      { delay: estimatedTime.value * 0.75 * 1000, phase: 3, key: 'status.finalizing' }
+    ]
+
+    const timers: number[] = []
+    statusTimeline.forEach(({ delay, phase, key }) => {
+      const timer = window.setTimeout(() => {
+        if (isAsking.value) {
+          progressPhase.value = phase
+          currentStatus.value = t(`dailyQuestion.${key}`)
+        }
+      }, delay)
+      timers.push(timer)
+    })
 
     try {
       const fetchResponse = await fetch('/api/v1/daily-insight/stream', {
@@ -101,9 +132,11 @@ export function useDailyQuestion(chartId: string) {
       isAsking.value = false
       currentStatus.value = ''
     } finally {
-      // Always clean up when done
+      // Clean up timers and state
+      timers.forEach(timer => window.clearTimeout(timer))
       isAsking.value = false
       currentStatus.value = ''
+      progressPhase.value = 0
       if (response.value) {
         hasAskedToday.value = true
       }
@@ -118,6 +151,8 @@ export function useDailyQuestion(chartId: string) {
     hasAskedToday,
     dailyLimitMessage,
     error,
+    estimatedTime,
+    progressPhase,
     askQuestion,
     checkDailyLimit
   }

@@ -49,7 +49,7 @@
 
       <!-- AI Response -->
       <div v-if="response" class="message ai-message">
-        <div class="message-content" v-html="formattedResponse"></div>
+        <div class="message-content streaming-response" :class="{ 'is-streaming': isAsking }" v-html="formattedResponse"></div>
       </div>
 
       <!-- Daily Limit Notice - Immersive Style -->
@@ -273,22 +273,59 @@ onMounted(() => {
   overflow: hidden;
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
 }
 
-/* Header Section */
+/* Header Section - Cosmic Color Scheme */
 .panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-xl);
-  background: linear-gradient(135deg, var(--info) 0%, var(--purple-star) 100%);
+  background: linear-gradient(135deg, var(--purple-star) 0%, #4a148c 100%);
   color: var(--text-inverse);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Cosmic Starfield Effect */
+.panel-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, white, transparent),
+    radial-gradient(2px 2px at 60% 70%, white, transparent),
+    radial-gradient(1px 1px at 50% 50%, white, transparent),
+    radial-gradient(1px 1px at 80% 10%, white, transparent),
+    radial-gradient(2px 2px at 90% 60%, white, transparent),
+    radial-gradient(1px 1px at 33% 80%, white, transparent),
+    radial-gradient(1px 1px at 15% 15%, white, transparent);
+  background-size: 200% 200%;
+  background-position: 0% 0%;
+  opacity: 0.5;
+  pointer-events: none;
+  animation: starfield 60s linear infinite;
+}
+
+@keyframes starfield {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 100% 100%;
+  }
 }
 
 .avatar-section {
   display: flex;
   align-items: center;
   gap: var(--space-md);
+  position: relative;
+  z-index: 1;
 }
 
 .peixuan-avatar {
@@ -339,6 +376,8 @@ onMounted(() => {
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-full);
   backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
 }
 
 .status-icon {
@@ -392,6 +431,50 @@ onMounted(() => {
   background: var(--bg-tertiary);
   color: var(--text-primary);
   border-top-left-radius: var(--radius-xs);
+}
+
+/* Streaming Response Magic - Cosmic Shimmer */
+.streaming-response {
+  position: relative;
+  overflow: hidden;
+}
+
+.streaming-response.is-streaming::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(153, 50, 204, 0.1) 50%,
+    transparent 100%
+  );
+  animation: typewriter-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes typewriter-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.streaming-response.is-streaming {
+  animation: cosmic-glow 3s ease-in-out infinite;
+}
+
+@keyframes cosmic-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(153, 50, 204, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(153, 50, 204, 0.2);
+  }
 }
 
 .user-message .message-content {
@@ -508,6 +591,7 @@ onMounted(() => {
   font-size: var(--font-size-md);
 }
 
+/* Elevated Ask Button - Purple Cosmic Theme */
 .ask-button {
   align-self: flex-end;
   padding: var(--space-md) var(--space-xl);
@@ -515,6 +599,45 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
+  min-height: 48px;
+  background: var(--gradient-purple);
+  border: none;
+  box-shadow: var(--shadow-purple);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.ask-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ask-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(153, 50, 204, 0.3);
+}
+
+.ask-button:hover:not(:disabled)::before {
+  width: 300px;
+  height: 300px;
+}
+
+.ask-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.ask-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Animations - Loading states only (acceptable continuous animations) */
@@ -551,7 +674,10 @@ onMounted(() => {
 @media (prefers-reduced-motion: reduce) {
   .status-indicator,
   .status-icon,
-  .thinking-dots span {
+  .thinking-dots span,
+  .panel-header::before,
+  .streaming-response.is-streaming,
+  .streaming-response.is-streaming::after {
     animation: none !important;
   }
 
@@ -562,6 +688,10 @@ onMounted(() => {
   .status-icon {
     transform: none; /* Show as static icon */
   }
+
+  .panel-header::before {
+    opacity: 0.3; /* Show static starfield */
+  }
 }
 
 .fade-enter-active, .fade-leave-active {
@@ -570,6 +700,170 @@ onMounted(() => {
 
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
+}
+
+/* ============================================
+   CONVERSATIONAL MARKDOWN STYLING
+   Transform formal report to friendly chat
+   ============================================ */
+
+/* Normalize all headers to chat-friendly sizes */
+.message-content :deep(h1),
+.message-content :deep(h2),
+.message-content :deep(h3),
+.message-content :deep(h4) {
+  font-size: 1em !important;
+  font-weight: var(--font-weight-semibold);
+  margin: 0.75em 0 0.5em 0;
+  line-height: 1.5;
+  color: var(--text-primary);
+  border: none;
+  padding: 0;
+}
+
+/* Remove any header styling that looks too "document-like" */
+.message-content :deep(h1)::before,
+.message-content :deep(h2)::before {
+  content: none !important;
+}
+
+/* Natural paragraph flow - reduce spacing for conversation feel */
+.message-content :deep(p) {
+  margin: 0.5em 0;
+  line-height: 1.7;
+}
+
+/* First paragraph - no top margin for natural flow */
+.message-content :deep(p:first-child) {
+  margin-top: 0;
+}
+
+/* Last paragraph - no bottom margin */
+.message-content :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+/* Compact list styling - friendly and readable */
+.message-content :deep(ul),
+.message-content :deep(ol) {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.message-content :deep(li) {
+  margin: 0.25em 0;
+  line-height: 1.6;
+}
+
+/* Purple-themed blockquote for key insights */
+.message-content :deep(blockquote) {
+  margin: 0.75em 0;
+  padding: 0.75em 1em;
+  border-left: 3px solid var(--purple-star);
+  background: linear-gradient(135deg, var(--purple-star-lightest) 0%, rgba(153, 50, 204, 0.05) 100%);
+  border-radius: var(--radius-sm);
+  font-style: normal;
+}
+
+.message-content :deep(blockquote p) {
+  margin: 0.25em 0;
+}
+
+/* Bold text - purple tint for brand alignment */
+.message-content :deep(strong),
+.message-content :deep(b) {
+  font-weight: var(--font-weight-bold);
+  color: var(--purple-star);
+}
+
+/* Inline code - subtle purple theme */
+.message-content :deep(code) {
+  padding: 0.15em 0.4em;
+  background: var(--purple-star-lightest);
+  border: 1px solid var(--purple-star-lighter);
+  border-radius: var(--radius-xs);
+  font-size: 0.9em;
+  font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+  color: var(--purple-star);
+}
+
+/* Code blocks - minimal styling */
+.message-content :deep(pre) {
+  margin: 0.75em 0;
+  padding: 1em;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+
+.message-content :deep(pre code) {
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+}
+
+/* Horizontal rules - subtle dividers */
+.message-content :deep(hr) {
+  margin: 1em 0;
+  border: none;
+  border-top: 1px solid var(--border-light);
+  opacity: 0.5;
+}
+
+/* Links - purple theme */
+.message-content :deep(a) {
+  color: var(--purple-star);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.message-content :deep(a:hover) {
+  border-bottom-color: var(--purple-star);
+}
+
+/* Tables - if AI generates them (rare, but handle gracefully) */
+.message-content :deep(table) {
+  width: 100%;
+  margin: 0.75em 0;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.message-content :deep(th),
+.message-content :deep(td) {
+  padding: 0.5em;
+  border: 1px solid var(--border-light);
+  text-align: left;
+}
+
+.message-content :deep(th) {
+  background: var(--bg-tertiary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Emoji - ensure consistent rendering */
+.message-content :deep(img.emoji) {
+  display: inline;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: middle;
+  margin: 0 0.1em;
+}
+
+/* Remove excessive margins between consecutive elements */
+.message-content :deep(* + *) {
+  margin-top: 0.5em;
+}
+
+/* Specific overrides for tight element combinations */
+.message-content :deep(ul + p),
+.message-content :deep(ol + p),
+.message-content :deep(p + ul),
+.message-content :deep(p + ol) {
+  margin-top: 0.5em;
 }
 
 /* Responsive Design */

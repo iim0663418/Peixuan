@@ -610,55 +610,33 @@ export function createAnalyzeRoutes(router: Router, env: Env) {
             azureFallback  // Fallback service
           );
 
-          // Create stream and test for immediate errors by reading first chunk
-          const originalStream = await agenticService.generateDailyInsight(
+          // Generate daily insight stream with Gemini (with built-in Azure fallback)
+          stream = await agenticService.generateDailyInsight(
             question,
             calculationResult,
             normalizedLocale
           );
 
-          const reader = originalStream.getReader();
-          const firstChunk = await reader.read(); // This will throw if stream has error
-
-          // If we got here, stream started successfully
-          // Create a new stream that includes the first chunk
-          stream = new ReadableStream({
-            async start(controller) {
-              try {
-                // Enqueue the first chunk we already read
-                if (!firstChunk.done && firstChunk.value) {
-                  controller.enqueue(firstChunk.value);
-                }
-
-                // Continue reading the rest
-                while (true) {
-                  const { done, value } = await reader.read();
-                  if (done) break;
-                  controller.enqueue(value);
-                }
-                controller.close();
-              } catch (err) {
-                controller.error(err);
-              }
-            }
-          });
-
         } catch (error) {
+          // Check if this is an error that should trigger Azure fallback
+          // (only as outer safety net, inner fallback should catch most cases)
           const shouldFallback = error instanceof Error &&
             (error.message.includes('429') ||
              error.message.includes('503') ||
+             error.message.includes('500') ||
              error.message.toLowerCase().includes('quota') ||
+             error.message.toLowerCase().includes('resource has been exhausted') ||
              error.message.toLowerCase().includes('unavailable'));
 
           if (shouldFallback && env.ENABLE_AI_FALLBACK !== false) {
-            console.log('[Daily Insight] Primary provider failed, attempting fallback to Azure');
+            console.log('[Daily Insight] Gemini service completely failed, attempting outer Azure fallback as safety net');
 
-            // Configure Azure fallback
+            // Configure Azure fallback as safety net
             const azureEndpoint = env.AZURE_OPENAI_ENDPOINT?.trim();
             const azureApiKey = env.AZURE_OPENAI_API_KEY?.trim();
 
             if (azureApiKey && azureEndpoint) {
-              console.log('[Daily Insight] Using fallback provider: Azure OpenAI');
+              console.log('[Daily Insight] Using outer fallback provider: Azure OpenAI');
               const azureService = new AgenticAzureService({
                 endpoint: azureEndpoint,
                 apiKey: azureApiKey,
@@ -674,8 +652,9 @@ export function createAnalyzeRoutes(router: Router, env: Env) {
                 normalizedLocale
               );
               usedFallback = true;
+              console.log('[Daily Insight] Successfully using Azure outer fallback');
             } else {
-              console.log('[Daily Insight] Azure fallback not configured, throwing error');
+              console.log('[Daily Insight] Azure fallback not configured (missing credentials)');
               throw error;
             }
           } else {

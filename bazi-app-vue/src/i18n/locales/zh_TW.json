@@ -65,6 +65,17 @@
       "connectionFailed": "連線失敗，請稍後再試",
       "requestFailed": "提問失敗，請檢查網路連線",
       "limitExceeded": "我已將全部精力投注在剛才的解讀上了。明天再來找我聊聊吧！"
+    },
+    "status": {
+      "analyzing": "正在研讀您的命盤...",
+      "consulting": "參照星象與干支配置...",
+      "interpreting": "整合多重命理線索...",
+      "finalizing": "即將為您呈現完整解析..."
+    },
+    "timeEstimate": {
+      "short": "預計 30 秒",
+      "medium": "預計 45 秒",
+      "long": "預計 1 分鐘"
     }
   },
   "astrology": {

@@ -68,6 +68,17 @@
       "connectionFailed": "Connection failed, please try again later",
       "requestFailed": "Question failed, please check your network connection",
       "limitExceeded": "I've focused all my energy on your previous reading. Let's talk again tomorrow!"
+    },
+    "status": {
+      "analyzing": "Reading your birth chart...",
+      "consulting": "Consulting celestial patterns and elements...",
+      "interpreting": "Integrating astrological insights...",
+      "finalizing": "Preparing your complete reading..."
+    },
+    "timeEstimate": {
+      "short": "Estimated 30 seconds",
+      "medium": "Estimated 45 seconds",
+      "long": "Estimated 1 minute"
     }
   },
   "astrology": {

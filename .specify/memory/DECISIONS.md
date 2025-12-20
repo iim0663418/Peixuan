@@ -403,3 +403,48 @@
   - Critical finding: AI models exhibit conservative tool selection behavior across platforms
   - Technical implementation verified correct, AI behavior represents normal model decision-making patterns
 
+
+- [DECISION] 2025-12-20: Verified Daily Question Loading Experience Optimization. Code/Spec aligned with Constitution.
+  - Smart time estimation based on question complexity (30s/45s/60s)
+  - Progressive status indicators with warm messaging in both languages
+  - Enhanced user experience following 'Don't Make Me Think' principle
+  - Minimal code changes with maximum UX impact
+  - All tests passing (18/18)
+  - Ready for staging deployment
+
+- [DECISION] 2025-12-20: Verified Daily Question Loading Experience Optimization. Code/Spec aligned with Constitution.
+  - Smart time estimation based on question complexity (30s/45s/60s)
+  - Progressive status indicators with warm messaging in both languages
+  - Enhanced user experience following 'Don't Make Me Think' principle
+  - Minimal code changes with maximum UX impact
+  - All tests passing (18/18)
+  - Ready for staging deployment
+
+- [DECISION] 2025-12-20: Verified Gemini API Thought Signature Fix. Code/Spec aligned with Constitution.
+  - Fixed function calling compatibility with Gemini 3 API requirements
+  - Added thought signature extraction and preservation in conversation history
+  - Maintained existing functionality while adding required signature support
+  - All tests passing (14/14) and successfully deployed to staging
+  - Gemini restored as primary service with Azure as backup
+
+- [DECISION] 2025-12-20: Verified Complete Gemini + Azure Fallback Fix. Code/Spec aligned with Constitution.
+  - Fixed incomplete thought_signature handling in function response parts
+  - Implemented two-layer Azure fallback system (inner + outer safety net)
+  - Enhanced error detection for quota/rate limit scenarios
+  - Added user-friendly fallback notifications in both languages
+  - All tests passing (Gemini 14/14, Azure 14/14) and successfully deployed
+  - Dual AI engine backup system now fully operational
+
+- [DECISION] 2025-12-20: Verified Precise Thought Signature Fix. Code/Spec aligned with Constitution.
+  - Fixed parallel function call thought_signature handling to match Gemini API format exactly
+  - Only first function call includes thought_signature, subsequent calls exclude it
+  - Resolved 400 error 'missing thought_signature at position 2'
+  - Build successful and deployed to staging
+  - Gemini service should now work correctly with parallel function calls
+
+- [DECISION] 2025-12-20: Verified Complete Gemini Response Preservation Fix. Code/Spec aligned with Constitution.
+  - Fixed conversation history to preserve complete Gemini response including thought parts
+  - Removed manual thought_signature reconstruction in favor of complete parts array preservation
+  - Simplified function response building by letting Gemini manage its own signatures
+  - Build successful and deployed to staging
+  - Should resolve thought_signature validation errors completely

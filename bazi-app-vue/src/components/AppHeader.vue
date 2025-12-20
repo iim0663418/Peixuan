@@ -56,7 +56,7 @@ const handleAdvancedAnalysis = () => {
         type: 'info',
         duration: 2000,
       });
-      router.push('/fortune');
+      router.push('/unified');
       closeMobileMenu();
       return;
     }
@@ -106,7 +106,6 @@ const handleAdvancedAnalysis = () => {
           class="nav-link ai-analysis-btn"
           :class="{
             active: route?.path === '/personality',
-            disabled: !hasChartData,
           }"
           @click="handleAIAnalysis"
         >
@@ -116,7 +115,6 @@ const handleAdvancedAnalysis = () => {
           class="nav-link advanced-analysis-btn"
           :class="{
             active: route?.path === '/fortune',
-            disabled: !hasChartData,
           }"
           @click="handleAdvancedAnalysis"
         >
@@ -172,7 +170,6 @@ const handleAdvancedAnalysis = () => {
         class="mobile-nav-link mobile-ai-btn"
         :class="{
           active: route?.path === '/personality',
-          disabled: !hasChartData,
         }"
         @click="handleAIAnalysis"
       >
@@ -182,7 +179,6 @@ const handleAdvancedAnalysis = () => {
         class="mobile-nav-link advanced-analysis-btn"
         :class="{
           active: route?.path === '/fortune',
-          disabled: !hasChartData,
         }"
         @click="handleAdvancedAnalysis"
       >
@@ -300,18 +296,7 @@ const handleAdvancedAnalysis = () => {
   cursor: pointer;
 }
 
-.advanced-analysis-btn .icon {
-  font-size: 1.2rem;
-}
-
-.advanced-analysis-btn.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  filter: grayscale(0.5);
-  pointer-events: none;
-}
-
-.advanced-analysis-btn:not(.disabled):hover {
+.advanced-analysis-btn:hover {
   transform: translateY(-1px);
 }
 

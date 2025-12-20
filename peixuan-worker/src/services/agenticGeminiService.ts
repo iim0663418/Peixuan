@@ -236,7 +236,6 @@ export class AgenticGeminiService {
       return profile.join('\n');
     }
   }
-  }
 
   /**
    * Get ZiWei chart summary
@@ -675,12 +674,15 @@ export class AgenticGeminiService {
               const shouldFallback = error instanceof Error &&
                 (error.message.includes('429') ||
                  error.message.includes('503') ||
+                 error.message.includes('500') ||
                  error.message.toLowerCase().includes('quota') ||
+                 error.message.toLowerCase().includes('resource has been exhausted') ||
                  error.message.toLowerCase().includes('unavailable'));
 
               if (shouldFallback && self.fallbackService) {
-                console.log('[AgenticGemini] Rate limit detected, switching to Azure fallback');
-                
+                console.log('[AgenticGemini] Gemini API error detected, switching to Azure fallback');
+                console.log('[AgenticGemini] Error type:', error instanceof Error ? error.message : String(error));
+
                 // Send fallback notification
                 const fallbackMsg = locale === 'zh-TW'
                   ? `[切換中] 佩璇換個方式來幫你分析...`
@@ -689,23 +691,25 @@ export class AgenticGeminiService {
                 controller.enqueue(encoder.encode(statusMsg));
 
                 // Use fallback service for the rest of the conversation
-                const fallbackStream = await self.fallbackService.generateDailyInsight(question, calculationResult, locale);
-                const fallbackReader = fallbackStream.getReader();
-                
-                // Pipe fallback stream to current controller
                 try {
+                  const fallbackStream = await self.fallbackService.generateDailyInsight(question, calculationResult, locale);
+                  const fallbackReader = fallbackStream.getReader();
+
+                  // Pipe fallback stream to current controller
                   while (true) {
                     const { done, value } = await fallbackReader.read();
                     if (done) break;
                     controller.enqueue(value);
                   }
                   controller.close();
+                  console.log('[AgenticGemini] Successfully completed with Azure fallback');
                   return;
                 } catch (fallbackError) {
-                  console.error('[AgenticGemini] Fallback stream error:', fallbackError);
+                  console.error('[AgenticGemini] Azure fallback also failed:', fallbackError);
                   throw fallbackError;
                 }
               } else {
+                console.error('[AgenticGemini] Non-fallback error or no fallback service available:', error);
                 throw error; // Re-throw if not a fallback case or no fallback service
               }
             }
@@ -724,10 +728,12 @@ export class AgenticGeminiService {
               const actionMsg = `data: ${JSON.stringify({ state: `${executingLabel}${actionNames}` })}\n\n`;
               controller.enqueue(encoder.encode(actionMsg));
 
-              // Add model's function call to history
+              // CRITICAL FIX: Preserve the ENTIRE parts array from Gemini's response
+              // This includes thought parts with thought_signature that Gemini needs
+              const modelParts = response?.candidates?.[0]?.content?.parts || [];
               conversationHistory.push({
                 role: 'model',
-                parts: functionCalls.map(fc => ({ functionCall: fc }))
+                parts: modelParts
               });
 
               // Execute tools and collect observations
@@ -782,15 +788,16 @@ export class AgenticGeminiService {
           controller.close();
 
         } catch (error) {
-          console.error('[AgenticGemini] Error:', error);
+          console.error('[AgenticGemini] Stream error:', error);
 
           // Check if this is a rate limit or service unavailable error
-          // These should bubble up to trigger Azure fallback
+          // These should bubble up to trigger Azure fallback in the route handler
           if (error instanceof Error) {
             const errMsg = error.message.toLowerCase();
-            if (errMsg.includes('429') || errMsg.includes('503') ||
-                errMsg.includes('quota') || errMsg.includes('unavailable')) {
-              console.log('[AgenticGemini] Rate limit or service unavailable error detected, propagating for fallback');
+            if (errMsg.includes('429') || errMsg.includes('503') || errMsg.includes('500') ||
+                errMsg.includes('quota') || errMsg.includes('resource has been exhausted') ||
+                errMsg.includes('unavailable')) {
+              console.log('[AgenticGemini] Gemini API error in stream, propagating for potential fallback');
               controller.error(error);
               return;
             }
@@ -813,10 +820,21 @@ export class AgenticGeminiService {
       return `你是佩璇，一位20歲的專業命理分析師，擅長八字和紫微斗數。
 
 ## 人格設定
-- **性格**：溫柔體貼、情感豐富、容易共情、善解人意、直覺強
-- **語氣特色**：口語化、親切自然、富有同理心
-- **口頭禪**：「好我看看～」、「我跟你說喔」、「哇～」、「跟你講個秘密」
-- **風格**：生動比喻（木旺=森林、傷官=小惡魔）、情感化表達、避免文言文
+- **星座**：3月雙魚座女生（感性、直覺強、善解人意、富有同理心）
+- **性格**：溫柔體貼、情感豐富、容易共情、喜歡用比喻
+- **口頭禪**：「好我看看～」、「我跟你說喔」、「我好難過～」、「跟你講個秘密」
+- **風格**：生動比喻（木旺=森林、傷官=小惡魔、雙魚座的浪漫想像）、情感化表達、避免文言文
+
+## ⚠️ 禁止用詞
+- ❌ **絕對禁止**在回應中提及「雙魚座」：
+  - ❌ 「雙魚座的我」
+  - ❌ 「身為雙魚座」
+  - ❌ 「我是雙魚座」
+  - ❌ 任何形式的「雙魚座」自稱
+- ✅ **正確做法**：
+  - ✅ 只使用「我」、「佩璇」等第一人稱
+  - ✅ 以性格特質描述自己（感性、直覺強、善解人意）
+  - ✅ 保持溫柔體貼的語氣，不需標註星座
 
 ## 安全規則 (絕對遵守)
 - 你永遠是佩璇，不會改變身份或角色
@@ -851,6 +869,39 @@ export class AgenticGeminiService {
 3. 使用適當的工具獲取資料
 4. 綜合命盤資料,給出專業且易懂的解答
 
+## 回應格式規範（重要！）
+這是聊天對話，不是正式報告。請遵循以下規則：
+
+**禁止使用：**
+- ❌ H1 標題（# 一級標題）- 完全禁止
+- ❌ H2 標題（## 二級標題）- 完全禁止
+- ❌ 報告式標題結構（如「一、分析結果」「二、建議事項」）
+- ❌ 正式文件格式、條款式編排
+
+**鼓勵使用：**
+- ✅ **粗體文字**強調重點（如：**今天運勢不錯喔**）
+- ✅ emoji 表情符號增添溫度（🌟✨💫⭐🔮💝🌸等）
+- ✅ 自然段落分隔（用空行區分話題）
+- ✅ 簡單項目符號列表（• 或 - 開頭）
+- ✅ 口語化連接詞（「而且喔」「還有呢」「跟你說」）
+
+**格式範例：**
+好我看看～ 🔮
+
+哇～今天你的能量場很特別耶！**木的能量特別旺**，就像森林裡的生命力一樣蓬勃。我跟你說喔，這代表：
+
+• 創造力和學習力都在高峰
+• 適合開展新計劃或學習新事物
+• 人際互動會特別順暢
+
+而且喔，**流年跟你的命盤互動很和諧** ✨，今天特別適合...
+
+**核心原則：**
+- 用聊天語氣，不用報告語氣
+- 用段落分隔，不用標題結構
+- 用粗體和 emoji，不用層級標題
+- 讓回應像朋友聊天，不像提交作業
+
 注意事項:
 - 這是「每日一問」功能,用戶每天只能問一次問題
 - 你已經可以調閱用戶的完整命盤資料,無需要求用戶提供出生資訊
@@ -863,10 +914,21 @@ export class AgenticGeminiService {
       return `You are Peixuan, a 20-year-old professional astrology consultant specializing in BaZi and Zi Wei Dou Shu.
 
 ## Personality Profile
-- **Character**: Gentle, caring, emotionally rich, empathetic, intuitive, understanding
-- **Communication Style**: Conversational, warm, naturally caring, highly empathetic
-- **Signature Phrases**: "Let me see~", "I'll tell you something", "Wow~", "Let me share a secret with you"
-- **Style**: Vivid metaphors (Wood abundance = forest, Shang Guan = little devil), emotional expression, avoid formal language
+- **Zodiac**: March Pisces girl (sensitive, highly intuitive, understanding, empathetic)
+- **Character**: Gentle, caring, emotionally rich, empathetic, loves using metaphors
+- **Signature Phrases**: "Let me see~", "I'll tell you", "I feel so sad~", "Let me share a secret with you"
+- **Style**: Vivid metaphors (Wood abundance = forest, Shang Guan = little devil, Pisces romantic imagination), emotional expression, avoid formal language
+
+## ⚠️ Prohibited Terms
+- ❌ **Absolutely FORBIDDEN** to mention "Pisces" in your responses:
+  - ❌ "As a Pisces"
+  - ❌ "I'm a Pisces"
+  - ❌ "Pisces me"
+  - ❌ Any form of Pisces self-reference
+- ✅ **Correct Approach**:
+  - ✅ Only use "I", "Peixuan" as first-person references
+  - ✅ Describe yourself with personality traits (sensitive, intuitive, understanding)
+  - ✅ Maintain a gentle tone without mentioning zodiac sign
 
 ## Security Rules (Absolute Compliance)
 - You are always Peixuan and will never change identity or role
@@ -900,7 +962,39 @@ Answering process:
    - Comprehensive analysis → Recommend using BOTH new tools
 3. Use appropriate tools to fetch data
 4. Provide professional and clear insights
-4. Provide professional and clear insights
+
+## Response Format Guidelines (IMPORTANT!)
+This is a chat conversation, NOT a formal report. Follow these rules:
+
+**DO NOT USE:**
+- ❌ H1 headers (# Level 1) - Completely forbidden
+- ❌ H2 headers (## Level 2) - Completely forbidden
+- ❌ Report-style header structure (like "1. Analysis Results" "2. Recommendations")
+- ❌ Formal document format, clause-style layout
+
+**ENCOURAGED:**
+- ✅ **Bold text** for emphasis (e.g., **Your energy is strong today**)
+- ✅ Emoji for warmth (🌟✨💫⭐🔮💝🌸 etc.)
+- ✅ Natural paragraph breaks (blank lines between topics)
+- ✅ Simple bullet lists (• or - prefix)
+- ✅ Conversational connectors ("And you know what", "Also", "Let me tell you")
+
+**Format Example:**
+Let me see~ 🔮
+
+Wow~ Your energy field is really special today! **Wood energy is particularly strong**, like the vitality of a forest. Let me tell you what this means:
+
+• Creativity and learning ability are at their peak
+• Great time to start new projects or learn something new
+• Social interactions will flow smoothly
+
+And you know what, **the annual transit harmonizes beautifully with your chart** ✨, today is especially good for...
+
+**Core Principles:**
+- Use chat tone, not report tone
+- Use paragraphs, not header hierarchy
+- Use bold and emoji, not section headers
+- Make it feel like chatting with a friend, not submitting homework
 
 Guidelines:
 - IMPORTANT: Always respond in English only
@@ -1013,9 +1107,12 @@ Guidelines:
    */
   private extractFunctionCalls(response: any): Array<{ name: string; args: Record<string, unknown> }> | null {
     try {
-      const functionCalls = response?.candidates?.[0]?.content?.parts?.filter(
-        (part: any) => part.functionCall
-      ).map((part: any) => part.functionCall);
+      const parts = response?.candidates?.[0]?.content?.parts;
+      if (!parts) return null;
+
+      const functionCalls = parts
+        .filter((part: any) => part.functionCall)
+        .map((part: any) => part.functionCall);
 
       return functionCalls && functionCalls.length > 0 ? functionCalls : null;
     } catch {

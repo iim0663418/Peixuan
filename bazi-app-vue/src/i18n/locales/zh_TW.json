@@ -445,7 +445,8 @@
     "clear_cache_confirm": "確定要清除快取嗎？",
     "candidate_select_placeholder": "發現多個匹配地址，請選擇最準確的",
     "show_advanced": "進階選項",
-    "hide_advanced": "隱藏進階選項"
+    "hide_advanced": "隱藏進階選項",
+    "submit_success": "命盤計算成功！"
   },
   "unifiedView": {
     "title": "命盤計算",

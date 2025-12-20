@@ -472,7 +472,8 @@
     "clear_cache_confirm": "Are you sure you want to clear the cache?",
     "candidate_select_placeholder": "Multiple addresses found, please select the most accurate one",
     "show_advanced": "Advanced Options",
-    "hide_advanced": "Hide Advanced Options"
+    "hide_advanced": "Hide Advanced Options",
+    "submit_success": "Chart calculation successful!"
   },
   "unifiedView": {
     "title": "Chart Calculation",

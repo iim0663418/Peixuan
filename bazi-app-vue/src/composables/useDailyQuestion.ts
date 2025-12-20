@@ -43,6 +43,7 @@ export function useDailyQuestion(chartId: string) {
   const askQuestion = async (questionText: string, locale: string) => {
     if (!questionText.trim() || hasAskedToday.value) return
 
+    // Reset state for new question
     isAsking.value = true
     response.value = ''
     currentStatus.value = ''
@@ -92,7 +93,9 @@ export function useDailyQuestion(chartId: string) {
       }
 
       const decoder = new TextDecoder()
-      
+
+      // Stream response chunks and accumulate
+      // The watcher in DailyQuestionPanel will split this into chat bubbles
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
@@ -104,19 +107,19 @@ export function useDailyQuestion(chartId: string) {
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6))
-              
+
               if (data.state) {
-                // Handle state updates from backend
+                // Handle state updates from agentic backend
                 currentStatus.value = data.state
               } else if (data.text) {
-                // Handle text content
+                // Handle text content chunks
                 response.value += data.text
               } else if (data.content) {
                 // Handle content updates
                 response.value += data.content
               }
             } catch (parseError) {
-              // Handle plain text responses
+              // Handle plain text responses (non-JSON)
               const textContent = line.slice(6)
               if (textContent && textContent !== '[DONE]') {
                 response.value += textContent

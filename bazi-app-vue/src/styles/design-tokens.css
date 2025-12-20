@@ -154,10 +154,10 @@
 
 /* ===== 深色主題變數 Dark Theme ===== */
 [data-theme='dark'] :root {
-  --text-primary: #f9fafb;
-  --text-secondary: #d1d5db;
-  --text-tertiary: #9ca3af;
-  --text-disabled: #6b7280;
+  --text-primary: #ffffff;
+  --text-secondary: #e5e7eb;
+  --text-tertiary: #d1d5db;
+  --text-disabled: #9ca3af;
   --text-inverse: #111827;
 
   --bg-primary: #111827;
@@ -183,10 +183,10 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text-primary: #f9fafb;
-    --text-secondary: #d1d5db;
-    --text-tertiary: #9ca3af;
-    --text-disabled: #6b7280;
+    --text-primary: #ffffff;
+    --text-secondary: #e5e7eb;
+    --text-tertiary: #d1d5db;
+    --text-disabled: #9ca3af;
     --text-inverse: #111827;
 
     --bg-primary: #111827;

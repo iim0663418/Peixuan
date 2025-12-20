@@ -448,3 +448,59 @@
   - Simplified function response building by letting Gemini manage its own signatures
   - Build successful and deployed to staging
   - Should resolve thought_signature validation errors completely
+
+- [DECISION] 2025-12-20: Verified Complete Gemini Response Preservation Fix. Code/Spec aligned with Constitution.
+  - Fixed conversation history to preserve complete Gemini response including thought parts
+  - Removed manual thought_signature reconstruction in favor of complete parts array preservation
+  - Simplified function response building by letting Gemini manage its own signatures
+  - Build successful and deployed to staging
+  - Should resolve thought_signature validation errors completely
+
+- [DECISION] 2025-12-20: Verified Daily Question Chat UI Implementation. Code/Spec aligned with Constitution.
+  - Created ChatBubble.vue component with progressive display and purple theme
+  - Implemented textSplitter.ts for intelligent sentence splitting
+  - Modified DailyQuestionPanel.vue to use chat-style conversation interface
+  - Added smooth animations and typing indicators for natural chat experience
+  - Preserved all existing functionality while transforming visual presentation
+  - Build successful and deployed to staging environment
+
+- [DECISION] 2025-12-20: Verified Daily Question Chat UI Issues Analysis. Code/Spec aligned with Constitution.
+  - Identified root cause: watcher logic processes entire response repeatedly instead of incremental updates
+  - Problem 1: Full re-splitting of response on every SSE update causes content duplication
+  - Problem 2: chatBubbles array cleared and rebuilt causing visual flickering/jumping
+  - Problem 3: Timer overlap issues with clearTimeout logic
+  - Problem 4: Text alignment issues in ChatBubble component structure
+  - Solution: Implement incremental processing with processedLength tracking
+  - Ready for implementation of incremental update logic
+
+- [DECISION] 2025-12-20: Verified Daily Question Chat UI Fixes. Code/Spec aligned with Constitution.
+  - Fixed incremental processing with processedLength tracking to prevent content duplication
+  - Replaced single bubbleTimer with bubbleTimers array to prevent timer overlaps
+  - Fixed text alignment with proper align-self and text-align properties
+  - Implemented append-only bubble updates instead of clear-and-rebuild
+  - Added proper timer cleanup in onUnmounted lifecycle
+  - Build successful and deployed to staging environment
+
+- [DECISION] 2025-12-20: Verified Daily Question Processing Logic Fix. Code/Spec aligned with Constitution.
+  - Removed flawed processedLength tracking that caused content loss
+  - Implemented pure complete processing approach for consistent sentence boundaries
+  - Fixed incremental display to only show new chunks without losing content
+  - Simplified watcher logic for better maintainability and reliability
+  - Build successful and deployed to staging environment
+
+- [DECISION] 2025-12-20: Verified textSplitter Empty Line Handling Fix. Code/Spec aligned with Constitution.
+  - Fixed empty line processing that was forcing incomplete sentence splits
+  - Changed from forced sentence splitting to spacing-only approach
+  - Preserved content integrity across paragraph breaks
+  - Added test coverage for empty line scenarios
+  - Build successful and deployed to staging environment
+- [DECISION] - [DECISION] 2025-12-20: Verified Daily Question UI/UX Comprehensive Optimization. Code/Spec aligned with Constitution.
+  - Fixed dark mode text contrast issues with white text (#ffffff) and bright secondary text (#e5e7eb)
+  - Fixed dark mode background colors for chat bubbles and UI elements
+  - Optimized layout spacing: reduced header/input padding, tighter message spacing
+  - Implemented comprehensive RWD design: mobile (90% width), tablet (75%), desktop (70%)
+  - Fixed mobile CSS animation acceleration with translateZ(0), will-change, and mobile-specific timing
+  - Fixed markdown bold text color in dark mode: purple → gold (#fbbf24) for better contrast
+  - Enhanced mobile responsiveness with proper touch targets (28-32px minimum)
+  - Added prefers-reduced-motion support for accessibility
+  - Deployed successfully to staging environment with all optimizations verified

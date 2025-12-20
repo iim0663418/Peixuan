@@ -27,19 +27,21 @@
     <!-- Chat Messages Area -->
     <div class="messages-container" ref="messagesContainer">
       <!-- Welcome Message -->
-      <div v-if="!hasAskedToday && !response" class="message ai-message welcome-message">
-        <div class="message-content">
-          {{ $t('dailyQuestion.welcomeMessage') }}
-        </div>
-      </div>
+      <ChatBubble
+        v-if="!hasAskedToday && !response && !validationError"
+        type="system"
+        :content="$t('dailyQuestion.welcomeMessage')"
+      />
 
       <!-- User Question -->
-      <div v-if="userQuestion" class="message user-message">
-        <div class="message-content">{{ userQuestion }}</div>
-      </div>
+      <ChatBubble
+        v-if="userQuestion"
+        type="user"
+        :content="userQuestion"
+      />
 
       <!-- AI Thinking Animation -->
-      <div v-if="isAsking && !response" class="message ai-message thinking-message">
+      <div v-if="isAsking && chatBubbles.length === 0" class="message ai-message thinking-message">
         <div class="thinking-dots">
           <span></span>
           <span></span>
@@ -47,24 +49,37 @@
         </div>
       </div>
 
-      <!-- AI Response -->
-      <div v-if="response" class="message ai-message">
-        <div class="message-content streaming-response" :class="{ 'is-streaming': isAsking }" v-html="formattedResponse"></div>
+      <!-- AI Response Bubbles (Progressive Display) -->
+      <ChatBubble
+        v-for="(bubble, index) in chatBubbles"
+        :key="index"
+        type="ai"
+        :content="bubble"
+        :delay="index * 100"
+      />
+
+      <!-- Typing Indicator (while streaming) -->
+      <div v-if="isAsking && chatBubbles.length > 0" class="message ai-message thinking-message">
+        <div class="thinking-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       </div>
 
       <!-- Daily Limit Notice - Immersive Style -->
-      <div v-if="hasAskedToday && !isAsking && !response" class="message ai-message">
-        <div class="message-content limit-message">
-          {{ $t('dailyQuestion.dailyLimit.immersiveMessage') }}
-        </div>
-      </div>
+      <ChatBubble
+        v-if="hasAskedToday && !isAsking && !response"
+        type="system"
+        :content="$t('dailyQuestion.dailyLimit.immersiveMessage')"
+      />
 
       <!-- Validation Error - Immersive Style -->
-      <div v-if="validationError" class="message ai-message">
-        <div class="message-content validation-error">
-          {{ validationError }}
-        </div>
-      </div>
+      <ChatBubble
+        v-if="validationError"
+        type="system"
+        :content="validationError"
+      />
     </div>
 
     <!-- Input Section -->
@@ -118,11 +133,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessageBox } from 'element-plus'
 import { useDailyQuestion } from '@/composables/useDailyQuestion'
-import { marked } from 'marked'
+import ChatBubble from './ChatBubble.vue'
+import { splitIntoSentences, chunkSentences } from '@/utils/textSplitter'
 import {
   ChatDotRound,
   MagicStick,
@@ -140,6 +156,8 @@ const { t, locale } = useI18n()
 const messagesContainer = ref<HTMLElement>()
 const userQuestion = ref('')
 const validationError = ref('')
+const chatBubbles = ref<string[]>([])
+let bubbleTimers: number[] = []
 
 const {
   question,
@@ -151,6 +169,31 @@ const {
   askQuestion: performAsk,
   checkDailyLimit
 } = useDailyQuestion(props.chartId)
+
+// Watch response changes and split into chat bubbles
+// Uses pure complete processing approach for consistent sentence boundaries
+watch(response, (newResponse) => {
+  if (!newResponse) {
+    chatBubbles.value = []
+    bubbleTimers.forEach(timer => clearTimeout(timer))
+    bubbleTimers = []
+    return
+  }
+
+  // Always process the complete response for consistent sentence boundaries
+  const sentences = splitIntoSentences(newResponse)
+  const chunks = chunkSentences(sentences, 2) // Max 2 sentences per bubble
+
+  // 清除現有的計時器
+  bubbleTimers.forEach(timer => clearTimeout(timer))
+  bubbleTimers.length = 0
+  
+  // 完全替換聊天氣泡陣列以確保內容同步
+  chatBubbles.value = [...chunks]
+  
+  // 滾動到底部
+  nextTick(() => scrollToBottom())
+})
 
 // Status mapping based on doc specification
 const statusMap: Record<string, { text: string; icon: any }> = {
@@ -255,13 +298,14 @@ const scrollToBottom = () => {
   }
 }
 
-const formattedResponse = computed(() => {
-  if (!response.value) return ''
-  return marked(response.value)
-})
-
 onMounted(() => {
   checkDailyLimit()
+})
+
+onUnmounted(() => {
+  // Clean up timers on component unmount
+  bubbleTimers.forEach(timer => clearTimeout(timer))
+  bubbleTimers = []
 })
 </script>
 
@@ -281,11 +325,12 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-xl);
+  padding: var(--space-md) var(--space-lg);
   background: linear-gradient(135deg, var(--purple-star) 0%, #4a148c 100%);
   color: var(--text-inverse);
   position: relative;
   overflow: hidden;
+  min-height: 70px;
 }
 
 /* Cosmic Starfield Effect */
@@ -360,11 +405,12 @@ onMounted(() => {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   margin: 0 0 var(--space-xs) 0;
+  color: var(--text-primary);
 }
 
 .subtitle {
   font-size: var(--font-size-sm);
-  opacity: 0.9;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -372,7 +418,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-tertiary);
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-full);
   backdrop-filter: blur(10px);
@@ -392,14 +438,15 @@ onMounted(() => {
 
 /* Messages Container */
 .messages-container {
-  max-height: 400px;
+  flex: 1;
   overflow-y: auto;
-  padding: var(--space-lg);
+  padding: var(--space-md);
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-sm);
 }
 
+/* Keep only the thinking message styles, as it's not converted to ChatBubble */
 .message {
   display: flex;
   max-width: 85%;
@@ -407,100 +454,6 @@ onMounted(() => {
 
 .ai-message {
   justify-content: flex-start;
-}
-
-.user-message {
-  justify-content: flex-end;
-  align-self: flex-end;
-}
-
-.system-message {
-  justify-content: center;
-  max-width: 100%;
-}
-
-.message-content {
-  padding: var(--space-md) var(--space-lg);
-  border-radius: var(--radius-lg);
-  font-size: var(--font-size-md);
-  line-height: 1.6;
-  box-shadow: var(--shadow-sm);
-}
-
-.ai-message .message-content {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border-top-left-radius: var(--radius-xs);
-}
-
-/* Streaming Response Magic - Cosmic Shimmer */
-.streaming-response {
-  position: relative;
-  overflow: hidden;
-}
-
-.streaming-response.is-streaming::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(153, 50, 204, 0.1) 50%,
-    transparent 100%
-  );
-  animation: typewriter-shimmer 2s ease-in-out infinite;
-}
-
-@keyframes typewriter-shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-.streaming-response.is-streaming {
-  animation: cosmic-glow 3s ease-in-out infinite;
-}
-
-@keyframes cosmic-glow {
-  0%, 100% {
-    box-shadow: 0 0 10px rgba(153, 50, 204, 0.1);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(153, 50, 204, 0.2);
-  }
-}
-
-.user-message .message-content {
-  background: var(--info);
-  color: var(--text-inverse);
-  border-top-right-radius: var(--radius-xs);
-}
-
-.welcome-message .message-content {
-  background: linear-gradient(135deg, var(--info-lighter) 0%, var(--purple-star-lighter) 100%);
-  color: var(--text-primary);
-  text-align: center;
-  font-weight: var(--font-weight-medium);
-}
-
-.limit-message {
-  background: linear-gradient(135deg, var(--warning-lighter) 0%, var(--warning-lightest) 100%);
-  border-left: 4px solid var(--warning);
-  color: var(--text-primary);
-  font-style: italic;
-}
-
-.validation-error {
-  background: linear-gradient(135deg, var(--info-lighter) 0%, var(--info-lightest) 100%);
-  border-left: 4px solid var(--info);
-  color: var(--text-primary);
 }
 
 .thinking-message {
@@ -523,14 +476,24 @@ onMounted(() => {
   border-radius: 50%;
   background: var(--info);
   animation: thinking 1.4s infinite ease-in-out both;
+  will-change: transform;
 }
 
 .thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
 .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
 
+@keyframes thinking {
+  0%, 80%, 100% {
+    transform: scale(0) translateZ(0);
+  }
+  40% {
+    transform: scale(1) translateZ(0);
+  }
+}
+
 /* Input Section */
 .input-section {
-  padding: var(--space-lg) var(--space-xl);
+  padding: var(--space-sm) var(--space-lg);
   background: var(--bg-primary);
   border-top: 1px solid var(--border-light);
 }
@@ -560,12 +523,12 @@ onMounted(() => {
 .quick-prompts {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-lg);
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
 }
 
 .quick-prompt-btn {
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
   background: var(--info-lightest);
   color: var(--info);
   border: 1px solid var(--info-lighter);
@@ -574,6 +537,7 @@ onMounted(() => {
   font-weight: var(--font-weight-medium);
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 32px;
 }
 
 .quick-prompt-btn:hover {
@@ -616,14 +580,14 @@ onMounted(() => {
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-overlay);
   transform: translate(-50%, -50%);
   transition: width 0.6s, height 0.6s;
 }
 
 .ask-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(153, 50, 204, 0.3);
+  box-shadow: var(--shadow-purple);
 }
 
 .ask-button:hover:not(:disabled)::before {
@@ -702,170 +666,6 @@ onMounted(() => {
   opacity: 0;
 }
 
-/* ============================================
-   CONVERSATIONAL MARKDOWN STYLING
-   Transform formal report to friendly chat
-   ============================================ */
-
-/* Normalize all headers to chat-friendly sizes */
-.message-content :deep(h1),
-.message-content :deep(h2),
-.message-content :deep(h3),
-.message-content :deep(h4) {
-  font-size: 1em !important;
-  font-weight: var(--font-weight-semibold);
-  margin: 0.75em 0 0.5em 0;
-  line-height: 1.5;
-  color: var(--text-primary);
-  border: none;
-  padding: 0;
-}
-
-/* Remove any header styling that looks too "document-like" */
-.message-content :deep(h1)::before,
-.message-content :deep(h2)::before {
-  content: none !important;
-}
-
-/* Natural paragraph flow - reduce spacing for conversation feel */
-.message-content :deep(p) {
-  margin: 0.5em 0;
-  line-height: 1.7;
-}
-
-/* First paragraph - no top margin for natural flow */
-.message-content :deep(p:first-child) {
-  margin-top: 0;
-}
-
-/* Last paragraph - no bottom margin */
-.message-content :deep(p:last-child) {
-  margin-bottom: 0;
-}
-
-/* Compact list styling - friendly and readable */
-.message-content :deep(ul),
-.message-content :deep(ol) {
-  margin: 0.5em 0;
-  padding-left: 1.5em;
-}
-
-.message-content :deep(li) {
-  margin: 0.25em 0;
-  line-height: 1.6;
-}
-
-/* Purple-themed blockquote for key insights */
-.message-content :deep(blockquote) {
-  margin: 0.75em 0;
-  padding: 0.75em 1em;
-  border-left: 3px solid var(--purple-star);
-  background: linear-gradient(135deg, var(--purple-star-lightest) 0%, rgba(153, 50, 204, 0.05) 100%);
-  border-radius: var(--radius-sm);
-  font-style: normal;
-}
-
-.message-content :deep(blockquote p) {
-  margin: 0.25em 0;
-}
-
-/* Bold text - purple tint for brand alignment */
-.message-content :deep(strong),
-.message-content :deep(b) {
-  font-weight: var(--font-weight-bold);
-  color: var(--purple-star);
-}
-
-/* Inline code - subtle purple theme */
-.message-content :deep(code) {
-  padding: 0.15em 0.4em;
-  background: var(--purple-star-lightest);
-  border: 1px solid var(--purple-star-lighter);
-  border-radius: var(--radius-xs);
-  font-size: 0.9em;
-  font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
-  color: var(--purple-star);
-}
-
-/* Code blocks - minimal styling */
-.message-content :deep(pre) {
-  margin: 0.75em 0;
-  padding: 1em;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  overflow-x: auto;
-}
-
-.message-content :deep(pre code) {
-  padding: 0;
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-}
-
-/* Horizontal rules - subtle dividers */
-.message-content :deep(hr) {
-  margin: 1em 0;
-  border: none;
-  border-top: 1px solid var(--border-light);
-  opacity: 0.5;
-}
-
-/* Links - purple theme */
-.message-content :deep(a) {
-  color: var(--purple-star);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: all var(--transition-fast);
-}
-
-.message-content :deep(a:hover) {
-  border-bottom-color: var(--purple-star);
-}
-
-/* Tables - if AI generates them (rare, but handle gracefully) */
-.message-content :deep(table) {
-  width: 100%;
-  margin: 0.75em 0;
-  border-collapse: collapse;
-  font-size: 0.95em;
-}
-
-.message-content :deep(th),
-.message-content :deep(td) {
-  padding: 0.5em;
-  border: 1px solid var(--border-light);
-  text-align: left;
-}
-
-.message-content :deep(th) {
-  background: var(--bg-tertiary);
-  font-weight: var(--font-weight-semibold);
-}
-
-/* Emoji - ensure consistent rendering */
-.message-content :deep(img.emoji) {
-  display: inline;
-  width: 1.2em;
-  height: 1.2em;
-  vertical-align: middle;
-  margin: 0 0.1em;
-}
-
-/* Remove excessive margins between consecutive elements */
-.message-content :deep(* + *) {
-  margin-top: 0.5em;
-}
-
-/* Specific overrides for tight element combinations */
-.message-content :deep(ul + p),
-.message-content :deep(ol + p),
-.message-content :deep(p + ul),
-.message-content :deep(p + ol) {
-  margin-top: 0.5em;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .panel-header {
@@ -894,6 +694,110 @@ onMounted(() => {
   
   .ask-button {
     align-self: stretch;
+  }
+}
+
+/* 移動端動畫優化 */
+@media (max-width: 768px) {
+  .panel-header {
+    padding: var(--space-sm) var(--space-md);
+    min-height: 60px;
+  }
+  
+  .messages-container {
+    padding: var(--space-sm);
+  }
+  
+  .input-section {
+    padding: var(--space-xs) var(--space-md);
+  }
+  
+  .quick-prompts {
+    justify-content: flex-start;
+    gap: var(--space-xs);
+  }
+  
+  .quick-prompt-btn {
+    font-size: 11px;
+    padding: 6px 10px;
+    min-height: 28px;
+  }
+  
+  .ask-button {
+    align-self: stretch;
+  }
+  
+  /* 移動端動畫速度調整 */
+  .panel-header::before {
+    animation-duration: 80s;
+  }
+  
+  .status-indicator {
+    animation-duration: 3s;
+  }
+  
+  .status-icon {
+    animation-duration: 3s;
+  }
+  
+  .thinking-dots span {
+    animation-duration: 1.8s;
+  }
+}
+
+/* 減少動畫偏好設定 */
+@media (prefers-reduced-motion: reduce) {
+  .panel-header::before,
+  .status-indicator,
+  .status-icon,
+  .thinking-dots span {
+    animation: none !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .quick-prompts {
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1025px) {
+  .messages-container {
+    padding: var(--space-lg);
+  }
+  
+  .quick-prompts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-sm);
+  }
+}
+
+/* 深色模式文字對比度優化 */
+@media (prefers-color-scheme: dark) {
+  .header-text h3 {
+    color: #ffffff !important;
+  }
+  
+  .subtitle {
+    color: #e5e7eb !important;
+  }
+  
+  .status-text {
+    color: #e5e7eb !important;
+  }
+  
+  .limit-text {
+    color: #e5e7eb !important;
+  }
+  
+  .daily-question-panel {
+    color: #ffffff;
+  }
+  
+  .daily-limit-display {
+    background: #374151 !important;
+    border-color: #4b5563 !important;
   }
 }
 </style>

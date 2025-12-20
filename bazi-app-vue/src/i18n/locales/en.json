@@ -24,6 +24,10 @@
     "personality": "Peixuan Personality Analysis",
     "fortune": "Peixuan Fortune Analysis",
     "dailyQuestion": "Daily Question",
+    "messages": {
+      "needChartForPersonality": "Please calculate your chart first to get personality analysis",
+      "needChartForFortune": "Please calculate your chart first to get fortune analysis"
+    },
     "auth": {
       "login": "Member Login",
       "register": "Member Register"
@@ -37,8 +41,8 @@
     "askPeixuan": "Peixuan Daily Question",
     "oncePerDay": "One question per day",
     "questionsRemaining": "Questions remaining: {current}/{total}",
-    "welcomeMessage": "Hello, I'm Peixuan. I have prepared your BaZi and Purple Star charts. Which aspect of your fortune would you like to consult about today?",
-    "placeholder": "What would you like to ask Peixuan? For example: What decisions should I make today?",
+    "welcomeMessage": "Hello, I'm Peixuan 🦄 I have prepared your BaZi and Purple Star charts. Which aspect of your fortune would you like to consult about today?",
+    "placeholder": "What would you like to ask Peixuan? For example: What decisions should I make today? 🦄",
     "askButton": "Ask Peixuan",
     "peixuanSays": "Peixuan says",
     "noChart": {
@@ -52,8 +56,8 @@
     },
     "dailyLimit": {
       "title": "Daily Question Asked",
-      "message": "You can only ask one question per day. Come back tomorrow to chat with Peixuan again!",
-      "immersiveMessage": "I've focused all my energy on your previous reading. Let's talk again tomorrow!"
+      "message": "You can only ask one question per day. Come back tomorrow to chat with Peixuan again! 😵‍💫",
+      "immersiveMessage": "I've focused all my energy on your previous reading 😵‍💫 Let's talk again tomorrow!"
     },
     "confirmation": {
       "title": "Confirm Question",
@@ -65,9 +69,9 @@
       "tooShort": "Please ask a specific question to get the most out of your daily reading."
     },
     "errors": {
-      "connectionFailed": "Connection failed, please try again later",
-      "requestFailed": "Question failed, please check your network connection",
-      "limitExceeded": "I've focused all my energy on your previous reading. Let's talk again tomorrow!"
+      "connectionFailed": "Connection failed, please try again later 😵‍💫",
+      "requestFailed": "Question failed, please check your network connection 😵‍💫",
+      "limitExceeded": "I've focused all my energy on your previous reading 😵‍💫 Let's talk again tomorrow!"
     },
     "status": {
       "analyzing": "Reading your birth chart...",
@@ -359,6 +363,8 @@
     "services": {
       "calculate_title": "Chart Calculation",
       "calculate_desc": "Dual analysis of BaZi and Purple Star astrology for comprehensive chart information",
+      "dailyQuestion_title": "Daily Question",
+      "dailyQuestion_desc": "Ask Peixuan for personalized astrological guidance 🦄",
       "personality_title": "Peixuan Personality Analysis",
       "personality_desc": "AI-driven deep personality insights to understand your true self",
       "fortune_title": "Peixuan Fortune Analysis",
@@ -486,6 +492,9 @@
     "fortune_desc": "View annual fortune and future trends",
     "dailyQuestion_desc": "Ask Peixuan for personalized guidance",
     "later_button": "Maybe Later",
+    "messages": {
+      "chartLoaded": "Previous chart loaded successfully"
+    },
     "annualFortune": "Annual Fortune",
     "bazi": "BaZi Chart",
     "ziwei": "Purple Star Astrology",

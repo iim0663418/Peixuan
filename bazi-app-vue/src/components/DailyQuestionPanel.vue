@@ -274,7 +274,10 @@ const askQuestion = async () => {
         confirmButtonText: t('dailyQuestion.confirmation.confirm'),
         cancelButtonText: t('dailyQuestion.confirmation.cancel'),
         type: 'warning',
-        center: true
+        center: true,
+        customClass: 'daily-question-confirm-dialog',
+        confirmButtonClass: 'daily-question-confirm-btn',
+        cancelButtonClass: 'daily-question-cancel-btn'
       }
     )
 
@@ -798,6 +801,98 @@ onUnmounted(() => {
   .daily-limit-display {
     background: #374151 !important;
     border-color: #4b5563 !important;
+  }
+}
+
+/* 確認對話框美化 */
+:deep(.daily-question-confirm-dialog) {
+  border-radius: var(--radius-lg) !important;
+  background: var(--bg-primary) !important;
+  box-shadow: 0 20px 40px rgba(139, 69, 19, 0.15) !important;
+  border: 1px solid rgba(210, 105, 30, 0.2) !important;
+}
+
+:deep(.daily-question-confirm-dialog .el-message-box__header) {
+  background: linear-gradient(135deg, #d2691e, #ff8c00) !important;
+  color: white !important;
+  padding: var(--space-lg) !important;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+  border-bottom: none !important;
+}
+
+:deep(.daily-question-confirm-dialog .el-message-box__title) {
+  color: white !important;
+  font-weight: 600 !important;
+  font-size: 1.1rem !important;
+}
+
+:deep(.daily-question-confirm-dialog .el-message-box__content) {
+  padding: var(--space-lg) !important;
+  color: var(--text-primary) !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+}
+
+:deep(.daily-question-confirm-dialog .el-message-box__btns) {
+  padding: var(--space-md) var(--space-lg) var(--space-lg) !important;
+  border-top: 1px solid var(--border-color) !important;
+}
+
+:deep(.daily-question-confirm-btn) {
+  background: linear-gradient(135deg, #d2691e, #ff8c00) !important;
+  border: none !important;
+  color: white !important;
+  padding: var(--space-sm) var(--space-lg) !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(210, 105, 30, 0.3) !important;
+}
+
+:deep(.daily-question-confirm-btn:hover) {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(210, 105, 30, 0.4) !important;
+}
+
+:deep(.daily-question-cancel-btn) {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+  padding: var(--space-sm) var(--space-lg) !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+}
+
+:deep(.daily-question-cancel-btn:hover) {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--text-secondary) !important;
+}
+
+/* 深色模式下的確認對話框 */
+@media (prefers-color-scheme: dark) {
+  :deep(.daily-question-confirm-dialog) {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+  
+  :deep(.daily-question-confirm-dialog .el-message-box__content) {
+    color: #e5e7eb !important;
+  }
+  
+  :deep(.daily-question-confirm-dialog .el-message-box__btns) {
+    border-top-color: #374151 !important;
+  }
+  
+  :deep(.daily-question-cancel-btn) {
+    background: #374151 !important;
+    border-color: #4b5563 !important;
+    color: #e5e7eb !important;
+  }
+  
+  :deep(.daily-question-cancel-btn:hover) {
+    background: #4b5563 !important;
+    border-color: #6b7280 !important;
   }
 }
 </style>

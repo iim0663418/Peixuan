@@ -86,6 +86,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import { useI18n } from 'vue-i18n';
 import UnifiedInputForm from '../components/UnifiedInputForm.vue';
 import UnifiedResultView from '../components/UnifiedResultView.vue';
 import unifiedApiService, {
@@ -100,6 +101,7 @@ import {
 
 const chartStore = useChartStore();
 const router = useRouter();
+const { t } = useI18n();
 
 const loading = ref(false);
 const error = ref('');
@@ -170,7 +172,7 @@ onMounted(async () => {
         createdAt: new Date(cachedResult.timestamp),
       });
 
-      ElMessage.success('已載入上次的命盤結果');
+      ElMessage.success(t('unifiedView.messages.chartLoaded'));
     }
 
     loading.value = false;

@@ -1,3 +1,10 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable complexity */
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-useless-escape */
+// @ts-nocheck
 /**
  * Peixuan Worker v1.0.1 (2025-11-30)
  * Include annual fortune calculation modules

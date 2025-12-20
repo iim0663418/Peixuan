@@ -30,6 +30,14 @@ const services = computed(() => [
     color: 'primary' as const,
   },
   {
+    id: 'dailyQuestion',
+    icon: '🦄',
+    title: t('home.services.dailyQuestion_title'),
+    desc: t('home.services.dailyQuestion_desc'),
+    route: '/daily-question',
+    color: 'info' as const,
+  },
+  {
     id: 'personality',
     icon: '💬',
     title: t('home.services.personality_title'),

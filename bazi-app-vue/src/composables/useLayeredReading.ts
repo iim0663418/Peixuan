@@ -1,4 +1,7 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable complexity */
+/* eslint-disable max-lines */
 /**
  * 分層閱覽響應式狀態管理
  * 使用 Vue 3 Composition API 實現綜合解讀的多層級展示

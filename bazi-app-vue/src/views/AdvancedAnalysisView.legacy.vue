@@ -163,6 +163,7 @@ onUnmounted(() => {
         </div>
 
         <!-- Markdown 渲染 -->
+        <!-- eslint-disable-next-line vue/no-v-html -->
         <div class="markdown-body" v-html="renderMarkdown(analysisText)" />
 
         <!-- 打字機效果游標 -->

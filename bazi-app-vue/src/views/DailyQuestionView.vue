@@ -3,8 +3,8 @@
     <DailyQuestionPanel
       v-if="currentChartId"
       :chart-id="currentChartId"
-      @question-asked="handleQuestionAsked"
       class="fullscreen-panel"
+      @question-asked="handleQuestionAsked"
     />
 
     <div v-else class="no-chart-notice">
@@ -16,8 +16,8 @@
           <el-button
             type="primary"
             size="large"
-            @click="showQuickSetupModal = true"
             class="quick-setup-btn"
+            @click="showQuickSetupModal = true"
           >
             {{ $t('dailyQuestion.noChart.quickSetupButton') }}
           </el-button>
@@ -40,29 +40,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useChartStore } from '@/stores/chartStore'
-import DailyQuestionPanel from '@/components/DailyQuestionPanel.vue'
-import QuickSetupForm from '@/components/QuickSetupForm.vue'
+import { ref, computed, onMounted } from 'vue';
+import { useChartStore } from '@/stores/chartStore';
+import DailyQuestionPanel from '@/components/DailyQuestionPanel.vue';
+import QuickSetupForm from '@/components/QuickSetupForm.vue';
 
-const chartStore = useChartStore()
-const showQuickSetupModal = ref(false)
+const chartStore = useChartStore();
+const showQuickSetupModal = ref(false);
 
-const currentChartId = computed(() => chartStore.currentChart?.chartId)
+const currentChartId = computed(() => chartStore.currentChart?.chartId);
 
 const handleQuestionAsked = () => {
   // Handle question asked event
-}
+};
 
 const handleChartCreated = () => {
-  showQuickSetupModal.value = false
+  showQuickSetupModal.value = false;
   // Chart will be automatically loaded by the store
-}
+};
 
 // Load chart from localStorage on mount
 onMounted(() => {
-  chartStore.loadFromLocalStorage()
-})
+  chartStore.loadFromLocalStorage();
+});
 </script>
 
 <style scoped>
@@ -147,11 +147,11 @@ onMounted(() => {
   .container {
     padding: var(--space-lg);
   }
-  
+
   .welcome-card {
     padding: var(--space-xl);
   }
-  
+
   .peixuan-avatar-large {
     font-size: 48px;
   }
@@ -162,36 +162,36 @@ onMounted(() => {
   .welcome-card h3 {
     color: #ffffff !important;
   }
-  
+
   .welcome-card p {
     color: #e5e7eb !important;
   }
-  
+
   /* Element Plus Dialog 深色模式 */
   :deep(.el-dialog) {
     background: var(--bg-secondary) !important;
     border: 1px solid var(--border-light) !important;
   }
-  
+
   :deep(.el-dialog__header) {
     background: var(--bg-tertiary) !important;
     border-bottom: 1px solid var(--border-light) !important;
   }
-  
+
   :deep(.el-dialog__title) {
     color: var(--text-primary) !important;
   }
-  
+
   :deep(.el-dialog__body) {
     background: var(--bg-secondary) !important;
     color: var(--text-primary) !important;
   }
-  
+
   :deep(.el-dialog__footer) {
     background: var(--bg-tertiary) !important;
     border-top: 1px solid var(--border-light) !important;
   }
-  
+
   :deep(.el-overlay) {
     background: rgba(0, 0, 0, 0.7) !important;
   }

@@ -21,6 +21,10 @@
     "personality": "佩璇性格分析",
     "fortune": "佩璇運勢分析",
     "dailyQuestion": "每日問答",
+    "messages": {
+      "needChartForPersonality": "請先計算命盤，才能進行性格分析",
+      "needChartForFortune": "請先計算命盤，才能進行運勢分析"
+    },
     "auth": {
       "login": "會員登入",
       "register": "會員註冊"
@@ -34,8 +38,8 @@
     "askPeixuan": "佩璇每日一問",
     "oncePerDay": "每天可以問一個問題",
     "questionsRemaining": "剩餘提問次數：{current}/{total}",
-    "welcomeMessage": "您好，我是佩璇。我已備妥您的八字與紫微命盤，今天想針對哪方面的運勢進行深度諮詢？",
-    "placeholder": "想問佩璇什麼呢？比如：今天適合做什麼決定？",
+    "welcomeMessage": "您好，我是佩璇 🦄 我已備妥您的八字與紫微命盤，今天想針對哪方面的運勢進行深度諮詢？",
+    "placeholder": "想問佩璇什麼呢？比如：今天適合做什麼決定？ 🦄",
     "askButton": "問佩璇",
     "peixuanSays": "佩璇說",
     "noChart": {
@@ -49,8 +53,8 @@
     },
     "dailyLimit": {
       "title": "今日已提問",
-      "message": "每天只能問一個問題喔～明天再來找佩璇聊天吧！",
-      "immersiveMessage": "我已將全部精力投注在剛才的解讀上了。明天再來找我聊聊吧！"
+      "message": "每天只能問一個問題喔～明天再來找佩璇聊天吧！ 😵‍💫",
+      "immersiveMessage": "我已將全部精力投注在剛才的解讀上了 😵‍💫 明天再來找我聊聊吧！"
     },
     "confirmation": {
       "title": "確認提問",
@@ -62,9 +66,9 @@
       "tooShort": "請具體描述您的問題，這樣我才能給您更精準的指引。"
     },
     "errors": {
-      "connectionFailed": "連線失敗，請稍後再試",
-      "requestFailed": "提問失敗，請檢查網路連線",
-      "limitExceeded": "我已將全部精力投注在剛才的解讀上了。明天再來找我聊聊吧！"
+      "connectionFailed": "連線失敗，請稍後再試 😵‍💫",
+      "requestFailed": "提問失敗，請檢查網路連線 😵‍💫",
+      "limitExceeded": "我已將全部精力投注在剛才的解讀上了 😵‍💫 明天再來找我聊聊吧！"
     },
     "status": {
       "analyzing": "正在研讀您的命盤...",
@@ -332,6 +336,8 @@
     "services": {
       "calculate_title": "命盤計算",
       "calculate_desc": "八字與紫微斗數雙重分析，提供完整命盤資訊",
+      "dailyQuestion_title": "每日一問",
+      "dailyQuestion_desc": "向佩璇提問，獲得專屬的命理指導 🦄",
       "personality_title": "佩璇性格分析",
       "personality_desc": "AI 驅動的深度性格解讀,了解真實的自己",
       "fortune_title": "佩璇運勢分析",
@@ -459,6 +465,9 @@
     "fortune_desc": "查看流年運勢與未來趨勢",
     "dailyQuestion_desc": "向佩璇提問，獲得專屬指導",
     "later_button": "稍後再說",
+    "messages": {
+      "chartLoaded": "已載入上次的命盤結果"
+    },
     "annualFortune": "流年運勢",
     "bazi": "八字命盤",
     "ziwei": "紫微斗數",

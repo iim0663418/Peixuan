@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <!-- Background circle (brand color) -->
+  <defs>
+    <radialGradient id="bgGradient" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#D2691E;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B4513;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  <circle cx="90" cy="90" r="85" fill="url(#bgGradient)" stroke="#D2691E" stroke-width="3"/>
+  
+  <!-- Unicorn head (more rounded) -->
+  <ellipse cx="90" cy="105" rx="40" ry="36" fill="#FFFFFF" stroke="#F0F0F0" stroke-width="1"/>
+  
+  <!-- Horn (more emoji-like pink/purple) -->
+  <polygon points="90,35 82,80 98,80" fill="#FFB6C1" stroke="#FF69B4" stroke-width="2"/>
+  
+  <!-- Horn spiral (more prominent) -->
+  <path d="M84,45 Q90,55 96,65 Q90,75 84,80" stroke="#FF1493" stroke-width="3" fill="none"/>
+  
+  <!-- Eyes (larger and more emoji-like) -->
+  <circle cx="78" cy="100" r="6" fill="#000"/>
+  <circle cx="102" cy="100" r="6" fill="#000"/>
+  <circle cx="80" cy="97" r="2.5" fill="#FFF"/>
+  <circle cx="104" cy="97" r="2.5" fill="#FFF"/>
+  
+  <!-- Nostrils (like real emoji) -->
+  <ellipse cx="86" cy="115" rx="2" ry="1.5" fill="#FFB6C1"/>
+  <ellipse cx="94" cy="115" rx="2" ry="1.5" fill="#FFB6C1"/>
+  
+  <!-- Ears (added for more realistic look) -->
+  <ellipse cx="70" cy="85" rx="8" ry="12" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="1" transform="rotate(-25 70 85)"/>
+  <ellipse cx="110" cy="85" rx="8" ry="12" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="1" transform="rotate(25 110 85)"/>
+  <ellipse cx="70" cy="85" rx="4" ry="6" fill="#FFB6C1" transform="rotate(-25 70 85)"/>
+  <ellipse cx="110" cy="85" rx="4" ry="6" fill="#FFB6C1" transform="rotate(25 110 85)"/>
+  
+  <!-- Mane (more flowing and emoji-like colors) -->
+  <path d="M50,90 Q35,65 50,45 Q65,35 75,55 Q70,75 60,85" fill="#FF69B4"/>
+  <path d="M130,90 Q145,65 130,45 Q115,35 105,55 Q110,75 120,85" fill="#9370DB"/>
+  <path d="M60,80 Q40,55 60,35 Q75,25 85,45 Q80,65 70,75" fill="#FF1493"/>
+  <path d="M120,80 Q140,55 120,35 Q105,25 95,45 Q100,65 110,75" fill="#8A2BE2"/>
+  <path d="M70,70 Q50,45 70,25 Q85,15 95,35 Q90,55 80,65" fill="#FF6347"/>
+  <path d="M110,70 Q130,45 110,25 Q95,15 85,35 Q90,55 100,65" fill="#DA70D6"/>
+  <path d="M75,65 Q55,40 75,20 Q90,10 100,30 Q95,50 85,60" fill="#FF4500"/>
+  <path d="M105,65 Q125,40 105,20 Q90,10 80,30 Q85,50 95,60" fill="#BA55D3"/>
+  
+  <!-- Magic sparkles (using actual emoji-style) -->
+  <g fill="#FFD700">
+    <text x="40" y="50" font-size="16" font-family="Arial">✨</text>
+    <text x="140" y="45" font-size="12" font-family="Arial">⭐</text>
+    <text x="145" y="120" font-size="14" font-family="Arial">✨</text>
+    <text x="30" y="130" font-size="10" font-family="Arial">⭐</text>
+    <text x="25" y="80" font-size="12" font-family="Arial">💫</text>
+    <text x="155" y="85" font-size="11" font-family="Arial">✨</text>
+  </g>
+</svg>

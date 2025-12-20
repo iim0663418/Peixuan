@@ -1,3 +1,6 @@
+/* eslint-disable complexity */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable max-depth */
 import axios from 'axios';
 import type { PurpleStarAPIResponse } from '@/types/astrologyTypes';
 

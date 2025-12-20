@@ -3,6 +3,7 @@ import { ref, computed, defineAsyncComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useChartStore } from '@/stores/chartStore';
 import { ElMessage } from 'element-plus';
+import { useI18n } from 'vue-i18n';
 
 const LanguageSelector = defineAsyncComponent(
   () => import('@/components/LanguageSelector.vue'),
@@ -11,6 +12,7 @@ const LanguageSelector = defineAsyncComponent(
 const route = useRoute();
 const router = useRouter();
 const chartStore = useChartStore();
+const { t } = useI18n();
 const showMobileMenu = ref(false);
 
 const hasChartData = computed(() => chartStore.hasChart);
@@ -34,7 +36,7 @@ const handleAIAnalysis = () => {
     const chartId = chartStore.loadFromLocalStorage();
     if (!chartId) {
       ElMessage({
-        message: '請先計算命盤，才能進行性格分析',
+        message: t('navigation.messages.needChartForPersonality'),
         type: 'info',
         duration: 2000,
       });
@@ -52,7 +54,7 @@ const handleAdvancedAnalysis = () => {
     const chartId = chartStore.loadFromLocalStorage();
     if (!chartId) {
       ElMessage({
-        message: '請先計算命盤，才能進行運勢分析',
+        message: t('navigation.messages.needChartForFortune'),
         type: 'info',
         duration: 2000,
       });

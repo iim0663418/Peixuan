@@ -1,5 +1,6 @@
 /* 引入設計Token系統 */
 @import './styles/design-tokens.css';
+@import './styles/animations.css';
 
 :root {
   font-family: var(--font-family-primary);

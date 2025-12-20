@@ -1,0 +1,336 @@
+/**
+ * Animation Performance Optimization
+ * Mobile-first approach with entrance animations instead of continuous animations
+ * Full prefers-reduced-motion support for accessibility
+ */
+
+:root {
+  /* Animation durations */
+  --anim-duration-fast: 0.2s;
+  --anim-duration-normal: 0.3s;
+  --anim-duration-slow: 0.5s;
+  --anim-duration-slower: 0.8s;
+
+  /* Animation easing functions */
+  --anim-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --anim-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --anim-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --anim-ease-bounce: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* ===== Entrance Animations (Mobile-Optimized) ===== */
+
+/**
+ * Fade In Up - Optimized for mobile
+ * Uses transform and opacity for GPU acceleration
+ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp var(--anim-duration-slow) var(--anim-ease-out) backwards;
+}
+
+/**
+ * Fade In - Simple opacity transition
+ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn var(--anim-duration-normal) var(--anim-ease-out) backwards;
+}
+
+/**
+ * Scale In - For modal and dialog entrances
+ */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale3d(0.95, 0.95, 1);
+  }
+  to {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+.scale-in {
+  animation: scaleIn var(--anim-duration-normal) var(--anim-ease-out) backwards;
+}
+
+/**
+ * Slide In From Right - For drawer/panel entrances
+ */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translate3d(30px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight var(--anim-duration-normal) var(--anim-ease-out) backwards;
+}
+
+/**
+ * Progressive Load - For staggered content loading
+ */
+@keyframes progressiveLoad {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.progressive-load {
+  animation: progressiveLoad 0.4s var(--anim-ease-out) backwards;
+}
+
+/* Stagger delays for progressive loading */
+.progressive-load:nth-child(1) { animation-delay: 0.05s; }
+.progressive-load:nth-child(2) { animation-delay: 0.1s; }
+.progressive-load:nth-child(3) { animation-delay: 0.15s; }
+.progressive-load:nth-child(4) { animation-delay: 0.2s; }
+.progressive-load:nth-child(5) { animation-delay: 0.25s; }
+
+/* ===== Loading Spinners (Necessary Continuous Animations) ===== */
+
+/**
+ * Spin - For loading indicators only
+ * Continuous animation, but acceptable for loading states
+ */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 1.2s linear infinite;
+}
+
+/**
+ * Pulse - For loading indicators only
+ * Gentle pulse for waiting states
+ */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/**
+ * Thinking Dots - For AI processing states
+ */
+@keyframes thinking {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.thinking-dot {
+  animation: thinking 1.4s infinite ease-in-out both;
+}
+
+.thinking-dot:nth-child(1) { animation-delay: -0.32s; }
+.thinking-dot:nth-child(2) { animation-delay: -0.16s; }
+.thinking-dot:nth-child(3) { animation-delay: 0s; }
+
+/* ===== Hover and Interaction Animations ===== */
+
+/**
+ * Hover transitions - Only on devices that support hover
+ */
+@media (hover: hover) {
+  .hover-lift {
+    transition: transform var(--anim-duration-fast) var(--anim-ease-out),
+                box-shadow var(--anim-duration-fast) var(--anim-ease-out);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  .hover-scale {
+    transition: transform var(--anim-duration-fast) var(--anim-ease-out);
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  .hover-glow {
+    transition: box-shadow var(--anim-duration-fast) var(--anim-ease-out);
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 4px 20px rgba(64, 158, 255, 0.3);
+  }
+}
+
+/* ===== Mobile-Specific Optimizations ===== */
+
+/**
+ * Disable continuous animations on mobile to save battery
+ * Keep entrance animations as they're one-time only
+ */
+@media (max-width: 767px) {
+  /* Remove all continuous/infinite animations on mobile */
+  .hero-section::before,
+  .quick-access-card::before,
+  .floating-decoration {
+    animation: none !important;
+  }
+
+  /* Reduce animation duration on mobile for snappier feel */
+  * {
+    animation-duration: calc(var(--anim-duration-normal) * 0.8) !important;
+  }
+
+  /* Disable hover effects on touch devices */
+  .hover-lift:hover,
+  .hover-scale:hover,
+  .hover-glow:hover {
+    transform: none;
+    box-shadow: initial;
+  }
+}
+
+/* ===== Accessibility: Prefers Reduced Motion ===== */
+
+/**
+ * Disable ALL animations for users who prefer reduced motion
+ * Critical for accessibility compliance
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep essential focus indicators */
+  :focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+}
+
+/* ===== Performance Optimizations ===== */
+
+/**
+ * Force GPU acceleration for transform animations
+ * Use transform3d instead of transform for better performance
+ */
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/**
+ * Will-change hints for browsers
+ * Use sparingly - only on elements that will definitely animate
+ */
+.will-animate-transform {
+  will-change: transform;
+}
+
+.will-animate-opacity {
+  will-change: opacity;
+}
+
+/* Remove will-change after animation completes to free up resources */
+.animation-complete {
+  will-change: auto;
+}
+
+/* ===== Loading States ===== */
+
+/**
+ * Shimmer effect for skeleton loaders
+ * More efficient than gradient animations
+ */
+@keyframes shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 0%,
+    var(--bg-secondary) 50%,
+    var(--bg-tertiary) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ===== Utility Classes ===== */
+
+/* Animation delays */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* Animation durations */
+.duration-fast { animation-duration: var(--anim-duration-fast); }
+.duration-normal { animation-duration: var(--anim-duration-normal); }
+.duration-slow { animation-duration: var(--anim-duration-slow); }
+.duration-slower { animation-duration: var(--anim-duration-slower); }
+
+/* Disable animations */
+.no-animation {
+  animation: none !important;
+  transition: none !important;
+}

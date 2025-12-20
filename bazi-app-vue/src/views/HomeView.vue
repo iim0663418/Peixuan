@@ -184,7 +184,7 @@ const quickStart = () => {
   overflow: hidden;
 }
 
-/* 增加漸層裝飾效果 */
+/* 增加漸層裝飾效果 - Static on mobile for battery optimization */
 .hero-section::before {
   content: '';
   position: absolute;
@@ -197,18 +197,25 @@ const quickStart = () => {
     rgba(210, 105, 30, 0.05) 0%,
     transparent 70%
   );
-  animation: subtle-pulse 8s ease-in-out infinite;
+  opacity: 0.6;
 }
 
-@keyframes subtle-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.5;
+/* Only animate on desktop with hover support */
+@media (hover: hover) and (min-width: 1024px) {
+  .hero-section::before {
+    animation: subtle-pulse 8s ease-in-out infinite;
   }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
+
+  @keyframes subtle-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
   }
 }
 
@@ -277,24 +284,12 @@ const quickStart = () => {
 .service-grid {
   display: grid;
   gap: var(--space-xl, 2rem);
-  animation: fadeInUp 0.6s ease-out;
 }
 
 /* Daily Reminder Section */
 .daily-reminder-section {
   background: var(--bg-primary, #f7f8fa);
   padding: var(--space-2xl, 3rem) 0;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* Quick Access Section */
@@ -331,15 +326,22 @@ const quickStart = () => {
     rgba(255, 255, 255, 0.1) 0%,
     transparent 70%
   );
-  animation: rotate-gradient 10s linear infinite;
+  opacity: 0.8;
 }
 
-@keyframes rotate-gradient {
-  from {
-    transform: rotate(0deg);
+/* Only animate on desktop - saves battery on mobile */
+@media (hover: hover) and (min-width: 1024px) {
+  .quick-access-card::before {
+    animation: rotate-gradient 10s linear infinite;
   }
-  to {
-    transform: rotate(360deg);
+
+  @keyframes rotate-gradient {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 }
 
@@ -508,14 +510,20 @@ const quickStart = () => {
 
 /* 無障礙增強 - 減少動畫 */
 @media (prefers-reduced-motion: reduce) {
-  .hero-section::before,
-  .quick-access-card::before,
-  .service-grid {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
   }
 
-  * {
-    transition: none !important;
+  /* Keep essential focus indicators for keyboard navigation */
+  :focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
   }
 }
 </style>

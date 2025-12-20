@@ -153,26 +153,62 @@
 }
 
 /* ===== 深色主題變數 Dark Theme ===== */
-[data-theme='dark'] {
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --text-tertiary: #888888;
-  --text-disabled: #666666;
-  --text-inverse: #2c3e50;
+[data-theme='dark'] :root {
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-disabled: #6b7280;
+  --text-inverse: #111827;
 
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #2d2d2d;
-  --bg-tertiary: #404040;
-  --bg-disabled: #333333;
-  --bg-overlay: rgba(255, 255, 255, 0.1);
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-tertiary: #374151;
+  --bg-disabled: #4b5563;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
 
-  --border-light: #404040;
-  --border-medium: #555555;
-  --border-dark: #666666;
+  --border-light: #374151;
+  --border-medium: #4b5563;
+  --border-dark: #6b7280;
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.7);
+
+  /* Adjust primary colors for dark mode */
+  --primary-lightest: #2d1810;
+  --bazi-orange-lightest: #2d1810;
+  --purple-star-lightest: #1f1629;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-tertiary: #9ca3af;
+    --text-disabled: #6b7280;
+    --text-inverse: #111827;
+
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --bg-tertiary: #374151;
+    --bg-disabled: #4b5563;
+    --bg-overlay: rgba(0, 0, 0, 0.7);
+
+    --border-light: #374151;
+    --border-medium: #4b5563;
+    --border-dark: #6b7280;
+
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.6);
+    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.7);
+
+    /* Adjust primary colors for dark mode */
+    --primary-lightest: #2d1810;
+    --bazi-orange-lightest: #2d1810;
+    --purple-star-lightest: #1f1629;
+  }
 }
 
 /* ===== 通用工具類 Utility Classes ===== */

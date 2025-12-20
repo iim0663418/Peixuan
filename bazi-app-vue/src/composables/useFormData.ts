@@ -44,8 +44,9 @@ export function useFormData() {
     { label: '美洲/溫哥華 (GMT-8)', value: 'America/Vancouver' },
   ]);
 
-  // 主要城市座標資料
+  // 主要城市座標資料 - 擴展列表作為地理編碼失敗時的備選方案
   const majorCities = ref<CityOption[]>([
+    // 台灣地區
     {
       label: '台北, 台灣',
       value: 'taipei',
@@ -68,6 +69,21 @@ export function useFormData() {
       timezone: 'Asia/Taipei',
     },
     {
+      label: '台南, 台灣',
+      value: 'tainan',
+      longitude: 120.2133,
+      latitude: 22.9999,
+      timezone: 'Asia/Taipei',
+    },
+    {
+      label: '新竹, 台灣',
+      value: 'hsinchu',
+      longitude: 120.9647,
+      latitude: 24.8138,
+      timezone: 'Asia/Taipei',
+    },
+    // 中國大陸
+    {
       label: '上海, 中國',
       value: 'shanghai',
       longitude: 121.4737,
@@ -82,12 +98,42 @@ export function useFormData() {
       timezone: 'Asia/Shanghai',
     },
     {
+      label: '廣州, 中國',
+      value: 'guangzhou',
+      longitude: 113.2644,
+      latitude: 23.1291,
+      timezone: 'Asia/Shanghai',
+    },
+    {
+      label: '深圳, 中國',
+      value: 'shenzhen',
+      longitude: 114.0579,
+      latitude: 22.5431,
+      timezone: 'Asia/Shanghai',
+    },
+    {
+      label: '成都, 中國',
+      value: 'chengdu',
+      longitude: 104.0668,
+      latitude: 30.5728,
+      timezone: 'Asia/Shanghai',
+    },
+    // 港澳地區
+    {
       label: '香港',
       value: 'hongkong',
       longitude: 114.1694,
       latitude: 22.3193,
       timezone: 'Asia/Hong_Kong',
     },
+    {
+      label: '澳門',
+      value: 'macau',
+      longitude: 113.5439,
+      latitude: 22.1987,
+      timezone: 'Asia/Macau',
+    },
+    // 亞洲其他地區
     {
       label: '東京, 日本',
       value: 'tokyo',
@@ -110,12 +156,35 @@ export function useFormData() {
       timezone: 'Asia/Singapore',
     },
     {
+      label: '曼谷, 泰國',
+      value: 'bangkok',
+      longitude: 100.5018,
+      latitude: 13.7563,
+      timezone: 'Asia/Bangkok',
+    },
+    {
+      label: '吉隆坡, 馬來西亞',
+      value: 'kualalumpur',
+      longitude: 101.6869,
+      latitude: 3.139,
+      timezone: 'Asia/Kuala_Lumpur',
+    },
+    // 歐洲
+    {
       label: '倫敦, 英國',
       value: 'london',
       longitude: -0.1276,
       latitude: 51.5074,
       timezone: 'Europe/London',
     },
+    {
+      label: '巴黎, 法國',
+      value: 'paris',
+      longitude: 2.3522,
+      latitude: 48.8566,
+      timezone: 'Europe/Paris',
+    },
+    // 美洲
     {
       label: '紐約, 美國',
       value: 'newyork',
@@ -129,6 +198,35 @@ export function useFormData() {
       longitude: -118.2437,
       latitude: 34.0522,
       timezone: 'America/Los_Angeles',
+    },
+    {
+      label: '舊金山, 美國',
+      value: 'sanfrancisco',
+      longitude: -122.4194,
+      latitude: 37.7749,
+      timezone: 'America/Los_Angeles',
+    },
+    {
+      label: '溫哥華, 加拿大',
+      value: 'vancouver',
+      longitude: -123.1207,
+      latitude: 49.2827,
+      timezone: 'America/Vancouver',
+    },
+    // 大洋洲
+    {
+      label: '悉尼, 澳洲',
+      value: 'sydney',
+      longitude: 151.2093,
+      latitude: -33.8688,
+      timezone: 'Australia/Sydney',
+    },
+    {
+      label: '墨爾本, 澳洲',
+      value: 'melbourne',
+      longitude: 144.9631,
+      latitude: -37.8136,
+      timezone: 'Australia/Melbourne',
     },
   ]);
 

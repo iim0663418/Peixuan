@@ -1,4 +1,4 @@
-/* Phase 2: Atmospheric Background Effects */
+/* Phase 2: Atmospheric Background Effects - Static on mobile */
 .atmospheric-bg {
   position: absolute;
   top: 0;
@@ -14,9 +14,6 @@
   border-radius: 50%;
   filter: blur(60px);
   opacity: 0.15;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
 }
 
 .orb-1 {
@@ -29,7 +26,6 @@
   );
   top: 10%;
   left: 5%;
-  animation: float-1 25s;
 }
 
 .orb-2 {
@@ -42,7 +38,6 @@
   );
   top: 60%;
   right: 10%;
-  animation: float-2 30s;
 }
 
 .orb-3 {
@@ -55,33 +50,53 @@
   );
   bottom: 15%;
   left: 50%;
-  animation: float-3 20s;
 }
 
-@keyframes float-1 {
-  0% {
-    transform: translate(0, 0) scale(1);
+/* Only animate floating orbs on desktop to save mobile battery */
+@media (hover: hover) and (min-width: 1024px) {
+  .floating-orb {
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
   }
-  100% {
-    transform: translate(30px, 50px) scale(1.1);
-  }
-}
 
-@keyframes float-2 {
-  0% {
-    transform: translate(0, 0) scale(1);
+  .orb-1 {
+    animation: float-1 25s;
   }
-  100% {
-    transform: translate(-40px, -30px) scale(0.9);
-  }
-}
 
-@keyframes float-3 {
-  0% {
-    transform: translate(0, 0) scale(1);
+  .orb-2 {
+    animation: float-2 30s;
   }
-  100% {
-    transform: translate(20px, -40px) scale(1.05);
+
+  .orb-3 {
+    animation: float-3 20s;
+  }
+
+  @keyframes float-1 {
+    0% {
+      transform: translate(0, 0) scale(1);
+    }
+    100% {
+      transform: translate(30px, 50px) scale(1.1);
+    }
+  }
+
+  @keyframes float-2 {
+    0% {
+      transform: translate(0, 0) scale(1);
+    }
+    100% {
+      transform: translate(-40px, -30px) scale(0.9);
+    }
+  }
+
+  @keyframes float-3 {
+    0% {
+      transform: translate(0, 0) scale(1);
+    }
+    100% {
+      transform: translate(20px, -40px) scale(1.05);
+    }
   }
 }
 

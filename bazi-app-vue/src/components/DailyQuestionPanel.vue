@@ -517,7 +517,7 @@ onMounted(() => {
   gap: var(--space-xs);
 }
 
-/* Animations */
+/* Animations - Loading states only (acceptable continuous animations) */
 @keyframes thinking {
   0%, 80%, 100% {
     transform: scale(0);
@@ -544,6 +544,23 @@ onMounted(() => {
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Accessibility: Disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .status-indicator,
+  .status-icon,
+  .thinking-dots span {
+    animation: none !important;
+  }
+
+  .status-indicator {
+    opacity: 1; /* Show as static indicator */
+  }
+
+  .status-icon {
+    transform: none; /* Show as static icon */
   }
 }
 

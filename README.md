@@ -1,4 +1,4 @@
-# 佩璇 (Peixuan) - 智能命理分析平台
+# 佩璇 (Peixuan) - 智慧命理分析平台
 
 ![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)
 ![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)
@@ -9,12 +9,12 @@
 
 > **結合傳統智慧與現代 AI 科技的命理分析平台**
 
-佩璇 (Peixuan) 是一個現代化的智能命理分析平台，融合傳統中國命理學（八字四柱、紫微斗數）與先進的生成式 AI 技術 (Google Gemini)，透過 Cloudflare Workers 邊緣運算架構，為用戶提供快速、精準且富有洞察力的命運分析。
+佩璇 (Peixuan) 是一個現代化的智慧命理分析平台，融合傳統中國命理學（八字四柱、紫微斗數）與先進的生成式 AI 技術 (Google Gemini)，透過 Cloudflare Workers 邊緣運算架構，為用戶提供快速、精準且富有洞察力的命運分析。
 
 ## 🆕 最新更新 (v1.2.0 - 2025年12月)
 
 ### 🎯 每日一問 AI 助手
-- **智能對話系統**: 基於 ReAct 模式的 Agentic AI，支援自然語言命理諮詢
+- **智慧對話系統**: 基於 ReAct 模式的 Agentic AI，支援自然語言命理諮詢
 - **Function Calling**: 整合 5 個專業工具（命盤查詢、流年分析、能量解讀等）
 - **雙 AI 引擎**: Gemini + Azure OpenAI 備援機制，確保服務穩定性
 - **每日限制保護**: 防止過度使用，維護服務品質
@@ -64,7 +64,7 @@
   - 後端 `UnifiedCalculator` 提供單一真值來源 (Single Source of Truth)
   - 確保前後端數據一致性，避免計算偏差
 
-### 🤖 AI 智能分析 (Powered by Google Gemini)
+### 🤖 AI 智慧分析 (Powered by Google Gemini)
 - **Gemini 3.0 Flash Preview 整合**:
   - 使用最新 Gemini 3.0 Flash Preview 模型
   - 專為命理分析優化的系統提示詞 (System Prompt)
@@ -78,21 +78,21 @@
   - Server-Sent Events (SSE) 技術實現打字機效果
   - 無需等待完整回應，即時顯示分析內容
 
-- **智能快取機制**:
+- **智慧快取機制**:
   - 基於 Cloudflare D1 的多層快取策略
   - 相同命盤直接讀取快取，大幅降低 API 呼叫成本
   - 降低 AI 分析延遲，提升使用者體驗
 
-### 🎯 每日一問智能助手
+### 🎯 每日一問智慧助手
 - **Agentic AI 系統**:
-  - 基於 ReAct 模式的智能代理，支援自然語言命理諮詢
+  - 基於 ReAct 模式的智慧代理，支援自然語言命理諮詢
   - Function Calling 整合 5 個專業工具（命盤查詢、流年分析、能量解讀等）
   - 雙 AI 引擎備援（Gemini + Azure OpenAI）確保服務穩定性
 
-- **智能對話體驗**:
+- **智慧對話體驗**:
   - 漸進式聊天介面，支援打字機效果和思考過程展示
   - 每日限制保護機制，防止過度使用
-  - 智能時間估算和進度指示器
+  - 智慧時間估算和進度指示器
 
 ### ⚡ Edge-First 現代化架構
 - **全球邊緣網絡部署**:

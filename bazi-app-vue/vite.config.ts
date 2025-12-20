@@ -22,7 +22,7 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}'],
       },
       manifest: {
-        name: '佩璇命理智能分析平台',
+        name: '佩璇命理智慧分析平台',
         short_name: '佩璇大師',
         description: '一個現代化的命理分析工具',
         theme_color: '#ffffff',

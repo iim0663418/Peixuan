@@ -1,6 +1,6 @@
 {
   "common": {
-    "app_name": "佩璇命理智能分析平台",
+    "app_name": "佩璇命理智慧分析平台",
     "brand_subtitle": "八字 × 紫微 × AI",
     "home": "首頁",
     "login": "登入",
@@ -112,8 +112,8 @@
     },
     "integrated_analysis": {
       "title": "多術數交互驗證",
-      "description": "結合紫微斗數與八字的智能分析系統，提供跨系統交叉驗證的專業命理分析",
-      "subtitle": "跨系統的命理智能驗證",
+      "description": "結合紫微斗數與八字的智慧分析系統，提供跨系統交叉驗證的專業命理分析",
+      "subtitle": "跨系統的命理智慧驗證",
       "inputSection": "輸入資料",
       "howItWorks": {
         "title": "運作方式",
@@ -238,7 +238,7 @@
     "confidence": "分析信心度",
     "consensusFindings": "共識發現",
     "divergentFindings": "差異發現",
-    "recommendations": "智能建議",
+    "recommendations": "智慧建議",
     "methodsUsed": "驗證方法",
     "details": "詳細分析"
   },
@@ -267,8 +267,8 @@
   },
   "features": {
     "integrated_analysis": {
-      "description": "結合紫微斗數與八字的智能分析系統",
-      "benefits": ["跨系統交叉驗證", "信心度評估", "智能建議", "多維度分析"]
+      "description": "結合紫微斗數與八字的智慧分析系統",
+      "benefits": ["跨系統交叉驗證", "信心度評估", "智慧建議", "多維度分析"]
     }
   },
   "storage": {
@@ -324,7 +324,7 @@
     }
   },
   "home": {
-    "title": "佩璇命理智能分析平台",
+    "title": "佩璇命理智慧分析平台",
     "subtitle": "傳統命理智慧,現代科技精算",
     "description": "結合八字與紫微斗數的專業分析,運用 AI 技術提供易懂的命理解讀",
     "sections": {

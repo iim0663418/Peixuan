@@ -1,6 +1,6 @@
 # 佩璇 (Peixuan) - 智能命理分析平台
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)
 ![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5-4FC08D.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6.svg)
@@ -10,6 +10,41 @@
 > **結合傳統智慧與現代 AI 科技的命理分析平台**
 
 佩璇 (Peixuan) 是一個現代化的智能命理分析平台，融合傳統中國命理學（八字四柱、紫微斗數）與先進的生成式 AI 技術 (Google Gemini)，透過 Cloudflare Workers 邊緣運算架構，為用戶提供快速、精準且富有洞察力的命運分析。
+
+## 🆕 最新更新 (v1.2.0 - 2025年12月)
+
+### 🎯 每日一問 AI 助手
+- **智能對話系統**: 基於 ReAct 模式的 Agentic AI，支援自然語言命理諮詢
+- **Function Calling**: 整合 5 個專業工具（命盤查詢、流年分析、能量解讀等）
+- **雙 AI 引擎**: Gemini + Azure OpenAI 備援機制，確保服務穩定性
+- **每日限制保護**: 防止過度使用，維護服務品質
+- **聊天式 UI**: 漸進式對話體驗，支援打字機效果和思考過程展示
+
+### 🎨 全面 UX/UI 重新設計
+- **從工具到夥伴**: 轉變設計理念，從「命理工具」升級為「智慧夥伴」
+- **敘事優先**: 採用漸進式揭露設計，AI 分析內容優先展示
+- **視覺增強**: 
+  - 深度互動效果（懸停動畫、卡片翻轉、滾動視差）
+  - 大氣背景效果與浮動光球
+  - 多層陰影與漸層邊框
+  - 標點符號感知的打字機節奏
+
+### 📱 響應式設計優化
+- **移動端優先**: 完整的 RWD 響應式設計，支援所有設備尺寸
+- **觸控優化**: 44px 最小觸控目標，改善移動端操作體驗
+- **動畫性能**: 修復 iOS Safari 硬體加速問題，優化動畫流暢度
+- **無障礙支援**: 完整的 `prefers-reduced-motion` 支援
+
+### 🌙 深色模式增強
+- **全域深色模式**: 完整的 Element Plus 組件深色模式支援
+- **對比度優化**: 修復文字對比度問題，提升可讀性
+- **一致性設計**: 統一的深色模式視覺語言
+
+### 🔧 技術架構升級
+- **Gemini 3.0 Flash Preview**: 升級至最新 AI 模型
+- **錯誤處理增強**: 完善的 503/429 錯誤重試機制
+- **代碼品質**: 大幅改善 ESLint 合規性（錯誤數量減少 88.9%）
+- **安全性**: 完成安全審計，移除敏感資訊洩漏風險
 
 ## 🌟 核心特色
 
@@ -48,6 +83,17 @@
   - 相同命盤直接讀取快取，大幅降低 API 呼叫成本
   - 降低 AI 分析延遲，提升使用者體驗
 
+### 🎯 每日一問智能助手
+- **Agentic AI 系統**:
+  - 基於 ReAct 模式的智能代理，支援自然語言命理諮詢
+  - Function Calling 整合 5 個專業工具（命盤查詢、流年分析、能量解讀等）
+  - 雙 AI 引擎備援（Gemini + Azure OpenAI）確保服務穩定性
+
+- **智能對話體驗**:
+  - 漸進式聊天介面，支援打字機效果和思考過程展示
+  - 每日限制保護機制，防止過度使用
+  - 智能時間估算和進度指示器
+
 ### ⚡ Edge-First 現代化架構
 - **全球邊緣網絡部署**:
   - Cloudflare Workers 在全球 300+ 數據中心運行
@@ -61,6 +107,7 @@
   - Vue 3 Composition API + TypeScript 開發
   - Mobile-First 設計理念，完美適配各種螢幕尺寸
   - Element Plus UI 組件庫，現代化視覺體驗
+  - 完整深色模式支援與無障礙設計
 
 - **多語言支援**:
   - Vue I18n 實現國際化 (i18n)

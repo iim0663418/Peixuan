@@ -183,7 +183,7 @@ describe('Annual Pillar with LiChun Boundary', () => {
     });
 
     it('should handle Dec 31 correctly (before next year LiChun)', () => {
-      const result = hasPassedLiChun(new Date('2023-12-31T23:59:59Z'));
+      const result = hasPassedLiChun(new Date('2023-12-31T12:00:00Z')); // 避開時區邊界
       expect(result).toBe(true); // Already passed 2023's LiChun
     });
   });

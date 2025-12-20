@@ -11,16 +11,27 @@ describe('AgenticGeminiService', () => {
 
   // Mock calculation result for testing
   const mockCalculationResult: Partial<CalculationResult> = {
+    input: {
+      solarDate: new Date('2024-01-15T10:30:00'),
+      gender: 'male',
+      longitude: 121.5
+    },
     bazi: {
-      year: { stem: '甲', branch: '子', nayin: '海中金', hiddenStems: { primary: '癸' } },
-      month: { stem: '丙', branch: '寅', nayin: '爐中火', hiddenStems: { primary: '甲', middle: '丙', residual: '戊' } },
-      day: { stem: '戊', branch: '午', nayin: '天上火', hiddenStems: { primary: '丁', middle: '己' } },
-      hour: { stem: '壬', branch: '子', nayin: '桑柘木', hiddenStems: { primary: '癸' } },
-      wuXing: {
-        distribution: { wood: 1, fire: 2, earth: 2, metal: 0, water: 3 },
-        strength: '身弱',
-        yongshen: ['木', '火'],
-        jishen: ['金', '水']
+      fourPillars: {
+        year: { stem: '甲', branch: '子', nayin: '海中金', hiddenStems: { primary: '癸' } },
+        month: { stem: '丙', branch: '寅', nayin: '爐中火', hiddenStems: { primary: '甲', middle: '丙', residual: '戊' } },
+        day: { stem: '戊', branch: '午', nayin: '天上火', hiddenStems: { primary: '丁', middle: '己' } },
+        hour: { stem: '壬', branch: '子', nayin: '桑柘木', hiddenStems: { primary: '癸' } }
+      },
+      wuxingDistribution: {
+        raw: {
+          tiangan: { Wood: 1, Fire: 2, Earth: 1, Metal: 0, Water: 2 },
+          hiddenStems: { Wood: 1.5, Fire: 2.5, Earth: 1.5, Metal: 0, Water: 2.5 }
+        },
+        adjusted: { Wood: 1.5, Fire: 2.5, Earth: 1.5, Metal: 0, Water: 2.5 },
+        dominant: '火',
+        deficient: '金',
+        balance: 0.6
       },
       tenGods: {},
       fortune: {
@@ -47,8 +58,8 @@ describe('AgenticGeminiService', () => {
       }
     },
     ziwei: {
-      lifePalace: { name: '命宮', position: 0, stem: '甲', branch: '子', stars: ['紫微', '天府'] },
-      bodyPalace: { name: '身宮', position: 6, stem: '庚', branch: '午' },
+      lifePalace: { name: '命宮', position: 0, stem: '甲', branch: '子', stars: [] },
+      bodyPalace: { name: '身宮', position: 6, stem: '庚', branch: '午', stars: [] },
       bureau: '水二局',
       palaces: [],
       sihua: {
@@ -57,6 +68,62 @@ describe('AgenticGeminiService', () => {
           quan: '天機化權',
           ke: '太陽化科',
           ji: '天同化忌'
+        }
+      },
+      sihuaAggregation: {
+        stressNodes: [
+          { palaceName: '疾厄宮', inDegree: 2, severity: 'medium' }
+        ],
+        resourceNodes: [
+          { palaceName: '財帛宮', outDegree: 2, severity: 'medium' }
+        ],
+        powerNodes: [
+          { palaceName: '官祿宮', outDegree: 1, severity: 'low' }
+        ],
+        fameNodes: [],
+        hasJiCycle: true,
+        jiCycles: [
+          { description: '命宮化忌入疾厄宮 -> 疾厄宮化忌入財帛宮', severity: 'medium' }
+        ],
+        hasLuCycle: false,
+        luCycles: [],
+        quanCycles: [],
+        keCycles: [],
+        totalEdges: 10,
+        edgesByType: { '化祿': 3, '化權': 2, '化科': 2, '化忌': 3 },
+        edgesByLayer: { '本命': 8, '流年': 2 }
+      }
+    },
+    annualFortune: {
+      annualPillar: { stem: '乙', branch: '巳', nayin: '佛燈火', hiddenStems: { primary: '丙', middle: '庚', residual: '戊' } },
+      annualLifePalaceIndex: 4,
+      taiSuiAnalysis: {
+        severity: 'low',
+        types: [],
+        zhi: false,
+        chong: false,
+        xing: { hasXing: false },
+        po: false,
+        hai: false,
+        recommendations: []
+      },
+      interactions: {
+        stemCombinations: [],
+        branchClashes: [],
+        harmoniousCombinations: []
+      },
+      yearlyForecast: {
+        currentPeriod: {
+          pillar: { stem: '乙', branch: '巳', nayin: '佛燈火', hiddenStems: { primary: '丙' } },
+          startDate: '2025-02-04T00:00:00Z',
+          endDate: '2026-02-03T23:59:59Z',
+          age: 1
+        },
+        nextPeriod: {
+          pillar: { stem: '丙', branch: '午', nayin: '天河水', hiddenStems: { primary: '丁' } },
+          startDate: '2026-02-04T00:00:00Z',
+          endDate: '2027-02-03T23:59:59Z',
+          age: 2
         }
       }
     },
@@ -77,15 +144,17 @@ describe('AgenticGeminiService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should have 3 tools defined', () => {
+  it('should have 5 tools defined', () => {
     const service = new AgenticGeminiService(mockApiKey);
     // Access private field for testing via type assertion
     const tools = (service as any).tools;
-    expect(tools).toHaveLength(3);
+    expect(tools).toHaveLength(5);
     expect(tools.map((t: any) => t.name)).toEqual([
       'get_bazi_profile',
       'get_ziwei_chart',
-      'get_daily_transit'
+      'get_daily_transit',
+      'get_annual_context',
+      'get_life_forces'
     ]);
   });
 
@@ -123,6 +192,30 @@ describe('AgenticGeminiService', () => {
     expect(result).toContain('流年干支');
   });
 
+  it('should execute get_annual_context tool', async () => {
+    const service = new AgenticGeminiService(mockApiKey);
+    const executeTool = (service as any).executeTool.bind(service);
+
+    const result = await executeTool('get_annual_context', mockCalculationResult);
+
+    expect(result).toContain('【流年大環境背景】');
+    expect(result).toContain('流年干支');
+    expect(result).toContain('太歲互動狀況');
+    expect(result).toContain('流年與命盤互動');
+  });
+
+  it('should execute get_life_forces tool', async () => {
+    const service = new AgenticGeminiService(mockApiKey);
+    const executeTool = (service as any).executeTool.bind(service);
+
+    const result = await executeTool('get_life_forces', mockCalculationResult);
+
+    expect(result).toContain('【命盤能量流動與五行結構】');
+    expect(result).toContain('五行能量分布');
+    expect(result).toContain('四化能量聚散分析');
+    expect(result).toContain('壓力匯聚點');
+  });
+
   it('should return error for unknown tool', async () => {
     const service = new AgenticGeminiService(mockApiKey);
     const executeTool = (service as any).executeTool.bind(service);
@@ -143,6 +236,8 @@ describe('AgenticGeminiService', () => {
     expect(prompt).toContain('get_bazi_profile');
     expect(prompt).toContain('get_ziwei_chart');
     expect(prompt).toContain('get_daily_transit');
+    expect(prompt).toContain('get_annual_context');
+    expect(prompt).toContain('get_life_forces');
   });
 
   it('should build correct system prompt in English', () => {

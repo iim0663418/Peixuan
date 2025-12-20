@@ -16,6 +16,7 @@ import type { CalculationResult } from '../calculation/types';
 interface FunctionTool {
   name: string;
   description: string;
+  descriptionEn?: string;
   parameters: {
     type: string;
     properties: Record<string, unknown>;
@@ -54,6 +55,7 @@ export class AgenticAzureService {
     {
       name: 'get_bazi_profile',
       description: '獲取用戶的八字命盤基本資料,包含四柱、十神、五行分布等核心信息。適用於需要了解命主基本格局時使用。',
+      descriptionEn: 'Get user BaZi chart basic data, including Four Pillars, Ten Gods, Five Elements distribution. Use when understanding basic chart structure.',
       parameters: {
         type: 'object',
         properties: {},
@@ -63,6 +65,7 @@ export class AgenticAzureService {
     {
       name: 'get_ziwei_chart',
       description: '獲取用戶的紫微斗數命盤,包含十二宮位、主星分布、四化情況等。適用於需要分析宮位關係或星曜配置時使用。',
+      descriptionEn: 'Get user Zi Wei Dou Shu chart, including twelve palaces, major stars distribution, SiHua transformations. Use for analyzing palace relationships or star configurations.',
       parameters: {
         type: 'object',
         properties: {},
@@ -72,6 +75,27 @@ export class AgenticAzureService {
     {
       name: 'get_daily_transit',
       description: '獲取今日的天象流運資訊,包含流年、流月干支、太歲方位等時空因素。適用於分析當日運勢或時間選擇時使用。',
+      descriptionEn: 'Get today transit information, including annual fortune, monthly stems/branches, Tai Sui direction. Use for daily fortune analysis or timing selection.',
+      parameters: {
+        type: 'object',
+        properties: {},
+        required: []
+      }
+    },
+    {
+      name: 'get_annual_context',
+      description: '獲取流年大環境背景,包含太歲互動狀況、年運預測、干支交互等年度整體運勢脈絡。提供宏觀年運視角,避免局部建議與全年趨勢衝突。',
+      descriptionEn: 'Get annual macro context including Tai Sui interactions, yearly forecast, annual fortune trends. Provides macro perspective for yearly planning.',
+      parameters: {
+        type: 'object',
+        properties: {},
+        required: []
+      }
+    },
+    {
+      name: 'get_life_forces',
+      description: '獲取命盤能量流動與五行結構,包含四化聚散分析、能量循環、壓力與資源分布等深層能量模式。用於理解個人內在驅動力與能量特質。',
+      descriptionEn: 'Get life force energy flow and Five Elements structure, including SiHua aggregation, energy cycles, pressure/resource distribution. Use for understanding inner drive and energy patterns.',
       parameters: {
         type: 'object',
         properties: {},
@@ -94,9 +118,10 @@ export class AgenticAzureService {
    *
    * @param functionName - Name of the function to execute
    * @param calculationResult - Pre-calculated chart data
+   * @param locale - Locale for response language
    * @returns Observation string
    */
-  private async executeTool(functionName: string, calculationResult: CalculationResult): Promise<string> {
+  private async executeTool(functionName: string, calculationResult: CalculationResult, locale: string = 'zh-TW'): Promise<string> {
     console.log(`[AgenticAzure] Executing tool: ${functionName}`);
 
     switch (functionName) {
@@ -109,8 +134,14 @@ export class AgenticAzureService {
       case 'get_daily_transit':
         return this.getDailyTransit(calculationResult);
 
+      case 'get_annual_context':
+        return this.getAnnualContext(calculationResult, locale);
+
+      case 'get_life_forces':
+        return this.getLifeForces(calculationResult, locale);
+
       default:
-        return `錯誤：未知的工具 "${functionName}"`;
+        return locale === 'en' ? `Error: Unknown tool "${functionName}"` : `錯誤：未知的工具 "${functionName}"`;
     }
   }
 
@@ -189,6 +220,166 @@ export class AgenticAzureService {
     }
 
     return chart.join('\n');
+  }
+
+  /**
+   * Get annual context (macro yearly overview)
+   */
+  private getAnnualContext(result: CalculationResult, locale: string = 'zh-TW'): string {
+    const context = [];
+
+    if (locale === 'en') {
+      context.push('【Annual Macro Context】', '');
+    } else {
+      context.push('【流年大環境背景】', '');
+    }
+
+    if (!result.annualFortune) {
+      const message = locale === 'en' 
+        ? 'Note: No annual fortune data available. This tool requires complete annual calculation results.'
+        : '注意：目前無流年資料。此工具需要完整的流年計算結果。';
+      context.push(message);
+      return context.join('\n');
+    }
+
+    const annual = result.annualFortune;
+
+    // Annual Pillar
+    const pillarTitle = locale === 'en' ? '1. Annual Stems & Branches' : '一、流年干支';
+    context.push(pillarTitle);
+    context.push(`流年：${annual.annualPillar.stem}${annual.annualPillar.branch}`);
+    context.push(`流年命宮位置：第${annual.annualLifePalaceIndex + 1}宮`);
+    context.push('');
+
+    // Tai Sui Analysis
+    if (annual.taiSuiAnalysis) {
+      const taiSui = annual.taiSuiAnalysis;
+      context.push('二、太歲互動狀況');
+      context.push(`嚴重程度：${this.formatSeverity(taiSui.severity)}`);
+
+      if (taiSui.types.length > 0) {
+        context.push(`互動類型：${taiSui.types.join('、')}`);
+      } else {
+        context.push('互動類型：無犯太歲');
+      }
+
+      if (taiSui.recommendations.length > 0) {
+        context.push('');
+        context.push('化解建議：');
+        taiSui.recommendations.forEach((rec, idx) => {
+          context.push(`  ${idx + 1}. ${rec}`);
+        });
+      }
+      context.push('');
+    }
+
+    // Interactions
+    context.push('三、流年與命盤互動');
+    const interactions = annual.interactions;
+
+    if (interactions.stemCombinations.length > 0) {
+      context.push('天干五合：');
+      interactions.stemCombinations.forEach(comb => {
+        context.push(`  • ${comb.natal} + ${comb.annual} → ${comb.resultElement}`);
+      });
+    } else {
+      context.push('天干五合：無');
+    }
+
+    if (interactions.branchClashes.length > 0) {
+      context.push('地支六沖：');
+      interactions.branchClashes.forEach(clash => {
+        context.push(`  • ${clash.natal} ⚡ ${clash.annual}（${clash.severity}）`);
+      });
+    } else {
+      context.push('地支六沖：無');
+    }
+
+    context.push('');
+    context.push('總結：此為「全年天氣預報」,可用於分析整年運勢格局。');
+
+    return context.join('\n');
+  }
+
+  /**
+   * Get life forces (internal energy flow)
+   */
+  private getLifeForces(result: CalculationResult, locale: string = 'zh-TW'): string {
+    const forces = [];
+
+    if (locale === 'en') {
+      forces.push('【Life Force Energy Flow & Five Elements Structure】', '');
+    } else {
+      forces.push('【命盤能量流動與五行結構】', '');
+    }
+
+    // Five Elements Distribution
+    const wuxing = result.bazi.wuxingDistribution;
+
+    forces.push('一、五行能量分布');
+    forces.push('調整後分數：');
+    forces.push(`  木：${wuxing.adjusted.Wood.toFixed(2)}`);
+    forces.push(`  火：${wuxing.adjusted.Fire.toFixed(2)}`);
+    forces.push(`  土：${wuxing.adjusted.Earth.toFixed(2)}`);
+    forces.push(`  金：${wuxing.adjusted.Metal.toFixed(2)}`);
+    forces.push(`  水：${wuxing.adjusted.Water.toFixed(2)}`);
+    forces.push('');
+    forces.push(`主導五行：${wuxing.dominant}（能量最強）`);
+    forces.push(`缺失五行：${wuxing.deficient}（能量最弱）`);
+    forces.push(`平衡指數：${(wuxing.balance * 100).toFixed(1)}%`);
+    forces.push('');
+
+    // SiHua Aggregation
+    const sihua = result.ziwei.sihuaAggregation;
+
+    if (sihua) {
+      forces.push('二、四化能量聚散分析');
+      forces.push('');
+
+      forces.push('壓力匯聚點（高忌入度）：');
+      if (sihua.stressNodes.length > 0) {
+        sihua.stressNodes.forEach(node => {
+          forces.push(`  • ${node.palaceName}（入度: ${node.inDegree}）`);
+        });
+      } else {
+        forces.push('  無明顯壓力匯聚點');
+      }
+      forces.push('');
+
+      forces.push('資源發源點（高祿出度）：');
+      if (sihua.resourceNodes.length > 0) {
+        sihua.resourceNodes.forEach(node => {
+          forces.push(`  • ${node.palaceName}（出度: ${node.outDegree}）`);
+        });
+      } else {
+        forces.push('  無明顯資源發源點');
+      }
+      forces.push('');
+
+      forces.push(`總邊數：${sihua.totalEdges}`);
+    } else {
+      forces.push('二、四化能量聚散分析');
+      forces.push('注意：目前無四化聚散資料。');
+    }
+
+    forces.push('');
+    forces.push('總結：此為命盤內部的「能量地圖」,揭示個性特質與天生優勢。');
+
+    return forces.join('\n');
+  }
+
+  /**
+   * Helper: Format severity level to Chinese
+   */
+  private formatSeverity(severity: string): string {
+    const map: Record<string, string> = {
+      'none': '無影響',
+      'low': '輕微', 
+      'medium': '中等',
+      'high': '嚴重',
+      'critical': '極嚴重'
+    };
+    return map[severity] || severity;
   }
 
   /**
@@ -327,7 +518,7 @@ export class AgenticAzureService {
 
               // Execute tools and collect observations
               for (const toolCall of toolCalls) {
-                const observation = await self.executeTool(toolCall.function.name, calculationResult);
+                const observation = await self.executeTool(toolCall.function.name, calculationResult, locale);
 
                 // Add tool response to history
                 conversationHistory.push({
@@ -398,6 +589,13 @@ export class AgenticAzureService {
 1. get_bazi_profile - 查詢八字命盤資料
 2. get_ziwei_chart - 查詢紫微斗數命盤
 3. get_daily_transit - 查詢今日流運資訊
+4. get_annual_context - 查詢流年大環境背景（太歲、年運預測）
+5. get_life_forces - 查詢命盤能量流動與五行結構
+
+工具使用建議:
+- 優先使用 get_annual_context 了解年運大局
+- 使用 get_life_forces 理解個人能量特質
+- 結合其他工具提供全面分析
 
 回答步驟:
 1. 分析用戶問題,判斷需要哪些命盤資料
@@ -439,11 +637,22 @@ Available tools:
 1. get_bazi_profile - Get BaZi chart data
 2. get_ziwei_chart - Get Zi Wei Dou Shu chart
 3. get_daily_transit - Get daily transit information
+4. get_annual_context - Get annual fortune background (Tai Sui, yearly forecast)
+5. get_life_forces - Get life force energy flow and Five Elements structure
+
+Tool usage recommendations:
+- Prioritize get_annual_context for yearly macro perspective
+- Use get_life_forces to understand personal energy patterns
+- Combine with other tools for comprehensive analysis
 
 Answering process:
-1. Analyze the question and determine needed data
-2. Use appropriate tools to fetch data
-3. Provide professional and clear insights
+1. Analyze the question and identify keywords (annual, energy, personality, etc.)
+2. Select tools based on keywords:
+   - Questions about annual/yearly → MUST include get_annual_context
+   - Questions about energy/personality → MUST include get_life_forces
+   - Comprehensive analysis → Recommend using BOTH new tools
+3. Use appropriate tools to fetch data
+4. Provide professional and clear insights
 
 Guidelines:
 - IMPORTANT: Always respond in English only

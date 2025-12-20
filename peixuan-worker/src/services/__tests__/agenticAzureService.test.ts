@@ -18,16 +18,29 @@ describe('AgenticAzureService', () => {
 
   // Mock calculation result for testing
   const mockCalculationResult: Partial<CalculationResult> = {
+    input: {
+      solarDate: new Date('2024-01-15T10:30:00'),
+      gender: 'male',
+      longitude: 121.5,
+      isLeapMonth: false
+    },
     bazi: {
-      year: { stem: '甲', branch: '子', nayin: '海中金', hiddenStems: { primary: '癸' } },
-      month: { stem: '丙', branch: '寅', nayin: '爐中火', hiddenStems: { primary: '甲', middle: '丙', residual: '戊' } },
-      day: { stem: '戊', branch: '午', nayin: '天上火', hiddenStems: { primary: '丁', middle: '己' } },
-      hour: { stem: '壬', branch: '子', nayin: '桑柘木', hiddenStems: { primary: '癸' } },
+      fourPillars: {
+        year: { stem: '甲', branch: '子', nayin: '海中金', hiddenStems: { primary: '癸' } },
+        month: { stem: '丙', branch: '寅', nayin: '爐中火', hiddenStems: { primary: '甲', middle: '丙', residual: '戊' } },
+        day: { stem: '戊', branch: '午', nayin: '天上火', hiddenStems: { primary: '丁', middle: '己' } },
+        hour: { stem: '壬', branch: '子', nayin: '桑柘木', hiddenStems: { primary: '癸' } }
+      },
       wuXing: {
         distribution: { wood: 1, fire: 2, earth: 2, metal: 0, water: 3 },
         strength: '身弱',
         yongshen: ['木', '火'],
         jishen: ['金', '水']
+      },
+      wuxingDistribution: {
+        adjusted: { Wood: 1, Fire: 2, Earth: 2, Metal: 0, Water: 3 },
+        dominant: '水',
+        deficient: '金'
       },
       tenGods: {},
       fortune: {
@@ -84,15 +97,17 @@ describe('AgenticAzureService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should have 3 tools defined', () => {
+  it('should have 5 tools defined', () => {
     const service = new AgenticAzureService(mockConfig);
     // Access private field for testing via type assertion
     const tools = (service as any).tools;
-    expect(tools).toHaveLength(3);
+    expect(tools).toHaveLength(5);
     expect(tools.map((t: any) => t.name)).toEqual([
       'get_bazi_profile',
-      'get_ziwei_chart',
-      'get_daily_transit'
+      'get_ziwei_chart', 
+      'get_daily_transit',
+      'get_annual_context',
+      'get_life_forces'
     ]);
   });
 
@@ -257,7 +272,7 @@ describe('AgenticAzureService', () => {
     const endpoint = (service as any).endpoint;
 
     expect(endpoint).toBe('https://test.openai.azure.com');
-    expect(endpoint).not.toContain('//');
+    expect(endpoint.endsWith('/')).toBe(false);
   });
 
   it('should use default values for optional config', () => {

@@ -74,10 +74,10 @@ export function analyzeTaiSui(
 
   // 執行所有檢測
   const zhi = detectZhiTaiSui(annualBranch, natalChart.year.branch);
-  const chong = detectChongTaiSui(annualBranch, natalChart.year.branch);
+  const chong = natalBranches.some(b => detectChongTaiSui(annualBranch, b));
   const xing = detectXingTaiSui(annualBranch, natalBranches);
-  const po = detectPoTaiSui(annualBranch, natalChart.year.branch);
-  const hai = detectHaiTaiSui(annualBranch, natalChart.year.branch);
+  const po = natalBranches.some(b => detectPoTaiSui(annualBranch, b));
+  const hai = natalBranches.some(b => detectHaiTaiSui(annualBranch, b));
 
   // 收集犯太歲類型
   const types: string[] = [];

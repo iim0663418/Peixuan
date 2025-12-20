@@ -8,6 +8,10 @@ import { describe, it, expect } from 'vitest';
 import { findZiWeiPosition, calculateZiWeiPosition, getEarthlyBranch } from './ziwei';
 import type { Bureau } from '../bureau';
 
+// Test data
+const bureaus: Bureau[] = [2, 3, 4, 5, 6];
+const days = Array.from({ length: 30 }, (_, i) => i + 1);
+
 describe('ZiWei Star Positioning', () => {
   describe('findZiWeiPosition - Algorithm Validation', () => {
     it('should handle divisible cases correctly', () => {

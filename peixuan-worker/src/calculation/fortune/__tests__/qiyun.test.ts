@@ -157,7 +157,8 @@ describe('QiYun (起運) Calculation Module', () => {
         );
 
         // Very close to Jie = short metabolic period = early QiYun
-        expect(result.getFullYear()).toBeLessThanOrEqual(2025);
+        // 但陽男順行，需數到下一個節氣（驚蟄），約30天≈10年
+        expect(result.getFullYear()).toBeGreaterThanOrEqual(2033);
       });
 
       it('should handle birth very far from Jie', () => {

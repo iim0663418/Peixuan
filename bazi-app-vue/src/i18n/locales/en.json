@@ -23,9 +23,36 @@
     "integrated_analysis": "Integrated Analysis",
     "personality": "Peixuan Personality Analysis",
     "fortune": "Peixuan Fortune Analysis",
+    "dailyQuestion": "Daily Question",
     "auth": {
       "login": "Member Login",
       "register": "Member Register"
+    }
+  },
+  "dailyQuestion": {
+    "title": "Daily Question",
+    "subtitle": "Ask Peixuan for personalized astrological guidance",
+    "pageTitle": "Daily Question",
+    "pageSubtitle": "Ask Peixuan for personalized astrological guidance",
+    "askPeixuan": "Peixuan Daily Question",
+    "oncePerDay": "One question per day",
+    "welcomeMessage": "Hello, I'm Peixuan. I have prepared your BaZi and Purple Star charts. Which aspect of your fortune would you like to consult about today?",
+    "placeholder": "What would you like to ask Peixuan? For example: What decisions should I make today?",
+    "askButton": "Ask Peixuan",
+    "peixuanSays": "Peixuan says",
+    "noChart": {
+      "title": "Chart Required",
+      "message": "Please calculate your birth chart first to ask Peixuan questions",
+      "description": "Please calculate your birth chart first to ask Peixuan questions",
+      "calculateChart": "Calculate Chart"
+    },
+    "dailyLimit": {
+      "title": "Daily Question Asked",
+      "message": "You can only ask one question per day. Come back tomorrow to chat with Peixuan again!"
+    },
+    "errors": {
+      "connectionFailed": "Connection failed, please try again later",
+      "requestFailed": "Question failed, please check your network connection"
     }
   },
   "astrology": {

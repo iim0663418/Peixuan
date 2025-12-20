@@ -22,6 +22,11 @@
       </template>
 
       <UnifiedResultView :result="result" />
+      
+      <!-- Daily Question Panel -->
+      <div v-if="result.chartId" class="daily-question-section">
+        <DailyQuestionPanel :chart-id="result.chartId" />
+      </div>
     </el-card>
 
     <el-dialog
@@ -79,6 +84,7 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import UnifiedInputForm from '../components/UnifiedInputForm.vue';
 import UnifiedResultView from '../components/UnifiedResultView.vue';
+import DailyQuestionPanel from '../components/DailyQuestionPanel.vue';
 import unifiedApiService, {
   type CalculationResult,
   type UnifiedCalculateRequest,
@@ -510,5 +516,11 @@ h4 {
   .choice-card:active {
     transform: scale(0.98);
   }
+}
+
+.daily-question-section {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--border-color);
 }
 </style>

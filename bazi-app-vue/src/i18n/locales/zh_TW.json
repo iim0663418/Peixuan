@@ -20,9 +20,36 @@
     "integrated_analysis": "多術數交互驗證",
     "personality": "佩璇性格分析",
     "fortune": "佩璇運勢分析",
+    "dailyQuestion": "每日問答",
     "auth": {
       "login": "會員登入",
       "register": "會員註冊"
+    }
+  },
+  "dailyQuestion": {
+    "title": "每日問答",
+    "subtitle": "向佩璇提問，獲得專屬的命理指導",
+    "pageTitle": "每日問答",
+    "pageSubtitle": "向佩璇提問，獲得專屬的命理指導",
+    "askPeixuan": "佩璇每日一問",
+    "oncePerDay": "每天可以問一個問題",
+    "welcomeMessage": "您好，我是佩璇。我已備妥您的八字與紫微命盤，今天想針對哪方面的運勢進行深度諮詢？",
+    "placeholder": "想問佩璇什麼呢？比如：今天適合做什麼決定？",
+    "askButton": "問佩璇",
+    "peixuanSays": "佩璇說",
+    "noChart": {
+      "title": "需要先計算命盤",
+      "message": "請先計算您的命盤，才能向佩璇提問",
+      "description": "請先計算您的命盤，才能向佩璇提問",
+      "calculateChart": "計算命盤"
+    },
+    "dailyLimit": {
+      "title": "今日已提問",
+      "message": "每天只能問一個問題喔～明天再來找佩璇聊天吧！"
+    },
+    "errors": {
+      "connectionFailed": "連線失敗，請稍後再試",
+      "requestFailed": "提問失敗，請檢查網路連線"
     }
   },
   "astrology": {

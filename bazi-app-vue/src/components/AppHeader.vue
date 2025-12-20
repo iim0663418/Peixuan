@@ -83,6 +83,14 @@ const handleAdvancedAnalysis = () => {
           {{ $t('astrology.unified') }}
         </router-link>
 
+        <router-link
+          to="/daily-question"
+          class="nav-link"
+          :class="{ active: route?.path === '/daily-question' }"
+        >
+          {{ $t('navigation.dailyQuestion') }}
+        </router-link>
+
         <button
           class="nav-link ai-analysis-btn"
           :class="{
@@ -136,6 +144,15 @@ const handleAdvancedAnalysis = () => {
         @click="closeMobileMenu"
       >
         {{ $t('astrology.unified') }}
+      </router-link>
+
+      <router-link
+        to="/daily-question"
+        class="mobile-nav-link"
+        :class="{ active: route?.path === '/daily-question' }"
+        @click="closeMobileMenu"
+      >
+        {{ $t('navigation.dailyQuestion') }}
       </router-link>
 
       <button

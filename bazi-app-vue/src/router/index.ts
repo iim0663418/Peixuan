@@ -35,6 +35,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/UnifiedAIAnalysisView.vue'),
     meta: { title: '佩璇運勢分析 - 佩璇' },
   },
+  {
+    path: '/daily-question',
+    name: 'daily-question',
+    component: () => import('../views/DailyQuestionView.vue'),
+    meta: { title: '每日問答 - 佩璇' },
+  },
   // 向後兼容 (Backward compatibility redirects)
   {
     path: '/calculate',

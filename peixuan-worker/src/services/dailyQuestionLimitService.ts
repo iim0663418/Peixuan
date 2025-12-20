@@ -11,8 +11,8 @@ import type { Env } from '../index';
 export class DailyQuestionLimitService {
   private db: ReturnType<typeof drizzle>;
 
-  constructor(env: Env) {
-    this.db = drizzle(env.DB);
+  constructor(database: D1Database) {
+    this.db = drizzle(database);
   }
 
   /**
@@ -24,6 +24,15 @@ export class DailyQuestionLimitService {
     // Convert to Taiwan timezone (UTC+8)
     const taiwanTime = new Date(now.getTime() + (8 * 60 * 60 * 1000));
     return taiwanTime.toISOString().split('T')[0];
+  }
+
+  /**
+   * Check if a chart has already asked a question today
+   * @param chartId - Chart ID to check
+   * @returns true if already asked today, false otherwise
+   */
+  async hasAskedToday(chartId: string): Promise<boolean> {
+    return await this.checkDailyLimit(chartId);
   }
 
   /**

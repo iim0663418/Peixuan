@@ -207,3 +207,12 @@
   - SSE streaming for real-time agent thoughts and responses
   - Privacy protection (GET → POST to prevent sensitive questions in URL logs)
   - Comprehensive testing and validation complete
+
+- [DECISION] 2025-12-20: 每日限制修復完成 - 防止重複提問漏洞。Code/Spec aligned with Constitution.
+  - 後端強制驗證：在 stream 端點開始處理前檢查 hasAskedToday
+  - 安全改善：無法透過前端操作繞過限制，基於資料庫持久化狀態
+  - 錯誤處理：超過限制時返回 HTTP 429 和適當錯誤訊息
+  - 程式碼清理：移除重複的 limitService 宣告
+  - 時區正確：使用台灣時區 (UTC+8) 計算日期
+  - 用戶友好：提供明確的錯誤訊息和重試時間
+  - Successfully deployed to Staging environment

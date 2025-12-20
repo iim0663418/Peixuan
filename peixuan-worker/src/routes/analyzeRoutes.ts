@@ -12,6 +12,7 @@ import { AIServiceManager } from '../services/aiServiceManager';
 import { AgenticGeminiService } from '../services/agenticGeminiService';
 import { AgenticAzureService } from '../services/agenticAzureService';
 import { ChartCacheService } from '../services/chartCacheService';
+import { DailyQuestionLimitService } from '../services/dailyQuestionLimitService';
 
 /**
  * Configure Azure OpenAI fallback provider
@@ -75,6 +76,40 @@ function initializeAIServices(env: Env): { manager: AIServiceManager } {
 }
 
 export function createAnalyzeRoutes(router: Router, env: Env) {
+  /**
+   * POST /api/v1/daily-insight/check
+   *
+   * Check if user has already asked a daily question today
+   */
+  router.post('/api/v1/daily-insight/check', async (req: IRequest) => {
+    try {
+      const body = await req.json() as { chartId?: string };
+      const chartId = body.chartId;
+
+      if (!chartId) {
+        return new Response(
+          JSON.stringify({ error: 'Missing chartId parameter' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Check daily limit using existing service
+      const dailyLimitService = new DailyQuestionLimitService(env.DB);
+      const hasAskedToday = await dailyLimitService.hasAskedToday(chartId);
+
+      return new Response(
+        JSON.stringify({ hasAskedToday }),
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+    } catch (error) {
+      console.error('[daily-insight/check] Error:', error);
+      return new Response(
+        JSON.stringify({ error: 'Internal server error' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+  });
+
   /**
    * POST /api/v1/analyze
    * 
@@ -473,14 +508,16 @@ export function createAnalyzeRoutes(router: Router, env: Env) {
       const body = await req.json() as { chartId?: string; question?: string; locale?: string };
       const chartId = body.chartId;
       const question = body.question;
-      const locale = body.locale || 'zh-TW';
+      const locale = body.locale || 'zh_TW';
+      // Normalize locale format (support both zh_TW and zh-TW)
+      const normalizedLocale = locale.replace('_', '-');
 
       // Log only metadata, not the sensitive question content
       console.log('[daily-insight/stream] Request received:', {
         chartId,
         hasQuestion: !!question,
         questionLength: question?.length || 0,
-        locale
+        locale: normalizedLocale
       });
 
       // Validate required parameters
@@ -498,9 +535,21 @@ export function createAnalyzeRoutes(router: Router, env: Env) {
         );
       }
 
+      // Check daily limit before processing
+      const limitService = new DailyQuestionLimitService(env.DB);
+      const hasAskedToday = await limitService.hasAskedToday(chartId);
+      
+      if (hasAskedToday) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Daily limit exceeded', 
+            message: 'You have already asked a question today. Please try again tomorrow.' 
+          }),
+          { status: 429, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+
       // Check daily limit
-      const { DailyQuestionLimitService } = await import('../services/dailyQuestionLimitService');
-      const limitService = new DailyQuestionLimitService(env);
       const hasExceededLimit = await limitService.checkDailyLimit(chartId);
 
       if (hasExceededLimit) {
@@ -565,7 +614,7 @@ export function createAnalyzeRoutes(router: Router, env: Env) {
           const originalStream = await agenticService.generateDailyInsight(
             question,
             calculationResult,
-            locale
+            normalizedLocale
           );
 
           const reader = originalStream.getReader();
@@ -622,7 +671,7 @@ export function createAnalyzeRoutes(router: Router, env: Env) {
               stream = await azureService.generateDailyInsight(
                 question,
                 calculationResult,
-                locale
+                normalizedLocale
               );
               usedFallback = true;
             } else {

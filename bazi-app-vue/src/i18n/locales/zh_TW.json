@@ -68,7 +68,7 @@
     }
   },
   "astrology": {
-    "unified": "整合命盤計算",
+    "unified": "命盤",
     "purple_star": "紫微斗數",
     "bazi": "八字排盤",
     "purple_star_detail": {
@@ -319,8 +319,8 @@
       "features": "平台特色"
     },
     "services": {
-      "calculate_title": "整合命盤計算",
-      "calculate_desc": "八字與紫微斗數雙重分析,提供完整命盤資訊",
+      "calculate_title": "命盤計算",
+      "calculate_desc": "八字與紫微斗數雙重分析，提供完整命盤資訊",
       "personality_title": "佩璇性格分析",
       "personality_desc": "AI 驅動的深度性格解讀,了解真實的自己",
       "fortune_title": "佩璇運勢分析",
@@ -437,7 +437,7 @@
     "hide_advanced": "隱藏進階選項"
   },
   "unifiedView": {
-    "title": "整合命盤計算",
+    "title": "命盤計算",
     "result_title": "計算結果",
     "dialog_title": "✨ 計算完成！",
     "dialog_subtitle": "選擇您想要的分析類型",

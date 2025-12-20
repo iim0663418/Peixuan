@@ -21,19 +21,19 @@ const routes: Array<RouteRecordRaw> = [
     path: '/unified',
     name: 'unified',
     component: () => import('../views/UnifiedView.vue'),
-    meta: { title: '整合命盤計算 - 佩璇' },
+    meta: { title: '命盤計算 - 佩璇' },
   },
   {
     path: '/personality',
     name: 'personality',
     component: () => import('../views/UnifiedAIAnalysisView.vue'),
-    meta: { title: '佩璇性格分析 - 佩璇' },
+    meta: { title: '性格分析 - 佩璇' },
   },
   {
     path: '/fortune',
     name: 'fortune',
     component: () => import('../views/UnifiedAIAnalysisView.vue'),
-    meta: { title: '佩璇運勢分析 - 佩璇' },
+    meta: { title: '運勢分析 - 佩璇' },
   },
   {
     path: '/daily-question',

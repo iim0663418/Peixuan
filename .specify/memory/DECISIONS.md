@@ -265,3 +265,11 @@
   - Fixed ESLint/Prettier formatting conflicts
   - Full accessibility support with prefers-reduced-motion
   - Successfully deployed to Staging environment
+
+- [DECISION] 2025-12-20: Verified Website UX Evaluation and Major Redesign Planning. Code/Spec aligned with Constitution.
+  - Comprehensive UX analysis against 5 design principles completed
+  - Target audience confirmed: General public (90%) with hidden professional features (10%)
+  - Major redesign strategy: Transform from "Tool" to "Companion" ("The Oracle, Not The Spreadsheet")
+  - Implementation plan: 3 phases over 5-7 days
+  - Key decisions: Ctrl+Shift+D for developer tab, city selection for geocoding failures
+  - Ready for Phase 1 implementation (core simplification)

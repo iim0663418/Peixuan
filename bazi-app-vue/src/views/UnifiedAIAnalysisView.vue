@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { useChartStore } from '@/stores/chartStore';
 import { marked } from 'marked';
 import { setupKeywordHighlighting } from '@/utils/keywordHighlighting';
+import QuickSetupForm from '@/components/QuickSetupForm.vue';
 import './UnifiedAIAnalysisView.css';
 
 // Configure marked renderer once for the application when the module is loaded
@@ -196,8 +197,23 @@ const startStreaming = async () => {
   };
 };
 
+const showQuickSetupModal = ref(false);
+
 const goBack = () => {
   router.push({ name: 'unified' });
+};
+
+const openQuickSetup = () => {
+  showQuickSetupModal.value = true;
+};
+
+const handleChartCreated = () => {
+  showQuickSetupModal.value = false;
+  chartStore.loadFromLocalStorage();
+  // Restart streaming with new chart
+  if (chartStore.chartId) {
+    startStreaming();
+  }
 };
 
 // Watch for analysisType changes to restart the stream
@@ -335,9 +351,14 @@ onUnmounted(() => {
         <p class="error-message">
           {{ error }}
         </p>
-        <button class="retry-btn" @click="goBack">
-          {{ $t(`${i18nPrefix}.btn_go_calculate`) }}
-        </button>
+        <div class="error-actions">
+          <button class="quick-setup-btn" @click="openQuickSetup">
+            {{ $t('dailyQuestion.noChart.quickSetupButton') }}
+          </button>
+          <button class="retry-btn secondary" @click="goBack">
+            {{ $t(`${i18nPrefix}.btn_go_calculate`) }}
+          </button>
+        </div>
       </div>
 
       <!-- 分析內容 -->
@@ -354,6 +375,17 @@ onUnmounted(() => {
         <!-- 打字機效果游標 -->
         <span v-if="progress < 100" class="cursor">▋</span>
       </div>
+
+      <!-- Quick Setup Modal -->
+      <el-dialog
+        v-model="showQuickSetupModal"
+        :title="$t('dailyQuestion.noChart.quickSetupTitle')"
+        width="90%"
+        :style="{ maxWidth: '600px' }"
+        center
+      >
+        <QuickSetupForm @chart-created="handleChartCreated" />
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -439,6 +471,27 @@ onUnmounted(() => {
   color: var(--text-secondary);
   margin-bottom: var(--space-xl);
 }
+.error-actions {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.quick-setup-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.quick-setup-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
 .retry-btn {
   background: var(--primary);
   color: white;
@@ -449,6 +502,14 @@ onUnmounted(() => {
   font-size: var(--font-size-base);
   font-weight: 600;
   transition: all 0.2s ease;
+}
+.retry-btn.secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.retry-btn.secondary:hover {
+  background: var(--bg-hover);
 }
 .retry-btn:hover {
   background: var(--primary-dark);

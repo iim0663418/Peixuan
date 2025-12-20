@@ -2,6 +2,7 @@
 import { ref, computed, defineAsyncComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useChartStore } from '@/stores/chartStore';
+import { ElMessage } from 'element-plus';
 
 const LanguageSelector = defineAsyncComponent(
   () => import('@/components/LanguageSelector.vue'),
@@ -32,8 +33,13 @@ const handleAIAnalysis = () => {
   if (!hasChartData.value) {
     const chartId = chartStore.loadFromLocalStorage();
     if (!chartId) {
-      alert('請先進行命盤計算');
+      ElMessage({
+        message: '請先計算命盤，才能進行性格分析',
+        type: 'info',
+        duration: 2000,
+      });
       router.push('/unified');
+      closeMobileMenu();
       return;
     }
   }
@@ -45,8 +51,13 @@ const handleAdvancedAnalysis = () => {
   if (!hasChartData.value) {
     const chartId = chartStore.loadFromLocalStorage();
     if (!chartId) {
-      alert('請先進行命盤計算');
-      router.push('/unified');
+      ElMessage({
+        message: '請先計算命盤，才能進行運勢分析',
+        type: 'info',
+        duration: 2000,
+      });
+      router.push('/fortune');
+      closeMobileMenu();
       return;
     }
   }
@@ -95,6 +106,7 @@ const handleAdvancedAnalysis = () => {
           class="nav-link ai-analysis-btn"
           :class="{
             active: route?.path === '/personality',
+            disabled: !hasChartData,
           }"
           @click="handleAIAnalysis"
         >
@@ -104,6 +116,7 @@ const handleAdvancedAnalysis = () => {
           class="nav-link advanced-analysis-btn"
           :class="{
             active: route?.path === '/fortune',
+            disabled: !hasChartData,
           }"
           @click="handleAdvancedAnalysis"
         >
@@ -159,6 +172,7 @@ const handleAdvancedAnalysis = () => {
         class="mobile-nav-link mobile-ai-btn"
         :class="{
           active: route?.path === '/personality',
+          disabled: !hasChartData,
         }"
         @click="handleAIAnalysis"
       >
@@ -168,6 +182,7 @@ const handleAdvancedAnalysis = () => {
         class="mobile-nav-link advanced-analysis-btn"
         :class="{
           active: route?.path === '/fortune',
+          disabled: !hasChartData,
         }"
         @click="handleAdvancedAnalysis"
       >
@@ -267,8 +282,10 @@ const handleAdvancedAnalysis = () => {
 }
 
 .ai-analysis-btn.disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  filter: grayscale(0.5);
+  pointer-events: none;
 }
 
 .ai-analysis-btn:not(.disabled):hover {
@@ -288,8 +305,10 @@ const handleAdvancedAnalysis = () => {
 }
 
 .advanced-analysis-btn.disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  filter: grayscale(0.5);
+  pointer-events: none;
 }
 
 .advanced-analysis-btn:not(.disabled):hover {
@@ -417,8 +436,10 @@ const handleAdvancedAnalysis = () => {
 }
 
 .mobile-ai-btn.disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  filter: grayscale(0.5);
+  pointer-events: none;
 }
 
 .mobile-menu .advanced-analysis-btn {
@@ -434,8 +455,10 @@ const handleAdvancedAnalysis = () => {
 }
 
 .mobile-menu .advanced-analysis-btn.disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  filter: grayscale(0.5);
+  pointer-events: none;
 }
 
 .mobile-menu .advanced-analysis-btn:not(.disabled):hover {

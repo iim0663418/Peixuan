@@ -33,6 +33,7 @@
     "pageSubtitle": "向佩璇提問，獲得專屬的命理指導",
     "askPeixuan": "佩璇每日一問",
     "oncePerDay": "每天可以問一個問題",
+    "questionsRemaining": "剩餘提問次數：{current}/{total}",
     "welcomeMessage": "您好，我是佩璇。我已備妥您的八字與紫微命盤，今天想針對哪方面的運勢進行深度諮詢？",
     "placeholder": "想問佩璇什麼呢？比如：今天適合做什麼決定？",
     "askButton": "問佩璇",
@@ -41,15 +42,29 @@
       "title": "需要先計算命盤",
       "message": "請先計算您的命盤，才能向佩璇提問",
       "description": "請先計算您的命盤，才能向佩璇提問",
-      "calculateChart": "計算命盤"
+      "calculateChart": "計算命盤",
+      "quickSetupTitle": "快速設定",
+      "quickSetupDescription": "只需填寫基本出生資料，即可開始向佩璇提問",
+      "quickSetupButton": "開始設定"
     },
     "dailyLimit": {
       "title": "今日已提問",
-      "message": "每天只能問一個問題喔～明天再來找佩璇聊天吧！"
+      "message": "每天只能問一個問題喔～明天再來找佩璇聊天吧！",
+      "immersiveMessage": "我已將全部精力投注在剛才的解讀上了。明天再來找我聊聊吧！"
+    },
+    "confirmation": {
+      "title": "確認提問",
+      "message": "這是您今天唯一的提問機會，確定要繼續嗎？",
+      "confirm": "確定",
+      "cancel": "再想想"
+    },
+    "validation": {
+      "tooShort": "請具體描述您的問題，這樣我才能給您更精準的指引。"
     },
     "errors": {
       "connectionFailed": "連線失敗，請稍後再試",
-      "requestFailed": "提問失敗，請檢查網路連線"
+      "requestFailed": "提問失敗，請檢查網路連線",
+      "limitExceeded": "我已將全部精力投注在剛才的解讀上了。明天再來找我聊聊吧！"
     }
   },
   "astrology": {
@@ -417,7 +432,9 @@
     "submit_button_cached": "已有快取命盤",
     "clear_cache": "清除快取",
     "clear_cache_confirm": "確定要清除快取嗎？",
-    "candidate_select_placeholder": "發現多個匹配地址，請選擇最準確的"
+    "candidate_select_placeholder": "發現多個匹配地址，請選擇最準確的",
+    "show_advanced": "進階選項",
+    "hide_advanced": "隱藏進階選項"
   },
   "unifiedView": {
     "title": "整合命盤計算",

@@ -235,3 +235,12 @@
   - Implementation plan: 3 phases over 5-7 days
   - Key decisions: Ctrl+Shift+D for developer tab, city selection for geocoding failures
   - Ready for Phase 1 implementation (core simplification)
+
+- [DECISION] 2025-12-20: Verified Phase 1 Major Redesign Implementation. Code/Spec aligned with Constitution.
+  - Core simplification completed: coordinate hiding, tab reordering, developer shortcut
+  - Daily question separation implemented (removed from results page)
+  - Critical bug fixed: chart data display consistency between fresh calculation and cached loading
+  - Data transformation logic unified for stem/branch ↔ gan/zhi mapping
+  - Five elements display corrected (English → Chinese keys)
+  - All tests pass (18/18) and functionality verified
+  - Ready for Phase 2 implementation (narrative transformation)

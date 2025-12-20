@@ -424,3 +424,25 @@
     font-size: var(--font-size-base);
   }
 }
+
+/* ==========================================
+   Advanced Options Toggle
+   ========================================== */
+.advanced-options-toggle {
+  width: auto !important;
+  min-width: auto !important;
+  padding: var(--space-sm) var(--space-md) !important;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-size-sm);
+  color: var(--info);
+}
+
+.advanced-options-toggle :deep(.el-icon) {
+  transition: transform 0.3s ease;
+}
+
+.advanced-options-toggle .rotate-icon {
+  transform: rotate(180deg);
+}

@@ -92,63 +92,80 @@
       </el-select>
     </el-form-item>
 
-    <!-- 精確地理位置輸入 -->
-    <el-form-item
-      :label="$t('unifiedForm.location_label')"
-      prop="location"
-      class="location-form-item"
-    >
-      <div class="coordinate-inputs">
-        <div class="coordinate-field">
-          <el-form-item prop="longitude">
-            <el-input
-              v-model.number="formData.longitude"
-              :placeholder="$t('unifiedForm.longitude_placeholder')"
-              type="number"
-              :min="-180"
-              :max="180"
-              :step="0.000001"
-              class="coordinate-input"
-            >
-              <template #prepend>{{ $t('unifiedForm.longitude') }}</template>
-            </el-input>
-          </el-form-item>
-        </div>
-        <div class="coordinate-field">
-          <el-form-item prop="latitude">
-            <el-input
-              v-model.number="formData.latitude"
-              :placeholder="$t('unifiedForm.latitude_placeholder')"
-              type="number"
-              :min="-90"
-              :max="90"
-              :step="0.000001"
-              class="coordinate-input"
-            >
-              <template #prepend>{{ $t('unifiedForm.latitude') }}</template>
-            </el-input>
-          </el-form-item>
-        </div>
-        <div class="coordinate-field timezone-field">
-          <el-select
-            v-model="formData.timezone"
-            filterable
-            :placeholder="$t('unifiedForm.timezone_placeholder')"
-            class="timezone-select"
-          >
-            <el-option
-              v-for="tz in timezones"
-              :key="tz.value"
-              :label="tz.label"
-              :value="tz.value"
-            />
-          </el-select>
-        </div>
-      </div>
-      <el-text type="warning" size="small" class="coordinate-warning">
-        {{ $t('unifiedForm.coordinate_warning') }}
-      </el-text>
+    <!-- Advanced Options Toggle -->
+    <el-form-item>
+      <el-button
+        text
+        @click="showAdvancedOptions = !showAdvancedOptions"
+        class="advanced-options-toggle"
+      >
+        {{ showAdvancedOptions ? $t('unifiedForm.hide_advanced') : $t('unifiedForm.show_advanced') }}
+        <el-icon :class="{ 'rotate-icon': showAdvancedOptions }">
+          <ArrowDown />
+        </el-icon>
+      </el-button>
     </el-form-item>
+
+    <!-- 精確地理位置輸入 (Hidden in Advanced Options) -->
+    <el-collapse-transition>
+      <el-form-item
+        v-show="showAdvancedOptions"
+        :label="$t('unifiedForm.location_label')"
+        prop="location"
+        class="location-form-item"
+      >
+        <div class="coordinate-inputs">
+          <div class="coordinate-field">
+            <el-form-item prop="longitude">
+              <el-input
+                v-model.number="formData.longitude"
+                :placeholder="$t('unifiedForm.longitude_placeholder')"
+                type="number"
+                :min="-180"
+                :max="180"
+                :step="0.000001"
+                class="coordinate-input"
+              >
+                <template #prepend>{{ $t('unifiedForm.longitude') }}</template>
+              </el-input>
+            </el-form-item>
+          </div>
+          <div class="coordinate-field">
+            <el-form-item prop="latitude">
+              <el-input
+                v-model.number="formData.latitude"
+                :placeholder="$t('unifiedForm.latitude_placeholder')"
+                type="number"
+                :min="-90"
+                :max="90"
+                :step="0.000001"
+                class="coordinate-input"
+              >
+                <template #prepend>{{ $t('unifiedForm.latitude') }}</template>
+              </el-input>
+            </el-form-item>
+          </div>
+          <div class="coordinate-field timezone-field">
+            <el-select
+              v-model="formData.timezone"
+              filterable
+              :placeholder="$t('unifiedForm.timezone_placeholder')"
+              class="timezone-select"
+            >
+              <el-option
+                v-for="tz in timezones"
+                :key="tz.value"
+                :label="tz.label"
+                :value="tz.value"
+              />
+            </el-select>
+          </div>
+        </div>
+        <el-text type="warning" size="small" class="coordinate-warning">
+          {{ $t('unifiedForm.coordinate_warning') }}
+        </el-text>
+      </el-form-item>
+    </el-collapse-transition>
 
     <!-- 快速城市選擇（可選） -->
     <el-form-item :label="$t('unifiedForm.city_label')">
@@ -234,7 +251,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import { Lock, Check, Delete } from '@element-plus/icons-vue';
+import { Lock, Check, Delete, ArrowDown } from '@element-plus/icons-vue';
 import { saveTimeZoneInfo, getTimeZoneInfo } from '../utils/storageService';
 import { useChartStore } from '../stores/chartStore';
 import { useFormData } from '../composables/useFormData';
@@ -242,6 +259,9 @@ import { useFormValidation } from '../composables/useFormValidation';
 import { useGeocoding } from '../composables/useGeocoding';
 
 const chartStore = useChartStore();
+
+// Advanced options toggle state
+const showAdvancedOptions = ref(false);
 
 // 使用表單資料管理 composable
 const {

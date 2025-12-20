@@ -52,24 +52,33 @@
         <div class="message-content" v-html="formattedResponse"></div>
       </div>
 
-      <!-- Daily Limit Notice -->
-      <div v-if="hasAskedToday && !isAsking && !response" class="message system-message">
-        <el-alert
-          :title="$t('dailyQuestion.dailyLimit.title')"
-          :description="dailyLimitMessage"
-          type="warning"
-          show-icon
-          :closable="false"
-        />
+      <!-- Daily Limit Notice - Immersive Style -->
+      <div v-if="hasAskedToday && !isAsking && !response" class="message ai-message">
+        <div class="message-content limit-message">
+          {{ $t('dailyQuestion.dailyLimit.immersiveMessage') }}
+        </div>
+      </div>
+
+      <!-- Validation Error - Immersive Style -->
+      <div v-if="validationError" class="message ai-message">
+        <div class="message-content validation-error">
+          {{ validationError }}
+        </div>
       </div>
     </div>
 
     <!-- Input Section -->
     <div v-if="!hasAskedToday" class="input-section">
+      <!-- Daily Limit Display -->
+      <div class="daily-limit-display">
+        <el-icon class="limit-icon"><ChatDotRound /></el-icon>
+        <span class="limit-text">{{ $t('dailyQuestion.questionsRemaining', { current: hasAskedToday ? 0 : 1, total: 1 }) }}</span>
+      </div>
+
       <!-- Quick Prompts -->
       <div v-if="!userQuestion && !isAsking" class="quick-prompts">
-        <button 
-          v-for="prompt in quickPrompts" 
+        <button
+          v-for="prompt in quickPrompts"
           :key="prompt"
           class="quick-prompt-btn"
           @click="useQuickPrompt(prompt)"
@@ -111,9 +120,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { ElMessageBox } from 'element-plus'
 import { useDailyQuestion } from '@/composables/useDailyQuestion'
 import { marked } from 'marked'
-import { 
+import {
   ChatDotRound,
   MagicStick,
   Compass,
@@ -129,6 +139,7 @@ const props = defineProps<Props>()
 const { t, locale } = useI18n()
 const messagesContainer = ref<HTMLElement>()
 const userQuestion = ref('')
+const validationError = ref('')
 
 const {
   question,
@@ -199,14 +210,43 @@ const useQuickPrompt = (prompt: string) => {
 
 const askQuestion = async () => {
   if (!question.value.trim() || isAsking.value) return
-  
-  userQuestion.value = question.value
-  await performAsk(question.value, locale.value)
-  question.value = ''
-  
-  // Scroll to bottom after response
-  await nextTick()
-  scrollToBottom()
+
+  // Clear previous validation errors
+  validationError.value = ''
+
+  // Validate question length
+  if (question.value.trim().length < 3) {
+    validationError.value = t('dailyQuestion.validation.tooShort')
+    await nextTick()
+    scrollToBottom()
+    return
+  }
+
+  try {
+    // Show confirmation dialog
+    await ElMessageBox.confirm(
+      t('dailyQuestion.confirmation.message'),
+      t('dailyQuestion.confirmation.title'),
+      {
+        confirmButtonText: t('dailyQuestion.confirmation.confirm'),
+        cancelButtonText: t('dailyQuestion.confirmation.cancel'),
+        type: 'warning',
+        center: true
+      }
+    )
+
+    // User confirmed, proceed with question
+    userQuestion.value = question.value
+    await performAsk(question.value, locale.value)
+    question.value = ''
+
+    // Scroll to bottom after response
+    await nextTick()
+    scrollToBottom()
+  } catch (error) {
+    // User canceled, do nothing
+    console.log('User canceled question')
+  }
 }
 
 const scrollToBottom = () => {
@@ -367,6 +407,19 @@ onMounted(() => {
   font-weight: var(--font-weight-medium);
 }
 
+.limit-message {
+  background: linear-gradient(135deg, var(--warning-lighter) 0%, var(--warning-lightest) 100%);
+  border-left: 4px solid var(--warning);
+  color: var(--text-primary);
+  font-style: italic;
+}
+
+.validation-error {
+  background: linear-gradient(135deg, var(--info-lighter) 0%, var(--info-lightest) 100%);
+  border-left: 4px solid var(--info);
+  color: var(--text-primary);
+}
+
 .thinking-message {
   justify-content: flex-start;
 }
@@ -397,6 +450,28 @@ onMounted(() => {
   padding: var(--space-lg) var(--space-xl);
   background: var(--bg-primary);
   border-top: 1px solid var(--border-light);
+}
+
+.daily-limit-display {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: linear-gradient(135deg, var(--info-lightest) 0%, var(--purple-star-lightest) 100%);
+  border: 1px solid var(--info-lighter);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+}
+
+.limit-icon {
+  font-size: var(--font-size-md);
+  color: var(--info);
+}
+
+.limit-text {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
 }
 
 .quick-prompts {

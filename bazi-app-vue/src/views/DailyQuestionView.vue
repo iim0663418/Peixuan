@@ -9,45 +9,62 @@
         <p class="page-subtitle">{{ $t('dailyQuestion.subtitle') }}</p>
       </div>
 
-      <DailyQuestionPanel 
+      <DailyQuestionPanel
         v-if="currentChartId"
         :chart-id="currentChartId"
         @question-asked="handleQuestionAsked"
       />
-      
+
       <div v-else class="no-chart-notice">
-        <el-alert
-          :title="$t('dailyQuestion.noChart.title')"
-          :description="$t('dailyQuestion.noChart.description')"
-          type="info"
-          show-icon
-          :closable="false"
-        />
-        <el-button 
-          type="primary" 
-          size="large"
-          @click="$router.push('/unified')"
-          class="create-chart-btn"
-        >
-          {{ $t('dailyQuestion.noChart.calculateChart') }}
-        </el-button>
+        <div class="welcome-card">
+          <div class="peixuan-avatar-large">🔮</div>
+          <h3>{{ $t('dailyQuestion.noChart.quickSetupTitle') }}</h3>
+          <p>{{ $t('dailyQuestion.noChart.quickSetupDescription') }}</p>
+          <el-button
+            type="primary"
+            size="large"
+            @click="showQuickSetupModal = true"
+            class="quick-setup-btn"
+          >
+            {{ $t('dailyQuestion.noChart.quickSetupButton') }}
+          </el-button>
+        </div>
       </div>
+
+      <!-- Quick Setup Modal -->
+      <el-dialog
+        v-model="showQuickSetupModal"
+        :title="$t('dailyQuestion.noChart.quickSetupTitle')"
+        width="90%"
+        :style="{ maxWidth: '600px' }"
+        center
+      >
+        <QuickSetupForm @chart-created="handleChartCreated" />
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useChartStore } from '@/stores/chartStore'
 import DailyQuestionPanel from '@/components/DailyQuestionPanel.vue'
+import QuickSetupForm from '@/components/QuickSetupForm.vue'
 
 const chartStore = useChartStore()
+const showQuickSetupModal = ref(false)
 
 const currentChartId = computed(() => chartStore.currentChart?.chartId)
 
 const handleQuestionAsked = () => {
   // Handle post-question actions if needed
   console.log('Question asked successfully')
+}
+
+const handleChartCreated = () => {
+  // Close modal and reload chart data
+  showQuickSetupModal.value = false
+  chartStore.loadFromLocalStorage()
 }
 
 // Load chart from localStorage on mount
@@ -98,15 +115,49 @@ onMounted(() => {
 .no-chart-notice {
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-  text-align: center;
   box-shadow: var(--shadow-lg);
+  overflow: hidden;
 }
 
-.create-chart-btn {
-  margin-top: var(--space-lg);
-  padding: var(--space-md) var(--space-xl);
+.welcome-card {
+  text-align: center;
+  padding: var(--space-2xl);
+}
+
+.peixuan-avatar-large {
+  font-size: 64px;
+  margin-bottom: var(--space-lg);
+  animation: float 3s ease-in-out infinite;
+}
+
+.welcome-card h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-md) 0;
+  color: var(--text-primary);
+}
+
+.welcome-card p {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-xl) 0;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.quick-setup-btn {
+  padding: var(--space-md) var(--space-2xl);
   font-size: var(--font-size-lg);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @media (max-width: 768px) {

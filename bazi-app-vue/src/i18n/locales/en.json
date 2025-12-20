@@ -36,6 +36,7 @@
     "pageSubtitle": "Ask Peixuan for personalized astrological guidance",
     "askPeixuan": "Peixuan Daily Question",
     "oncePerDay": "One question per day",
+    "questionsRemaining": "Questions remaining: {current}/{total}",
     "welcomeMessage": "Hello, I'm Peixuan. I have prepared your BaZi and Purple Star charts. Which aspect of your fortune would you like to consult about today?",
     "placeholder": "What would you like to ask Peixuan? For example: What decisions should I make today?",
     "askButton": "Ask Peixuan",
@@ -44,15 +45,29 @@
       "title": "Chart Required",
       "message": "Please calculate your birth chart first to ask Peixuan questions",
       "description": "Please calculate your birth chart first to ask Peixuan questions",
-      "calculateChart": "Calculate Chart"
+      "calculateChart": "Calculate Chart",
+      "quickSetupTitle": "Quick Setup",
+      "quickSetupDescription": "Just fill in your basic birth information to start asking Peixuan",
+      "quickSetupButton": "Start Setup"
     },
     "dailyLimit": {
       "title": "Daily Question Asked",
-      "message": "You can only ask one question per day. Come back tomorrow to chat with Peixuan again!"
+      "message": "You can only ask one question per day. Come back tomorrow to chat with Peixuan again!",
+      "immersiveMessage": "I've focused all my energy on your previous reading. Let's talk again tomorrow!"
+    },
+    "confirmation": {
+      "title": "Confirm Question",
+      "message": "This is your only question for today. Continue?",
+      "confirm": "Continue",
+      "cancel": "Let me think"
+    },
+    "validation": {
+      "tooShort": "Please ask a specific question to get the most out of your daily reading."
     },
     "errors": {
       "connectionFailed": "Connection failed, please try again later",
-      "requestFailed": "Question failed, please check your network connection"
+      "requestFailed": "Question failed, please check your network connection",
+      "limitExceeded": "I've focused all my energy on your previous reading. Let's talk again tomorrow!"
     }
   },
   "astrology": {
@@ -444,7 +459,9 @@
     "submit_button_cached": "Chart Cached",
     "clear_cache": "Clear Cache",
     "clear_cache_confirm": "Are you sure you want to clear the cache?",
-    "candidate_select_placeholder": "Multiple addresses found, please select the most accurate one"
+    "candidate_select_placeholder": "Multiple addresses found, please select the most accurate one",
+    "show_advanced": "Advanced Options",
+    "hide_advanced": "Hide Advanced Options"
   },
   "unifiedView": {
     "title": "Integrated Chart Calculation",

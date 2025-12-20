@@ -1,6 +1,41 @@
 <template>
   <div class="unified-result">
     <el-tabs v-model="activeTab" type="border-card">
+      <!-- Reordered: Annual Fortune first -->
+      <el-tab-pane v-if="result.annualFortune" label="流年" name="annual">
+        <!-- 年度運勢卡片 -->
+        <AnnualFortuneCard
+          v-if="result.annualFortune?.yearlyForecast"
+          :yearly-forecast="result.annualFortune.yearlyForecast"
+        />
+
+        <!-- 太歲分析卡片 -->
+        <TaiSuiCard
+          v-if="result.annualFortune.taiSuiAnalysis"
+          :tai-sui-analysis="result.annualFortune.taiSuiAnalysis"
+        />
+
+        <div class="section">
+          <h4>流年資訊</h4>
+          <el-descriptions :column="2" border size="small">
+            <el-descriptions-item label="流年干支">
+              {{ result.annualFortune.annualPillar.stem
+              }}{{ result.annualFortune.annualPillar.branch }}
+            </el-descriptions-item>
+            <el-descriptions-item label="流年命宮">
+              {{ result.annualFortune.annualLifePalaceIndex }}宮
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
+
+        <div class="section">
+          <h4>干支交互</h4>
+          <AnnualInteraction
+            :interactions="result.annualFortune.interactions"
+          />
+        </div>
+      </el-tab-pane>
+
       <el-tab-pane label="八字" name="bazi">
         <!-- 傳統八字排盤 -->
         <BaziChart
@@ -120,45 +155,12 @@
         </div>
       </el-tab-pane>
 
-      <el-tab-pane v-if="result.annualFortune" label="流年" name="annual">
-        <!-- 年度運勢卡片 -->
-        <AnnualFortuneCard
-          v-if="result.annualFortune?.yearlyForecast"
-          :yearly-forecast="result.annualFortune.yearlyForecast"
-        />
-
-        <!-- 太歲分析卡片 -->
-        <TaiSuiCard
-          v-if="result.annualFortune.taiSuiAnalysis"
-          :tai-sui-analysis="result.annualFortune.taiSuiAnalysis"
-        />
-
-        <div class="section">
-          <h4>流年資訊</h4>
-          <el-descriptions :column="2" border size="small">
-            <el-descriptions-item label="流年干支">
-              {{ result.annualFortune.annualPillar.stem
-              }}{{ result.annualFortune.annualPillar.branch }}
-            </el-descriptions-item>
-            <el-descriptions-item label="流年命宮">
-              {{ result.annualFortune.annualLifePalaceIndex }}宮
-            </el-descriptions-item>
-          </el-descriptions>
-        </div>
-
-        <div class="section">
-          <h4>干支交互</h4>
-          <AnnualInteraction
-            :interactions="result.annualFortune.interactions"
-          />
-        </div>
-      </el-tab-pane>
-
       <el-tab-pane label="技術細節" name="technical">
         <TechnicalDetailsCard :result="result" />
       </el-tab-pane>
 
-      <el-tab-pane label="開發者" name="developer">
+      <!-- Developer tab hidden by default, accessible via Ctrl+Shift+D -->
+      <el-tab-pane v-if="showDeveloperTab" label="開發者" name="developer">
         <DeveloperCard :result="result" />
       </el-tab-pane>
     </el-tabs>
@@ -166,7 +168,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import BaziChart from './BaziChart.vue';
 import WuXingChart from './WuXingChart.vue';
 import FortuneTimeline from './FortuneTimeline.vue';
@@ -190,7 +192,32 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const activeTab = ref('bazi');
+
+// Set default tab to 'annual' if available, otherwise 'bazi'
+const activeTab = ref(props.result.annualFortune ? 'annual' : 'bazi');
+
+// Developer tab visibility (hidden by default, toggled by Ctrl+Shift+D)
+const showDeveloperTab = ref(false);
+
+// Keyboard shortcut handler for Ctrl+Shift+D
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.ctrlKey && event.shiftKey && event.key === 'D') {
+    event.preventDefault();
+    showDeveloperTab.value = !showDeveloperTab.value;
+    if (showDeveloperTab.value) {
+      activeTab.value = 'developer';
+    }
+  }
+};
+
+// Add/remove keyboard event listener
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+});
 
 const pillars = computed(() => ({
   year: {

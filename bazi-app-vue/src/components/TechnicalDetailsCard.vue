@@ -243,4 +243,73 @@ pre {
     background-color: transparent;
   }
 }
+
+/* 深色模式優化 */
+@media (prefers-color-scheme: dark) {
+  .technical-details-card {
+    background: var(--bg-secondary);
+    border-color: var(--border-light);
+  }
+  
+  .detail-section {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  .detail-section h3,
+  .detail-section h4 {
+    color: var(--text-primary) !important;
+  }
+  
+  :deep(.el-descriptions-item__label) {
+    color: var(--text-secondary) !important;
+  }
+  
+  :deep(.el-descriptions-item__content) {
+    color: var(--text-primary) !important;
+  }
+  
+  :deep(.el-card) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  :deep(.el-card__header) {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  :deep(.el-card.is-always-shadow) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+    box-shadow: var(--shadow-md) !important;
+  }
+  
+  :deep(.result-card) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  /* Element Plus 手風琴深色模式 */
+  :deep(.el-collapse) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  :deep(.el-collapse-item__header) {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  :deep(.el-collapse-item__header:hover) {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  :deep(.el-collapse-item__content) {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+  }
+}
 </style>

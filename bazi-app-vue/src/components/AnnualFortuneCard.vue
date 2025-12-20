@@ -394,4 +394,39 @@ const formatDate = (date: Date | string): string => {
     flex: 1;
   }
 }
+
+/* 深色模式優化 */
+@media (prefers-color-scheme: dark) {
+  .annual-fortune-card {
+    background: var(--bg-secondary);
+    border-color: var(--border-light);
+  }
+  
+  .yearly-header h4,
+  .period-header h5 {
+    color: var(--text-primary) !important;
+  }
+  
+  .date-range {
+    color: var(--text-secondary) !important;
+  }
+  
+  .period-card {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  .period-label {
+    color: var(--text-inverse) !important;
+  }
+  
+  .legend-current,
+  .legend-next {
+    color: var(--text-secondary) !important;
+  }
+  
+  .fortune-content {
+    color: var(--text-primary) !important;
+  }
+}
 </style>

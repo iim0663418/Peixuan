@@ -743,4 +743,90 @@ h4::after {
     animation: none;
   }
 }
+
+/* 深色模式優化 */
+@media (prefers-color-scheme: dark) {
+  .unified-result {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
+  
+  .technical-sections {
+    background: var(--bg-secondary);
+  }
+  
+  .collapse-title {
+    color: var(--text-primary) !important;
+  }
+  
+  .collapse-label {
+    color: var(--text-primary) !important;
+  }
+  
+  .section {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  .section h3,
+  .section h4 {
+    color: var(--text-primary) !important;
+  }
+  
+  :deep(.el-descriptions__body tr:hover) {
+    background: var(--bg-tertiary) !important;
+  }
+  
+  :deep(.el-descriptions-item__label) {
+    color: var(--text-secondary) !important;
+  }
+  
+  :deep(.el-descriptions-item__content) {
+    color: var(--text-primary) !important;
+  }
+  
+  /* Element Plus 手風琴深色模式 */
+  :deep(.el-collapse) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  :deep(.el-collapse-item__header) {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  :deep(.el-collapse-item__header:hover) {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  :deep(.el-collapse-item__content) {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  :deep(.el-collapse-item__wrap) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  /* Element Plus 卡片深色模式 */
+  :deep(.el-card) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  :deep(.el-card.is-always-shadow) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+    box-shadow: var(--shadow-md) !important;
+  }
+  
+  :deep(.result-card) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+  }
+}
 </style>

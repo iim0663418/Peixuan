@@ -504,3 +504,22 @@
   - Enhanced mobile responsiveness with proper touch targets (28-32px minimum)
   - Added prefers-reduced-motion support for accessibility
   - Deployed successfully to staging environment with all optimizations verified
+
+- [DECISION] 2025-12-20: Verified Daily Question UI/UX Comprehensive Optimization. Code/Spec aligned with Constitution.
+  - Fixed dark mode text contrast issues with white text (#ffffff) and bright secondary text (#e5e7eb)
+  - Fixed dark mode background colors for chat bubbles and UI elements
+  - Optimized layout spacing: reduced header/input padding, tighter message spacing
+  - Implemented comprehensive RWD design: mobile (90% width), tablet (75%), desktop (70%)
+  - Fixed mobile CSS animation acceleration with translateZ(0), will-change, and mobile-specific timing
+  - Fixed markdown bold text color in dark mode: purple → gold (#fbbf24) for better contrast
+  - Enhanced mobile responsiveness with proper touch targets (28-32px minimum)
+  - Added prefers-reduced-motion support for accessibility
+  - Deployed successfully to staging environment with all optimizations verified
+
+- [DECISION] 2025-12-20: Verified Mobile Navbar Unification. Code/Spec aligned with Constitution.
+  - Unified all mobile navbar items to use consistent <a> tag structure
+  - Replaced mixed <a>/<button> elements with uniform <a> tags using @click.prevent
+  - Simplified CSS by removing button-specific styles, using single .mobile-nav-link class
+  - Maintained existing functionality while achieving visual consistency
+  - Improved maintainability with unified HTML structure and styling approach
+  - Successfully deployed to staging environment

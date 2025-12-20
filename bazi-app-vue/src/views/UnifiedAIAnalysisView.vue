@@ -592,4 +592,36 @@ onUnmounted(() => {
     text-align: center;
   }
 }
+
+/* 深色模式優化 */
+@media (prefers-color-scheme: dark) {
+  /* Element Plus Dialog 深色模式 */
+  :deep(.el-dialog) {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-light) !important;
+  }
+  
+  :deep(.el-dialog__header) {
+    background: var(--bg-tertiary) !important;
+    border-bottom: 1px solid var(--border-light) !important;
+  }
+  
+  :deep(.el-dialog__title) {
+    color: var(--text-primary) !important;
+  }
+  
+  :deep(.el-dialog__body) {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  :deep(.el-dialog__footer) {
+    background: var(--bg-tertiary) !important;
+    border-top: 1px solid var(--border-light) !important;
+  }
+  
+  :deep(.el-overlay) {
+    background: rgba(0, 0, 0, 0.7) !important;
+  }
+}
 </style>

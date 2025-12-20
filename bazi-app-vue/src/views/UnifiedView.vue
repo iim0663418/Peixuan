@@ -62,6 +62,15 @@
           </div>
           <div class="choice-arrow">→</div>
         </div>
+
+        <div class="choice-card" @click="handleAnalysisChoice('/daily-question')">
+          <div class="choice-icon">💬</div>
+          <div class="choice-info">
+            <h4 class="choice-title">{{ $t('navigation.dailyQuestion') }}</h4>
+            <p class="choice-desc">{{ $t('unifiedView.dailyQuestion_desc') }}</p>
+          </div>
+          <div class="choice-arrow">→</div>
+        </div>
       </div>
 
       <template #footer>
@@ -509,6 +518,69 @@ h4 {
 
   .choice-card:active {
     transform: scale(0.98);
+  }
+}
+
+/* 深色模式優化 */
+@media (prefers-color-scheme: dark) {
+  /* Element Plus Dialog 深色模式 */
+  :deep(.el-dialog) {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-light) !important;
+  }
+  
+  :deep(.el-dialog__header) {
+    background: var(--bg-tertiary) !important;
+    border-bottom: 1px solid var(--border-light) !important;
+  }
+  
+  :deep(.el-dialog__title) {
+    color: var(--text-primary) !important;
+  }
+  
+  :deep(.el-dialog__body) {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  :deep(.el-dialog__footer) {
+    background: var(--bg-tertiary) !important;
+    border-top: 1px solid var(--border-light) !important;
+  }
+  
+  :deep(.el-overlay) {
+    background: rgba(0, 0, 0, 0.7) !important;
+  }
+  
+  /* Choice Card 深色模式 */
+  .choice-card {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  .choice-card:hover {
+    background: var(--bg-primary) !important;
+    border-color: var(--purple-star) !important;
+  }
+  
+  .choice-title {
+    color: var(--text-primary) !important;
+  }
+  
+  .choice-desc {
+    color: var(--text-secondary) !important;
+  }
+  
+  .choice-arrow {
+    color: var(--text-secondary) !important;
+  }
+  
+  .dialog-title {
+    color: var(--text-primary) !important;
+  }
+  
+  .dialog-subtitle {
+    color: var(--text-secondary) !important;
   }
 }
 </style>

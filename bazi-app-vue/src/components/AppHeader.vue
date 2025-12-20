@@ -166,24 +166,26 @@ const handleAdvancedAnalysis = () => {
         {{ $t('navigation.dailyQuestion') }}
       </router-link>
 
-      <button
-        class="mobile-nav-link mobile-ai-btn"
+      <a
+        href="/personality"
+        class="mobile-nav-link"
         :class="{
           active: route?.path === '/personality',
         }"
-        @click="handleAIAnalysis"
+        @click.prevent="handleAIAnalysis"
       >
-        <span>{{ $t('navigation.personality') }}</span>
-      </button>
-      <button
-        class="mobile-nav-link advanced-analysis-btn"
+        {{ $t('navigation.personality') }}
+      </a>
+      <a
+        href="/fortune"
+        class="mobile-nav-link"
         :class="{
           active: route?.path === '/fortune',
         }"
-        @click="handleAdvancedAnalysis"
+        @click.prevent="handleAdvancedAnalysis"
       >
-        <span>{{ $t('navigation.fortune') }}</span>
-      </button>
+        {{ $t('navigation.fortune') }}
+      </a>
     </div>
   </header>
 </template>
@@ -249,9 +251,11 @@ const handleAdvancedAnalysis = () => {
   transition: all 0.3s ease-in-out;
   position: relative;
   min-height: 44px;
+  min-width: 80px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -380,6 +384,9 @@ const handleAdvancedAnalysis = () => {
   border-bottom: 1px solid #f0f0f0;
   transition: all 0.3s ease-in-out;
   font-size: 1.1rem;
+  justify-content: flex-start;
+  width: 100%;
+  text-align: left;
 }
 
 .mobile-nav-link:hover {
@@ -397,57 +404,6 @@ const handleAdvancedAnalysis = () => {
 
 .mobile-nav-link:last-child {
   border-bottom: none;
-}
-
-.mobile-ai-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: none;
-  border: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  justify-content: flex-start;
-}
-
-.mobile-ai-btn .icon {
-  font-size: 1.5rem;
-  transition: transform 0.3s ease-in-out;
-}
-
-.mobile-ai-btn:not(.disabled):hover .icon {
-  transform: scale(1.15);
-}
-
-.mobile-ai-btn.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  filter: grayscale(0.5);
-  pointer-events: none;
-}
-
-.mobile-menu .advanced-analysis-btn {
-  width: 100%;
-  text-align: left;
-  justify-content: flex-start;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.mobile-menu .advanced-analysis-btn.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  filter: grayscale(0.5);
-  pointer-events: none;
-}
-
-.mobile-menu .advanced-analysis-btn:not(.disabled):hover {
-  transform: translateX(8px);
 }
 
 /* 中型手機和平板 (480px+) */
@@ -551,7 +507,7 @@ const handleAdvancedAnalysis = () => {
   }
 }
 
-/* 深色模式 */
+/* 深色模式下的 mobile button 樣式 */
 @media (prefers-color-scheme: dark) {
   .app-header {
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);

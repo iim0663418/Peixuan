@@ -309,4 +309,48 @@ const regenerateAnalysis = () => {
     transform: none;
   }
 }
+
+/* 深色模式優化 */
+@media (prefers-color-scheme: dark) {
+  .narrative-summary {
+    background: var(--bg-secondary);
+    border-color: var(--border-light);
+  }
+  
+  .peixuan-voice {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  .narrative-text {
+    color: var(--text-primary) !important;
+  }
+  
+  .action-buttons .el-button {
+    background: var(--bg-primary) !important;
+    border-color: var(--border-light) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  .action-buttons .el-button:hover {
+    background: var(--bg-tertiary) !important;
+  }
+  
+  /* Element Plus 卡片深色模式 */
+  :deep(.el-card) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+  }
+  
+  :deep(.el-card.is-always-shadow) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+    box-shadow: var(--shadow-md) !important;
+  }
+  
+  :deep(.result-card) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+  }
+}
 </style>

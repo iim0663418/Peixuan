@@ -248,4 +248,29 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
   text-align: center;
   padding: 12px;
 }
+
+/* 深色模式優化 */
+@media (prefers-color-scheme: dark) {
+  .sihua-aggregation-card {
+    background: var(--bg-secondary);
+    border-color: var(--border-light);
+  }
+  
+  .card-title {
+    color: var(--text-primary) !important;
+  }
+  
+  .aggregation-item h4 {
+    color: var(--text-primary) !important;
+  }
+  
+  .node-item {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  .no-data {
+    color: var(--text-secondary) !important;
+  }
+}
 </style>

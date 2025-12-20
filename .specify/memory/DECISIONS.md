@@ -216,3 +216,22 @@
   - 時區正確：使用台灣時區 (UTC+8) 計算日期
   - 用戶友好：提供明確的錯誤訊息和重試時間
   - Successfully deployed to Staging environment
+
+- [DECISION] 2025-12-20: Verified Daily Question UX Optimization. Code/Spec aligned with Constitution.
+  - Confirmation dialog for daily limit protection implemented
+  - Immersive error handling with Peixuan-style responses instead of system alerts
+  - Quick setup modal for users without charts (stays in context)
+  - Input validation with gentle guidance for low-quality queries
+  - All changes follow "Don't Make Me Think" principle
+  - Tests pass (18/18) and build successful
+
+- [DECISION] 2025-12-20: Verified Website UX Evaluation and Major Redesign Planning. Code/Spec aligned with Constitution.
+  - Comprehensive UX analysis against 5 design principles completed
+  - Target audience confirmed: General public (90
+- [DECISION] 2025-12-20: Verified Website UX Evaluation and Major Redesign Planning. Code/Spec aligned with Constitution.
+  - Comprehensive UX analysis against 5 design principles completed
+  - Target audience confirmed: General public (90%) with hidden professional features (10%)
+  - Major redesign strategy: Transform from "Tool" to "Companion" ("The Oracle, Not The Spreadsheet")
+  - Implementation plan: 3 phases over 5-7 days
+  - Key decisions: Ctrl+Shift+D for developer tab, city selection for geocoding failures
+  - Ready for Phase 1 implementation (core simplification)

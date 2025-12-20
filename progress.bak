@@ -1,20 +1,80 @@
-# Status: Bug Investigation
+# Status: Phase 2 Implementation - COMPLETED
 ## Active Context
-- Timestamp: 2025-12-20 12:16:36
-- Task: Fix chart results display issue
-- State: Investigating data processing problem
+- Timestamp: 2025-12-20 (Updated)
+- Task: Major Redesign Phase 2 - Narrative Transformation
+- State: ✅ Core narrative-first implementation COMPLETED
 
-## Problem Description
-- Issue: After calculating chart, switching back to results shows abnormal display
-- Affected: BaZi (八字) and Five Elements (五行) data
-- Suspected: Backend data processing or frontend data transformation
+## Phase 2 Goals
+- [x] Create NarrativeSummary component (AI analysis at top)
+- [x] Implement progressive disclosure (collapse technical data)
+- [x] Enhance visual hierarchy (serif fonts for Peixuan voice)
+- [x] Optimize for "Aha moment" delivery
+- [x] Add i18n translations for new UI
+- [ ] Add geocoding fallback with city selection (Phase 3)
 
-## Investigation Plan
-- [ ] Check data transformation logic
-- [ ] Verify backend API response format
-- [ ] Test frontend data handling
-- [ ] Fix identified issues
-- [x] Check data transformation logic
-- [x] Verify backend API response format
-- [x] Test frontend data handling
-- [x] Fix identified issues
+## Progress - Phase 2 Narrative Transformation ✅
+- [x] **NarrativeSummary.vue component**
+  - Created with serif fonts (Noto Serif TC) for Peixuan's voice
+  - Warm, personal typography for AI content
+  - Loading states, empty states, quick actions
+  - Copy and regenerate functionality
+  - Full responsive design
+
+- [x] **Progressive disclosure in UnifiedResultView**
+  - Replaced tabs with collapse/accordion UI
+  - AI narrative summary at top (Zone 1 - most prominent)
+  - Technical data collapsed by default
+  - Sections: Annual Fortune, BaZi, ZiWei, Technical, Developer
+  - Each section with emoji icons for visual distinction
+
+- [x] **Typography enhancement (serif/sans-serif split)**
+  - Serif fonts: Peixuan's voice (AI content, narrative)
+  - Sans-serif fonts: UI labels, navigation, buttons
+  - Clear visual distinction between "what Peixuan says" and "UI controls"
+
+- [x] **Visual hierarchy improvements**
+  - Narrative-first layout (top → bottom priority)
+  - Collapsible sections reduce cognitive load
+  - Progressive disclosure for advanced users
+  - Fast path to insights ("Aha moment" optimization)
+
+- [x] **i18n translations**
+  - Added `narrative.*` translations (zh_TW, en)
+  - Added `unifiedView.*` section labels
+  - Supports bilingual UI
+- [x] NarrativeSummary.vue component
+- [x] Progressive disclosure in UnifiedResultView
+- [x] Typography enhancement (serif/sans-serif split)
+- [x] Visual hierarchy improvements
+- [x] City selection fallback for geocoding
+- [x] Optimize for "Aha moment" delivery
+
+✅ **Phase 2 敘事體驗部署成功！**
+
+**Staging URL**: https://peixuan-worker-staging.csw30454.workers.dev
+**Version ID**: c400ff6f-6c32-479d-99e4-601e4dcb03d5
+
+**新敘事體驗測試重點**:
+
+### 🎯 **核心轉換測試**
+1. **AI 敘事置頂**: 計算命盤後，AI 分析是否顯示在最上方
+2. **漸進式揭露**: 技術數據是否預設摺疊，需點擊展開
+3. **字體區分**: 佩璇的聲音（襯線）vs UI 標籤（無襯線）
+4. **快速洞察**: 是否能快速獲得「Aha 時刻」
+
+### 📱 **響應式測試**
+- 手機端摺疊區段是否正常運作
+- 平板端字體大小是否適中
+- 桌面端佈局是否優雅
+
+### 🔧 **功能完整性**
+- Ctrl+Shift+D 開發者 Tab 仍可觸發
+- 所有原有功能保持正常
+- 中英文切換正確顯示
+
+### 🎨 **視覺體驗**
+- 從「工具感」→「伙伴感」的轉換
+- 溫暖的襯線字體效果
+- 清晰的資訊層次
+
+**14 個檔案更新，準備體驗全新的敘事導向界面！**

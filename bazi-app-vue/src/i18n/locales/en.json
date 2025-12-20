@@ -472,6 +472,21 @@
     "personality_desc": "Deep insights into your personality traits and talents",
     "fortune_title": "Peixuan Fortune Analysis",
     "fortune_desc": "View annual fortune and future trends",
-    "later_button": "Maybe Later"
+    "later_button": "Maybe Later",
+    "annualFortune": "Annual Fortune",
+    "bazi": "BaZi Chart",
+    "ziwei": "Purple Star Astrology",
+    "technical": "Technical Details",
+    "developer": "Developer Info"
+  },
+  "narrative": {
+    "peixuanSays": "Peixuan says",
+    "loading": "Peixuan is carefully reading your chart...",
+    "noAnalysis": "Your chart is ready. Let Peixuan interpret this unique blueprint of your life.",
+    "requestAnalysis": "Request Interpretation",
+    "regenerate": "Regenerate",
+    "copy": "Copy Content",
+    "copySuccess": "Copied to clipboard",
+    "copyFailed": "Copy failed, please try again"
   }
 }

@@ -445,6 +445,21 @@
     "personality_desc": "深入了解你的性格特質與天賦",
     "fortune_title": "佩璇運勢分析",
     "fortune_desc": "查看流年運勢與未來趨勢",
-    "later_button": "稍後再說"
+    "later_button": "稍後再說",
+    "annualFortune": "流年運勢",
+    "bazi": "八字命盤",
+    "ziwei": "紫微斗數",
+    "technical": "技術細節",
+    "developer": "開發者資訊"
+  },
+  "narrative": {
+    "peixuanSays": "佩璇說",
+    "loading": "佩璇正在仔細閱讀您的命盤...",
+    "noAnalysis": "您的命盤已準備就緒，讓佩璇為您解讀這獨特的生命藍圖。",
+    "requestAnalysis": "請佩璇解讀",
+    "regenerate": "重新解讀",
+    "copy": "複製內容",
+    "copySuccess": "已複製到剪貼簿",
+    "copyFailed": "複製失敗，請重試"
   }
 }

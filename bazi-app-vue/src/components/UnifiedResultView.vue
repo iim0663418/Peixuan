@@ -1,8 +1,27 @@
 <template>
   <div class="unified-result">
-    <el-tabs v-model="activeTab" type="border-card">
-      <!-- Reordered: Annual Fortune first -->
-      <el-tab-pane v-if="result.annualFortune" label="流年" name="annual">
+    <!-- Phase 2: AI Narrative Summary - Zone 1 (Most Prominent) -->
+    <NarrativeSummary
+      :narrative-text="aiNarrativePlaceholder"
+      :is-loading="false"
+      @request-analysis="handleRequestAnalysis"
+      @regenerate="handleRegenerateAnalysis"
+    />
+
+    <!-- Phase 2: Progressive Disclosure - Collapsible Technical Data -->
+    <el-collapse v-model="activeCollapse" class="technical-sections">
+      <!-- Annual Fortune Section -->
+      <el-collapse-item
+        v-if="result.annualFortune"
+        name="annual"
+        class="collapse-section"
+      >
+        <template #title>
+          <div class="collapse-title">
+            <span class="collapse-icon">🔮</span>
+            <span class="collapse-label">{{ t('unifiedView.annualFortune') }}</span>
+          </div>
+        </template>
         <!-- 年度運勢卡片 -->
         <AnnualFortuneCard
           v-if="result.annualFortune?.yearlyForecast"
@@ -34,9 +53,16 @@
             :interactions="result.annualFortune.interactions"
           />
         </div>
-      </el-tab-pane>
+      </el-collapse-item>
 
-      <el-tab-pane label="八字" name="bazi">
+      <!-- BaZi Section -->
+      <el-collapse-item name="bazi" class="collapse-section">
+        <template #title>
+          <div class="collapse-title">
+            <span class="collapse-icon">☯️</span>
+            <span class="collapse-label">{{ t('unifiedView.bazi') }}</span>
+          </div>
+        </template>
         <!-- 傳統八字排盤 -->
         <BaziChart
           v-if="baziChartData"
@@ -99,9 +125,16 @@
             :birth-date="result.input.solarDate"
           />
         </div>
-      </el-tab-pane>
+      </el-collapse-item>
 
-      <el-tab-pane label="紫微斗數" name="ziwei">
+      <!-- ZiWei Section -->
+      <el-collapse-item name="ziwei" class="collapse-section">
+        <template #title>
+          <div class="collapse-title">
+            <span class="collapse-icon">⭐</span>
+            <span class="collapse-label">{{ t('unifiedView.ziwei') }}</span>
+          </div>
+        </template>
         <div class="section">
           <h4>基本資訊</h4>
           <el-descriptions :column="2" border size="small">
@@ -153,22 +186,42 @@
             :sihua-aggregation="result.ziwei.sihuaAggregation"
           />
         </div>
-      </el-tab-pane>
+      </el-collapse-item>
 
-      <el-tab-pane label="技術細節" name="technical">
+      <!-- Technical Details Section -->
+      <el-collapse-item name="technical" class="collapse-section">
+        <template #title>
+          <div class="collapse-title">
+            <span class="collapse-icon">🔧</span>
+            <span class="collapse-label">{{ t('unifiedView.technical') }}</span>
+          </div>
+        </template>
         <TechnicalDetailsCard :result="result" />
-      </el-tab-pane>
+      </el-collapse-item>
 
-      <!-- Developer tab hidden by default, accessible via Ctrl+Shift+D -->
-      <el-tab-pane v-if="showDeveloperTab" label="開發者" name="developer">
+      <!-- Developer Section - Hidden by default, accessible via Ctrl+Shift+D -->
+      <el-collapse-item
+        v-if="showDeveloperTab"
+        name="developer"
+        class="collapse-section"
+      >
+        <template #title>
+          <div class="collapse-title">
+            <span class="collapse-icon">👨‍💻</span>
+            <span class="collapse-label">{{ t('unifiedView.developer') }}</span>
+          </div>
+        </template>
         <DeveloperCard :result="result" />
-      </el-tab-pane>
-    </el-tabs>
+      </el-collapse-item>
+    </el-collapse>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
+import NarrativeSummary from './NarrativeSummary.vue';
 import BaziChart from './BaziChart.vue';
 import WuXingChart from './WuXingChart.vue';
 import FortuneTimeline from './FortuneTimeline.vue';
@@ -192,12 +245,30 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const { t } = useI18n();
+const router = useRouter();
 
-// Set default tab to 'annual' if available, otherwise 'bazi'
-const activeTab = ref(props.result.annualFortune ? 'annual' : 'bazi');
+// Phase 2: Progressive disclosure state - collapsed by default for narrative-first
+const activeCollapse = ref<string[]>([]);
 
 // Developer tab visibility (hidden by default, toggled by Ctrl+Shift+D)
 const showDeveloperTab = ref(false);
+
+// Placeholder for AI narrative (will be populated by API call)
+const aiNarrativePlaceholder = ref(
+  '您的命盤已準備就緒。點擊下方按鈕，讓佩璇為您解讀這獨特的生命藍圖。',
+);
+
+// Phase 2: Handlers for AI narrative actions
+const handleRequestAnalysis = () => {
+  // Navigate to personality analysis
+  router.push({ name: 'personality' });
+};
+
+const handleRegenerateAnalysis = () => {
+  // Navigate to fortune analysis
+  router.push({ name: 'fortune' });
+};
 
 // Keyboard shortcut handler for Ctrl+Shift+D
 const handleKeyDown = (event: KeyboardEvent) => {
@@ -205,7 +276,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
     event.preventDefault();
     showDeveloperTab.value = !showDeveloperTab.value;
     if (showDeveloperTab.value) {
-      activeTab.value = 'developer';
+      activeCollapse.value = [...activeCollapse.value, 'developer'];
     }
   }
 };
@@ -309,9 +380,58 @@ const getStarBrightness = (
 /* Design tokens applied - 2025-11-30 */
 /* RWD optimization - 2025-12-03 */
 /* Phase 3 visual enhancements - 2025-12-19 */
+/* Phase 2: Narrative transformation - 2025-12-20 */
 
 .unified-result {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+/* Phase 2: Technical sections using collapse for progressive disclosure */
+.technical-sections {
+  width: 100%;
+  border: none;
+}
+
+/* Phase 2: Collapse section styling - Sans-serif for UI labels */
+.collapse-section {
+  margin-bottom: var(--space-md);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.collapse-section:hover {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Phase 2: Collapse title with icons - Sans-serif font for UI */
+.collapse-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    sans-serif;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.collapse-icon {
+  font-size: var(--font-size-xl);
+  line-height: 1;
+}
+
+.collapse-label {
+  flex: 1;
 }
 
 /* Phase 3: Multi-layer shadows for depth */
@@ -323,56 +443,48 @@ const getStarBrightness = (
     0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* Mobile-first: Tab navigation optimization */
-:deep(.el-tabs__header) {
-  margin-bottom: var(--space-lg);
-}
-
-:deep(.el-tabs__nav-wrap) {
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
-}
-
-:deep(.el-tabs__nav-wrap)::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
-}
-
-/* Scroll hint shadow for mobile */
-@media (max-width: 767px) {
-  :deep(.el-tabs__nav-wrap)::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 30px;
-    background: linear-gradient(to left, rgba(255, 255, 255, 0.8), transparent);
-    pointer-events: none;
-  }
-}
-
-:deep(.el-tabs__item) {
-  min-height: 44px;
-  min-width: 44px;
+/* Phase 2: Collapse header customization */
+:deep(.el-collapse-item__header) {
+  min-height: 56px;
   padding: var(--space-md) var(--space-lg);
-  font-size: var(--font-size-sm);
-  white-space: nowrap;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
+  background: var(--bg-secondary);
+  border: none;
+  font-size: var(--font-size-base);
+  transition: background-color 0.3s ease;
 }
 
-/* Mobile: Increase spacing between tabs */
+:deep(.el-collapse-item__header:hover) {
+  background: linear-gradient(
+    90deg,
+    rgba(53, 126, 221, 0.05) 0%,
+    rgba(53, 126, 221, 0.02) 100%
+  );
+}
+
+:deep(.el-collapse-item__wrap) {
+  border: none;
+  background: var(--bg-primary);
+}
+
+:deep(.el-collapse-item__content) {
+  padding: var(--space-lg);
+  background: var(--bg-primary);
+}
+
+/* Mobile: Larger touch targets for collapse */
 @media (max-width: 767px) {
-  :deep(.el-tabs__item) {
-    margin: 0 var(--space-xs);
-    padding: var(--space-md) var(--space-xl);
+  :deep(.el-collapse-item__header) {
+    min-height: 60px;
+    padding: var(--space-lg);
+    -webkit-tap-highlight-color: transparent;
   }
 
-  :deep(.el-tabs__item):first-child {
-    margin-left: 0;
+  .collapse-title {
+    font-size: var(--font-size-base);
+  }
+
+  .collapse-icon {
+    font-size: var(--font-size-lg);
   }
 }
 

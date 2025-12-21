@@ -72,6 +72,15 @@
 			"compatibility_flags": [
 				"nodejs_compat"
 			],
+			"vars": {
+				// Azure OpenAI Configuration (non-sensitive)
+				"AZURE_OPENAI_ENDPOINT": "https://iim20-m9w1b4wx-eastus2.cognitiveservices.azure.com/",
+				"AZURE_OPENAI_DEPLOYMENT": "gpt-4.1-mini",
+				"AZURE_OPENAI_API_VERSION": "2024-04-01-preview",
+				// AI Service Configuration
+				"AI_PROVIDER_TIMEOUT_MS": 45000,
+				"ENABLE_AI_FALLBACK": true
+			},
 			"d1_databases": [
 				{
 					"binding": "DB",

@@ -110,3 +110,5 @@
 - **狀態**: ✓ 全面修復完成，生產環境部署中
 
 - [DECISION] 2025-12-21: CSS 動畫移動端修復完成。移除激進 !important，統一 will-change 管理，補齊無障礙支援，全面 iOS Safari 兼容。用戶體驗問題已解決。
+
+- [DECISION] 2025-12-21: 兩環境配置完善完成。生產環境補上 ENVIRONMENT secret，修正 staging 環境 vars 配置警告，創建重建腳本。配置現已完全一致。

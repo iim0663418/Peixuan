@@ -130,3 +130,7 @@
 - [DECISION] 2025-12-21: Phase 1-2 實施完成。數據庫遷移成功部署到staging，AnalyticsService創建完成，環境變數配置就緒。功能預設關閉，零影響部署成功。
 
 - [DECISION] 2025-12-21: 每日一問數據收集系統完全實施成功。包含數據庫遷移、AnalyticsService實現、雙AI服務整合、ExecutionContext修復、chartId傳遞修復。生產環境驗證通過，數據正常收集。
+
+- [DECISION] 2025-12-22: LLM記憶模組產品設計評估完成。基於5大核心原則分析每日一問、AgenticGeminiService、數據收集系統。識別關鍵優化點：對話上下文記憶、偏好學習、引導式提問。評估報告已生成至 doc/LLM記憶模組產品設計評估.md。
+
+- [DECISION] 2025-12-22: LLM記憶模組實作指南完成。基於評估報告制定Context Injection實施方案，確保Gemini+Azure雙引擎同步支援。最大程度復用既有AnalyticsService和AgenticServices架構。實作指南已生成至 doc/LLM記憶模組實作指南.md。

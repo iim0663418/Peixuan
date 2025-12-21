@@ -49,7 +49,7 @@ async function ensureAnonymousUser(db: D1Database): Promise<void> {
 	}
 }
 
-async function handleAPI(request: Request, env: Env): Promise<Response> {
+async function handleAPI(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 	const url = new URL(request.url);
 	const path = url.pathname;
 	const {method} = request;
@@ -97,7 +97,7 @@ async function handleAPI(request: Request, env: Env): Promise<Response> {
 	// Register unified routes with AutoRouter
 	const router = AutoRouter();
 	createUnifiedRoutes(router);
-	createAnalyzeRoutes(router, env);
+	createAnalyzeRoutes(router, env, ctx);
 	createChartRoutes(router);
 	createDailyReminderRoutes(router, env);
 
@@ -221,7 +221,7 @@ export default {
 		// API 路由
 		if (url.pathname.startsWith('/api/') || url.pathname === '/health') {
 			try {
-				return await handleAPI(request, env);
+				return await handleAPI(request, env, ctx);
 			} catch (e: any) {
 				return new Response(JSON.stringify({ error: e.message || 'Internal Server Error' }), {
 					status: 500,

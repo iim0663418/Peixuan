@@ -75,7 +75,7 @@ function initializeAIServices(env: Env): { manager: AIServiceManager } {
   return { manager };
 }
 
-export function createAnalyzeRoutes(router: Router, env: Env) {
+export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionContext) {
   /**
    * POST /api/v1/daily-insight/check
    *
@@ -614,7 +614,8 @@ export function createAnalyzeRoutes(router: Router, env: Env) {
           stream = await agenticService.generateDailyInsight(
             question,
             calculationResult,
-            normalizedLocale
+            normalizedLocale,
+            { env, ctx, chartId }
           );
 
         } catch (error) {
@@ -649,7 +650,8 @@ export function createAnalyzeRoutes(router: Router, env: Env) {
               stream = await azureService.generateDailyInsight(
                 question,
                 calculationResult,
-                normalizedLocale
+                normalizedLocale,
+                { env, ctx, fallbackReason: error.message, chartId }
               );
               usedFallback = true;
               console.log('[Daily Insight] Successfully using Azure outer fallback');

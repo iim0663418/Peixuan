@@ -11,6 +11,8 @@
 import type { CalculationResult, BirthInfo } from '../calculation/types';
 import { UnifiedCalculator } from '../calculation/integration/calculator';
 import { formatToMarkdown } from '../formatters/markdownFormatter';
+import { AnalyticsService } from './analyticsService';
+import type { Env } from '../index';
 
 /**
  * Function calling tool definition
@@ -46,6 +48,15 @@ export interface DailyInsightRequest {
 }
 
 /**
+ * Options for generateDailyInsight
+ */
+export interface GenerateDailyInsightOptions {
+  env?: Env;
+  ctx?: ExecutionContext;
+  chartId?: string;
+}
+
+/**
  * Azure OpenAI configuration for fallback
  */
 interface AzureConfig {
@@ -59,7 +70,7 @@ interface AzureConfig {
  * Fallback service interface
  */
 interface FallbackService {
-  generateDailyInsight(question: string, calculationResult: CalculationResult, locale?: string): Promise<ReadableStream>;
+  generateDailyInsight(question: string, calculationResult: CalculationResult, locale?: string, options?: GenerateDailyInsightOptions): Promise<ReadableStream>;
 }
 
 /**
@@ -617,12 +628,14 @@ export class AgenticGeminiService {
    * @param question - User's question
    * @param calculationResult - Pre-calculated chart data
    * @param locale - Language locale
+   * @param options - Optional parameters (env, ctx for analytics)
    * @returns ReadableStream of SSE events with agent thoughts and final answer
    */
   async generateDailyInsight(
     question: string,
     calculationResult: CalculationResult,
-    locale = 'zh-TW'
+    locale = 'zh-TW',
+    options?: GenerateDailyInsightOptions
   ): Promise<ReadableStream> {
     const encoder = new TextEncoder();
     const self = this;
@@ -631,6 +644,19 @@ export class AgenticGeminiService {
 
     return new ReadableStream({
       async start(controller) {
+        // Analytics tracking state
+        const startTime = Date.now();
+        let finalAnswer = '';
+        let usedFallback = false;
+        let fallbackReason: string | undefined;
+        const steps: Array<{
+          thought?: string;
+          toolName?: string;
+          toolArgs?: any;
+          toolOutput?: string;
+          latency?: number;
+        }> = [];
+
         try {
           console.log(`[AgenticGemini] Stream started, locale: ${locale}`);
 
@@ -652,7 +678,6 @@ export class AgenticGeminiService {
 
           // ReAct loop
           let iteration = 0;
-          let finalAnswer = '';
 
           while (iteration < self.maxIterations) {
             iteration++;
@@ -683,6 +708,10 @@ export class AgenticGeminiService {
                 console.log('[AgenticGemini] Gemini API error detected, switching to Azure fallback');
                 console.log('[AgenticGemini] Error type:', error instanceof Error ? error.message : String(error));
 
+                // Mark fallback usage
+                usedFallback = true;
+                fallbackReason = error instanceof Error ? error.message : String(error);
+
                 // Send fallback notification
                 const fallbackMsg = locale === 'zh-TW'
                   ? `[切換中] 佩璇換個方式來幫你分析...`
@@ -692,7 +721,7 @@ export class AgenticGeminiService {
 
                 // Use fallback service for the rest of the conversation
                 try {
-                  const fallbackStream = await self.fallbackService.generateDailyInsight(question, calculationResult, locale);
+                  const fallbackStream = await self.fallbackService.generateDailyInsight(question, calculationResult, locale, options);
                   const fallbackReader = fallbackStream.getReader();
 
                   // Pipe fallback stream to current controller
@@ -703,6 +732,10 @@ export class AgenticGeminiService {
                   }
                   controller.close();
                   console.log('[AgenticGemini] Successfully completed with Azure fallback');
+
+                  // Log analytics for fallback scenario
+                  self.logAnalytics(options?.chartId || calculationResult.input?.chartId, question, finalAnswer, true, usedFallback, fallbackReason, startTime, steps, options);
+
                   return;
                 } catch (fallbackError) {
                   console.error('[AgenticGemini] Azure fallback also failed:', fallbackError);
@@ -739,7 +772,18 @@ export class AgenticGeminiService {
               // Execute tools and collect observations
               const functionResponses = [];
               for (const fc of functionCalls) {
+                const stepStart = Date.now();
                 const observation = await self.executeTool(fc.name, calculationResult, locale);
+                const stepLatency = Date.now() - stepStart;
+
+                // Track step for analytics
+                steps.push({
+                  toolName: fc.name,
+                  toolArgs: fc.args,
+                  toolOutput: observation,
+                  latency: stepLatency
+                });
+
                 functionResponses.push({
                   functionResponse: {
                     name: fc.name,
@@ -787,8 +831,14 @@ export class AgenticGeminiService {
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));
           controller.close();
 
+          // Log analytics for successful completion
+          self.logAnalytics(options?.chartId || calculationResult.input?.chartId, question, finalAnswer, true, usedFallback, fallbackReason, startTime, steps, options);
+
         } catch (error) {
           console.error('[AgenticGemini] Stream error:', error);
+
+          // Log analytics for failed execution
+          self.logAnalytics(options?.chartId || calculationResult.input?.chartId, question, finalAnswer || '', false, usedFallback, fallbackReason, startTime, steps, options);
 
           // Check if this is a rate limit or service unavailable error
           // These should bubble up to trigger Azure fallback in the route handler
@@ -1162,5 +1212,83 @@ Guidelines:
    */
   private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Log analytics data (zero-impact async processing)
+   *
+   * @param chartId - Chart ID
+   * @param question - User's question
+   * @param finalAnswer - AI's final answer
+   * @param isSuccess - Whether the interaction succeeded
+   * @param usedFallback - Whether fallback was used
+   * @param fallbackReason - Reason for fallback
+   * @param startTime - Start timestamp
+   * @param steps - Execution steps
+   * @param options - Options containing env and ctx
+   */
+  private logAnalytics(
+    chartId: string,
+    question: string,
+    finalAnswer: string,
+    isSuccess: boolean,
+    usedFallback: boolean,
+    fallbackReason: string | undefined,
+    startTime: number,
+    steps: Array<{
+      thought?: string;
+      toolName?: string;
+      toolArgs?: any;
+      toolOutput?: string;
+      latency?: number;
+    }>,
+    options?: GenerateDailyInsightOptions
+  ): void {
+    // Check if analytics is enabled via feature flag
+    const isAnalyticsEnabled = options?.env?.ENABLE_ANALYTICS_LOGGING === 'true';
+
+    if (!isAnalyticsEnabled) {
+      console.log('[AgenticGemini] Analytics logging disabled (ENABLE_ANALYTICS_LOGGING != "true")');
+      return;
+    }
+
+    // Check if we have required dependencies
+    if (!options?.env?.DB || !options?.ctx) {
+      console.log('[AgenticGemini] Analytics logging skipped (missing env.DB or ctx)');
+      return;
+    }
+
+    const totalLatencyMs = Date.now() - startTime;
+
+    // Use ctx.waitUntil for zero-impact async processing
+    options.ctx.waitUntil(
+      (async () => {
+        try {
+          const { drizzle } = await import('drizzle-orm/d1');
+          const schema = await import('../db/schema');
+          const db = drizzle(options.env!.DB, { schema });
+
+          const analyticsService = new AnalyticsService(db);
+
+          await analyticsService.logInteraction({
+            chartId,
+            question,
+            finalAnswer,
+            isSuccess,
+            provider: 'gemini',
+            model: this.model,
+            isFallback: usedFallback,
+            fallbackReason,
+            totalLatencyMs,
+            steps
+          });
+
+          console.log('[AgenticGemini] Analytics logged successfully');
+        } catch (error) {
+          // Silent failure - analytics should never break the main flow
+          console.error('[AgenticGemini] Analytics logging error (non-blocking):', error);
+        }
+      })()
+    );
   }
 }

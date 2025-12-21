@@ -9,6 +9,8 @@
  */
 
 import type { CalculationResult } from '../calculation/types';
+import { AnalyticsService } from './analyticsService';
+import type { Env } from '../index';
 
 /**
  * Function calling tool definition (OpenAI format)
@@ -34,6 +36,16 @@ export interface AgenticAzureConfig {
   apiVersion?: string;
   maxRetries?: number;
   maxIterations?: number;
+}
+
+/**
+ * Options for generateDailyInsight
+ */
+export interface GenerateDailyInsightOptions {
+  env?: Env;
+  ctx?: ExecutionContext;
+  fallbackReason?: string;
+  chartId?: string;
 }
 
 /**
@@ -431,12 +443,14 @@ export class AgenticAzureService {
    * @param question - User's question
    * @param calculationResult - Pre-calculated chart data
    * @param locale - Language locale
+   * @param options - Optional parameters (env, ctx, fallbackReason for analytics)
    * @returns ReadableStream of SSE events with agent thoughts and final answer
    */
   async generateDailyInsight(
     question: string,
     calculationResult: CalculationResult,
-    locale = 'zh-TW'
+    locale = 'zh-TW',
+    options?: GenerateDailyInsightOptions
   ): Promise<ReadableStream> {
     const encoder = new TextEncoder();
     const self = this;
@@ -445,6 +459,17 @@ export class AgenticAzureService {
 
     return new ReadableStream({
       async start(controller) {
+        // Analytics tracking state
+        const startTime = Date.now();
+        let finalAnswer = '';
+        const steps: Array<{
+          thought?: string;
+          toolName?: string;
+          toolArgs?: any;
+          toolOutput?: string;
+          latency?: number;
+        }> = [];
+
         try {
           console.log(`[AgenticAzure] Stream started, locale: ${locale}`);
 
@@ -479,7 +504,6 @@ export class AgenticAzureService {
 
           // ReAct loop
           let iteration = 0;
-          let finalAnswer = '';
 
           while (iteration < self.maxIterations) {
             iteration++;
@@ -518,7 +542,17 @@ export class AgenticAzureService {
 
               // Execute tools and collect observations
               for (const toolCall of toolCalls) {
+                const stepStart = Date.now();
                 const observation = await self.executeTool(toolCall.function.name, calculationResult, locale);
+                const stepLatency = Date.now() - stepStart;
+
+                // Track step for analytics
+                steps.push({
+                  toolName: toolCall.function.name,
+                  toolArgs: toolCall.function.arguments ? JSON.parse(toolCall.function.arguments) : undefined,
+                  toolOutput: observation,
+                  latency: stepLatency
+                });
 
                 // Add tool response to history
                 conversationHistory.push({
@@ -562,8 +596,15 @@ export class AgenticAzureService {
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));
           controller.close();
 
+          // Log analytics for successful completion
+          self.logAnalytics(options?.chartId || calculationResult.input?.chartId, question, finalAnswer, true, startTime, steps, options);
+
         } catch (error) {
           console.error('[AgenticAzure] Error:', error);
+
+          // Log analytics for failed execution
+          self.logAnalytics(options?.chartId || calculationResult.input?.chartId, question, finalAnswer || '', false, startTime, steps, options);
+
           const errorMsg = `data: ${JSON.stringify({ error: String(error) })}\n\n`;
           controller.enqueue(encoder.encode(errorMsg));
           controller.close();
@@ -816,5 +857,79 @@ Guidelines:
    */
   private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Log analytics data (zero-impact async processing)
+   *
+   * @param chartId - Chart ID
+   * @param question - User's question
+   * @param finalAnswer - AI's final answer
+   * @param isSuccess - Whether the interaction succeeded
+   * @param startTime - Start timestamp
+   * @param steps - Execution steps
+   * @param options - Options containing env, ctx, and fallbackReason
+   */
+  private logAnalytics(
+    chartId: string,
+    question: string,
+    finalAnswer: string,
+    isSuccess: boolean,
+    startTime: number,
+    steps: Array<{
+      thought?: string;
+      toolName?: string;
+      toolArgs?: any;
+      toolOutput?: string;
+      latency?: number;
+    }>,
+    options?: GenerateDailyInsightOptions
+  ): void {
+    // Check if analytics is enabled via feature flag
+    const isAnalyticsEnabled = options?.env?.ENABLE_ANALYTICS_LOGGING === 'true';
+
+    if (!isAnalyticsEnabled) {
+      console.log('[AgenticAzure] Analytics logging disabled (ENABLE_ANALYTICS_LOGGING != "true")');
+      return;
+    }
+
+    // Check if we have required dependencies
+    if (!options?.env?.DB || !options?.ctx) {
+      console.log('[AgenticAzure] Analytics logging skipped (missing env.DB or ctx)');
+      return;
+    }
+
+    const totalLatencyMs = Date.now() - startTime;
+
+    // Use ctx.waitUntil for zero-impact async processing
+    options.ctx.waitUntil(
+      (async () => {
+        try {
+          const { drizzle } = await import('drizzle-orm/d1');
+          const schema = await import('../db/schema');
+          const db = drizzle(options.env!.DB, { schema });
+
+          const analyticsService = new AnalyticsService(db);
+
+          await analyticsService.logInteraction({
+            chartId,
+            question,
+            finalAnswer,
+            isSuccess,
+            provider: 'azure',
+            model: this.deployment,
+            isFallback: true, // Azure is always used as fallback
+            fallbackReason: options.fallbackReason,
+            totalLatencyMs,
+            steps
+          });
+
+          console.log('[AgenticAzure] Analytics logged successfully (fallback scenario)');
+        } catch (error) {
+          // Silent failure - analytics should never break the main flow
+          console.error('[AgenticAzure] Analytics logging error (non-blocking):', error);
+        }
+      })()
+    );
   }
 }

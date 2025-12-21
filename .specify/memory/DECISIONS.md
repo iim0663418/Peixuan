@@ -112,3 +112,21 @@
 - [DECISION] 2025-12-21: CSS 動畫移動端修復完成。移除激進 !important，統一 will-change 管理，補齊無障礙支援，全面 iOS Safari 兼容。用戶體驗問題已解決。
 
 - [DECISION] 2025-12-21: 兩環境配置完善完成。生產環境補上 ENVIRONMENT secret，修正 staging 環境 vars 配置警告，創建重建腳本。配置現已完全一致。
+
+- [DECISION] 2025-12-21: 每日一問數據收集系統設計完成。包含完整的數據庫schema、ReAct歷程記錄機制、工具調用追蹤和數據分析API設計。基於Cloudflare D1和現有AgenticGeminiService架構。
+
+- [DECISION] 2025-12-21: 零影響實施方案設計完成。四階段漸進式部署：1.數據庫基礎建設 2.靜默模式整合 3.異步數據收集啟用 4.分階段發布。使用Feature Flag控制，ctx.waitUntil異步處理，確保零停機時間。
+
+- [DECISION] 2025-12-21: Azure備援數據收集方案補充完成。統一AnalyticsService接口，支援雙AI服務數據收集，備援標識與失敗原因記錄，性能對比分析。完整覆蓋Gemini主服務和Azure備援場景。
+
+- [DECISION] 2025-12-21: 數據安全修正完成。移除所有public API設計，確保數據僅通過D1直接查詢存取。採用純數據收集模式，無對外暴露端點，保障數據完全私有。
+
+- [DECISION] 2025-12-21: 完整實施指南整合完成。包含數據庫遷移、AnalyticsService實現、環境配置、部署步驟和驗證清單。準備就緒進行零影響部署。
+
+- [DECISION] 2025-12-21: Phase 1-2 實施完成。數據庫遷移成功部署到staging，AnalyticsService創建完成，環境變數配置就緒。功能預設關閉，零影響部署成功。
+
+- [DECISION] 2025-12-21: Phase 1-2 實施完成。數據庫遷移成功部署到staging，AnalyticsService創建完成，環境變數配置就緒。功能預設關閉，零影響部署成功。
+
+- [DECISION] 2025-12-21: Phase 1-2 實施完成。數據庫遷移成功部署到staging，AnalyticsService創建完成，環境變數配置就緒。功能預設關閉，零影響部署成功。
+
+- [DECISION] 2025-12-21: 每日一問數據收集系統完全實施成功。包含數據庫遷移、AnalyticsService實現、雙AI服務整合、ExecutionContext修復、chartId傳遞修復。生產環境驗證通過，數據正常收集。

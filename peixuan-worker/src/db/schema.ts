@@ -1,5 +1,5 @@
 import { sql, relations } from 'drizzle-orm';
-import { sqliteTable, text, uniqueIndex, index } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, uniqueIndex, index, integer } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import type { z } from 'zod';
 
@@ -88,6 +88,61 @@ export const advancedAnalysisRecordsRelations = relations(advancedAnalysisRecord
 	chart: one(chartRecords, {
 		fields: [advancedAnalysisRecords.chartId],
 		references: [chartRecords.id],
+	}),
+}));
+
+// ---- Daily Question Analytics Tables ----
+export const dailyQuestionLogs = sqliteTable('daily_question_logs', {
+	id: text('id').primaryKey(), // UUID
+	chartId: text('chart_id').notNull(),
+	question: text('question').notNull(),
+	finalAnswer: text('final_answer'),
+	isSuccess: integer('is_success', { mode: 'boolean' }).default(true),
+	
+	// 模型與備援資訊
+	provider: text('provider').notNull().default('gemini'), // 'gemini' | 'azure'
+	model: text('model'),
+	isFallback: integer('is_fallback', { mode: 'boolean' }).default(false),
+	fallbackReason: text('fallback_reason'),
+
+	// 性能指標
+	totalLatencyMs: integer('total_latency_ms'),
+	promptTokens: integer('prompt_tokens'),
+	completionTokens: integer('completion_tokens'),
+	totalTokens: integer('total_tokens'),
+
+	createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+}, (table) => ({
+	chartIdIdx: index('dql_chart_id_idx').on(table.chartId),
+	createdAtIdx: index('dql_created_at_idx').on(table.createdAt),
+}));
+
+// Agent 執行歷程表
+export const agentExecutionTraces = sqliteTable('agent_execution_traces', {
+	id: text('id').primaryKey(), // UUID
+	logId: text('log_id').notNull().references(() => dailyQuestionLogs.id),
+	stepNumber: integer('step_number').notNull(),
+	
+	thought: text('thought'),
+	action: text('action'),
+	actionInput: text('action_input'),
+	observation: text('observation'),
+	
+	stepLatencyMs: integer('step_latency_ms'),
+	
+	createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(strftime('%s', 'now'))`),
+}, (table) => ({
+	logIdIdx: index('aet_log_id_idx').on(table.logId),
+}));
+
+export const dailyQuestionLogsRelations = relations(dailyQuestionLogs, ({ many }) => ({
+	traces: many(agentExecutionTraces),
+}));
+
+export const agentExecutionTracesRelations = relations(agentExecutionTraces, ({ one }) => ({
+	log: one(dailyQuestionLogs, {
+		fields: [agentExecutionTraces.logId],
+		references: [dailyQuestionLogs.id],
 	}),
 }));
 

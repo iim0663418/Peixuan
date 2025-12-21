@@ -42,7 +42,10 @@
 		"AZURE_OPENAI_API_VERSION": "2024-04-01-preview",
 		// AI Service Configuration
 		"AI_PROVIDER_TIMEOUT_MS": 45000,
-		"ENABLE_AI_FALLBACK": true
+		"ENABLE_AI_FALLBACK": true,
+		// Analytics Configuration
+		"ENABLE_ANALYTICS_LOGGING": "true",
+		"ANALYTICS_SAMPLE_RATE": "1.0"
 	},
 	/**
 	 * KV Cache (Optional)
@@ -79,7 +82,10 @@
 				"AZURE_OPENAI_API_VERSION": "2024-04-01-preview",
 				// AI Service Configuration
 				"AI_PROVIDER_TIMEOUT_MS": 45000,
-				"ENABLE_AI_FALLBACK": true
+				"ENABLE_AI_FALLBACK": true,
+				// Analytics Configuration
+				"ENABLE_ANALYTICS_LOGGING": "false",
+				"ANALYTICS_SAMPLE_RATE": "1.0"
 			},
 			"d1_databases": [
 				{

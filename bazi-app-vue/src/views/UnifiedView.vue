@@ -585,4 +585,12 @@ h4 {
     color: var(--text-secondary) !important;
   }
 }
+
+/* 無障礙: 減少動畫 */
+@media (prefers-reduced-motion: reduce) {
+  .unified-view * {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>

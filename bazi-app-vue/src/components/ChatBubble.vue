@@ -1,6 +1,6 @@
 <template>
   <div
-    class="chat-bubble"
+    class="chat-bubble will-change-opacity-transform"
     :class="[`bubble-${type}`, { 'bubble-entering': isEntering }]"
   >
     <div class="bubble-content" v-html="formattedContent"></div>
@@ -99,7 +99,6 @@ onMounted(() => {
 .bubble-entering {
   opacity: 0;
   animation: fadeSlideIn 0.3s ease-out forwards;
-  will-change: opacity, transform;
 }
 
 @keyframes slideIn {

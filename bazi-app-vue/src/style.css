@@ -2,6 +2,19 @@
 @import './styles/design-tokens.css';
 @import './styles/animations.css';
 
+/* 統一的 will-change 類別 */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.will-change-opacity-transform {
+  will-change: opacity, transform;
+}
+
 :root {
   font-family: var(--font-family-primary);
   line-height: var(--line-height-normal);

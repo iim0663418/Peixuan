@@ -5,7 +5,7 @@
       <div
         v-for="pillarKey in pillarOrder"
         :key="pillarKey"
-        class="pillar-card-display"
+        class="pillar-card-display will-change-transform"
         :class="{ highlighted: props.highlightedPillars?.includes(pillarKey) }"
       >
         <h5>{{ getPillarName(pillarKey) }}</h5>
@@ -151,8 +151,6 @@ const tenGodsForPillars = computed(() => {
   min-height: 44px; /* 觸控目標 */
   aspect-ratio: 0.8 / 1; /* Maintain vertical aspect ratio */
   box-sizing: border-box;
-  /* Performance optimization: hint browser for potential transforms */
-  will-change: auto;
 }
 
 .pillar-card-display.highlighted {
@@ -259,6 +257,14 @@ const tenGodsForPillars = computed(() => {
     margin-top: 0.25rem;
     font-size: 0.75rem;
     text-align: center;
+  }
+}
+
+/* 無障礙: 減少動畫 */
+@media (prefers-reduced-motion: reduce) {
+  .bazi-chart * {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
   }
 }
 </style>

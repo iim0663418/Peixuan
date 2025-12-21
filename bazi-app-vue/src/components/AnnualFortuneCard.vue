@@ -401,32 +401,40 @@ const formatDate = (date: Date | string): string => {
     background: var(--bg-secondary);
     border-color: var(--border-light);
   }
-  
+
   .yearly-header h4,
   .period-header h5 {
     color: var(--text-primary) !important;
   }
-  
+
   .date-range {
     color: var(--text-secondary) !important;
   }
-  
+
   .period-card {
     background: var(--bg-tertiary) !important;
     border-color: var(--border-light) !important;
   }
-  
+
   .period-label {
     color: var(--text-inverse) !important;
   }
-  
+
   .legend-current,
   .legend-next {
     color: var(--text-secondary) !important;
   }
-  
+
   .fortune-content {
     color: var(--text-primary) !important;
+  }
+}
+
+/* 無障礙: 減少動畫 */
+@media (prefers-reduced-motion: reduce) {
+  .annual-fortune-card * {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
   }
 }
 </style>

@@ -43,9 +43,9 @@
       <!-- AI Thinking Animation -->
       <div v-if="isAsking && chatBubbles.length === 0" class="message ai-message thinking-message">
         <div class="thinking-dots">
-          <span></span>
-          <span></span>
-          <span></span>
+          <span class="will-change-transform"></span>
+          <span class="will-change-transform"></span>
+          <span class="will-change-transform"></span>
         </div>
       </div>
 
@@ -61,9 +61,9 @@
       <!-- Typing Indicator (while streaming) -->
       <div v-if="isAsking && chatBubbles.length > 0" class="message ai-message thinking-message">
         <div class="thinking-dots">
-          <span></span>
-          <span></span>
-          <span></span>
+          <span class="will-change-transform"></span>
+          <span class="will-change-transform"></span>
+          <span class="will-change-transform"></span>
         </div>
       </div>
 
@@ -479,7 +479,6 @@ onUnmounted(() => {
   border-radius: 50%;
   background: var(--info);
   animation: thinking 1.4s infinite ease-in-out both;
-  will-change: transform;
 }
 
 .thinking-dots span:nth-child(1) { animation-delay: -0.32s; }

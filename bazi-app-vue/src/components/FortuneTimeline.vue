@@ -16,7 +16,7 @@
         <div
           v-for="(dayun, index) in fortuneCycles.dayunList"
           :key="index"
-          class="dayun-segment"
+          class="dayun-segment will-change-transform"
           :class="{ current: isCurrentDayun(dayun) }"
         >
           <div class="dayun-header">
@@ -210,7 +210,6 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
   min-height: 44px; /* 觸控目標 */
   aspect-ratio: 1.2 / 1; /* Maintain consistent aspect ratio */
   box-sizing: border-box;
-  will-change: transform; /* Performance hint for animations */
 }
 
 /* Reduce animations on mobile if user prefers reduced motion */

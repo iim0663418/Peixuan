@@ -14,7 +14,7 @@
         </div>
         <div class="bar-track">
           <div
-            class="bar-fill raw"
+            class="bar-fill raw will-change-transform"
             :style="{
               width: getBarWidth(element.raw),
               backgroundColor: element.color,
@@ -22,7 +22,7 @@
             }"
           />
           <div
-            class="bar-fill adjusted"
+            class="bar-fill adjusted will-change-transform"
             :style="{
               width: getBarWidth(element.adjusted),
               backgroundColor: element.color,
@@ -202,7 +202,6 @@ const getBarWidth = (score: number): string => {
   height: 100%;
   transition: width 0.5s ease;
   border-radius: 6px;
-  will-change: transform; /* Performance hint for GPU acceleration */
   box-sizing: border-box;
 }
 

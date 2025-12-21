@@ -205,4 +205,12 @@
     text-align: center;
   }
 }
+
+/* 無障礙: 減少動畫 */
+@media (prefers-reduced-motion: reduce) {
+  .app-footer * {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>

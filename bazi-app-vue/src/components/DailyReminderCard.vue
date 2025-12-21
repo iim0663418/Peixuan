@@ -224,4 +224,12 @@ onMounted(() => {
     width: fit-content;
   }
 }
+
+/* 無障礙: 減少動畫 */
+@media (prefers-reduced-motion: reduce) {
+  .daily-reminder-card * {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>

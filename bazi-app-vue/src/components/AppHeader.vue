@@ -558,4 +558,12 @@ const handleAdvancedAnalysis = () => {
     background: #e5e7eb;
   }
 }
+
+/* 無障礙: 減少動畫 */
+@media (prefers-reduced-motion: reduce) {
+  .app-header * {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>

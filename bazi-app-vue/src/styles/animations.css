@@ -21,21 +21,24 @@
 /* ===== Entrance Animations (Mobile-Optimized) ===== */
 
 /**
- * Fade In Up - Optimized for mobile
- * Uses transform and opacity for GPU acceleration
+ * Fade In Up - Optimized for mobile with iOS Safari support
+ * Uses transform3d and opacity for GPU acceleration
  */
 @keyframes fadeInUp {
   from {
     opacity: 0;
+    -webkit-transform: translate3d(0, 20px, 0);
     transform: translate3d(0, 20px, 0);
   }
   to {
     opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
   }
 }
 
 .fade-in-up {
+  -webkit-animation: fadeInUp var(--anim-duration-slow) var(--anim-ease-out) backwards;
   animation: fadeInUp var(--anim-duration-slow) var(--anim-ease-out) backwards;
 }
 
@@ -56,56 +59,65 @@
 }
 
 /**
- * Scale In - For modal and dialog entrances
+ * Scale In - For modal and dialog entrances with iOS Safari support
  */
 @keyframes scaleIn {
   from {
     opacity: 0;
+    -webkit-transform: scale3d(0.95, 0.95, 1);
     transform: scale3d(0.95, 0.95, 1);
   }
   to {
     opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
     transform: scale3d(1, 1, 1);
   }
 }
 
 .scale-in {
+  -webkit-animation: scaleIn var(--anim-duration-normal) var(--anim-ease-out) backwards;
   animation: scaleIn var(--anim-duration-normal) var(--anim-ease-out) backwards;
 }
 
 /**
- * Slide In From Right - For drawer/panel entrances
+ * Slide In From Right - For drawer/panel entrances with iOS Safari support
  */
 @keyframes slideInRight {
   from {
     opacity: 0;
+    -webkit-transform: translate3d(30px, 0, 0);
     transform: translate3d(30px, 0, 0);
   }
   to {
     opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
   }
 }
 
 .slide-in-right {
+  -webkit-animation: slideInRight var(--anim-duration-normal) var(--anim-ease-out) backwards;
   animation: slideInRight var(--anim-duration-normal) var(--anim-ease-out) backwards;
 }
 
 /**
- * Progressive Load - For staggered content loading
+ * Progressive Load - For staggered content loading with iOS Safari support
  */
 @keyframes progressiveLoad {
   from {
     opacity: 0;
+    -webkit-transform: translate3d(0, 10px, 0);
     transform: translate3d(0, 10px, 0);
   }
   to {
     opacity: 1;
+    -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
   }
 }
 
 .progressive-load {
+  -webkit-animation: progressiveLoad 0.4s var(--anim-ease-out) backwards;
   animation: progressiveLoad 0.4s var(--anim-ease-out) backwards;
 }
 
@@ -209,20 +221,26 @@
 /* ===== Mobile-Specific Optimizations ===== */
 
 /**
- * Disable continuous animations on mobile to save battery
- * Keep entrance animations as they're one-time only
+ * Optimize animations on mobile for better performance and battery life
+ * Selective approach: reduce continuous animations, preserve entrance animations
  */
 @media (max-width: 767px) {
-  /* Remove all continuous/infinite animations on mobile */
+  /* Convert infinite animations to single iterations on mobile */
+  .continuous-animation,
+  .infinite-animation,
   .hero-section::before,
   .quick-access-card::before,
   .floating-decoration {
-    animation: none !important;
+    animation-iteration-count: 1;
+    animation-duration: var(--anim-duration-fast);
   }
 
-  /* Reduce animation duration on mobile for snappier feel */
-  * {
-    animation-duration: calc(var(--anim-duration-normal) * 0.8) !important;
+  /* Gentle duration reduction for entrance animations (no !important) */
+  .fade-in-up,
+  .scale-in,
+  .slide-in-right,
+  .progressive-load {
+    animation-duration: var(--anim-duration-fast);
   }
 
   /* Disable hover effects on touch devices */
@@ -272,15 +290,23 @@
 }
 
 /**
- * Will-change hints for browsers
+ * Unified will-change management
  * Use sparingly - only on elements that will definitely animate
  */
-.will-animate-transform {
+.will-change-transform {
   will-change: transform;
 }
 
-.will-animate-opacity {
+.will-change-opacity {
   will-change: opacity;
+}
+
+.will-change-opacity-transform {
+  will-change: opacity, transform;
+}
+
+.will-change-auto {
+  will-change: auto;
 }
 
 /* Remove will-change after animation completes to free up resources */

@@ -13,6 +13,7 @@ import { AgenticGeminiService } from '../services/agenticGeminiService';
 import { AgenticAzureService } from '../services/agenticAzureService';
 import { ChartCacheService } from '../services/chartCacheService';
 import { DailyQuestionLimitService } from '../services/dailyQuestionLimitService';
+import { AnalyticsService } from '../services/analyticsService';
 
 /**
  * Configure Azure OpenAI fallback provider
@@ -580,6 +581,27 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
         ? JSON.parse(chart.chartData)
         : chart.chartData;
 
+      // Get user's recent conversation history (with 500ms timeout protection)
+      let historyContext = "";
+      try {
+        const { drizzle } = await import('drizzle-orm/d1');
+        const schema = await import('../db/schema');
+        const db = drizzle(env.DB, { schema });
+        const analyticsService = new AnalyticsService(db);
+
+        // Race between getUserRecentContext and 500ms timeout
+        const contextPromise = analyticsService.getUserRecentContext(chartId, 3);
+        const timeoutPromise = new Promise<string>((resolve) =>
+          setTimeout(() => resolve(""), 500)
+        );
+
+        historyContext = await Promise.race([contextPromise, timeoutPromise]);
+        console.log('[Daily Insight] History context fetched:', historyContext ? 'success' : 'empty/timeout');
+      } catch (error) {
+        console.error('[Daily Insight] Failed to fetch history context (non-blocking):', error);
+        // Gracefully degrade - continue without context
+      }
+
       let stream: ReadableStream;
       let usedFallback = false;
 
@@ -615,6 +637,7 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
             question,
             calculationResult,
             normalizedLocale,
+            historyContext,
             { env, ctx, chartId }
           );
 
@@ -651,6 +674,7 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
                 question,
                 calculationResult,
                 normalizedLocale,
+                historyContext,
                 { env, ctx, fallbackReason: error.message, chartId }
               );
               usedFallback = true;

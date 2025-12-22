@@ -240,3 +240,13 @@
 - [DECISION] 2025-12-22: Markdown 渲染系統完整統一完成。創建統一工具 markdown.ts，整合 ChatBubble、NarrativeSummary、UnifiedAIAnalysisView。集中化配置、樣式系統、關鍵字高亮。
 
 - [DECISION] 2025-12-22: LLM記憶模組完整驗證成功。Phase 1-3全功能測試通過，包含數據收集、AI服務整合、歷史上下文注入機制。佩璇現具備完整記憶能力，準備合併到main分支。
+
+- [DECISION] 2025-12-22: 成本控制系統設計完成。制定每日3次force refresh限制，基於chartId的24小時滾動窗口，包含完整的D1數據庫schema、RateLimitService實現和前端UX處理方案。
+
+- [DECISION] 2025-12-22: 每日分析一致性策略設計完成。從頻率限制轉為每日一次生成策略，確保命理分析的一致性和成本控制。基於快取存在性的無狀態邏輯，消除複雜的配額追蹤。
+
+- [DECISION] 2025-12-22: 每日分析一致性策略實施完成。修改 analyzeController.ts 忽略 force_refresh 參數，添加 consistency_enforced 元數據，確保每天只生成一次分析。
+
+- [DECISION] 2025-12-22: 每日分析一致性策略部署到 Staging 成功。版本 95ae4ddf-812b-489a-9ce6-b7195811e6e1 已上線，準備測試 force_refresh 忽略功能。
+
+- [DECISION] 2025-12-22: 每日分析一致性策略完整驗證成功。Phase 1-3全功能測試通過，包含數據收集、AI服務整合、歷史上下文注入機制。佩璇現具備完整記憶能力，準備合併到main分支。

@@ -33719,6 +33719,128 @@ var init_calculator = __esm({
   }
 });
 
+// src/services/analysisCacheService.ts
+var analysisCacheService_exports = {};
+__export(analysisCacheService_exports, {
+  AnalysisCacheService: () => AnalysisCacheService
+});
+var AnalysisCacheService;
+var init_analysisCacheService = __esm({
+  "src/services/analysisCacheService.ts"() {
+    "use strict";
+    init_drizzle_orm();
+    init_d1();
+    init_schema();
+    AnalysisCacheService = class {
+      /**
+       * Get an analysis record by chart ID and analysis type
+       * @param chartId - The chart ID to query
+       * @param analysisType - The type of analysis (e.g., 'ai-streaming')
+       * @param env - Cloudflare Worker environment containing DB binding
+       * @returns The analysis record or null if not found or expired (>24 hours)
+       */
+      async getAnalysis(chartId, analysisType, env) {
+        const db = drizzle(env.DB);
+        const result = await db.select().from(analysisRecords).where(
+          and(
+            eq(analysisRecords.chartId, chartId),
+            eq(analysisRecords.analysisType, analysisType)
+          )
+        ).orderBy(desc(analysisRecords.createdAt)).limit(1);
+        if (result[0]) {
+          const createdAt = new Date(result[0].createdAt);
+          const now = /* @__PURE__ */ new Date();
+          const hoursDiff = (now.getTime() - createdAt.getTime()) / (1e3 * 60 * 60);
+          if (hoursDiff < 24) {
+            return result[0];
+          }
+        }
+        return null;
+      }
+      /**
+       * Save a new analysis record
+       * @param chartId - The chart ID this analysis belongs to
+       * @param analysisType - The type of analysis (e.g., 'ai-streaming')
+       * @param result - The analysis result data
+       * @param env - Cloudflare Worker environment containing DB binding
+       */
+      async saveAnalysis(chartId, analysisType, result, env) {
+        const db = drizzle(env.DB);
+        const analysisId = crypto.randomUUID();
+        const newAnalysis = {
+          id: analysisId,
+          userId: null,
+          // Anonymous user
+          chartId,
+          analysisType,
+          result,
+          createdAt: (/* @__PURE__ */ new Date()).toISOString()
+        };
+        await db.insert(analysisRecords).values(newAnalysis);
+      }
+    };
+  }
+});
+
+// src/services/advancedAnalysisCacheService.ts
+var advancedAnalysisCacheService_exports = {};
+__export(advancedAnalysisCacheService_exports, {
+  AdvancedAnalysisCacheService: () => AdvancedAnalysisCacheService
+});
+var AdvancedAnalysisCacheService;
+var init_advancedAnalysisCacheService = __esm({
+  "src/services/advancedAnalysisCacheService.ts"() {
+    "use strict";
+    init_drizzle_orm();
+    init_d1();
+    init_schema();
+    AdvancedAnalysisCacheService = class {
+      /**
+       * Get an advanced analysis record by chart ID and analysis type
+       * @param chartId - The chart ID to query
+       * @param analysisType - The analysis type (e.g., 'ai-advanced-zh-TW', 'ai-advanced-en')
+       * @param env - Cloudflare Worker environment containing DB binding
+       * @returns The advanced analysis record or null if not found or expired (>24 hours)
+       */
+      async getAnalysis(chartId, analysisType, env) {
+        const db = drizzle(env.DB);
+        const result = await db.select().from(advancedAnalysisRecords).where(and(
+          eq(advancedAnalysisRecords.chartId, chartId),
+          eq(advancedAnalysisRecords.analysisType, analysisType)
+        )).orderBy(desc(advancedAnalysisRecords.createdAt)).limit(1);
+        if (result[0]) {
+          const createdAt = new Date(result[0].createdAt);
+          const now = /* @__PURE__ */ new Date();
+          const hoursDiff = (now.getTime() - createdAt.getTime()) / (1e3 * 60 * 60);
+          if (hoursDiff < 24) {
+            return result[0];
+          }
+        }
+        return null;
+      }
+      /**
+       * Save a new advanced analysis record
+       * @param chartId - The chart ID this analysis belongs to
+       * @param analysisType - The analysis type (e.g., 'ai-advanced-zh-TW', 'ai-advanced-en')
+       * @param result - The advanced analysis result data
+       * @param env - Cloudflare Worker environment containing DB binding
+       */
+      async saveAnalysis(chartId, analysisType, result, env) {
+        const db = drizzle(env.DB);
+        const analysisId = crypto.randomUUID();
+        const newAnalysis = {
+          id: analysisId,
+          chartId,
+          analysisType,
+          result,
+          createdAt: (/* @__PURE__ */ new Date()).toISOString()
+        };
+        await db.insert(advancedAnalysisRecords).values(newAnalysis);
+      }
+    };
+  }
+});
+
 // src/services/analyticsService.ts
 var AnalyticsService;
 var init_analyticsService = __esm({
@@ -34135,6 +34257,22 @@ var init_agenticAzureService = __esm({
             const steps = [];
             try {
               console.log(`[AgenticAzure] Stream started, locale: ${locale2}`);
+              if (options?.hasMemoryContext && options?.memoryReference) {
+                const metadataEvent = `data: ${JSON.stringify({
+                  type: "meta",
+                  data: {
+                    hasMemoryContext: true,
+                    memoryReference: options.memoryReference
+                  }
+                })}
+
+`;
+                controller.enqueue(encoder.encode(metadataEvent));
+                console.log("[AgenticAzure] Memory metadata sent:", {
+                  hasMemoryContext: true,
+                  memoryReference: options.memoryReference
+                });
+              }
               const conversationHistory = [];
               const systemPrompt = self.buildSystemPrompt(locale2, historyContext);
               console.log(`[AgenticAzure] System prompt generated (first 100 chars): ${systemPrompt.substring(0, 100)}`);
@@ -36247,107 +36385,9 @@ function formatNextYearBasic(result) {
   return lines.join("\n");
 }
 
-// src/services/analysisCacheService.ts
-init_drizzle_orm();
-init_d1();
-init_schema();
-var AnalysisCacheService = class {
-  /**
-   * Get an analysis record by chart ID and analysis type
-   * @param chartId - The chart ID to query
-   * @param analysisType - The type of analysis (e.g., 'ai-streaming')
-   * @param env - Cloudflare Worker environment containing DB binding
-   * @returns The analysis record or null if not found or expired (>24 hours)
-   */
-  async getAnalysis(chartId, analysisType, env) {
-    const db = drizzle(env.DB);
-    const result = await db.select().from(analysisRecords).where(
-      and(
-        eq(analysisRecords.chartId, chartId),
-        eq(analysisRecords.analysisType, analysisType)
-      )
-    ).orderBy(desc(analysisRecords.createdAt)).limit(1);
-    if (result[0]) {
-      const createdAt = new Date(result[0].createdAt);
-      const now = /* @__PURE__ */ new Date();
-      const hoursDiff = (now.getTime() - createdAt.getTime()) / (1e3 * 60 * 60);
-      if (hoursDiff < 24) {
-        return result[0];
-      }
-    }
-    return null;
-  }
-  /**
-   * Save a new analysis record
-   * @param chartId - The chart ID this analysis belongs to
-   * @param analysisType - The type of analysis (e.g., 'ai-streaming')
-   * @param result - The analysis result data
-   * @param env - Cloudflare Worker environment containing DB binding
-   */
-  async saveAnalysis(chartId, analysisType, result, env) {
-    const db = drizzle(env.DB);
-    const analysisId = crypto.randomUUID();
-    const newAnalysis = {
-      id: analysisId,
-      userId: null,
-      // Anonymous user
-      chartId,
-      analysisType,
-      result,
-      createdAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    await db.insert(analysisRecords).values(newAnalysis);
-  }
-};
-
-// src/services/advancedAnalysisCacheService.ts
-init_drizzle_orm();
-init_d1();
-init_schema();
-var AdvancedAnalysisCacheService = class {
-  /**
-   * Get an advanced analysis record by chart ID and analysis type
-   * @param chartId - The chart ID to query
-   * @param analysisType - The analysis type (e.g., 'ai-advanced-zh-TW', 'ai-advanced-en')
-   * @param env - Cloudflare Worker environment containing DB binding
-   * @returns The advanced analysis record or null if not found or expired (>24 hours)
-   */
-  async getAnalysis(chartId, analysisType, env) {
-    const db = drizzle(env.DB);
-    const result = await db.select().from(advancedAnalysisRecords).where(and(
-      eq(advancedAnalysisRecords.chartId, chartId),
-      eq(advancedAnalysisRecords.analysisType, analysisType)
-    )).orderBy(desc(advancedAnalysisRecords.createdAt)).limit(1);
-    if (result[0]) {
-      const createdAt = new Date(result[0].createdAt);
-      const now = /* @__PURE__ */ new Date();
-      const hoursDiff = (now.getTime() - createdAt.getTime()) / (1e3 * 60 * 60);
-      if (hoursDiff < 24) {
-        return result[0];
-      }
-    }
-    return null;
-  }
-  /**
-   * Save a new advanced analysis record
-   * @param chartId - The chart ID this analysis belongs to
-   * @param analysisType - The analysis type (e.g., 'ai-advanced-zh-TW', 'ai-advanced-en')
-   * @param result - The advanced analysis result data
-   * @param env - Cloudflare Worker environment containing DB binding
-   */
-  async saveAnalysis(chartId, analysisType, result, env) {
-    const db = drizzle(env.DB);
-    const analysisId = crypto.randomUUID();
-    const newAnalysis = {
-      id: analysisId,
-      chartId,
-      analysisType,
-      result,
-      createdAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    await db.insert(advancedAnalysisRecords).values(newAnalysis);
-  }
-};
+// src/controllers/analyzeController.ts
+init_analysisCacheService();
+init_advancedAnalysisCacheService();
 
 // src/controllers/promptBuilder.ts
 function buildAnalysisPrompt(markdown, locale2 = "zh-TW") {
@@ -36654,12 +36694,23 @@ async function accumulateStreamBuffer(reader, decoder) {
   console.log("[accumulateStreamBuffer] Complete buffer accumulated, size:", buffer.length);
   return buffer;
 }
-function createCachedSSEStream(cachedText) {
+function createCachedSSEStream(cachedText, forceRequested) {
   const encoder = new TextEncoder();
   const lines = cachedText.split("\n");
   return new ReadableStream({
     async start(controller) {
       console.log("[createCachedSSEStream] Sending", lines.length, "cached lines");
+      if (forceRequested) {
+        const metaData = `data: ${JSON.stringify({
+          meta: {
+            consistency_enforced: true,
+            message: "\u4ECA\u65E5\u904B\u52E2\u5DF2\u5B9A (Daily destiny is set)"
+          }
+        })}
+
+`;
+        controller.enqueue(encoder.encode(metaData));
+      }
       for (const line of lines) {
         const sseData = `data: ${JSON.stringify({ text: `${line}
 ` })}
@@ -36679,8 +36730,19 @@ function createCachedSSEStream(cachedText) {
 function getLoadingMessage(locale2) {
   return locale2 === "en" ? "Let me see~ I am analyzing your chart carefully...\n\n" : "\u597D\u6211\u770B\u770B\uFF5E\u8B93\u6211\u4ED4\u7D30\u5206\u6790\u4E00\u4E0B\u4F60\u7684\u547D\u76E4...\n\n";
 }
-async function sendCachedAnalysis(cachedAnalysis, controller, encoder) {
+async function sendCachedAnalysis(cachedAnalysis, controller, encoder, forceRequested) {
   const cachedText = typeof cachedAnalysis.result === "string" ? cachedAnalysis.result : cachedAnalysis.result.text;
+  if (forceRequested) {
+    const metaData = `data: ${JSON.stringify({
+      meta: {
+        consistency_enforced: true,
+        message: "\u4ECA\u65E5\u904B\u52E2\u5DF2\u5B9A (Daily destiny is set)"
+      }
+    })}
+
+`;
+    controller.enqueue(encoder.encode(metaData));
+  }
   const lines = cachedText.split("\n");
   for (const line of lines) {
     const sseData = `data: ${JSON.stringify({ text: `${line}
@@ -36776,9 +36838,10 @@ var AnalyzeController = class {
    * @param chartId - The chart ID to analyze
    * @param env - Cloudflare Worker environment with DB binding
    * @param locale - Language locale (zh-TW or en, default: zh-TW)
+   * @param force - Force regeneration, bypassing cache (default: false)
    * @returns ReadableStream in SSE format
    */
-  async analyzeStream(chartId, env, locale2 = "zh-TW") {
+  async analyzeStream(chartId, env, locale2 = "zh-TW", force = false) {
     console.log("[analyzeStream] Entry, chartId:", chartId, "locale:", locale2);
     const encoder = new TextEncoder();
     const analysisType = `ai-streaming-${locale2}-personality`;
@@ -36796,8 +36859,12 @@ var AnalyzeController = class {
           const analysisCacheService = new AnalysisCacheService();
           const cachedAnalysis = await analysisCacheService.getAnalysis(chartId, analysisType, env);
           if (cachedAnalysis) {
-            console.log("[analyzeStream] Cache hit! Returning cached analysis");
-            await sendCachedAnalysis(cachedAnalysis, controller, encoder);
+            if (force) {
+              console.log("[analyzeStream] Force refresh requested but ignored due to Daily Consistency Policy");
+            } else {
+              console.log("[analyzeStream] Cache hit! Returning cached analysis");
+            }
+            await sendCachedAnalysis(cachedAnalysis, controller, encoder, force);
             controller.enqueue(encoder.encode("data: [DONE]\n\n"));
             controller.close();
             return;
@@ -36944,16 +37011,21 @@ var AnalyzeController = class {
    * @param chartId - The chart ID to analyze
    * @param env - Cloudflare Worker environment with DB binding
    * @param locale - Language locale (zh-TW or en, default: zh-TW)
+   * @param force - Force regeneration, bypassing cache (default: false)
    * @returns ReadableStream in SSE format
    */
-  async analyzeAdvancedStream(chartId, env, locale2 = "zh-TW") {
+  async analyzeAdvancedStream(chartId, env, locale2 = "zh-TW", force = false) {
     console.log("[analyzeAdvancedStream] Entry, chartId:", chartId, "locale:", locale2);
     const analysisType = `ai-advanced-${locale2}-fortune`;
     const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
     if (cachedAnalysis) {
-      console.log("[analyzeAdvancedStream] Cache hit! Returning cached analysis");
+      if (force) {
+        console.log("[analyzeAdvancedStream] Force refresh requested but ignored due to Daily Consistency Policy");
+      } else {
+        console.log("[analyzeAdvancedStream] Cache hit! Returning cached analysis");
+      }
       const cachedText = typeof cachedAnalysis.result === "string" ? cachedAnalysis.result : cachedAnalysis.result.text;
-      return createCachedSSEStream(cachedText);
+      return createCachedSSEStream(cachedText, force);
     }
     const chart = await this.chartCacheService.getChart(chartId, env);
     console.log("[analyzeAdvancedStream] After getChart, found:", !!chart);
@@ -38368,6 +38440,22 @@ var AgenticGeminiService = class {
         const steps = [];
         try {
           console.log(`[AgenticGemini] Stream started, locale: ${locale2}`);
+          if (options?.hasMemoryContext && options?.memoryReference) {
+            const metadataEvent = `data: ${JSON.stringify({
+              type: "meta",
+              data: {
+                hasMemoryContext: true,
+                memoryReference: options.memoryReference
+              }
+            })}
+
+`;
+            controller.enqueue(encoder.encode(metadataEvent));
+            console.log("[AgenticGemini] Memory metadata sent:", {
+              hasMemoryContext: true,
+              memoryReference: options.memoryReference
+            });
+          }
           const conversationHistory = [];
           const systemPrompt = self.buildSystemPrompt(locale2, historyContext);
           console.log(`[AgenticGemini] System prompt generated (first 100 chars): ${systemPrompt.substring(0, 100)}`);
@@ -39100,6 +39188,7 @@ function createAnalyzeRoutes(router, env, ctx) {
       const url2 = new URL(req.url);
       const chartId = url2.searchParams.get("chartId");
       const locale2 = url2.searchParams.get("locale") || "zh-TW";
+      const force = url2.searchParams.get("force") === "true";
       if (!chartId) {
         return new Response(
           JSON.stringify({ error: "Missing chartId parameter" }),
@@ -39113,18 +39202,27 @@ function createAnalyzeRoutes(router, env, ctx) {
           { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
+      const { manager: timestampManager } = initializeAIServices(env);
+      const timestampController = new AnalyzeController(timestampManager);
+      const analysisType = `ai-streaming-${locale2}-personality`;
+      const { AnalysisCacheService: TimestampCacheService } = await Promise.resolve().then(() => (init_analysisCacheService(), analysisCacheService_exports));
+      const timestampCacheService = new TimestampCacheService();
+      const cachedAnalysis = await timestampCacheService.getAnalysis(chartId, analysisType, env);
       const controller = new AnalyzeController(manager);
-      const stream = await controller.analyzeStream(chartId, env, locale2);
-      return new Response(stream, {
-        headers: {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          "Connection": "keep-alive",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type"
-        }
-      });
+      const stream = await controller.analyzeStream(chartId, env, locale2, force);
+      const headers = {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+      };
+      if (cachedAnalysis) {
+        headers["X-Generated-At"] = cachedAnalysis.createdAt;
+        headers["Access-Control-Expose-Headers"] = "X-Generated-At";
+      }
+      return new Response(stream, { headers });
     } catch (error46) {
       console.error("Analyze stream error:", error46);
       let errorMessage = locale === "zh-TW" ? "\u54CE\u5440\uFF5E\u4F69\u7487\u9047\u5230\u4E86\u4E00\u4E9B\u5C0F\u554F\u984C\u5462..." : "Oops, Peixuan encountered a small issue...";
@@ -39200,6 +39298,7 @@ function createAnalyzeRoutes(router, env, ctx) {
       const url2 = new URL(req.url);
       const chartId = url2.searchParams.get("chartId");
       const locale2 = url2.searchParams.get("locale") || "zh-TW";
+      const force = url2.searchParams.get("force") === "true";
       if (!chartId) {
         return new Response(
           JSON.stringify({ error: "Missing chartId parameter" }),
@@ -39213,18 +39312,25 @@ function createAnalyzeRoutes(router, env, ctx) {
           { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
+      const advancedAnalysisType = `ai-advanced-${locale2}-fortune`;
+      const { AdvancedAnalysisCacheService: AdvancedTimestampCacheService } = await Promise.resolve().then(() => (init_advancedAnalysisCacheService(), advancedAnalysisCacheService_exports));
+      const advancedTimestampCacheService = new AdvancedTimestampCacheService();
+      const cachedAdvancedAnalysis = await advancedTimestampCacheService.getAnalysis(chartId, advancedAnalysisType, env);
       const controller = new AnalyzeController(manager);
-      const stream = await controller.analyzeAdvancedStream(chartId, env, locale2);
-      return new Response(stream, {
-        headers: {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          "Connection": "keep-alive",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type"
-        }
-      });
+      const stream = await controller.analyzeAdvancedStream(chartId, env, locale2, force);
+      const headers = {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+      };
+      if (cachedAdvancedAnalysis) {
+        headers["X-Generated-At"] = cachedAdvancedAnalysis.createdAt;
+        headers["Access-Control-Expose-Headers"] = "X-Generated-At";
+      }
+      return new Response(stream, { headers });
     } catch (error46) {
       console.error("Analyze advanced stream error:", error46);
       let errorMessage = locale === "zh-TW" ? "\u54CE\u5440\uFF5E\u4F69\u7487\u9047\u5230\u4E86\u4E00\u4E9B\u5C0F\u554F\u984C\u5462..." : "Oops, Peixuan encountered a small issue...";
@@ -39323,6 +39429,8 @@ function createAnalyzeRoutes(router, env, ctx) {
       }
       const calculationResult = typeof chart.chartData === "string" ? JSON.parse(chart.chartData) : chart.chartData;
       let historyContext = "";
+      let hasMemoryContext = false;
+      let memoryReference = "";
       try {
         const { drizzle: drizzle2 } = await Promise.resolve().then(() => (init_d1(), d1_exports));
         const schema = await Promise.resolve().then(() => (init_schema(), schema_exports));
@@ -39333,7 +39441,21 @@ function createAnalyzeRoutes(router, env, ctx) {
           (resolve) => setTimeout(() => resolve(""), 500)
         );
         historyContext = await Promise.race([contextPromise, timeoutPromise]);
-        console.log("[Daily Insight] History context fetched:", historyContext ? "success" : "empty/timeout");
+        hasMemoryContext = historyContext.length > 0;
+        if (hasMemoryContext) {
+          const questionMatch = historyContext.match(/Q:\s*([^\n]+)/);
+          if (questionMatch) {
+            const recentQuestion = questionMatch[1];
+            memoryReference = recentQuestion.length > 50 ? recentQuestion.substring(0, 47) + "..." : recentQuestion;
+          } else {
+            memoryReference = normalizedLocale === "zh-TW" ? "\u6700\u8FD1\u7684\u5C0D\u8A71" : "Recent conversation";
+          }
+        }
+        console.log("[Daily Insight] Memory metadata:", {
+          hasMemoryContext,
+          memoryReference,
+          contextLength: historyContext.length
+        });
       } catch (error46) {
         console.error("[Daily Insight] Failed to fetch history context (non-blocking):", error46);
       }
@@ -39369,7 +39491,7 @@ function createAnalyzeRoutes(router, env, ctx) {
             calculationResult,
             normalizedLocale,
             historyContext,
-            { env, ctx, chartId }
+            { env, ctx, chartId, hasMemoryContext, memoryReference }
           );
         } catch (error46) {
           const shouldFallback = error46 instanceof Error && (error46.message.includes("429") || error46.message.includes("503") || error46.message.includes("500") || error46.message.toLowerCase().includes("quota") || error46.message.toLowerCase().includes("resource has been exhausted") || error46.message.toLowerCase().includes("unavailable"));
@@ -39392,7 +39514,7 @@ function createAnalyzeRoutes(router, env, ctx) {
                 calculationResult,
                 normalizedLocale,
                 historyContext,
-                { env, ctx, fallbackReason: error46.message, chartId }
+                { env, ctx, fallbackReason: error46.message, chartId, hasMemoryContext, memoryReference }
               );
               usedFallback = true;
               console.log("[Daily Insight] Successfully using Azure outer fallback");

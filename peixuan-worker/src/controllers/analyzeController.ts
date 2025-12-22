@@ -176,20 +176,20 @@ export class AnalyzeController {
           controller.enqueue(encoder.encode(sseData));
           console.log('[analyzeStream] Loading message sent, locale:', locale);
 
-          // Step 0: Check analysis cache first (unless force refresh is requested)
+          // Step 0: Check analysis cache first (Daily Consistency Policy - always check cache)
           const analysisCacheService = new AnalysisCacheService();
-          const cachedAnalysis = force ? null : await analysisCacheService.getAnalysis(chartId, analysisType, env);
+          const cachedAnalysis = await analysisCacheService.getAnalysis(chartId, analysisType, env);
 
           if (cachedAnalysis) {
-            console.log('[analyzeStream] Cache hit! Returning cached analysis');
-            await sendCachedAnalysis(cachedAnalysis, controller, encoder);
+            if (force) {
+              console.log('[analyzeStream] Force refresh requested but ignored due to Daily Consistency Policy');
+            } else {
+              console.log('[analyzeStream] Cache hit! Returning cached analysis');
+            }
+            await sendCachedAnalysis(cachedAnalysis, controller, encoder, force);
             controller.enqueue(encoder.encode('data: [DONE]\n\n'));
             controller.close();
             return;
-          }
-
-          if (force) {
-            console.log('[analyzeStream] Force refresh requested, bypassing cache');
           }
 
           // Step 1: Read chart data from D1
@@ -381,17 +381,17 @@ export class AnalyzeController {
 
     // HOTFIX: Add analysis mode to cache key to prevent personality/fortune cross-contamination
     const analysisType = `ai-advanced-${locale}-fortune`;
-    const cachedAnalysis = force ? null : await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
+    const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
     if (cachedAnalysis) {
-      console.log('[analyzeAdvancedStream] Cache hit! Returning cached analysis');
+      if (force) {
+        console.log('[analyzeAdvancedStream] Force refresh requested but ignored due to Daily Consistency Policy');
+      } else {
+        console.log('[analyzeAdvancedStream] Cache hit! Returning cached analysis');
+      }
       const cachedText = typeof cachedAnalysis.result === 'string'
         ? cachedAnalysis.result
         : (cachedAnalysis.result as CachedAnalysisResult).text;
-      return createCachedSSEStream(cachedText);
-    }
-
-    if (force) {
-      console.log('[analyzeAdvancedStream] Force refresh requested, bypassing cache');
+      return createCachedSSEStream(cachedText, force);
     }
 
     // Step 1: Read chart data from D1

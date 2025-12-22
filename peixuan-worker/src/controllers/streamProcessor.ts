@@ -166,7 +166,7 @@ export async function accumulateStreamBuffer(
  * @param cachedText - The cached analysis text
  * @returns ReadableStream in SSE format
  */
-export function createCachedSSEStream(cachedText: string): ReadableStream {
+export function createCachedSSEStream(cachedText: string, forceRequested?: boolean): ReadableStream {
   const encoder = new TextEncoder();
   // Split by lines to preserve Markdown formatting
   const lines = cachedText.split('\n');
@@ -174,6 +174,17 @@ export function createCachedSSEStream(cachedText: string): ReadableStream {
   return new ReadableStream({
     async start(controller) {
       console.log('[createCachedSSEStream] Sending', lines.length, 'cached lines');
+
+      // Send consistency metadata if force was requested but ignored
+      if (forceRequested) {
+        const metaData = `data: ${JSON.stringify({ 
+          meta: { 
+            consistency_enforced: true,
+            message: "今日運勢已定 (Daily destiny is set)"
+          }
+        })}\n\n`;
+        controller.enqueue(encoder.encode(metaData));
+      }
 
       for (const line of lines) {
         // Send each line with newline preserved

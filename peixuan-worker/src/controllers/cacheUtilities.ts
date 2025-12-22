@@ -31,11 +31,23 @@ export function getLoadingMessage(locale: string): string {
 export async function sendCachedAnalysis(
   cachedAnalysis: CachedAnalysis,
   controller: ReadableStreamDefaultController,
-  encoder: TextEncoder
+  encoder: TextEncoder,
+  forceRequested?: boolean
 ): Promise<void> {
   const cachedText = typeof cachedAnalysis.result === 'string'
     ? cachedAnalysis.result
     : cachedAnalysis.result.text;
+
+  // Send consistency metadata if force was requested but ignored
+  if (forceRequested) {
+    const metaData = `data: ${JSON.stringify({ 
+      meta: { 
+        consistency_enforced: true,
+        message: "今日運勢已定 (Daily destiny is set)"
+      }
+    })}\n\n`;
+    controller.enqueue(encoder.encode(metaData));
+  }
 
   // Send cached content line by line
   const lines = cachedText.split('\n');

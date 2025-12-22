@@ -85,17 +85,14 @@ describe('BaziChart.vue', () => {
     pillarData.forEach((pData, index) => {
       const pillarWrapper = pillarElements[index];
       expect(pillarWrapper.find('h5').text()).toBe(pData.name);
-      const stemBranchElements = pillarWrapper.findAll('.stem-branch');
-      expect(stemBranchElements[0].find('.char').text()).toBe(pData.data.stem);
-      expect(stemBranchElements[0].find('.label').text()).toBe(
-        `(${pData.data.stemElement})`,
-      );
-      expect(stemBranchElements[1].find('.char').text()).toBe(
-        pData.data.branch,
-      );
-      expect(stemBranchElements[1].find('.label').text()).toBe(
-        `(${pData.data.branchElement})`,
-      );
+      
+      // 檢查天干 (stem-group 中的 char)
+      const stemGroup = pillarWrapper.find('.stem-group');
+      expect(stemGroup.find('.char').text()).toBe(pData.data.stem);
+      
+      // 檢查地支 (branch-group 中的 char)
+      const branchGroup = pillarWrapper.find('.branch-group');
+      expect(branchGroup.find('.char').text()).toBe(pData.data.branch);
     });
   });
 
@@ -105,25 +102,25 @@ describe('BaziChart.vue', () => {
       tenGods: correctedMockTenGodsResult,
     });
     const pillarElements = wrapper.findAll('.pillar-card-display');
-    expect(pillarElements[0].find('.ten-god').text()).toBe(
+    expect(pillarElements[0].find('.ten-god-pill').text()).toBe(
       correctedMockTenGodsResult.hourPillar,
     );
-    expect(pillarElements[1].find('.ten-god').text()).toBe(
+    expect(pillarElements[1].find('.ten-god-pill').text()).toBe(
       correctedMockTenGodsResult.dayPillar,
     );
-    expect(pillarElements[2].find('.ten-god').text()).toBe(
+    expect(pillarElements[2].find('.ten-god-pill').text()).toBe(
       correctedMockTenGodsResult.monthPillar,
     );
-    expect(pillarElements[3].find('.ten-god').text()).toBe(
+    expect(pillarElements[3].find('.ten-god-pill').text()).toBe(
       correctedMockTenGodsResult.yearPillar,
     );
   });
 
   it('does not display Ten Gods if not provided or null', () => {
     wrapper = mountComponent({ bazi: mockBaziResult, tenGods: null });
-    const tenGodElements = wrapper.findAll('.ten-god');
-    tenGodElements.forEach((el) => {
-      expect(el.text().trim()).toBe('');
+    const pillarElements = wrapper.findAll('.pillar-card-display');
+    pillarElements.forEach((pillar) => {
+      expect(pillar.find('.ten-god-pill').exists()).toBe(false);
     });
   });
 

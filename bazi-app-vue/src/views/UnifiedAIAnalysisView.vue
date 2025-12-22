@@ -3,15 +3,12 @@ import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useChartStore } from '@/stores/chartStore';
-import { marked } from 'marked';
+import { parseReportMarkdown } from '@/utils/markdown';
 import { setupKeywordHighlighting } from '@/utils/keywordHighlighting';
 import QuickSetupForm from '@/components/QuickSetupForm.vue';
 import AnalysisSkeleton from '@/components/AnalysisSkeleton.vue';
 import CacheIndicator from '@/components/CacheIndicator.vue';
 import './UnifiedAIAnalysisView.css';
-
-// Configure marked renderer once for the application when the module is loaded
-setupKeywordHighlighting();
 
 // Phase 3: Intersection Observer for scroll-triggered animations
 // eslint-disable-next-line no-undef
@@ -61,7 +58,7 @@ const getApiEndpoints = () => {
 };
 
 const renderMarkdown = (text: string): string => {
-  return marked(text) as string;
+  return parseReportMarkdown(text);
 };
 
 const checkCache = async (chartId: string): Promise<boolean> => {
@@ -474,7 +471,7 @@ onUnmounted(() => {
 
         <!-- Markdown 渲染 -->
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <div class="markdown-body" v-html="renderMarkdown(displayedText)" />
+        <div class="markdown-body markdown-content" v-html="renderMarkdown(displayedText)" />
       </div>
 
       <!-- Quick Setup Modal -->

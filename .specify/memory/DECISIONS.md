@@ -236,3 +236,5 @@
 - [DECISION] 2025-12-22: AppHeader 桌面版語言選擇器佈局修復完成。添加 flex-shrink: 0 和 min-width 確保語言選擇器不會超出邊界。
 
 - [DECISION] 2025-12-22: AppFooter & AppHeader 完整優化提交完成。Commit 1c28b34，包含設計系統整合、亮色模式修復、響應式佈局優化、國際化支援。30個檔案變更，2452行新增。
+
+- [DECISION] 2025-12-22: Markdown 渲染系統完整統一完成。創建統一工具 markdown.ts，整合 ChatBubble、NarrativeSummary、UnifiedAIAnalysisView。集中化配置、樣式系統、關鍵字高亮。

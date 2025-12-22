@@ -447,6 +447,7 @@ onUnmounted(() => {
 .messages-container {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden; /* 防止水平滾動 */
   padding: var(--space-md);
   display: flex;
   flex-direction: column;

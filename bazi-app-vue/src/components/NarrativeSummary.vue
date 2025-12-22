@@ -9,7 +9,7 @@
 
       <div class="narrative-content" v-if="narrativeText">
         <!-- AI Analysis displayed with serif font for warmth -->
-        <div class="narrative-text" v-html="renderedNarrative"></div>
+        <div class="narrative-text markdown-content" v-html="renderedNarrative"></div>
       </div>
 
       <!-- Loading state -->
@@ -50,7 +50,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { marked } from 'marked';
+import { parseReportMarkdown } from '@/utils/markdown';
 import { CopyDocument, RefreshRight } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 
@@ -74,7 +74,7 @@ const { t } = useI18n();
 // Render markdown with keyword highlighting
 const renderedNarrative = computed(() => {
   if (!props.narrativeText) return '';
-  return marked(props.narrativeText) as string;
+  return parseReportMarkdown(props.narrativeText);
 });
 
 const copyToClipboard = async () => {

@@ -16,13 +16,13 @@
       </div>
     </el-tooltip>
 
-    <div class="bubble-content" v-html="formattedContent"></div>
+    <div class="bubble-content markdown-content" v-html="formattedContent"></div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { marked } from 'marked'
+import { parseChatMarkdown } from '@/utils/markdown'
 
 interface Props {
   content: string
@@ -46,7 +46,7 @@ const formattedContent = computed(() => {
     return props.content
   }
   // Markdown for AI messages
-  return marked(props.content)
+  return parseChatMarkdown(props.content)
 })
 
 // Generate tooltip text for memory indicator
@@ -74,6 +74,8 @@ onMounted(() => {
   max-width: 80%;
   margin-bottom: var(--space-xs);
   position: relative;
+  /* 確保不會超出父容器 */
+  box-sizing: border-box;
 }
 
 /* ========================================
@@ -142,6 +144,8 @@ onMounted(() => {
 .bubble-user {
   /* Container aligned to right side of chat area */
   align-self: flex-end;
+  /* 確保不會超出右邊界 */
+  margin-right: 0;
 }
 
 .bubble-system {

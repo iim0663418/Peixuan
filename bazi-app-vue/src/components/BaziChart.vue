@@ -6,23 +6,33 @@
         v-for="pillarKey in pillarOrder"
         :key="pillarKey"
         class="pillar-card-display will-change-transform"
-        :class="{ highlighted: props.highlightedPillars?.includes(pillarKey) }"
+        :class="{
+          highlighted: props.highlightedPillars?.includes(pillarKey),
+          'day-master': pillarKey === 'dayPillar'
+        }"
       >
         <h5>{{ getPillarName(pillarKey) }}</h5>
-        <div class="stem-branch">
-          <span class="char">{{ props.bazi[pillarKey].stem }}</span>
-          <span class="label"> ({{ props.bazi[pillarKey].stemElement }})</span>
+        <div class="stem-group">
           <span
             v-if="props.tenGods && tenGodsForPillars[pillarKey]"
-            class="ten-god"
+            class="ten-god-pill"
           >
             {{ tenGodsForPillars[pillarKey] }}
           </span>
+          <span
+            class="char"
+            :class="getElementClass(props.bazi[pillarKey].stemElement)"
+          >
+            {{ props.bazi[pillarKey].stem }}
+          </span>
         </div>
-        <div class="stem-branch">
-          <span class="char">{{ props.bazi[pillarKey].branch }}</span>
-          <span class="label">
-            ({{ props.bazi[pillarKey].branchElement }})</span>
+        <div class="branch-group">
+          <span
+            class="char"
+            :class="getElementClass(props.bazi[pillarKey].branchElement)"
+          >
+            {{ props.bazi[pillarKey].branch }}
+          </span>
           <!-- 地支藏干及其十神可以後續添加 -->
         </div>
       </div>
@@ -74,6 +84,23 @@ const getPillarName = (key: PillarKey): string => {
   }
 };
 
+// Element color mapping for visual coding system
+const getElementClass = (element: string): string => {
+  const elementMap: Record<string, string> = {
+    '木': 'element-wood',
+    'Wood': 'element-wood',
+    '火': 'element-fire',
+    'Fire': 'element-fire',
+    '土': 'element-earth',
+    'Earth': 'element-earth',
+    '金': 'element-metal',
+    'Metal': 'element-metal',
+    '水': 'element-water',
+    'Water': 'element-water',
+  };
+  return elementMap[element] || '';
+};
+
 const tenGodsForPillars = computed(() => {
   if (!props.tenGods || !props.bazi) {
     return {
@@ -93,11 +120,9 @@ const tenGodsForPillars = computed(() => {
 </script>
 
 <style scoped>
-/* Design tokens applied - 2025-11-30 */
-/* RWD optimization - 2025-12-03 */
-/* Task 3.3: Responsive chart sizing - 2025-12-04 */
-/* Task 3.4: Mobile performance optimization - 2025-12-04 */
-/* Task: Fix mobile card overflow issues - 2025-12-05 */
+/* Mobile UX Optimization - 2025-12-22 */
+/* Implements 4-column mobile layout with element color coding */
+/* Based on: doc/BaziChart移動端優化分析.md */
 
 *,
 *::before,
@@ -111,7 +136,7 @@ const tenGodsForPillars = computed(() => {
   border: 1px solid var(--border-light);
   border-radius: 6px;
   background-color: var(--bg-secondary);
-  max-width: 100%; /* Ensure container responsiveness */
+  max-width: 100%;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
@@ -126,31 +151,43 @@ const tenGodsForPillars = computed(() => {
   font-size: clamp(14px, 3.5vw, 16px);
 }
 
-/* Mobile-first: Normal order, stack vertically if needed */
-/* Responsive sizing with flex optimization */
+/* Container: 4-column layout across all breakpoints */
 .pillars-container {
-  display: flex;
-  justify-content: space-around;
-  flex-direction: row-reverse; /* 傳統排盤：時日月年 */
-  flex-wrap: wrap; /* 移動端允許換行 */
-  gap: clamp(8px, 2vw, 10px);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(4px, 1.5vw, 10px);
   text-align: center;
-  width: 100%; /* Full width within parent */
-  max-width: 100%;
+  width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
+  direction: rtl; /* RTL for traditional reading order: 時日月年 */
 }
 
+/* Individual pillar card */
 .pillar-card-display {
-  flex: 1 1 0; /* Equal flex basis with grow/shrink */
-  min-width: 0; /* Allow flex items to shrink below content size */
+  direction: ltr; /* Reset direction for content */
   padding: clamp(8px, 2vw, 10px);
   border: 1px solid var(--border-medium);
   border-radius: 4px;
   background-color: var(--bg-primary);
-  min-height: 44px; /* 觸控目標 */
-  aspect-ratio: 0.8 / 1; /* Maintain vertical aspect ratio */
+  min-height: 44px; /* Minimum touch target */
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  transition: all 0.2s ease;
+}
+
+/* Day Master (日主) emphasis */
+.pillar-card-display.day-master {
+  border-width: 2px;
+  border-color: var(--success);
+  background-color: rgba(66, 185, 131, 0.05);
+}
+
+.pillar-card-display.day-master h5 {
+  font-weight: 700;
+  color: var(--success);
 }
 
 .pillar-card-display.highlighted {
@@ -158,113 +195,154 @@ const tenGodsForPillars = computed(() => {
   box-shadow: 0 0 5px rgba(66, 185, 131, 0.5);
 }
 
+/* Pillar header */
 .pillar-card-display h5 {
-  margin-top: 0;
-  margin-bottom: clamp(6px, 1.5vw, 8px);
-  font-size: clamp(0.9em, 2.2vw, 1em);
+  margin: 0 0 clamp(6px, 1.5vw, 8px) 0;
+  font-size: clamp(0.75rem, 2.2vw, 0.9rem);
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
-.stem-branch {
-  margin-bottom: clamp(4px, 1vw, 5px);
+/* Stem and Branch groups */
+.stem-group,
+.branch-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(2px, 0.5vw, 4px);
+  margin: clamp(4px, 1vw, 6px) 0;
+  width: 100%;
 }
 
-.char {
-  font-size: clamp(1.2em, 3vw, 1.4em); /* 響應式字體 */
-  font-weight: bold;
-  color: var(--text-primary);
-}
-
-.label {
-  font-size: clamp(0.75em, 1.8vw, 0.8em);
-  color: var(--text-tertiary);
-}
-
-.ten-god {
-  display: block;
-  font-size: clamp(0.8em, 2vw, 0.85em);
+/* Ten God pill style */
+.ten-god-pill {
+  display: inline-block;
+  font-size: clamp(0.65rem, 1.8vw, 0.75rem);
+  padding: 2px 6px;
+  border-radius: 10px;
+  background-color: rgba(66, 185, 131, 0.15);
   color: var(--success);
-  margin-top: 2px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  white-space: nowrap;
 }
 
-/* Tablet: Ensure 4 columns */
-@media (min-width: 768px) {
-  .pillar-card-display {
-    min-width: 90px;
+/* Chinese characters (Stems and Branches) */
+.char {
+  font-size: clamp(1.1rem, 3.5vw, 1.4rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Element color coding system */
+.element-wood {
+  color: #4caf50; /* Green */
+}
+
+.element-fire {
+  color: #f44336; /* Red */
+}
+
+.element-earth {
+  color: #795548; /* Brown */
+}
+
+.element-metal {
+  color: #9e9e9e; /* Gray/Silver */
+}
+
+.element-water {
+  color: #2196f3; /* Blue */
+}
+
+/* Mobile optimization (< 768px) */
+@media (max-width: 767px) {
+  .pillars-container {
+    gap: 4px; /* Tighter spacing for mobile */
   }
-}
 
-/* Desktop: Larger display */
-@media (min-width: 1024px) {
   .pillar-card-display {
-    min-width: 100px;
+    padding: 6px 2px; /* Reduce horizontal padding significantly */
+    min-height: 44px;
+  }
+
+  .pillar-card-display h5 {
+    font-size: 0.7rem;
+    margin-bottom: 4px;
+  }
+
+  .ten-god-pill {
+    font-size: 0.6rem;
+    padding: 1px 4px;
   }
 
   .char {
-    font-size: 1.4em;
+    font-size: 1.1rem;
+  }
+
+  .stem-group,
+  .branch-group {
+    margin: 3px 0;
+    gap: 2px;
   }
 }
 
-/* Mobile-specific data refinement (< 768px) */
-@media (max-width: 767px) {
-  /* 2-column layout on mobile for better space utilization */
+/* Tablet optimization (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
   .pillars-container {
-    flex-direction: row-reverse;
-    gap: 0.75rem;
+    gap: 8px;
   }
 
   .pillar-card-display {
-    flex: 1 1 calc(50% - 0.375rem); /* 2 columns with gap */
-    min-width: 0;
-    max-width: calc(50% - 0.375rem);
-    aspect-ratio: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding: 0.75rem;
-    box-sizing: border-box;
+    padding: 10px 6px;
   }
 
-  /* Vertical layout within each pillar */
-  .pillar-card-display h5 {
-    margin: 0 0 0.5rem 0;
-    width: 100%;
-    text-align: center;
-  }
-
-  .stem-branch {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    margin: 0.25rem 0;
-    width: 100%;
-  }
-
-  /* Keep labels visible but smaller on mobile */
-  .label {
-    font-size: 0.7rem;
-  }
-
-  /* Emphasize characters */
   .char {
     font-size: 1.3rem;
   }
+}
 
-  .ten-god {
-    display: block;
-    margin-top: 0.25rem;
-    font-size: 0.75rem;
-    text-align: center;
+/* Desktop optimization (>= 1024px) */
+@media (min-width: 1024px) {
+  .pillars-container {
+    gap: 12px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .pillar-card-display {
+    padding: 12px 10px;
+  }
+
+  .char {
+    font-size: 1.5rem;
+  }
+
+  .ten-god-pill {
+    font-size: 0.8rem;
+    padding: 3px 8px;
   }
 }
 
-/* 無障礙: 減少動畫 */
+/* Accessibility: Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .bazi-chart * {
-    animation: none !important;
-    transition-duration: 0.01ms !important;
+  .pillar-card-display {
+    transition: none;
+  }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .pillar-card-display {
+    border-width: 2px;
+  }
+
+  .element-wood,
+  .element-fire,
+  .element-earth,
+  .element-metal,
+  .element-water {
+    font-weight: 900;
   }
 }
 </style>

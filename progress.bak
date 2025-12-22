@@ -1,34 +1,156 @@
-# Status: Phase 1-2 LLM記憶模組實施完成 ✅
+# Status: P0後端整合實施完成 ✅
 ## Active Context
 - Branch: feature/llm-memory-module
-- Phase: 1-2 完成，準備Phase 3
-- Next: DailyQuestionController整合
+- Phase: P0後端整合完成
+- Staging URL: https://peixuan-worker-staging.csw30454.workers.dev
+- Version: c834005f-6947-449d-ac39-f11998335375
+- Status: 後端整合完成，準備前端測試
 
-## 🎯 Phase 1-2 實施成果
-### AnalyticsService擴展 ✅
-- 新增方法: getUserRecentContext(userId, limit=3)
-- 查詢邏輯: 最近N次對話記錄
-- 格式化: LLM可讀的上下文文本
-- 錯誤處理: 優雅降級返回空字串
-- Token優化: 回答截斷至100字符
+## 🎯 P0後端整合實施成果 ✅
 
-### AgenticServices介面更新 ✅
-- Gemini服務: generateDailyInsight支援historyContext參數
-- Azure服務: 同步更新相同功能
-- 系統提示詞: 條件式注入歷史上下文
-- 向後相容: 預設空字串參數
-- 雙語支援: 中英文系統提示詞
+### 1. 記憶指示器元數據 ✅
+- **實施位置**: /api/v1/daily-insight/stream
+- **功能**: SSE串流開始時發送記憶元數據
+- **數據格式**:
+  
+- **邏輯**: 
+  - 檢查用戶歷史對話 (最近3次互動)
+  - hasMemoryContext: 是否存在歷史上下文
+  - memoryReference: 最近問題的前50字符摘要
+- **雙引擎支援**: Gemini + Azure 都已實現
 
-### 技術特性 ✅
-- 向後相容性: 無破壞性變更
-- 雙引擎支援: Gemini + Azure 同步
-- 錯誤處理: 靜默失敗不影響主流程
-- 性能優化: 防止上下文窗口溢出
-- 多語言: 中英雙語系統提示詞
+### 2. 快取時間戳標頭 ✅
+- **實施位置**: /api/v1/analyze/stream, /api/v1/analyze/advanced/stream
+- **功能**: 回應標頭包含快取生成時間
+- **標頭格式**:
+  
+- **邏輯**:
+  - 檢查D1快取是否存在
+  - 提取createdAt時間戳
+  - 添加到HTTP回應標頭
+  - CORS暴露標頭供前端讀取
 
-## 📋 下一步行動 (Phase 3)
-- DailyQuestionController整合
-- 從請求中提取userId
-- 調用getUserRecentContext
-- 傳遞context到AI服務
-- 500ms超時保護
+### 3. 強制重新整理參數 ✅
+- **實施位置**: 所有分析端點
+- **功能**: ?force=true 參數繞過快取
+- **使用方式**:
+  
+- **邏輯**:
+  - 解析force查詢參數
+  - 跳過D1快取查詢
+  - 生成新的LLM回應
+  - 覆蓋現有快取記錄
+
+## 🎯 技術實施詳情 ✅
+
+### 修改檔案清單
+1. **analyzeRoutes.ts** - 主要API路由處理器
+   - 記憶元數據提取與發送
+   - 時間戳標頭添加
+   - force參數解析
+
+2. **analyzeController.ts** - 分析協調邏輯
+   - force參數支援
+   - 快取跳過邏輯
+
+3. **agenticGeminiService.ts** - Gemini AI服務
+   - 記憶元數據介面擴展
+   - SSE元數據事件發送
+
+4. **agenticAzureService.ts** - Azure OpenAI備援服務
+   - 相同記憶元數據支援
+   - 確保雙引擎一致性
+
+### API使用範例
+
+#### 每日一問記憶元數據
+
+
+#### 分析時間戳標頭
+
+
+#### 強制重新整理
+
+
+## 🎯 部署統計 ✅
+- **Worker部署**: 成功 (9.21s)
+- **Worker啟動時間**: 66ms
+- **版本更新**: c834005f-6947-449d-ac39-f11998335375
+- **健康檢查**: 正常 {"status":"ok"}
+- **資產**: 無需更新 (純後端修改)
+
+## 📋 前端整合準備 🚀
+
+### 立即可整合項目
+1. **記憶指示器**
+   - DailyQuestionPanel.vue 監聽 type: 'meta' SSE事件
+   - 當 hasMemoryContext=true 時顯示 ✨記憶關聯 圖標
+   - memoryReference 用於 hover tooltip
+
+2. **快取指示器**
+   - CacheIndicator.vue 讀取 X-Generated-At 標頭
+   - 顯示快取時間 (剛剛/X分鐘前/X小時前)
+   - 重新分析按鈕添加 ?force=true 參數
+
+3. **API調用修改**
+   - 分析端點支援 force 參數
+   - 前端可控制快取繞過
+
+## 📋 測試清單
+### 後端功能測試 ✅
+1. **記憶元數據測試**
+   - [ ] 每日一問API返回記憶元數據
+   - [ ] hasMemoryContext 正確標記
+   - [ ] memoryReference 內容摘要
+   - [ ] 雙引擎 (Gemini+Azure) 一致性
+
+2. **快取時間戳測試**
+   - [ ] 分析端點返回 X-Generated-At 標頭
+   - [ ] CORS標頭正確暴露
+   - [ ] 時間戳格式正確 (ISO 8601)
+
+3. **強制重新整理測試**
+   - [ ] force=true 參數繞過快取
+   - [ ] 生成新的分析內容
+   - [ ] 快取記錄正確更新
+
+### 前端整合測試 🔄
+1. **記憶指示器整合**
+   - [ ] ChatBubble 顯示記憶關聯圖標
+   - [ ] Tooltip 顯示 memoryReference 內容
+   - [ ] 僅在 hasMemoryContext=true 時顯示
+
+2. **快取指示器整合**
+   - [ ] 讀取並顯示快取時間戳
+   - [ ] 重新分析按鈕功能正常
+   - [ ] 時間格式本地化顯示
+
+## 🎯 測試URL
+**Staging環境**: https://peixuan-worker-staging.csw30454.workers.dev
+
+### API端點
+- **每日一問**: POST /api/v1/daily-insight/stream
+- **性格分析**: GET /api/v1/analyze/stream
+- **運勢分析**: GET /api/v1/analyze/advanced/stream
+- **健康檢查**: GET /health ✅
+
+## 📊 預期整合結果
+- **記憶感知**: 用戶看到AI參考歷史對話的明確指示
+- **快取透明**: 用戶知道分析結果的生成時間
+- **用戶控制**: 可選擇重新生成最新分析
+- **完整體驗**: 所有前端優化功能完全啟用
+
+## 📋 下一步
+1. **前端整合** - 連接API與UI組件
+2. **端到端測試** - 完整功能流程驗證
+3. **用戶體驗測試** - 記憶感知與快取控制
+4. **Phase 4完整驗收** - 所有優化功能測試
+
+## 🎯 當前狀態
+- **P0後端整合**: 完成 ✅
+- **記憶指示器**: 後端就緒 ✅
+- **快取系統**: 後端就緒 ✅
+- **前端功能**: 等待整合 🔄
+- **完整體驗**: 即將啟用 🚀
+
+P0後端整合實施完成！所有前端優化功能的後端支援已就緒，準備進行前端整合測試。

@@ -23,6 +23,7 @@
     "integrated_analysis": "Integrated Analysis",
     "personality": "Peixuan Personality Analysis",
     "fortune": "Peixuan Fortune Analysis",
+    "daily_question": "Daily Question",
     "dailyQuestion": "Daily Question",
     "messages": {
       "needChartForPersonality": "Please calculate your chart first to get personality analysis",
@@ -406,11 +407,18 @@
     "error_no_chart": "No chart yet~ Calculate a chart first so I can analyze it for you!",
     "error_no_chart_title": "No Chart Yet~",
     "error_connection": "Connection interrupted, please retry",
+    "error_parse": "Parse error, please retry",
     "btn_back": "← Back",
     "btn_copy": "📋 Copy",
     "btn_go_calculate": "→ Calculate Chart",
     "copy_success": "Copied to clipboard",
-    "copy_failed": "Copy failed"
+    "copy_failed": "Copy failed",
+    "cache_generated": "Generated on",
+    "cache_just_now": "Just now",
+    "cache_minutes_ago": "{minutes} minutes ago",
+    "cache_hours_ago": "{hours} hours ago",
+    "cache_refresh": "Regenerate",
+    "cache_refresh_tooltip": "Regenerate analysis result"
   },
   "fortune": {
     "title": "🔮 Peixuan Fortune Analysis",
@@ -423,11 +431,18 @@
     "error_no_chart": "No chart yet~ Calculate a chart first so I can analyze it for you!",
     "error_no_chart_title": "No Chart Yet~",
     "error_connection": "Connection interrupted, please retry",
+    "error_parse": "Parse error, please retry",
     "btn_back": "← Back",
     "btn_copy": "📋 Copy",
     "btn_go_calculate": "→ Calculate Chart",
     "copy_success": "Copied to clipboard",
-    "copy_failed": "Copy failed"
+    "copy_failed": "Copy failed",
+    "cache_generated": "Generated on",
+    "cache_just_now": "Just now",
+    "cache_minutes_ago": "{minutes} minutes ago",
+    "cache_hours_ago": "{hours} hours ago",
+    "cache_refresh": "Regenerate",
+    "cache_refresh_tooltip": "Regenerate fortune analysis"
   },
   "annualFortune": {
     "yearlyForecast": {

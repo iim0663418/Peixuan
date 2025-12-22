@@ -54,6 +54,8 @@ export interface GenerateDailyInsightOptions {
   env?: Env;
   ctx?: ExecutionContext;
   chartId?: string;
+  hasMemoryContext?: boolean;
+  memoryReference?: string;
 }
 
 /**
@@ -661,6 +663,22 @@ export class AgenticGeminiService {
 
         try {
           console.log(`[AgenticGemini] Stream started, locale: ${locale}`);
+
+          // Send memory metadata event first (if available)
+          if (options?.hasMemoryContext && options?.memoryReference) {
+            const metadataEvent = `data: ${JSON.stringify({
+              type: 'meta',
+              data: {
+                hasMemoryContext: true,
+                memoryReference: options.memoryReference
+              }
+            })}\n\n`;
+            controller.enqueue(encoder.encode(metadataEvent));
+            console.log('[AgenticGemini] Memory metadata sent:', {
+              hasMemoryContext: true,
+              memoryReference: options.memoryReference
+            });
+          }
 
           // Initialize conversation history
           const conversationHistory: Array<{

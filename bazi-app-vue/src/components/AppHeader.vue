@@ -210,6 +210,7 @@ const handleAdvancedAnalysis = () => {
   justify-content: space-between;
   align-items: center;
   position: relative;
+  min-height: 80px; /* 確保足夠高度 */
 }
 
 .nav-brand .brand-link {
@@ -310,6 +311,7 @@ const handleAdvancedAnalysis = () => {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-shrink: 0; /* 防止在桌面版被壓縮 */
 }
 
 .mobile-menu-button {
@@ -465,6 +467,15 @@ const handleAdvancedAnalysis = () => {
 @media (min-width: 1024px) {
   .desktop-menu {
     gap: 2.5rem;
+  }
+  
+  .navbar {
+    padding: 1rem 2rem;
+    max-width: 1200px;
+  }
+  
+  .nav-controls {
+    min-width: 140px; /* 確保語言選擇器有足夠空間 */
   }
 }
 

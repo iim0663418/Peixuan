@@ -1,9 +1,35 @@
 <template>
   <div v-if="sihuaAggregation" class="sihua-aggregation">
-    <h4>四化飛星分析</h4>
+    <!-- Collapsed Summary View (Default) -->
+    <div v-if="isCollapsed" class="summary-view" @click="toggleCollapse">
+      <div class="summary-content">
+        <span class="summary-icon">⚡</span>
+        <div class="summary-text">
+          <p class="summary-title">四化飛星分析</p>
+          <p class="summary-description">
+            {{ getSummaryText() }}
+          </p>
+        </div>
+      </div>
+      <el-button type="primary" link class="expand-button">
+        查看詳情
+        <el-icon class="expand-icon"><ArrowDown /></el-icon>
+      </el-button>
+    </div>
 
-    <!-- 統計資訊 -->
-    <el-card class="section-card">
+    <!-- Expanded Detail View -->
+    <div v-else class="expanded-view">
+      <div class="collapse-header" @click="toggleCollapse">
+        <span class="header-title">四化飛星分析</span>
+        <el-button type="primary" link class="collapse-button">
+          收起
+          <el-icon class="collapse-icon"><ArrowUp /></el-icon>
+        </el-button>
+      </div>
+
+      <div class="detail-content">
+        <!-- 統計資訊 -->
+        <el-card class="section-card">
       <template #header>
         <span>飛化統計</span>
       </template>
@@ -132,17 +158,27 @@
         </el-col>
       </el-row>
     </el-card>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
+import { ArrowDown, ArrowUp } from '@element-plus/icons-vue';
 
 interface Props {
   sihuaAggregation: any;
 }
 
 const props = defineProps<Props>();
+
+// Default to collapsed state (progressive disclosure)
+const isCollapsed = ref(true);
+
+const toggleCollapse = () => {
+  isCollapsed.value = !isCollapsed.value;
+};
 
 const PALACE_NAMES = [
   '命宮',
@@ -174,6 +210,19 @@ const topResourceNodes = computed(() => {
   return props.sihuaAggregation.resourceNodes.slice(0, 3);
 });
 
+// Generate intelligent summary based on sihua data
+function getSummaryText(): string {
+  const { jiCycles, luCycles, totalEdges } = props.sihuaAggregation;
+
+  if (jiCycles.length > 0) {
+    return `發現 ${jiCycles.length} 個化忌循環（業力迴圈），建議查看能量分析`;
+  } else if (luCycles.length > 0) {
+    return `發現 ${luCycles.length} 個化祿循環（資源閉環），共 ${totalEdges} 條飛化邊`;
+  } else {
+    return `共有 ${totalEdges} 條四化飛星，無明顯循環結構`;
+  }
+}
+
 function formatPalaces(palaces: number[]): string {
   return palaces.map((p) => PALACE_NAMES[p]).join(' → ');
 }
@@ -198,8 +247,141 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
 </script>
 
 <style scoped>
+/* Phase 4 progressive disclosure - 2025-12-22 */
+
 .sihua-aggregation {
   margin-top: 20px;
+}
+
+/* ========================================
+   SUMMARY VIEW (Collapsed State - Default)
+   ======================================== */
+.summary-view {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.summary-view:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--purple-star);
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.15);
+  transform: translateY(-1px);
+}
+
+.summary-content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  flex: 1;
+}
+
+.summary-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.summary-text {
+  flex: 1;
+}
+
+.summary-title {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.summary-description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.expand-button {
+  flex-shrink: 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.expand-icon {
+  transition: transform 0.3s ease;
+}
+
+.summary-view:hover .expand-icon {
+  transform: translateY(2px);
+}
+
+/* ========================================
+   EXPANDED VIEW
+   ======================================== */
+.expanded-view {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  animation: expandIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes expandIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.collapse-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.collapse-header:hover {
+  background: var(--bg-secondary);
+}
+
+.header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.collapse-button {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.collapse-icon {
+  transition: transform 0.3s ease;
+}
+
+.collapse-header:hover .collapse-icon {
+  transform: translateY(-2px);
+}
+
+.detail-content {
+  padding: var(--space-md);
 }
 
 .section-card {
@@ -249,28 +431,74 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
   padding: 12px;
 }
 
+/* Accessibility: Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .summary-view,
+  .expanded-view {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .summary-view:hover,
+  .collapse-header:hover {
+    transform: none !important;
+  }
+
+  .expand-icon,
+  .collapse-icon {
+    transition: none !important;
+  }
+}
+
 /* 深色模式優化 */
 @media (prefers-color-scheme: dark) {
-  .sihua-aggregation-card {
+  .summary-view {
+    background: var(--bg-tertiary);
+    border-color: var(--border-light);
+  }
+
+  .summary-view:hover {
+    background: var(--bg-secondary);
+    box-shadow: 0 2px 8px rgba(147, 51, 234, 0.25);
+  }
+
+  .summary-title {
+    color: var(--text-primary) !important;
+  }
+
+  .summary-description {
+    color: var(--text-secondary) !important;
+  }
+
+  .expanded-view {
     background: var(--bg-secondary);
     border-color: var(--border-light);
   }
-  
-  .card-title {
+
+  .collapse-header {
+    background: var(--bg-tertiary);
+    border-color: var(--border-light);
+  }
+
+  .collapse-header:hover {
+    background: var(--bg-secondary);
+  }
+
+  .header-title {
     color: var(--text-primary) !important;
   }
-  
-  .aggregation-item h4 {
-    color: var(--text-primary) !important;
-  }
-  
+
   .node-item {
     background: var(--bg-tertiary) !important;
     color: var(--text-primary) !important;
   }
-  
+
   .no-data {
     color: var(--text-secondary) !important;
+  }
+
+  .centrality-box {
+    background: var(--bg-tertiary);
   }
 }
 </style>

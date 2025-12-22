@@ -12,6 +12,8 @@ export function useDailyQuestion(chartId: string) {
   const error = ref('');
   const estimatedTime = ref(0);
   const progressPhase = ref(0);
+  const hasMemoryContext = ref(false);
+  const memoryReference = ref('');
 
   const dailyLimitMessage = computed(() => {
     return t('dailyQuestion.dailyLimit.message');
@@ -56,6 +58,8 @@ export function useDailyQuestion(chartId: string) {
     error.value = '';
     progressPhase.value = 0;
     estimatedTime.value = estimateResponseTime(questionText);
+    hasMemoryContext.value = false;
+    memoryReference.value = '';
 
     // Progressive status messaging for warm UX
     const statusTimeline = [
@@ -129,7 +133,17 @@ export function useDailyQuestion(chartId: string) {
             try {
               const data = JSON.parse(line.slice(6));
 
-              if (data.state) {
+              // Handle memory metadata events
+              if (data.type === 'meta' && data.data) {
+                if (data.data.hasMemoryContext) {
+                  hasMemoryContext.value = true;
+                  memoryReference.value = data.data.memoryReference || '';
+                  console.log('[useDailyQuestion] Memory metadata received:', {
+                    hasMemoryContext: hasMemoryContext.value,
+                    memoryReference: memoryReference.value
+                  });
+                }
+              } else if (data.state) {
                 // Handle state updates from agentic backend
                 currentStatus.value = data.state;
               } else if (data.text) {
@@ -176,6 +190,8 @@ export function useDailyQuestion(chartId: string) {
     error,
     estimatedTime,
     progressPhase,
+    hasMemoryContext,
+    memoryReference,
     askQuestion,
     checkDailyLimit,
   };

@@ -20,6 +20,7 @@
     "integrated_analysis": "多術數交互驗證",
     "personality": "佩璇性格分析",
     "fortune": "佩璇運勢分析",
+    "daily_question": "每日一問",
     "dailyQuestion": "每日問答",
     "messages": {
       "needChartForPersonality": "請先計算命盤，才能進行性格分析",
@@ -379,11 +380,18 @@
     "error_no_chart": "還沒有命盤喔～先去算個命盤，我才能幫你分析呀！",
     "error_no_chart_title": "還沒有命盤喔～",
     "error_connection": "連接中斷,請重試",
+    "error_parse": "解析錯誤,請重試",
     "btn_back": "← 返回",
     "btn_copy": "📋 複製",
     "btn_go_calculate": "→ 去計算命盤",
     "copy_success": "已複製到剪貼簿",
-    "copy_failed": "複製失敗"
+    "copy_failed": "複製失敗",
+    "cache_generated": "分析生成於",
+    "cache_just_now": "剛剛",
+    "cache_minutes_ago": "{minutes} 分鐘前",
+    "cache_hours_ago": "{hours} 小時前",
+    "cache_refresh": "重新分析",
+    "cache_refresh_tooltip": "重新生成分析結果"
   },
   "fortune": {
     "title": "🔮 佩璇運勢分析",
@@ -396,11 +404,18 @@
     "error_no_chart": "還沒有命盤喔～先去算個命盤，我才能幫你分析呀！",
     "error_no_chart_title": "還沒有命盤喔～",
     "error_connection": "連接中斷,請重試",
+    "error_parse": "解析錯誤,請重試",
     "btn_back": "← 返回",
     "btn_copy": "📋 複製",
     "btn_go_calculate": "→ 去計算命盤",
     "copy_success": "已複製到剪貼簿",
-    "copy_failed": "複製失敗"
+    "copy_failed": "複製失敗",
+    "cache_generated": "分析生成於",
+    "cache_just_now": "剛剛",
+    "cache_minutes_ago": "{minutes} 分鐘前",
+    "cache_hours_ago": "{hours} 小時前",
+    "cache_refresh": "重新分析",
+    "cache_refresh_tooltip": "重新生成運勢分析"
   },
   "annualFortune": {
     "yearlyForecast": {

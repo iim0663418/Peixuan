@@ -66,9 +66,14 @@
   --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.15);
   --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.18);
 
-  /* 特殊陰影 */
+  /* 特殊陰影 - Light Mode */
   --shadow-purple: 0 4px 20px rgba(153, 50, 204, 0.15);
   --shadow-orange: 0 4px 20px rgba(210, 105, 30, 0.15);
+  --shadow-card: var(--shadow-md);
+  --shadow-card-hover: var(--shadow-lg);
+
+  /* 邊緣高光 - Ambient Edge Light */
+  --edge-highlight: 0 0 0 1px rgba(255, 255, 255, 0.1);
 
   /* ===== 圓角 Border Radius ===== */
   --radius-xs: 4px;
@@ -154,28 +159,45 @@
 
 /* ===== 深色主題變數 Dark Theme ===== */
 [data-theme='dark'] :root {
-  --text-primary: #ffffff;
+  /* Text Colors - Optimized for WCAG AA */
+  --text-primary: rgba(255, 255, 255, 0.87); /* Softer than pure white, reduces halation */
   --text-secondary: #e5e7eb;
   --text-tertiary: #d1d5db;
   --text-disabled: #9ca3af;
   --text-inverse: #111827;
 
-  --bg-primary: #111827;
-  --bg-secondary: #1f2937;
-  --bg-tertiary: #374151;
+  /* Background Colors - Subtle purple tint to harmonize with brand */
+  --bg-primary: #0f1419; /* Cooler with slight purple tint */
+  --bg-secondary: #1a1d29; /* Purple-tinted instead of pure gray */
+  --bg-tertiary: #2a2d3a; /* Consistent purple tint */
   --bg-disabled: #4b5563;
   --bg-overlay: rgba(0, 0, 0, 0.7);
 
-  --border-light: #374151;
+  /* Borders - Subtle adjustments */
+  --border-light: #2a2d3a;
   --border-medium: #4b5563;
   --border-dark: #6b7280;
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.6);
-  --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.7);
+  /* Shadows - Colored glows instead of heavy black shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(153, 50, 204, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(153, 50, 204, 0.12);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(153, 50, 204, 0.15);
+  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(153, 50, 204, 0.18);
 
-  /* Adjust primary colors for dark mode */
+  /* Special Shadows - Enhanced colored glows for dark mode */
+  --shadow-purple: 0 4px 16px rgba(153, 50, 204, 0.25), 0 8px 32px rgba(153, 50, 204, 0.15), 0 0 0 1px rgba(153, 50, 204, 0.2);
+  --shadow-orange: 0 4px 16px rgba(210, 105, 30, 0.25), 0 8px 32px rgba(210, 105, 30, 0.15), 0 0 0 1px rgba(210, 105, 30, 0.2);
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(153, 50, 204, 0.1);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(153, 50, 204, 0.2), 0 0 0 1px rgba(153, 50, 204, 0.25);
+
+  /* Ambient Edge Light - Simulates light hitting the edge */
+  --edge-highlight: 0 0 0 1px rgba(153, 50, 204, 0.15);
+
+  /* Brand Colors - Slightly desaturated for dark mode */
+  --purple-star-dark-mode: #a855d8; /* Lighter and slightly desaturated */
+  --bazi-orange-dark-mode: #e89050; /* Lighter and slightly desaturated */
+
+  /* Adjust lightest variants for dark mode */
   --primary-lightest: #2d1810;
   --bazi-orange-lightest: #2d1810;
   --purple-star-lightest: #1f1629;
@@ -183,28 +205,45 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text-primary: #ffffff;
+    /* Text Colors - Optimized for WCAG AA */
+    --text-primary: rgba(255, 255, 255, 0.87); /* Softer than pure white, reduces halation */
     --text-secondary: #e5e7eb;
     --text-tertiary: #d1d5db;
     --text-disabled: #9ca3af;
     --text-inverse: #111827;
 
-    --bg-primary: #111827;
-    --bg-secondary: #1f2937;
-    --bg-tertiary: #374151;
+    /* Background Colors - Subtle purple tint to harmonize with brand */
+    --bg-primary: #0f1419; /* Cooler with slight purple tint */
+    --bg-secondary: #1a1d29; /* Purple-tinted instead of pure gray */
+    --bg-tertiary: #2a2d3a; /* Consistent purple tint */
     --bg-disabled: #4b5563;
     --bg-overlay: rgba(0, 0, 0, 0.7);
 
-    --border-light: #374151;
+    /* Borders - Subtle adjustments */
+    --border-light: #2a2d3a;
     --border-medium: #4b5563;
     --border-dark: #6b7280;
 
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
-    --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.6);
-    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.7);
+    /* Shadows - Colored glows instead of heavy black shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(153, 50, 204, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(153, 50, 204, 0.12);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(153, 50, 204, 0.15);
+    --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(153, 50, 204, 0.18);
 
-    /* Adjust primary colors for dark mode */
+    /* Special Shadows - Enhanced colored glows for dark mode */
+    --shadow-purple: 0 4px 16px rgba(153, 50, 204, 0.25), 0 8px 32px rgba(153, 50, 204, 0.15), 0 0 0 1px rgba(153, 50, 204, 0.2);
+    --shadow-orange: 0 4px 16px rgba(210, 105, 30, 0.25), 0 8px 32px rgba(210, 105, 30, 0.15), 0 0 0 1px rgba(210, 105, 30, 0.2);
+    --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(153, 50, 204, 0.1);
+    --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(153, 50, 204, 0.2), 0 0 0 1px rgba(153, 50, 204, 0.25);
+
+    /* Ambient Edge Light - Simulates light hitting the edge */
+    --edge-highlight: 0 0 0 1px rgba(153, 50, 204, 0.15);
+
+    /* Brand Colors - Slightly desaturated for dark mode */
+    --purple-star-dark-mode: #a855d8; /* Lighter and slightly desaturated */
+    --bazi-orange-dark-mode: #e89050; /* Lighter and slightly desaturated */
+
+    /* Adjust lightest variants for dark mode */
     --primary-lightest: #2d1810;
     --bazi-orange-lightest: #2d1810;
     --purple-star-lightest: #1f1629;
@@ -354,18 +393,23 @@
   transition: all var(--transition-slow);
 }
 
-/* 卡片基礎樣式 */
+/* 卡片基礎樣式 - Enhanced with colored glows */
 .card-base {
   background: var(--bg-primary);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   padding: var(--space-lg);
+  box-shadow: var(--shadow-card);
   transition: var(--transition-normal);
+}
+
+.card-hoverable {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-hoverable:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-card-hover);
 }
 
 /* 按鈕基礎樣式 */

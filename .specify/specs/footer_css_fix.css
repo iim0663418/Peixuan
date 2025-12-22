@@ -1,0 +1,140 @@
+The `AppFooter` is invisible in light mode because the CSS variables it relies on (like `--brand-brown`, `--footer-text-gold`) are defined in `variables.css`, which is not imported in `main.ts` or `style.css`. This causes the background gradient to fail (becoming transparent) and the text colors to likely default to inherited values or fail, resulting in poor visibility (e.g., white text on a white background).
+
+
+```css
+<style scoped>
+.app-footer {
+  /* Added fallbacks for brand colors to ensure visibility in light mode */
+  background: linear-gradient(135deg, var(--brand-brown, #8b4513) 0%, var(--brand-brown-light, #a0522d) 100%);
+  color: white;
+  /* Added fallbacks for spacing variables */
+  padding: var(--spacing-xl, 32px) var(--spacing-lg, 24px) var(--spacing-lg, 24px);
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg, 24px);
+}
+
+.footer-section h4 {
+  color: var(--footer-text-gold, #f0e68c);
+  margin: 0 0 var(--spacing-md, 16px) 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.footer-section p {
+  margin: calc(var(--spacing-sm, 8px) * 1) 0;
+  color: var(--footer-text-cream, #e6ddd4);
+  line-height: 1.6;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-sm, 8px) * 1);
+}
+
+.footer-links a {
+  color: var(--footer-text-cream, #e6ddd4);
+  text-decoration: none;
+  transition: var(--transition-base, all 0.3s ease);
+}
+
+.footer-links a:hover {
+  color: var(--footer-text-gold, #f0e68c);
+}
+
+.footer-licenses {
+  font-size: 12px;
+  color: rgba(230, 221, 212, 0.7);
+  margin-top: var(--spacing-sm, 8px);
+}
+
+.footer-licenses a {
+  color: var(--footer-text-cream, #e6ddd4);
+  text-decoration: none;
+  transition: var(--transition-base, all 0.3s ease);
+}
+
+.footer-licenses a:hover {
+  color: var(--footer-text-gold, #f0e68c);
+}
+
+.footer-github {
+  margin: var(--spacing-md, 16px) 0 calc(var(--spacing-sm, 8px) * 1) 0;
+}
+
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing-sm, 8px) * 1);
+  color: var(--footer-text-cream, #e6ddd4);
+  text-decoration: none;
+  transition: var(--transition-base, all 0.3s ease);
+  font-size: 14px;
+  padding: calc(var(--spacing-sm, 8px) * 1) 0;
+}
+
+.github-link svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.github-link:hover {
+  color: var(--footer-text-gold, #f0e68c);
+  transform: translateX(3px);
+}
+
+/* 手機版 Footer 簡化 (<768px) */
+ @media (max-width: 767px) {
+  .app-footer {
+    padding: clamp(1.5rem, 3vw, 2rem) clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg, 24px);
+    text-align: center;
+  }
+}
+
+/* 平板 (768px+) */
+ @media (min-width: 768px) {
+  .app-footer {
+    padding: var(--spacing-xl, 32px) var(--spacing-lg, 24px) var(--spacing-lg, 24px);
+  }
+
+  .footer-content {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg, 24px);
+    text-align: left;
+  }
+}
+
+/* 小螢幕手機特定樣式 */
+ @media (max-width: 479px) {
+  .app-footer {
+    padding: clamp(1.5rem, 3vw, 2rem) clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg, 24px);
+    text-align: center;
+  }
+}
+
+/* 無障礙: 減少動畫 */
+ @media (prefers-reduced-motion: reduce) {
+  .app-footer * {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+```

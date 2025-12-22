@@ -140,3 +140,97 @@
 - [DECISION] 2025-12-22: Phase 1-2 實施完成。數據庫遷移成功部署到staging，AnalyticsService創建完成，環境變數配置就緒。功能預設關閉，零影響部署成功。
 
 - [DECISION] 2025-12-22: Phase 3 控制器整合完成。在analyzeRoutes.ts中添加歷史上下文獲取邏輯，包含500ms超時保護、雙服務支援和優雅降級機制。LLM記憶模組核心功能實作完成。
+
+- [DECISION] 2025-12-22: LLM記憶模組Phase 1-3完整實施成功。包含數據庫遷移、AnalyticsService實現、雙AI服務整合、ExecutionContext修復、chartId傳遞修復。生產環境驗證通過，數據正常收集。
+
+- [DECISION] 2025-12-22: 兩環境配置完善完成。生產環境補上 ENVIRONMENT secret，修正 staging 環境 vars 配置警告，創建重建腳本。配置現已完全一致。
+
+- [DECISION] 2025-12-22: LLM記憶模組Phase 1-3完整實施成功。包含數據庫遷移、AnalyticsService實現、雙AI服務整合、ExecutionContext修復、chartId傳遞修復。生產環境驗證通過，數據正常收集。
+
+- [DECISION] 2025-12-22: 兩環境配置完善完成。生產環境補上 ENVIRONMENT secret，修正 staging 環境 vars 配置警告，創建重建腳本。配置現已完全一致。
+
+- [DECISION] 2025-12-22: 兩環境配置完善完成。生產環境補上 ENVIRONMENT secret，修正 staging 環境 vars 配置警告，創建重建腳本。配置現已完全一致。
+
+- [DECISION] 2025-12-22: LLM記憶模組Phase 1-3完整實施成功。包含數據庫遷移、AnalyticsService實現、雙AI服務整合、ExecutionContext修復、chartId傳遞修復。生產環境驗證通過，數據正常收集。
+
+- [DECISION] 2025-12-22: LLM記憶模組Phase 1-3完整實施成功。包含數據庫遷移、AnalyticsService實現、雙AI服務整合、ExecutionContext修復、chartId傳遞修復。生產環境驗證通過，數據正常收集。
+
+- [DECISION] 2025-12-22: LLM記憶模組完整驗證成功。Phase 1-3全功能測試通過，包含數據收集、AI服務整合、歷史上下文注入機制。佩璇現具備完整記憶能力，準備合併到main分支。
+
+- [DECISION] 2025-12-22: LLM記憶模組完整驗證成功。Phase 1-3全功能測試通過，包含數據收集、AI服務整合、歷史上下文注入機制。佩璇現具備完整記憶能力，準備合併到main分支。
+
+- [DECISION] 2025-12-22: LLM記憶模組完整驗證成功。Phase 1-3全功能測試通過，包含數據收集、AI服務整合、歷史上下文注入機制。佩璇現具備完整記憶能力，準備合併到main分支。
+
+- [DECISION] 2025-12-22: LLM記憶模組完整驗證成功。Phase 1-3全功能測試通過，包含數據收集、AI服務整合、歷史上下文注入機制。佩璇現具備完整記憶能力，準備合併到main分支。
+
+- [DECISION] 2025-12-22: LLM記憶模組完整驗證成功。Phase 1-3全功能測試通過，包含數據收集、AI服務整合、歷史上下文注入機制。佩璇現具備完整記憶能力，準備合併到main分支。
+
+- [DECISION] 2025-12-22: LLM記憶模組完整修復計畫完成。基於評估報告制定Context Injection實施方案，確保Gemini+Azure雙引擎同步支援。最大程度復用既有AnalyticsService和AgenticServices架構。實作指南已生成至 doc/LLM記憶模組完整修復計畫.md。
+
+- [DECISION] 2025-12-22: LLM記憶模組完整驗證成功。Phase 1-3全功能測試通過，包含數據收集、AI服務整合、歷史上下文注入機制。佩璇現具備完整記憶能力，準備合併到main分支。
+
+- [DECISION] 2025-12-22: Phase 4前端優化計劃生成完成。包含漸進式揭露設計、記憶感知UI、視覺交互升級和性能優化。P0優先級：技術細節摺疊、記憶顯性化、資訊減負。準備實施前端代碼修改。
+
+- [DECISION] 2025-12-22: Phase 4 P0前端優化實施完成。TechnicalDetailsCard/SiHuaAggregationCard摺疊功能、ChatBubble記憶指示器已實現。漸進式揭露設計生效，用戶體驗顯著改善。
+
+- [DECISION] 2025-12-22: Phase 4前端優化現狀檢查完成。ChatBubble已實現記憶指示器props，DailyQuestionPanel使用ChatBubble但未傳遞記憶相關props。TechnicalDetailsCard和SiHuaAggregationCard摺疊功能可獨立測試。
+
+- [DECISION] 2025-12-22: Phase 4 P0前端優化部署到Staging成功。版本 a46764f1-562a-4c12-9bcf-ebf8bef80c99 已上線，準備測試摺疊功能和漸進式揭露效果。
+
+- [DECISION] 2025-12-22: 每日一問panel-header文字對比度修復完成。移除--text-inverse使用，改為明確白色文字，確保在亮色模式下與深紫色漸層背景有良好對比度。
+
+- [DECISION] 2025-12-22: 打字機效果UX分析完成。基於產品設計原則識別問題：人工延遲造成擁有者錯覺、閃爍影響可讀性。建議採用Option A (Smooth Stream) 移除逐字效果，直接使用SSE自然分塊。
+
+- [DECISION] 2025-12-22: 打字機效果移除完成。實施Option A (Smooth Stream)，移除逐字動畫和人工延遲，改用SSE自然分塊直接更新。消除閃爍問題，提升用戶體驗。
+
+- [DECISION] 2025-12-22: Markdown渲染與排版優化完成。改善strong標籤對比度、響應式表格、文字陰影精簡、代碼區塊樣式、排版層級優化。提升可讀性和移動端體驗。
+
+- [DECISION] 2025-12-22: 繼續Phase 4前端優化。P0項目(摺疊功能+記憶指示器)已完成，準備實施P1優化：敘事優化、視覺層級、移動端適配強化。
+
+- [DECISION] 2025-12-22: BaziChart移動端優化完成。實施4欄佈局保持、元素色彩編碼、視覺層級改善、觸控目標優化。傳統閱讀流程保持，移動端體驗顯著提升。
+
+- [DECISION] 2025-12-22: BaziChart移動端優化完成。實施4欄佈局保持、元素色彩編碼、視覺層級改善、觸控目標優化。傳統閱讀流程保持，移動端體驗顯著提升。
+
+- [DECISION] 2025-12-22: BaziChart移動端優化完成。實施4欄佈局保持、元素色彩編碼、視覺層級改善、觸控目標優化。傳統閱讀流程保持，移動端體驗顯著提升。
+
+- [DECISION] 2025-12-22: 深色模式視覺層級優化完成。實施彩色陰影系統、文字對比度層級、品牌色彩適配、輸入框狀態改善、表面色調調整。WCAG AA合規，資訊架構清晰。
+
+- [DECISION] 2025-12-22: 繼續Phase 4前端優化。P0項目(摺疊功能+記憶指示器)已完成，準備實施P1優化：敘事優化、視覺層級、移動端適配強化。
+
+- [DECISION] 2025-12-22: 骨架屏與快取系統實施完成。創建AnalysisSkeleton組件替代Loading Spinner，添加CacheIndicator顯示快取時間戳與重新分析選項。提升載入體驗與用戶控制。
+
+- [DECISION] 2025-12-22: 骨架屏與快取系統實施完成。創建AnalysisSkeleton組件替代Loading Spinner，添加CacheIndicator顯示快取時間戳與重新分析選項。提升載入體驗與用戶控制。
+
+- [DECISION] 2025-12-22: 後端整合需求盤點完成。識別P0優先級：記憶指示器功能化、快取系統API。P1優先級：個人化歡迎語。準備實施後端整合以完整啟用前端功能。
+
+- [DECISION] 2025-12-22: 後端整合需求盤點完成。識別P0優先級：記憶指示器功能化、快取系統API。P1優先級：個人化歡迎語。準備實施後端整合以完整啟用前端功能。
+
+- [DECISION] 2025-12-22: P0後端整合實施完成。記憶指示器元數據、快取時間戳標頭、強制重新整理參數已實現。部署到staging環境，準備前端整合測試。
+
+- [DECISION] 2025-12-22: 前端整合完成。記憶指示器與快取系統已連接API，useDailyQuestion處理meta事件，CacheIndicator讀取時間戳標頭，force refresh功能整合。完整端到端功能就緒。
+
+- [OBSERVATION] 2025-12-22: Staging Fortune Analysis page displaying correctly. AI content shows Peixuan's mixed-language style and detailed 2026 fortune analysis. No console errors detected. However, cache indicators mentioned in Phase 4 frontend optimizations not visible - may need investigation.
+
+- [DECISION] 2025-12-22: CSS 動畫與按鈕背景色修復完成。載入動畫改為減慢而非禁用，quick-setup-btn 使用正確的漸層變數。部署版本 00a0a84a-4326-4e91-bfb3-64b2613e3936。
+
+- [DECISION] 2025-12-22: 徹底修復 CSS 問題。合併重複的 quick-setup-btn 定義使用 !important，修復 AnalysisSkeleton 動畫改為減慢而非禁用。版本 639d3e8d-0407-40e2-881a-68fbcfb6d9f5。
+
+- [DECISION] 2025-12-22: 修復載入動畫被骨架屏遮擋問題。調整 DOM 順序讓 loading-text 在 AnalysisSkeleton 之前顯示。版本 34b918a5-65fc-4c43-840e-79479a1e72d0。
+
+- [DECISION] 2025-12-22: Markdown渲染與排版優化完成。改善strong標籤對比度、響應式表格、文字陰影精簡、代碼區塊樣式、排版層級優化。提升可讀性和移動端體驗。
+
+- [DECISION] 2025-12-22: AppFooter 組件分析完成。識別品牌色彩不一致、CSS變數缺失、深色模式適配問題。生成完整優化建議包含三階段實施計畫。
+
+- [DECISION] 2025-12-22: AppFooter 組件優化完成。實施 CSS 變數整合、品牌色彩統一、無障礙改善。Phase 1-3 全部完成，設計系統一致性提升。
+
+- [DECISION] 2025-12-22: AppFooter 服務項目更新完成。添加每日一問連結到 Footer 導航，提升功能可發現性。
+
+- [DECISION] 2025-12-22: AppFooter 優化部署到 Staging 成功。版本 2d9e8a89-4e7f-4d5e-bf5e-d923beae4ba8，包含設計系統整合和每日一問導航更新。
+
+- [DECISION] 2025-12-22: 每日一問panel-header文字對比度修復完成。移除--text-inverse使用，改為明確白色文字，確保在亮色模式下與深紫色漸層背景有良好對比度。
+
+- [DECISION] 2025-12-22: AppFooter 亮色模式修復部署到 Staging 成功。版本 6fab8a85-9603-4107-a806-055b695b5b67，添加 CSS 變數 fallback 確保可見性。
+
+- [DECISION] 2025-12-22: AppFooter CSS 變數導入修復完成。在 style.css 中添加 variables.css 導入，確保品牌色彩變數正確載入。版本 929fe54e-2a00-4c8f-bda4-08782c843eef。
+
+- [DECISION] 2025-12-22: AppHeader 桌面版語言選擇器佈局修復完成。添加 flex-shrink: 0 和 min-width 確保語言選擇器不會超出邊界。

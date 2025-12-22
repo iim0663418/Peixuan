@@ -554,15 +554,17 @@ h4 {
     background: rgba(0, 0, 0, 0.7) !important;
   }
   
-  /* Choice Card 深色模式 */
+  /* Choice Card 深色模式 - Enhanced with colored glows */
   .choice-card {
     background: var(--bg-tertiary) !important;
     border-color: var(--border-light) !important;
+    box-shadow: var(--shadow-card) !important;
   }
-  
+
   .choice-card:hover {
     background: var(--bg-primary) !important;
-    border-color: var(--purple-star) !important;
+    border-color: var(--purple-star-dark-mode) !important;
+    box-shadow: var(--shadow-card-hover) !important;
   }
   
   .choice-title {

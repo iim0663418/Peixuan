@@ -152,9 +152,10 @@ export class AnalyzeController {
    * @param chartId - The chart ID to analyze
    * @param env - Cloudflare Worker environment with DB binding
    * @param locale - Language locale (zh-TW or en, default: zh-TW)
+   * @param force - Force regeneration, bypassing cache (default: false)
    * @returns ReadableStream in SSE format
    */
-  async analyzeStream(chartId: string, env: { DB: D1Database }, locale = 'zh-TW'): Promise<ReadableStream> {
+  async analyzeStream(chartId: string, env: { DB: D1Database }, locale = 'zh-TW', force = false): Promise<ReadableStream> {
     console.log('[analyzeStream] Entry, chartId:', chartId, 'locale:', locale);
 
     const encoder = new TextEncoder();
@@ -175,9 +176,9 @@ export class AnalyzeController {
           controller.enqueue(encoder.encode(sseData));
           console.log('[analyzeStream] Loading message sent, locale:', locale);
 
-          // Step 0: Check analysis cache first
+          // Step 0: Check analysis cache first (unless force refresh is requested)
           const analysisCacheService = new AnalysisCacheService();
-          const cachedAnalysis = await analysisCacheService.getAnalysis(chartId, analysisType, env);
+          const cachedAnalysis = force ? null : await analysisCacheService.getAnalysis(chartId, analysisType, env);
 
           if (cachedAnalysis) {
             console.log('[analyzeStream] Cache hit! Returning cached analysis');
@@ -185,6 +186,10 @@ export class AnalyzeController {
             controller.enqueue(encoder.encode('data: [DONE]\n\n'));
             controller.close();
             return;
+          }
+
+          if (force) {
+            console.log('[analyzeStream] Force refresh requested, bypassing cache');
           }
 
           // Step 1: Read chart data from D1
@@ -368,20 +373,25 @@ export class AnalyzeController {
    * @param chartId - The chart ID to analyze
    * @param env - Cloudflare Worker environment with DB binding
    * @param locale - Language locale (zh-TW or en, default: zh-TW)
+   * @param force - Force regeneration, bypassing cache (default: false)
    * @returns ReadableStream in SSE format
    */
-  async analyzeAdvancedStream(chartId: string, env: { DB: D1Database }, locale = 'zh-TW'): Promise<ReadableStream> {
+  async analyzeAdvancedStream(chartId: string, env: { DB: D1Database }, locale = 'zh-TW', force = false): Promise<ReadableStream> {
     console.log('[analyzeAdvancedStream] Entry, chartId:', chartId, 'locale:', locale);
 
     // HOTFIX: Add analysis mode to cache key to prevent personality/fortune cross-contamination
     const analysisType = `ai-advanced-${locale}-fortune`;
-    const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
+    const cachedAnalysis = force ? null : await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
     if (cachedAnalysis) {
       console.log('[analyzeAdvancedStream] Cache hit! Returning cached analysis');
       const cachedText = typeof cachedAnalysis.result === 'string'
         ? cachedAnalysis.result
         : (cachedAnalysis.result as CachedAnalysisResult).text;
       return createCachedSSEStream(cachedText);
+    }
+
+    if (force) {
+      console.log('[analyzeAdvancedStream] Force refresh requested, bypassing cache');
     }
 
     // Step 1: Read chart data from D1

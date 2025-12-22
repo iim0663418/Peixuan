@@ -10,6 +10,7 @@
         <div class="footer-links">
           <router-link to="/">{{ $t('navigation.home') }}</router-link>
           <router-link to="/unified">{{ $t('astrology.unified') }}</router-link>
+          <router-link to="/daily-question">{{ $t('navigation.daily_question') }}</router-link>
           <router-link to="/personality">{{
             $t('navigation.personality')
           }}</router-link>
@@ -36,6 +37,8 @@
               xmlns="http://www.w3.org/2000/svg"
               width="16"
               height="16"
+              aria-hidden="true"
+              focusable="false"
             >
               <path
                 fill="currentColor"
@@ -83,9 +86,11 @@
 
 <style scoped>
 .app-footer {
-  background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+  /* Added fallbacks for brand colors to ensure visibility in light mode */
+  background: linear-gradient(135deg, var(--brand-brown, #8b4513) 0%, var(--brand-brown-light, #a0522d) 100%);
   color: white;
-  padding: 3rem 2rem 2rem;
+  /* Added fallbacks for spacing variables */
+  padding: var(--spacing-xl, 32px) var(--spacing-lg, 24px) var(--spacing-lg, 24px);
 }
 
 .footer-content {
@@ -93,67 +98,67 @@
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  gap: var(--spacing-lg, 24px);
 }
 
 .footer-section h4 {
-  color: #f0e68c;
-  margin: 0 0 1rem 0;
+  color: var(--footer-text-gold, #f0e68c);
+  margin: 0 0 var(--spacing-md, 16px) 0;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 .footer-section p {
-  margin: 0.5rem 0;
-  color: #e6ddd4;
+  margin: calc(var(--spacing-sm, 8px) * 1) 0;
+  color: var(--footer-text-cream, #e6ddd4);
   line-height: 1.6;
 }
 
 .footer-links {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: calc(var(--spacing-sm, 8px) * 1);
 }
 
 .footer-links a {
-  color: #e6ddd4;
+  color: var(--footer-text-cream, #e6ddd4);
   text-decoration: none;
-  transition: color 0.3s;
+  transition: var(--transition-base, all 0.3s ease);
 }
 
 .footer-links a:hover {
-  color: #f0e68c;
+  color: var(--footer-text-gold, #f0e68c);
 }
 
 .footer-licenses {
   font-size: 12px;
   color: rgba(230, 221, 212, 0.7);
-  margin-top: 8px;
+  margin-top: var(--spacing-sm, 8px);
 }
 
 .footer-licenses a {
-  color: #e6ddd4;
+  color: var(--footer-text-cream, #e6ddd4);
   text-decoration: none;
-  transition: color 0.3s;
+  transition: var(--transition-base, all 0.3s ease);
 }
 
 .footer-licenses a:hover {
-  color: #f0e68c;
+  color: var(--footer-text-gold, #f0e68c);
 }
 
 .footer-github {
-  margin: 1rem 0 0.5rem 0;
+  margin: var(--spacing-md, 16px) 0 calc(var(--spacing-sm, 8px) * 1) 0;
 }
 
 .github-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #e6ddd4;
+  gap: calc(var(--spacing-sm, 8px) * 1);
+  color: var(--footer-text-cream, #e6ddd4);
   text-decoration: none;
-  transition: all 0.3s;
+  transition: var(--transition-base, all 0.3s ease);
   font-size: 14px;
-  padding: 0.5rem 0;
+  padding: calc(var(--spacing-sm, 8px) * 1) 0;
 }
 
 .github-link svg {
@@ -163,7 +168,7 @@
 }
 
 .github-link:hover {
-  color: #f0e68c;
+  color: var(--footer-text-gold, #f0e68c);
   transform: translateX(3px);
 }
 
@@ -175,7 +180,7 @@
 
   .footer-content {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: var(--spacing-lg, 24px);
     text-align: center;
   }
 }
@@ -183,12 +188,12 @@
 /* 平板 (768px+) */
 @media (min-width: 768px) {
   .app-footer {
-    padding: 3rem 2rem 2rem;
+    padding: var(--spacing-xl, 32px) var(--spacing-lg, 24px) var(--spacing-lg, 24px);
   }
 
   .footer-content {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
+    gap: var(--spacing-lg, 24px);
     text-align: left;
   }
 }
@@ -201,7 +206,7 @@
 
   .footer-content {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: var(--spacing-lg, 24px);
     text-align: center;
   }
 }

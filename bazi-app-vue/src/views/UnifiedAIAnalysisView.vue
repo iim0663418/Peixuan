@@ -6,6 +6,8 @@ import { useChartStore } from '@/stores/chartStore';
 import { marked } from 'marked';
 import { setupKeywordHighlighting } from '@/utils/keywordHighlighting';
 import QuickSetupForm from '@/components/QuickSetupForm.vue';
+import AnalysisSkeleton from '@/components/AnalysisSkeleton.vue';
+import CacheIndicator from '@/components/CacheIndicator.vue';
 import './UnifiedAIAnalysisView.css';
 
 // Configure marked renderer once for the application when the module is loaded
@@ -33,49 +35,18 @@ const error = ref<string | null>(null);
 const progress = ref(0);
 const loadingMessage = ref('');
 const loadingHint = ref('');
+const cacheTimestamp = ref<string | null>(null);
+const isCached = ref(false);
 
-let eventSource: EventSource | null = null;
-let typewriterQueue: string[] = [];
-let isTyping = false;
-
-// Typewriter effect with punctuation-aware pacing
-const typewriterEffect = async () => {
-  if (isTyping || typewriterQueue.length === 0) {
-    return;
-  }
-
-  isTyping = true;
-
-  while (typewriterQueue.length > 0) {
-    const char = typewriterQueue.shift();
-    if (!char) {
-      break;
-    }
-    displayedText.value += char;
-
-    // Dynamic delay based on punctuation
-    let delay = 30; // Base typing speed (30ms per character)
-
-    if (char === '，' || char === ',') {
-      delay = 200; // Short pause for commas
-    } else if (char === '。' || char === '.') {
-      delay = 400; // Medium pause for periods
-    } else if (char === '\n') {
-      delay = 800; // Significant pause for paragraph breaks
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, delay));
-  }
-
-  isTyping = false;
-};
+// AbortController for canceling fetch streams
+let streamAbortController: AbortController | null = null;
 
 // Function to stop the current streaming connection
 const stopStreaming = () => {
-  if (eventSource) {
-    eventSource.close();
-    eventSource = null;
-    console.log('[SSE] Stream closed manually');
+  if (streamAbortController) {
+    streamAbortController.abort();
+    streamAbortController = null;
+    console.log('[SSE] Stream aborted manually');
   }
 };
 
@@ -101,10 +72,21 @@ const checkCache = async (chartId: string): Promise<boolean> => {
       `${check}?chartId=${chartId}&locale=${locale.value}`,
     );
     const data = await response.json();
-    const { cached } = data;
+    const { cached, timestamp } = data;
+
+    // Store cache information
+    isCached.value = cached || false;
+    if (cached && timestamp) {
+      cacheTimestamp.value = timestamp;
+    } else {
+      cacheTimestamp.value = null;
+    }
+
     return cached || false;
   } catch (err) {
     console.error('[checkCache] Error:', err);
+    isCached.value = false;
+    cacheTimestamp.value = null;
     return false;
   }
 };
@@ -114,7 +96,6 @@ const startStreaming = async () => {
 
   analysisText.value = ''; // Clear previous content
   displayedText.value = ''; // Clear displayed text
-  typewriterQueue = []; // Clear typewriter queue
   error.value = null; // Clear previous errors
   isLoading.value = true; // Set loading state
   progress.value = 0; // Reset progress
@@ -136,65 +117,85 @@ const startStreaming = async () => {
     ? t(`${i18nPrefix.value}.loading_hint_cached`)
     : t(`${i18nPrefix.value}.loading_hint`);
 
-  // Use absolute URL for EventSource
+  // Use fetch with streaming instead of EventSource to access headers
   const { origin } = window.location;
   const endpoints = getApiEndpoints();
   const { stream } = endpoints;
   const apiUrl = `${origin}${stream}?chartId=${chartId}&locale=${locale.value}`;
 
-  eventSource = new EventSource(apiUrl);
+  // Create new AbortController for this stream
+  streamAbortController = new AbortController();
 
-  eventSource.onopen = () => {
-    console.log('[SSE] Connection opened');
-  };
+  try {
+    const response = await fetch(apiUrl, { signal: streamAbortController.signal });
 
-  eventSource.onmessage = (event) => {
-    try {
-      const { data: eventData } = event;
-      // Check for [DONE] signal first
-      if (eventData === '[DONE]') {
+    // Read X-Generated-At header if present
+    const generatedAt = response.headers.get('X-Generated-At');
+    if (generatedAt) {
+      cacheTimestamp.value = generatedAt;
+      isCached.value = true;
+      console.log('[SSE] Cache timestamp from header:', generatedAt);
+    }
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('No response body');
+    }
+
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
         console.log('[SSE] Stream completed');
         progress.value = 100;
         isLoading.value = false;
-        eventSource?.close();
-        return;
+        break;
       }
 
-      const data = JSON.parse(eventData);
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n');
 
-      if (data.error) {
-        console.error('[SSE] Backend error:', data.error);
-        error.value = data.error;
-        isLoading.value = false;
-        eventSource?.close();
-        return;
-      }
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const eventData = line.slice(6);
 
-      if (data.text) {
-        analysisText.value += data.text;
-        // Add new characters to typewriter queue
-        const chars = data.text.split('');
-        typewriterQueue.push(...chars);
-        // Start typewriter effect if not already running
-        if (!isTyping) {
-          typewriterEffect();
+            // Check for [DONE] signal
+            if (eventData === '[DONE]') {
+              continue;
+            }
+
+            const data = JSON.parse(eventData);
+
+            if (data.error) {
+              console.error('[SSE] Backend error:', data.error);
+              error.value = data.error;
+              isLoading.value = false;
+              return;
+            }
+
+            if (data.text) {
+              analysisText.value += data.text;
+              displayedText.value = analysisText.value;
+              progress.value = Math.min(progress.value + 2, 95);
+            }
+          } catch (parseErr) {
+            // Ignore parse errors for malformed lines
+            console.debug('[SSE] Parse error for line:', line);
+          }
         }
-        progress.value = Math.min(progress.value + 2, 95);
       }
-    } catch (err) {
-      console.error('[SSE] Parse error:', err);
-      error.value = t(`${i18nPrefix.value}.error_parse`);
-      isLoading.value = false;
-      eventSource?.close();
     }
-  };
-
-  eventSource.onerror = (event) => {
-    console.error('[SSE] Connection error:', event);
+  } catch (err) {
+    console.error('[SSE] Connection error:', err);
     error.value = t(`${i18nPrefix.value}.error_connection`);
     isLoading.value = false;
-    eventSource?.close();
-  };
+  }
 };
 
 const showQuickSetupModal = ref(false);
@@ -213,6 +214,101 @@ const handleChartCreated = () => {
   // Restart streaming with new chart
   if (chartStore.chartId) {
     startStreaming();
+  }
+};
+
+const handleForceRefresh = async () => {
+  const { chartId } = chartStore;
+  if (!chartId) return;
+
+  // Clear cache metadata
+  cacheTimestamp.value = null;
+  isCached.value = false;
+
+  // Restart streaming with force parameter
+  stopStreaming();
+  analysisText.value = '';
+  displayedText.value = '';
+  error.value = null;
+  isLoading.value = true;
+  progress.value = 0;
+
+  loadingMessage.value = t(`${i18nPrefix.value}.loading_message`);
+  loadingHint.value = t(`${i18nPrefix.value}.loading_hint`);
+
+  // Use fetch with streaming and force=true parameter
+  const { origin } = window.location;
+  const endpoints = getApiEndpoints();
+  const { stream } = endpoints;
+  const apiUrl = `${origin}${stream}?chartId=${chartId}&locale=${locale.value}&force=true`;
+
+  // Create new AbortController for this stream
+  streamAbortController = new AbortController();
+
+  try {
+    const response = await fetch(apiUrl, { signal: streamAbortController.signal });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('No response body');
+    }
+
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        console.log('[SSE] Stream completed (force refresh)');
+        progress.value = 100;
+        isLoading.value = false;
+        // Update cache timestamp to now
+        cacheTimestamp.value = new Date().toISOString();
+        isCached.value = true;
+        break;
+      }
+
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const eventData = line.slice(6);
+
+            // Check for [DONE] signal
+            if (eventData === '[DONE]') {
+              continue;
+            }
+
+            const data = JSON.parse(eventData);
+
+            if (data.error) {
+              console.error('[SSE] Backend error:', data.error);
+              error.value = data.error;
+              isLoading.value = false;
+              return;
+            }
+
+            if (data.text) {
+              analysisText.value += data.text;
+              displayedText.value = analysisText.value;
+              progress.value = Math.min(progress.value + 2, 95);
+            }
+          } catch (parseErr) {
+            // Ignore parse errors for malformed lines
+            console.debug('[SSE] Parse error for line:', line);
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('[SSE] Connection error:', err);
+    error.value = t(`${i18nPrefix.value}.error_connection`);
+    isLoading.value = false;
   }
 };
 
@@ -335,13 +431,13 @@ onUnmounted(() => {
 
       <!-- 載入狀態 -->
       <div v-if="isLoading" class="loading">
-        <div class="spinner" />
         <p class="loading-text">
           {{ loadingMessage }}
         </p>
         <p class="loading-hint">
           {{ loadingHint }}
         </p>
+        <AnalysisSkeleton />
       </div>
 
       <!-- 錯誤狀態 -->
@@ -363,6 +459,14 @@ onUnmounted(() => {
 
       <!-- 分析內容 -->
       <div v-else class="analysis-content">
+        <!-- Cache Indicator -->
+        <CacheIndicator
+          v-if="isCached && cacheTimestamp"
+          :timestamp="cacheTimestamp"
+          :analysis-type="analysisType"
+          @refresh="handleForceRefresh"
+        />
+
         <!-- 進度條 -->
         <div v-if="progress < 100" class="progress-bar">
           <div class="progress-fill" :style="{ width: `${progress}%` }" />
@@ -371,9 +475,6 @@ onUnmounted(() => {
         <!-- Markdown 渲染 -->
         <!-- eslint-disable-next-line vue/no-v-html -->
         <div class="markdown-body" v-html="renderMarkdown(displayedText)" />
-
-        <!-- 打字機效果游標 -->
-        <span v-if="progress < 100" class="cursor">▋</span>
       </div>
 
       <!-- Quick Setup Modal -->

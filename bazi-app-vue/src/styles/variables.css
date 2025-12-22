@@ -63,6 +63,12 @@
   --font-family-base: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei',
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-family-code: 'Fira Code', 'Consolas', 'Monaco', monospace;
+
+  /* 品牌色彩 - Footer 專用 */
+  --brand-brown: #8b4513;
+  --brand-brown-light: #a0522d;
+  --footer-text-gold: #f0e68c;
+  --footer-text-cream: #e6ddd4;
 }
 
 /* 深色模式（可選） */

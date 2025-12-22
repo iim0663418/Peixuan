@@ -1,7 +1,33 @@
 <template>
   <div class="technical-details-card">
-    <el-collapse v-model="activeNames">
-      <el-collapse-item title="技術細節" name="technical">
+    <!-- Collapsed Summary View (Default) -->
+    <div v-if="isCollapsed" class="summary-view" @click="toggleCollapse">
+      <div class="summary-content">
+        <span class="summary-icon">🔬</span>
+        <div class="summary-text">
+          <p class="summary-title">技術細節</p>
+          <p class="summary-description">
+            採用真太陽時計算，基於傳統八字算法與儒略日轉換，確保精準度
+          </p>
+        </div>
+      </div>
+      <el-button type="primary" link class="expand-button">
+        查看詳情
+        <el-icon class="expand-icon"><ArrowDown /></el-icon>
+      </el-button>
+    </div>
+
+    <!-- Expanded Detail View -->
+    <div v-else class="expanded-view">
+      <div class="collapse-header" @click="toggleCollapse">
+        <span class="header-title">技術細節</span>
+        <el-button type="primary" link class="collapse-button">
+          收起
+          <el-icon class="collapse-icon"><ArrowUp /></el-icon>
+        </el-button>
+      </div>
+
+      <div class="detail-content">
         <div class="detail-section">
           <h5>時間計算</h5>
           <el-descriptions :column="1" border size="small">
@@ -75,20 +101,27 @@
             </el-descriptions-item>
           </el-descriptions>
         </div>
-      </el-collapse-item>
-    </el-collapse>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { ArrowDown, ArrowUp } from '@element-plus/icons-vue';
 
 interface Props {
   result: any;
 }
 
 defineProps<Props>();
-const activeNames = ref<string[]>([]);
+
+// Default to collapsed state (progressive disclosure)
+const isCollapsed = ref(true);
+
+const toggleCollapse = () => {
+  isCollapsed.value = !isCollapsed.value;
+};
 
 const formatDateTime = (dateStr: string) => {
   const date = new Date(dateStr);
@@ -117,9 +150,141 @@ const formatJSON = (obj: any) => {
 <style scoped>
 /* Design tokens applied - 2025-11-30 */
 /* Phase 3 visual enhancements - 2025-12-19 */
+/* Phase 4 progressive disclosure - 2025-12-22 */
 
 .technical-details-card {
   margin-top: 16px;
+}
+
+/* ========================================
+   SUMMARY VIEW (Collapsed State - Default)
+   ======================================== */
+.summary-view {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.summary-view:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--info);
+  box-shadow: 0 2px 8px rgba(53, 126, 221, 0.15);
+  transform: translateY(-1px);
+}
+
+.summary-content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  flex: 1;
+}
+
+.summary-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.summary-text {
+  flex: 1;
+}
+
+.summary-title {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.summary-description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.expand-button {
+  flex-shrink: 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.expand-icon {
+  transition: transform 0.3s ease;
+}
+
+.summary-view:hover .expand-icon {
+  transform: translateY(2px);
+}
+
+/* ========================================
+   EXPANDED VIEW
+   ======================================== */
+.expanded-view {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  animation: expandIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes expandIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.collapse-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.collapse-header:hover {
+  background: var(--bg-secondary);
+}
+
+.header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.collapse-button {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.collapse-icon {
+  transition: transform 0.3s ease;
+}
+
+.collapse-header:hover .collapse-icon {
+  transform: translateY(-2px);
+}
+
+.detail-content {
+  padding: var(--space-md);
 }
 
 .detail-section {
@@ -246,69 +411,68 @@ pre {
 
 /* 深色模式優化 */
 @media (prefers-color-scheme: dark) {
-  .technical-details-card {
+  .summary-view {
+    background: var(--bg-tertiary);
+    border-color: var(--border-light);
+  }
+
+  .summary-view:hover {
+    background: var(--bg-secondary);
+    box-shadow: 0 2px 8px rgba(53, 126, 221, 0.25);
+  }
+
+  .summary-title {
+    color: var(--text-primary) !important;
+  }
+
+  .summary-description {
+    color: var(--text-secondary) !important;
+  }
+
+  .expanded-view {
     background: var(--bg-secondary);
     border-color: var(--border-light);
   }
-  
+
+  .collapse-header {
+    background: var(--bg-tertiary);
+    border-color: var(--border-light);
+  }
+
+  .collapse-header:hover {
+    background: var(--bg-secondary);
+  }
+
+  .header-title {
+    color: var(--text-primary) !important;
+  }
+
   .detail-section {
     background: var(--bg-tertiary) !important;
     border-color: var(--border-light) !important;
   }
-  
+
   .detail-section h3,
-  .detail-section h4 {
+  .detail-section h4,
+  .detail-section h5 {
     color: var(--text-primary) !important;
   }
-  
+
   :deep(.el-descriptions-item__label) {
     color: var(--text-secondary) !important;
   }
-  
+
   :deep(.el-descriptions-item__content) {
     color: var(--text-primary) !important;
   }
-  
+
   :deep(.el-card) {
     background: var(--bg-secondary) !important;
     border-color: var(--border-light) !important;
   }
-  
+
   :deep(.el-card__header) {
     background: var(--bg-tertiary) !important;
-    color: var(--text-primary) !important;
-  }
-  
-  :deep(.el-card.is-always-shadow) {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-    box-shadow: var(--shadow-md) !important;
-  }
-  
-  :deep(.result-card) {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-  }
-  
-  /* Element Plus 手風琴深色模式 */
-  :deep(.el-collapse) {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-  }
-  
-  :deep(.el-collapse-item__header) {
-    background: var(--bg-secondary) !important;
-    color: var(--text-primary) !important;
-    border-color: var(--border-light) !important;
-  }
-  
-  :deep(.el-collapse-item__header:hover) {
-    background: var(--bg-tertiary) !important;
-    color: var(--text-primary) !important;
-  }
-  
-  :deep(.el-collapse-item__content) {
-    background: var(--bg-secondary) !important;
     color: var(--text-primary) !important;
   }
 }

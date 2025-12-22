@@ -4,53 +4,68 @@
  */
 
 @media (prefers-color-scheme: dark) {
-  /* ===== 按鈕組件 ===== */
+  /* ===== 按鈕組件 - Enhanced with colored shadows ===== */
   :deep(.el-button) {
     background: var(--bg-secondary) !important;
     border-color: var(--border-light) !important;
     color: var(--text-primary) !important;
+    box-shadow: var(--shadow-sm) !important;
+    transition: all 0.2s ease !important;
   }
-  
+
   :deep(.el-button:hover) {
     background: var(--bg-tertiary) !important;
-    border-color: var(--purple-star) !important;
+    border-color: var(--purple-star-dark-mode) !important;
+    box-shadow: 0 4px 12px rgba(153, 50, 204, 0.2), var(--edge-highlight) !important;
+    transform: translateY(-1px) !important;
   }
-  
+
   :deep(.el-button--primary) {
+    /* Use saturated brand color for solid buttons only */
     background: var(--purple-star) !important;
     border-color: var(--purple-star) !important;
-    color: var(--text-inverse) !important;
+    color: white !important;
+    box-shadow: var(--shadow-purple) !important;
   }
-  
+
   :deep(.el-button--primary:hover) {
     background: var(--purple-star-light) !important;
     border-color: var(--purple-star-light) !important;
+    box-shadow: 0 4px 16px rgba(153, 50, 204, 0.35), 0 8px 32px rgba(153, 50, 204, 0.25), 0 0 0 1px rgba(153, 50, 204, 0.3) !important;
+    transform: translateY(-2px) !important;
   }
-  
+
   :deep(.el-button--small) {
     background: var(--bg-secondary) !important;
     border-color: var(--border-light) !important;
     color: var(--text-primary) !important;
+    box-shadow: var(--shadow-sm) !important;
   }
   
-  /* ===== 輸入框組件 ===== */
+  /* ===== 輸入框組件 - Enhanced affordance and states ===== */
   :deep(.el-input__wrapper) {
-    background: var(--bg-secondary) !important;
+    /* Subtle fill to clearly demarcate input field from card background */
+    background: rgba(0, 0, 0, 0.2) !important;
     border-color: var(--border-light) !important;
-    box-shadow: 0 0 0 1px var(--border-light) inset !important;
+    box-shadow: 0 0 0 1px var(--border-light) inset, var(--edge-highlight) !important;
+    transition: all 0.2s ease !important;
   }
-  
+
   :deep(.el-input__inner) {
     background: transparent !important;
     color: var(--text-primary) !important;
   }
-  
+
   :deep(.el-input__wrapper:hover) {
-    box-shadow: 0 0 0 1px var(--purple-star-lighter) inset !important;
+    background: rgba(0, 0, 0, 0.25) !important;
+    border-color: var(--purple-star-dark-mode) !important;
+    box-shadow: 0 0 0 1px var(--purple-star-dark-mode) inset, 0 0 8px rgba(153, 50, 204, 0.15) !important;
   }
-  
+
   :deep(.el-input__wrapper.is-focus) {
-    box-shadow: 0 0 0 1px var(--purple-star) inset !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-color: var(--purple-star-dark-mode) !important;
+    box-shadow: 0 0 0 2px var(--purple-star-dark-mode) inset, 0 0 12px rgba(153, 50, 204, 0.3), 0 4px 8px rgba(153, 50, 204, 0.15) !important;
   }
   
   /* ===== 選擇器組件 ===== */

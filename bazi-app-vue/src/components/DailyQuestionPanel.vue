@@ -56,6 +56,8 @@
         type="ai"
         :content="bubble"
         :delay="index * 100"
+        :hasMemoryContext="index === 0 && hasMemoryContext"
+        :memoryReference="index === 0 ? memoryReference : ''"
       />
 
       <!-- Typing Indicator (while streaming) -->
@@ -166,6 +168,8 @@ const {
   currentStatus,
   hasAskedToday,
   dailyLimitMessage,
+  hasMemoryContext,
+  memoryReference,
   askQuestion: performAsk,
   checkDailyLimit
 } = useDailyQuestion(props.chartId)
@@ -330,7 +334,6 @@ onUnmounted(() => {
   justify-content: space-between;
   padding: var(--space-md) var(--space-lg);
   background: linear-gradient(135deg, var(--purple-star) 0%, #4a148c 100%);
-  color: var(--text-inverse);
   position: relative;
   overflow: hidden;
   min-height: 70px;
@@ -408,12 +411,12 @@ onUnmounted(() => {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   margin: 0 0 var(--space-xs) 0;
-  color: var(--text-primary);
+  color: #ffffff;
 }
 
 .subtitle {
   font-size: var(--font-size-sm);
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
 }
 
@@ -437,6 +440,7 @@ onUnmounted(() => {
 .status-text {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
+  color: #ffffff;
 }
 
 /* Messages Container */
@@ -777,26 +781,14 @@ onUnmounted(() => {
 
 /* 深色模式文字對比度優化 */
 @media (prefers-color-scheme: dark) {
-  .header-text h3 {
-    color: #ffffff !important;
-  }
-  
-  .subtitle {
-    color: #e5e7eb !important;
-  }
-  
-  .status-text {
-    color: #e5e7eb !important;
-  }
-  
   .limit-text {
     color: #e5e7eb !important;
   }
-  
+
   .daily-question-panel {
     color: #ffffff;
   }
-  
+
   .daily-limit-display {
     background: #374151 !important;
     border-color: #4b5563 !important;

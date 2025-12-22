@@ -225,6 +225,7 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
       const url = new URL(req.url);
       const chartId = url.searchParams.get('chartId');
       const locale = url.searchParams.get('locale') || 'zh-TW';
+      const force = url.searchParams.get('force') === 'true';
 
       // Validate chartId
       if (!chartId) {
@@ -244,21 +245,38 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
         );
       }
 
-      // Create controller and call analyzeStream
+      // Check if there's a cached analysis to get the timestamp
+      const { manager: timestampManager } = initializeAIServices(env);
+      const timestampController = new AnalyzeController(timestampManager);
+      const analysisType = `ai-streaming-${locale}-personality`;
+
+      // Import cache service to check for existing timestamp
+      const { AnalysisCacheService: TimestampCacheService } = await import('../services/analysisCacheService');
+      const timestampCacheService = new TimestampCacheService();
+      const cachedAnalysis = await timestampCacheService.getAnalysis(chartId, analysisType, env);
+
+      // Create controller and call analyzeStream with force parameter
       const controller = new AnalyzeController(manager);
-      const stream = await controller.analyzeStream(chartId, env, locale);
+      const stream = await controller.analyzeStream(chartId, env, locale, force);
+
+      // Build response headers with optional timestamp
+      const headers: Record<string, string> = {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      };
+
+      // Add timestamp header if cached analysis exists
+      if (cachedAnalysis) {
+        headers['X-Generated-At'] = cachedAnalysis.createdAt;
+        headers['Access-Control-Expose-Headers'] = 'X-Generated-At';
+      }
 
       // Return Response with SSE headers
-      return new Response(stream, {
-        headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
-      });
+      return new Response(stream, { headers });
     } catch (error) {
       console.error('Analyze stream error:', error);
 
@@ -388,6 +406,7 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
       const url = new URL(req.url);
       const chartId = url.searchParams.get('chartId');
       const locale = url.searchParams.get('locale') || 'zh-TW';
+      const force = url.searchParams.get('force') === 'true';
 
       // Validate chartId
       if (!chartId) {
@@ -407,21 +426,36 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
         );
       }
 
-      // Create controller and call analyzeAdvancedStream
+      // Check if there's a cached advanced analysis to get the timestamp
+      const advancedAnalysisType = `ai-advanced-${locale}-fortune`;
+
+      // Import cache service to check for existing timestamp
+      const { AdvancedAnalysisCacheService: AdvancedTimestampCacheService } = await import('../services/advancedAnalysisCacheService');
+      const advancedTimestampCacheService = new AdvancedTimestampCacheService();
+      const cachedAdvancedAnalysis = await advancedTimestampCacheService.getAnalysis(chartId, advancedAnalysisType, env);
+
+      // Create controller and call analyzeAdvancedStream with force parameter
       const controller = new AnalyzeController(manager);
-      const stream = await controller.analyzeAdvancedStream(chartId, env, locale);
+      const stream = await controller.analyzeAdvancedStream(chartId, env, locale, force);
+
+      // Build response headers with optional timestamp
+      const headers: Record<string, string> = {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      };
+
+      // Add timestamp header if cached advanced analysis exists
+      if (cachedAdvancedAnalysis) {
+        headers['X-Generated-At'] = cachedAdvancedAnalysis.createdAt;
+        headers['Access-Control-Expose-Headers'] = 'X-Generated-At';
+      }
 
       // Return Response with SSE headers
-      return new Response(stream, {
-        headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
-      });
+      return new Response(stream, { headers });
     } catch (error) {
       console.error('Analyze advanced stream error:', error);
 
@@ -583,6 +617,8 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
 
       // Get user's recent conversation history (with 500ms timeout protection)
       let historyContext = "";
+      let hasMemoryContext = false;
+      let memoryReference = "";
       try {
         const { drizzle } = await import('drizzle-orm/d1');
         const schema = await import('../db/schema');
@@ -596,7 +632,33 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
         );
 
         historyContext = await Promise.race([contextPromise, timeoutPromise]);
-        console.log('[Daily Insight] History context fetched:', historyContext ? 'success' : 'empty/timeout');
+
+        // Set memory metadata based on context availability
+        hasMemoryContext = historyContext.length > 0;
+
+        // Extract memory reference from context if available
+        if (hasMemoryContext) {
+          // Extract the most recent topic from history context
+          // Format: "[歷史對話 N - Date]\nQ: question\nA: answer"
+          const questionMatch = historyContext.match(/Q:\s*([^\n]+)/);
+          if (questionMatch) {
+            const recentQuestion = questionMatch[1];
+            // Use first 50 chars as reference
+            memoryReference = recentQuestion.length > 50
+              ? recentQuestion.substring(0, 47) + '...'
+              : recentQuestion;
+          } else {
+            memoryReference = normalizedLocale === 'zh-TW'
+              ? '最近的對話'
+              : 'Recent conversation';
+          }
+        }
+
+        console.log('[Daily Insight] Memory metadata:', {
+          hasMemoryContext,
+          memoryReference,
+          contextLength: historyContext.length
+        });
       } catch (error) {
         console.error('[Daily Insight] Failed to fetch history context (non-blocking):', error);
         // Gracefully degrade - continue without context
@@ -638,7 +700,7 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
             calculationResult,
             normalizedLocale,
             historyContext,
-            { env, ctx, chartId }
+            { env, ctx, chartId, hasMemoryContext, memoryReference }
           );
 
         } catch (error) {
@@ -675,7 +737,7 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
                 calculationResult,
                 normalizedLocale,
                 historyContext,
-                { env, ctx, fallbackReason: error.message, chartId }
+                { env, ctx, fallbackReason: error.message, chartId, hasMemoryContext, memoryReference }
               );
               usedFallback = true;
               console.log('[Daily Insight] Successfully using Azure outer fallback');

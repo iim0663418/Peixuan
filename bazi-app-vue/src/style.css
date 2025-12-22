@@ -1,5 +1,6 @@
 /* 引入設計Token系統 */
 @import './styles/design-tokens.css';
+@import './styles/variables.css';
 @import './styles/animations.css';
 
 /* 統一的 will-change 類別 */

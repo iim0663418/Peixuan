@@ -3,6 +3,19 @@
     class="chat-bubble will-change-opacity-transform"
     :class="[`bubble-${type}`, { 'bubble-entering': isEntering }]"
   >
+    <!-- Memory Indicator for AI responses -->
+    <el-tooltip
+      v-if="type === 'ai' && hasMemoryContext"
+      :content="memoryTooltip"
+      placement="top-start"
+      effect="light"
+    >
+      <div class="memory-indicator">
+        <span class="memory-icon">✨</span>
+        <span class="memory-label">記憶關聯</span>
+      </div>
+    </el-tooltip>
+
     <div class="bubble-content" v-html="formattedContent"></div>
   </div>
 </template>
@@ -15,10 +28,14 @@ interface Props {
   content: string
   type: 'ai' | 'user' | 'system'
   delay?: number // Delay before showing (for progressive display)
+  hasMemoryContext?: boolean // Indicates if AI response used memory context
+  memoryReference?: string // Reference to what was remembered (e.g., "你上次提到工作壓力")
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  delay: 0
+  delay: 0,
+  hasMemoryContext: false,
+  memoryReference: ''
 })
 
 const isEntering = ref(true)
@@ -32,6 +49,14 @@ const formattedContent = computed(() => {
   return marked(props.content)
 })
 
+// Generate tooltip text for memory indicator
+const memoryTooltip = computed(() => {
+  if (props.memoryReference) {
+    return `佩璇記得${props.memoryReference}`
+  }
+  return '佩璇根據你的歷史對話調整了這個回應'
+})
+
 onMounted(() => {
   // Remove entering class after animation
   setTimeout(() => {
@@ -41,10 +66,72 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Phase 4 memory-aware UI - 2025-12-22 */
+
 .chat-bubble {
   display: flex;
+  flex-direction: column;
   max-width: 80%;
   margin-bottom: var(--space-xs);
+  position: relative;
+}
+
+/* ========================================
+   MEMORY INDICATOR
+   ======================================== */
+.memory-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(168, 85, 247, 0.15) 100%);
+  border: 1px solid rgba(147, 51, 234, 0.3);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--purple-star);
+  cursor: help;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+  animation: memoryPulse 2s ease-in-out infinite;
+}
+
+.memory-indicator:hover {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.15) 0%, rgba(168, 85, 247, 0.2) 100%);
+  border-color: var(--purple-star);
+  box-shadow: 0 2px 6px rgba(147, 51, 234, 0.2);
+  transform: translateY(-1px);
+}
+
+.memory-icon {
+  font-size: 12px;
+  line-height: 1;
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+.memory-label {
+  letter-spacing: 0.3px;
+}
+
+@keyframes memoryPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(147, 51, 234, 0);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
 }
 
 .bubble-ai {
@@ -298,6 +385,15 @@ onMounted(() => {
     opacity: 1;
     transform: none;
   }
+
+  .memory-indicator,
+  .memory-icon {
+    animation: none !important;
+  }
+
+  .memory-indicator:hover {
+    transform: none !important;
+  }
 }
 
 /* 移動端動畫優化 */
@@ -353,36 +449,48 @@ onMounted(() => {
 
 /* 深色模式文字對比度優化 */
 @media (prefers-color-scheme: dark) {
+  .memory-indicator {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(192, 132, 252, 0.25) 100%);
+    border-color: rgba(168, 85, 247, 0.4);
+    color: #c084fc;
+  }
+
+  .memory-indicator:hover {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(192, 132, 252, 0.3) 100%);
+    border-color: #c084fc;
+    box-shadow: 0 2px 6px rgba(168, 85, 247, 0.3);
+  }
+
   .bubble-content {
     color: #ffffff !important;
   }
-  
+
   .bubble-content :deep(p) {
     color: #ffffff !important;
   }
-  
+
   .bubble-content :deep(h1),
   .bubble-content :deep(h2),
   .bubble-content :deep(h3),
   .bubble-content :deep(h4) {
     color: #ffffff !important;
   }
-  
+
   .bubble-content :deep(li) {
     color: #ffffff !important;
   }
-  
+
   .bubble-content :deep(strong),
   .bubble-content :deep(b) {
     color: #fbbf24 !important;
     font-weight: var(--font-weight-bold);
   }
-  
+
   .bubble-ai .bubble-content {
     color: #ffffff !important;
     background: #374151 !important;
   }
-  
+
   .bubble-system .bubble-content {
     color: #ffffff !important;
     background: #4b5563 !important;

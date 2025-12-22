@@ -46,6 +46,8 @@ export interface GenerateDailyInsightOptions {
   ctx?: ExecutionContext;
   fallbackReason?: string;
   chartId?: string;
+  hasMemoryContext?: boolean;
+  memoryReference?: string;
 }
 
 /**
@@ -474,6 +476,22 @@ export class AgenticAzureService {
 
         try {
           console.log(`[AgenticAzure] Stream started, locale: ${locale}`);
+
+          // Send memory metadata event first (if available)
+          if (options?.hasMemoryContext && options?.memoryReference) {
+            const metadataEvent = `data: ${JSON.stringify({
+              type: 'meta',
+              data: {
+                hasMemoryContext: true,
+                memoryReference: options.memoryReference
+              }
+            })}\n\n`;
+            controller.enqueue(encoder.encode(metadataEvent));
+            console.log('[AgenticAzure] Memory metadata sent:', {
+              hasMemoryContext: true,
+              memoryReference: options.memoryReference
+            });
+          }
 
           // Initialize conversation history
           const conversationHistory: Array<{

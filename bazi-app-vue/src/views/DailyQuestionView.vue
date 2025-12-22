@@ -134,7 +134,7 @@ onMounted(() => {
   border: 1px solid var(--purple-star-lighter);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-purple);
-  color: var(--text-inverse);
+  color: #ffffff;
   transition: all var(--transition-normal);
 }
 

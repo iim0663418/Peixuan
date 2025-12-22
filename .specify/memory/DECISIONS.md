@@ -234,3 +234,5 @@
 - [DECISION] 2025-12-22: AppFooter CSS 變數導入修復完成。在 style.css 中添加 variables.css 導入，確保品牌色彩變數正確載入。版本 929fe54e-2a00-4c8f-bda4-08782c843eef。
 
 - [DECISION] 2025-12-22: AppHeader 桌面版語言選擇器佈局修復完成。添加 flex-shrink: 0 和 min-width 確保語言選擇器不會超出邊界。
+
+- [DECISION] 2025-12-22: AppFooter & AppHeader 完整優化提交完成。Commit 1c28b34，包含設計系統整合、亮色模式修復、響應式佈局優化、國際化支援。30個檔案變更，2452行新增。

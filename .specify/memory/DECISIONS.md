@@ -238,3 +238,5 @@
 - [DECISION] 2025-12-22: AppFooter & AppHeader 完整優化提交完成。Commit 1c28b34，包含設計系統整合、亮色模式修復、響應式佈局優化、國際化支援。30個檔案變更，2452行新增。
 
 - [DECISION] 2025-12-22: Markdown 渲染系統完整統一完成。創建統一工具 markdown.ts，整合 ChatBubble、NarrativeSummary、UnifiedAIAnalysisView。集中化配置、樣式系統、關鍵字高亮。
+
+- [DECISION] 2025-12-22: LLM記憶模組完整驗證成功。Phase 1-3全功能測試通過，包含數據收集、AI服務整合、歷史上下文注入機制。佩璇現具備完整記憶能力，準備合併到main分支。

@@ -140,7 +140,7 @@ describe('AgenticGeminiService', () => {
   } as CalculationResult;
 
   it('should create service with correct configuration', () => {
-    const service = new AgenticGeminiService(mockApiKey, 'gemini-3-flash-preview', 3, 5);
+    const service = new AgenticGeminiService(mockApiKey, 'gemini-3-flash-preview', 3, 8);
     expect(service).toBeDefined();
   });
 
@@ -320,5 +320,226 @@ describe('AgenticGeminiService', () => {
     const text = extractText(mockResponse);
 
     expect(text).toBeNull();
+  });
+
+  // ReAct Filtering Tests
+  describe('ReAct reasoning step filtering', () => {
+    it('should filter out ReAct reasoning steps with thought and action', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const extractText = (service as any).extractText.bind(service);
+
+      const mockResponse = {
+        candidates: [{
+          content: {
+            parts: [
+              { text: '{ "thought": "用戶目前感到工作壓力大，我需要結合他的八字命盤...", "action": "reply" }' }
+            ]
+          }
+        }]
+      };
+
+      const text = extractText(mockResponse);
+
+      // Should return null because this is a ReAct reasoning step
+      expect(text).toBeNull();
+    });
+
+    it('should filter out ReAct reasoning steps with only thought', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const extractText = (service as any).extractText.bind(service);
+
+      const mockResponse = {
+        candidates: [{
+          content: {
+            parts: [
+              { text: '{ "thought": "需要先查詢八字資料" }' }
+            ]
+          }
+        }]
+      };
+
+      const text = extractText(mockResponse);
+
+      expect(text).toBeNull();
+    });
+
+    it('should filter out ReAct reasoning steps with only action', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const extractText = (service as any).extractText.bind(service);
+
+      const mockResponse = {
+        candidates: [{
+          content: {
+            parts: [
+              { text: '{ "action": "use_tool", "tool": "get_bazi_profile" }' }
+            ]
+          }
+        }]
+      };
+
+      const text = extractText(mockResponse);
+
+      expect(text).toBeNull();
+    });
+
+    it('should NOT filter natural language responses', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const extractText = (service as any).extractText.bind(service);
+
+      const mockResponse = {
+        candidates: [{
+          content: {
+            parts: [
+              { text: '好我看看～ 🔮\n\n哇～今天你的能量場很特別耶！' }
+            ]
+          }
+        }]
+      };
+
+      const text = extractText(mockResponse);
+
+      expect(text).toBe('好我看看～ 🔮\n\n哇～今天你的能量場很特別耶！');
+    });
+
+    it('should handle mixed parts - skip ReAct and extract natural language', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const extractText = (service as any).extractText.bind(service);
+
+      const mockResponse = {
+        candidates: [{
+          content: {
+            parts: [
+              { text: '{ "thought": "這是推理步驟", "action": "reply" }' },
+              { text: '這是給用戶看的回答' }
+            ]
+          }
+        }]
+      };
+
+      const text = extractText(mockResponse);
+
+      // Should skip the first ReAct step and return the second natural language response
+      expect(text).toBe('這是給用戶看的回答');
+    });
+
+    it('should filter out empty JSON object', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const extractText = (service as any).extractText.bind(service);
+
+      const mockResponse = {
+        candidates: [{
+          content: {
+            parts: [
+              { text: '{}' }
+            ]
+          }
+        }]
+      };
+
+      const text = extractText(mockResponse);
+
+      // Empty JSON object "{}" should be filtered out as invalid reasoning step
+      expect(text).toBeNull();
+    });
+
+    it('should handle JSON with other fields (not ReAct)', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const extractText = (service as any).extractText.bind(service);
+
+      const mockResponse = {
+        candidates: [{
+          content: {
+            parts: [
+              { text: '{ "result": "這是正常的JSON回應", "status": "success" }' }
+            ]
+          }
+        }]
+      };
+
+      const text = extractText(mockResponse);
+
+      // This is not a ReAct step (no thought/action), should be returned
+      expect(text).toBe('{ "result": "這是正常的JSON回應", "status": "success" }');
+    });
+
+    it('should handle malformed JSON gracefully', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const extractText = (service as any).extractText.bind(service);
+
+      const mockResponse = {
+        candidates: [{
+          content: {
+            parts: [
+              { text: '{ "thought": "malformed JSON' }
+            ]
+          }
+        }]
+      };
+
+      const text = extractText(mockResponse);
+
+      // Malformed JSON is not valid ReAct step, should be returned as-is
+      expect(text).toBe('{ "thought": "malformed JSON');
+    });
+
+    it('should handle whitespace correctly', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const extractText = (service as any).extractText.bind(service);
+
+      const mockResponse = {
+        candidates: [{
+          content: {
+            parts: [
+              { text: '  \n  { "thought": "推理", "action": "reply" }  \n  ' }
+            ]
+          }
+        }]
+      };
+
+      const text = extractText(mockResponse);
+
+      // Should still detect and filter ReAct step even with whitespace
+      expect(text).toBeNull();
+    });
+
+    it('should test isReActReasoningStep directly - valid ReAct step', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const isReActReasoningStep = (service as any).isReActReasoningStep.bind(service);
+
+      const reactStep = '{ "thought": "需要查詢資料", "action": "use_tool" }';
+      expect(isReActReasoningStep(reactStep)).toBe(true);
+    });
+
+    it('should test isReActReasoningStep directly - not JSON', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const isReActReasoningStep = (service as any).isReActReasoningStep.bind(service);
+
+      const normalText = '這是普通的文字回應';
+      expect(isReActReasoningStep(normalText)).toBe(false);
+    });
+
+    it('should test isReActReasoningStep directly - JSON without thought/action', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const isReActReasoningStep = (service as any).isReActReasoningStep.bind(service);
+
+      const jsonWithoutReact = '{ "data": "value", "status": "ok" }';
+      expect(isReActReasoningStep(jsonWithoutReact)).toBe(false);
+    });
+
+    it('should test isReActReasoningStep directly - not starting with brace', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const isReActReasoningStep = (service as any).isReActReasoningStep.bind(service);
+
+      const notJson = 'Some text { "thought": "test" }';
+      expect(isReActReasoningStep(notJson)).toBe(false);
+    });
+
+    it('should test isReActReasoningStep directly - empty JSON object', () => {
+      const service = new AgenticGeminiService(mockApiKey);
+      const isReActReasoningStep = (service as any).isReActReasoningStep.bind(service);
+
+      const emptyJson = '{}';
+      expect(isReActReasoningStep(emptyJson)).toBe(true);
+    });
   });
 });

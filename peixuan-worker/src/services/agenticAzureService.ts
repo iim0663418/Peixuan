@@ -124,7 +124,7 @@ export class AgenticAzureService {
     this.deployment = config.deployment;
     this.apiVersion = config.apiVersion || '2024-08-01-preview';
     this.maxRetries = config.maxRetries || 3;
-    this.maxIterations = config.maxIterations || 5;
+    this.maxIterations = config.maxIterations || 8;
   }
 
   /**

@@ -1,49 +1,29 @@
-# Status: 每日分析一致性策略提交完成 ✅
+# Status: 雙引擎差異分析 🔍
 ## Active Context
-- Branch: feature/llm-memory-module
-- Phase: Git Integration Complete
-- Task: 代碼提交和推送完成
-- Status: 準備合併到 main 分支
+- Branch: main
+- Current Commit: 070e101 + ReAct fixes + maxIterations increase
+- Date: 2025-12-24 19:08:44
+- Status: 分析 Gemini vs Azure 實作差異
 
-## 🎯 提交成果 ✅
+## 🎯 觀察到的關鍵差異
 
-### 1. Git 提交資訊 ✅
-- **Commit**: 6a3b931
-- **訊息**: feat: 實施每日分析一致性策略
-- **檔案變更**: 12 files changed, 381 insertions(+), 773 deletions(-)
-- **推送狀態**: ✅ 已推送到 feature/llm-memory-module
+### Gemini 行為模式
+- **ReAct 輪數**: 需要更多輪推理 (3+ 輪)
+- **工具調用**: 第1輪調用5個工具，第2輪再調用1個
+- **推理模式**: 更傾向多輪深度推理
+- **配額限制**: 免費層每日20次請求限制
 
-### 2. 核心修改摘要 ✅
-- **analyzeController.ts**: 移除 force 條件檢查
-- **cacheUtilities.ts**: 添加 consistency_enforced 元數據
-- **streamProcessor.ts**: 支援一致性策略元數據
-- **規格清理**: 移除臨時分析文檔
+### Azure 行為模式  
+- **ReAct 輪數**: 更快收斂 (3輪完成)
+- **工具調用**: 第1輪1個，第2輪2個，第3輪直接回答
+- **推理模式**: 更直接高效的推理路徑
+- **服務穩定**: 付費服務，無配額問題
 
-### 3. 功能實現 ✅
-- **成本控制**: 每用戶每天最多1次API調用
-- **用戶體驗**: 友好的「今日運勢已定」提示
-- **技術優雅**: 最小變更實現最大效果
-- **向後相容**: 現有API調用無影響
+## 📋 需要深入分析的面向
+1. **ReAct 提示詞差異**
+2. **工具調用策略差異**
+3. **回應生成模式差異**
+4. **性能與成本對比**
 
-## 📋 下一步選項
-
-### Option A: 合併到 main
-
-
-### Option B: 創建 Pull Request
-- 在 GitHub 上創建 PR
-- 代碼審查後合併
-- 更正式的流程
-
-### Option C: 部署到生產環境
-- 直接部署當前分支到生產
-- 驗證生產環境功能
-- 確認成本控制生效
-
-## 🎯 重大里程碑 ✅
-- **完整實施**: 每日分析一致性策略
-- **代碼提交**: 所有變更已安全保存
-- **分支推送**: 遠端倉庫已同步
-- **準備合併**: 功能完整，測試通過
-
-每日分析一致性策略提交完成！準備進行下一步操作。
+---
+**Status**: 準備深入分析雙引擎實作差異

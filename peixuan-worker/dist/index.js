@@ -33986,7 +33986,7 @@ var init_agenticAzureService = __esm({
         this.deployment = config2.deployment;
         this.apiVersion = config2.apiVersion || "2024-08-01-preview";
         this.maxRetries = config2.maxRetries || 3;
-        this.maxIterations = config2.maxIterations || 5;
+        this.maxIterations = config2.maxIterations || 8;
       }
       /**
        * Execute a function call and return observation
@@ -37978,7 +37978,7 @@ var AIServiceManager = class {
 // src/services/agenticGeminiService.ts
 init_analyticsService();
 var AgenticGeminiService = class {
-  constructor(apiKey, model = "gemini-3-flash-preview", maxRetries = 3, maxIterations = 5, fallbackService) {
+  constructor(apiKey, model = "gemini-3-flash-preview", maxRetries = 3, maxIterations = 8, fallbackService) {
     this.baseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
     // Available tools for function calling
     this.tools = [
@@ -38884,15 +38884,55 @@ Guidelines:
   }
   /**
    * Extract text from Gemini response
+   *
+   * Filters out JSON-formatted ReAct reasoning steps (thought/action)
+   * and only extracts natural language responses for users.
    */
   extractText(response) {
     try {
-      const text2 = response?.candidates?.[0]?.content?.parts?.find(
-        (part) => part.text
-      )?.text;
-      return text2 || null;
-    } catch {
+      const parts = response?.candidates?.[0]?.content?.parts;
+      if (!parts || parts.length === 0) return null;
+      for (const part of parts) {
+        if (!part.text) continue;
+        const text2 = part.text.trim();
+        if (!text2) continue;
+        if (this.isReActReasoningStep(text2)) {
+          console.log("[AgenticGemini] Skipping ReAct reasoning step:", text2.substring(0, 50));
+          continue;
+        }
+        return text2;
+      }
       return null;
+    } catch (error46) {
+      console.error("[AgenticGemini] Error in extractText:", error46);
+      return null;
+    }
+  }
+  /**
+   * Check if text is a ReAct reasoning step (JSON with thought/action)
+   *
+   * @param text - Text to check
+   * @returns true if this is a ReAct reasoning step that should be filtered
+   */
+  isReActReasoningStep(text2) {
+    if (!text2.startsWith("{") || !text2.endsWith("}")) {
+      return false;
+    }
+    if (text2 === "{}") {
+      return true;
+    }
+    try {
+      const parsed = JSON.parse(text2);
+      if (typeof parsed === "object" && parsed !== null) {
+        const hasThought = "thought" in parsed;
+        const hasAction = "action" in parsed;
+        if (hasThought || hasAction) {
+          return true;
+        }
+      }
+      return false;
+    } catch {
+      return false;
     }
   }
   /**
@@ -39473,7 +39513,7 @@ function createAnalyzeRoutes(router, env, ctx) {
               deployment: env.AZURE_OPENAI_DEPLOYMENT || "gpt-4.1-mini",
               apiVersion: env.AZURE_OPENAI_API_VERSION || "2024-08-01-preview",
               maxRetries: 3,
-              maxIterations: 5
+              maxIterations: 8
             });
           }
           const agenticService = new AgenticGeminiService(
@@ -39481,7 +39521,7 @@ function createAnalyzeRoutes(router, env, ctx) {
             "gemini-3-flash-preview",
             3,
             // maxRetries
-            5,
+            8,
             // maxIterations
             azureFallback
             // Fallback service
@@ -39507,7 +39547,7 @@ function createAnalyzeRoutes(router, env, ctx) {
                 deployment: env.AZURE_OPENAI_DEPLOYMENT || "gpt-4.1-mini",
                 apiVersion: env.AZURE_OPENAI_API_VERSION || "2024-08-01-preview",
                 maxRetries: 3,
-                maxIterations: 5
+                maxIterations: 8
               });
               stream = await azureService.generateDailyInsight(
                 question,

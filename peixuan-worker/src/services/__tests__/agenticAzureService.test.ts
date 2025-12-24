@@ -13,7 +13,7 @@ describe('AgenticAzureService', () => {
     deployment: 'gpt-4.1-mini',
     apiVersion: '2024-08-01-preview',
     maxRetries: 3,
-    maxIterations: 5
+    maxIterations: 8
   };
 
   // Mock calculation result for testing
@@ -286,6 +286,6 @@ describe('AgenticAzureService', () => {
 
     expect((service as any).apiVersion).toBe('2024-08-01-preview');
     expect((service as any).maxRetries).toBe(3);
-    expect((service as any).maxIterations).toBe(5);
+    expect((service as any).maxIterations).toBe(8);
   });
 });

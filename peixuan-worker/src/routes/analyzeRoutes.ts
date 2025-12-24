@@ -682,7 +682,7 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
               deployment: env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4.1-mini',
               apiVersion: env.AZURE_OPENAI_API_VERSION || '2024-08-01-preview',
               maxRetries: 3,
-              maxIterations: 5
+              maxIterations: 8
             });
           }
 
@@ -690,7 +690,7 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
             env.GEMINI_API_KEY,
             'gemini-3-flash-preview',
             3,  // maxRetries
-            5,  // maxIterations
+            8,  // maxIterations
             azureFallback  // Fallback service
           );
 
@@ -729,7 +729,7 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
                 deployment: env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4.1-mini',
                 apiVersion: env.AZURE_OPENAI_API_VERSION || '2024-08-01-preview',
                 maxRetries: 3,
-                maxIterations: 5
+                maxIterations: 8
               });
 
               stream = await azureService.generateDailyInsight(

@@ -144,10 +144,10 @@ export class AgenticGeminiService {
   ];
 
   constructor(
-    apiKey: string, 
-    model = 'gemini-3-flash-preview', 
-    maxRetries = 3, 
-    maxIterations = 5,
+    apiKey: string,
+    model = 'gemini-3-flash-preview',
+    maxRetries = 3,
+    maxIterations = 8,
     fallbackService?: FallbackService
   ) {
     if (!apiKey || apiKey.trim() === '') {
@@ -1198,16 +1198,75 @@ Guidelines:
 
   /**
    * Extract text from Gemini response
+   *
+   * Filters out JSON-formatted ReAct reasoning steps (thought/action)
+   * and only extracts natural language responses for users.
    */
   private extractText(response: any): string | null {
     try {
-      const text = response?.candidates?.[0]?.content?.parts?.find(
-        (part: any) => part.text
-      )?.text;
+      const parts = response?.candidates?.[0]?.content?.parts;
+      if (!parts || parts.length === 0) return null;
 
-      return text || null;
-    } catch {
+      // Find text parts and filter out ReAct reasoning JSON
+      for (const part of parts) {
+        if (!part.text) continue;
+
+        const text = part.text.trim();
+        if (!text) continue;
+
+        // Skip if this is a JSON object with thought/action fields
+        if (this.isReActReasoningStep(text)) {
+          console.log('[AgenticGemini] Skipping ReAct reasoning step:', text.substring(0, 50));
+          continue;
+        }
+
+        // This is a natural language response, return it
+        return text;
+      }
+
       return null;
+    } catch (error) {
+      console.error('[AgenticGemini] Error in extractText:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Check if text is a ReAct reasoning step (JSON with thought/action)
+   *
+   * @param text - Text to check
+   * @returns true if this is a ReAct reasoning step that should be filtered
+   */
+  private isReActReasoningStep(text: string): boolean {
+    // Quick check: if it doesn't look like JSON, it's not a reasoning step
+    if (!text.startsWith('{') || !text.endsWith('}')) {
+      return false;
+    }
+
+    // Filter out empty JSON object "{}"
+    if (text === '{}') {
+      return true;
+    }
+
+    try {
+      const parsed = JSON.parse(text);
+
+      // Check if this is a ReAct reasoning step
+      // ReAct steps contain 'thought' and/or 'action' fields
+      if (typeof parsed === 'object' && parsed !== null) {
+        const hasThought = 'thought' in parsed;
+        const hasAction = 'action' in parsed;
+
+        // If it has thought or action fields, it's a reasoning step
+        if (hasThought || hasAction) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch {
+      // Not valid JSON, so it's not a reasoning step
+      return false;
     }
   }
 

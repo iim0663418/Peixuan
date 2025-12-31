@@ -100,6 +100,10 @@ export interface CentralityNode {
  * Top-level aggregated analysis of SiHua flying stars.
  */
 export interface SiHuaAggregation {
+  // Raw Data
+  /** All flying star edges (natal + decade + annual) */
+  edges: FlyingStarEdge[];
+
   // Cycle Detection
   /** Ji (忌) cycles - karmic loops */
   jiCycles: SiHuaCycle[];

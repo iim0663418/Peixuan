@@ -165,6 +165,11 @@ export class AgenticAzureService {
   private getBaziProfile(result: CalculationResult): string {
     const bazi = result.bazi;
 
+    // Validate required data
+    if (!bazi?.fourPillars || !bazi?.wuxingDistribution) {
+      return '【八字命盤資料】\n\n錯誤：八字數據不完整';
+    }
+
     // Build concise BaZi summary
     const profile = [
       '【八字命盤資料】',
@@ -181,11 +186,11 @@ export class AgenticAzureService {
       '日主：' + bazi.fourPillars.day.stem,
       '',
       '五行分布：',
-      `木：${bazi.wuxingDistribution.adjusted.Wood} | 火：${bazi.wuxingDistribution.adjusted.Fire} | 土：${bazi.wuxingDistribution.adjusted.Earth} | 金：${bazi.wuxingDistribution.adjusted.Metal} | 水：${bazi.wuxingDistribution.adjusted.Water}`,
+      `木：${bazi.wuxingDistribution.adjusted?.Wood ?? 0} | 火：${bazi.wuxingDistribution.adjusted?.Fire ?? 0} | 土：${bazi.wuxingDistribution.adjusted?.Earth ?? 0} | 金：${bazi.wuxingDistribution.adjusted?.Metal ?? 0} | 水：${bazi.wuxingDistribution.adjusted?.Water ?? 0}`,
       '',
       '命局特徵：',
-      `主導五行：${bazi.wuxingDistribution.dominant}`,
-      `缺失五行：${bazi.wuxingDistribution.deficient}`
+      `主導五行：${bazi.wuxingDistribution.dominant ?? '未知'}`,
+      `缺失五行：${bazi.wuxingDistribution.deficient ?? '未知'}`
     ];
 
     return profile.join('\n');
@@ -223,14 +228,29 @@ export class AgenticAzureService {
       }
     });
 
-    // Add SiHua summary if available
-    if (ziwei.sihua && ziwei.sihua.summary) {
+    // Add SiHua summary if available - extract from sihuaAggregation
+    if (ziwei.sihuaAggregation?.edges && result.bazi.fourPillars.year.stem) {
+      const birthYearStem = result.bazi.fourPillars.year.stem;
+
+      // Filter natal edges matching birth year stem
+      const natalEdges = ziwei.sihuaAggregation.edges.filter(
+        edge => edge.layer === 'natal' && edge.sourceStem === birthYearStem
+      );
+
+      // Extract star names by transformation type
+      const sihuaSummary = {
+        lu: natalEdges.find(e => e.sihuaType === '祿')?.starName || '無',
+        quan: natalEdges.find(e => e.sihuaType === '權')?.starName || '無',
+        ke: natalEdges.find(e => e.sihuaType === '科')?.starName || '無',
+        ji: natalEdges.find(e => e.sihuaType === '忌')?.starName || '無'
+      };
+
       chart.push('');
       chart.push('四化情況：');
-      chart.push(`化祿：${ziwei.sihua.summary.lu || '無'}`);
-      chart.push(`化權：${ziwei.sihua.summary.quan || '無'}`);
-      chart.push(`化科：${ziwei.sihua.summary.ke || '無'}`);
-      chart.push(`化忌：${ziwei.sihua.summary.ji || '無'}`);
+      chart.push(`化祿：${sihuaSummary.lu}`);
+      chart.push(`化權：${sihuaSummary.quan}`);
+      chart.push(`化科：${sihuaSummary.ke}`);
+      chart.push(`化忌：${sihuaSummary.ji}`);
     }
 
     return chart.join('\n');
@@ -291,18 +311,20 @@ export class AgenticAzureService {
     context.push('三、流年與命盤互動');
     const interactions = annual.interactions;
 
-    if (interactions.stemCombinations.length > 0) {
+    const stemCombinations = interactions?.stemCombinations ?? [];
+    if (stemCombinations.length > 0) {
       context.push('天干五合：');
-      interactions.stemCombinations.forEach(comb => {
+      stemCombinations.forEach(comb => {
         context.push(`  • ${comb.natal} + ${comb.annual} → ${comb.resultElement}`);
       });
     } else {
       context.push('天干五合：無');
     }
 
-    if (interactions.branchClashes.length > 0) {
+    const branchClashes = interactions?.branchClashes ?? [];
+    if (branchClashes.length > 0) {
       context.push('地支六沖：');
-      interactions.branchClashes.forEach(clash => {
+      branchClashes.forEach(clash => {
         context.push(`  • ${clash.natal} ⚡ ${clash.annual}（${clash.severity}）`);
       });
     } else {
@@ -332,15 +354,15 @@ export class AgenticAzureService {
 
     forces.push('一、五行能量分布');
     forces.push('調整後分數：');
-    forces.push(`  木：${wuxing.adjusted.Wood.toFixed(2)}`);
-    forces.push(`  火：${wuxing.adjusted.Fire.toFixed(2)}`);
-    forces.push(`  土：${wuxing.adjusted.Earth.toFixed(2)}`);
-    forces.push(`  金：${wuxing.adjusted.Metal.toFixed(2)}`);
-    forces.push(`  水：${wuxing.adjusted.Water.toFixed(2)}`);
+    forces.push(`  木：${(wuxing.adjusted?.Wood ?? 0).toFixed(2)}`);
+    forces.push(`  火：${(wuxing.adjusted?.Fire ?? 0).toFixed(2)}`);
+    forces.push(`  土：${(wuxing.adjusted?.Earth ?? 0).toFixed(2)}`);
+    forces.push(`  金：${(wuxing.adjusted?.Metal ?? 0).toFixed(2)}`);
+    forces.push(`  水：${(wuxing.adjusted?.Water ?? 0).toFixed(2)}`);
     forces.push('');
-    forces.push(`主導五行：${wuxing.dominant}（能量最強）`);
-    forces.push(`缺失五行：${wuxing.deficient}（能量最弱）`);
-    forces.push(`平衡指數：${(wuxing.balance * 100).toFixed(1)}%`);
+    forces.push(`主導五行：${wuxing.dominant ?? '未知'}（能量最強）`);
+    forces.push(`缺失五行：${wuxing.deficient ?? '未知'}（能量最弱）`);
+    forces.push(`平衡指數：${((wuxing.balance ?? 0) * 100).toFixed(1)}%`);
     forces.push('');
 
     // SiHua Aggregation
@@ -351,8 +373,9 @@ export class AgenticAzureService {
       forces.push('');
 
       forces.push('壓力匯聚點（高忌入度）：');
-      if (sihua.stressNodes.length > 0) {
-        sihua.stressNodes.forEach(node => {
+      const stressNodes = sihua.stressNodes ?? [];
+      if (stressNodes.length > 0) {
+        stressNodes.forEach(node => {
           forces.push(`  • ${node.palaceName}（入度: ${node.inDegree}）`);
         });
       } else {
@@ -361,8 +384,9 @@ export class AgenticAzureService {
       forces.push('');
 
       forces.push('資源發源點（高祿出度）：');
-      if (sihua.resourceNodes.length > 0) {
-        sihua.resourceNodes.forEach(node => {
+      const resourceNodes = sihua.resourceNodes ?? [];
+      if (resourceNodes.length > 0) {
+        resourceNodes.forEach(node => {
           forces.push(`  • ${node.palaceName}（出度: ${node.outDegree}）`);
         });
       } else {
@@ -370,7 +394,7 @@ export class AgenticAzureService {
       }
       forces.push('');
 
-      forces.push(`總邊數：${sihua.totalEdges}`);
+      forces.push(`總邊數：${sihua.totalEdges ?? 0}`);
     } else {
       forces.push('二、四化能量聚散分析');
       forces.push('注意：目前無四化聚散資料。');
@@ -413,24 +437,27 @@ export class AgenticAzureService {
     ];
 
     // Add annual fortune if available
-    if (bazi.fortune && bazi.fortune.annual) {
-      const annual = bazi.fortune.annual;
-      transit.push(`流年干支：${annual.pillar.stem}${annual.pillar.branch}`);
+    if (result.annualFortune) {
+      const annual = result.annualFortune;
+      transit.push(`流年干支：${annual.annualPillar.stem}${annual.annualPillar.branch}`);
 
-      if (annual.taiSui) {
-        transit.push(`太歲：${annual.taiSui.deity} (${annual.taiSui.direction})`);
+      if (annual.taiSuiAnalysis && annual.taiSuiAnalysis.severity !== 'none') {
+        transit.push(`太歲互動：${annual.taiSuiAnalysis.types.join('、')}`);
       }
+    } else {
+      transit.push('流年資訊：尚未計算（需要提供查詢年份）');
     }
 
     // Add current decade (大運) if available
-    if (bazi.fortune && bazi.fortune.dayun) {
-      const current = bazi.fortune.dayun.current;
-      if (current) {
-        transit.push('');
-        transit.push('當前大運：');
-        transit.push(`大運干支：${current.stem}${current.branch}`);
-        transit.push(`起運年齡：${current.startAge} - ${current.endAge}歲`);
-      }
+    if (bazi.fortuneCycles && bazi.fortuneCycles.currentDayun) {
+      const current = bazi.fortuneCycles.currentDayun;
+      transit.push('');
+      transit.push('當前大運：');
+      transit.push(`大運干支：${current.stem}${current.branch}`);
+      transit.push(`起運年齡：${current.startAge} - ${current.endAge}歲`);
+    } else {
+      transit.push('');
+      transit.push('當前大運：尚未計算或不在大運週期內');
     }
 
     transit.push('');
@@ -560,27 +587,64 @@ export class AgenticAzureService {
                 tool_calls: toolCalls
               });
 
-              // Execute tools and collect observations
-              for (const toolCall of toolCalls) {
+              // Execute tools in parallel with error handling for partial failures
+              // Execute all tools concurrently using Promise.allSettled for partial failure handling
+              const toolExecutionPromises = toolCalls.map(async (toolCall) => {
                 const stepStart = Date.now();
-                const observation = await self.executeTool(toolCall.function.name, calculationResult, locale);
-                const stepLatency = Date.now() - stepStart;
+                try {
+                  const observation = await self.executeTool(toolCall.function.name, calculationResult, locale);
+                  const stepLatency = Date.now() - stepStart;
 
-                // Track step for analytics
-                steps.push({
-                  toolName: toolCall.function.name,
-                  toolArgs: toolCall.function.arguments ? JSON.parse(toolCall.function.arguments) : undefined,
-                  toolOutput: observation,
-                  latency: stepLatency
-                });
+                  return {
+                    success: true,
+                    toolCall,
+                    observation,
+                    stepLatency
+                  };
+                } catch (error) {
+                  const stepLatency = Date.now() - stepStart;
+                  const errorMsg = locale === 'zh-TW'
+                    ? `錯誤：工具 "${toolCall.function.name}" 執行失敗 - ${error instanceof Error ? error.message : String(error)}`
+                    : `Error: Tool "${toolCall.function.name}" execution failed - ${error instanceof Error ? error.message : String(error)}`;
 
-                // Add tool response to history
-                conversationHistory.push({
-                  role: 'tool',
-                  tool_call_id: toolCall.id,
-                  name: toolCall.function.name,
-                  content: observation
-                });
+                  console.error(`[AgenticAzure] Tool execution failed: ${toolCall.function.name}`, error);
+
+                  return {
+                    success: false,
+                    toolCall,
+                    observation: errorMsg,
+                    stepLatency
+                  };
+                }
+              });
+
+              // Wait for all tools to complete (or fail)
+              const results = await Promise.allSettled(toolExecutionPromises);
+
+              // Process results and collect analytics
+              for (const result of results) {
+                if (result.status === 'fulfilled') {
+                  const { success, toolCall, observation, stepLatency } = result.value;
+
+                  // Track step for analytics
+                  steps.push({
+                    toolName: toolCall.function.name,
+                    toolArgs: toolCall.function.arguments ? JSON.parse(toolCall.function.arguments) : undefined,
+                    toolOutput: observation,
+                    latency: stepLatency
+                  });
+
+                  // Add tool response to history (even if failed, pass error message to LLM)
+                  conversationHistory.push({
+                    role: 'tool',
+                    tool_call_id: toolCall.id,
+                    name: toolCall.function.name,
+                    content: observation
+                  });
+                } else {
+                  // Promise.allSettled rejection (should be rare as we catch inside)
+                  console.error('[AgenticAzure] Tool promise rejected:', result.reason);
+                }
               }
 
             } else {

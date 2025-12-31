@@ -128,6 +128,9 @@ export function aggregateSiHua(
   const maxResourcePalace = resourceNodes[0]?.palace ?? -1;
 
   return {
+    // Raw Data
+    edges: allEdges,
+
     // Cycle Detection
     jiCycles,
     luCycles,

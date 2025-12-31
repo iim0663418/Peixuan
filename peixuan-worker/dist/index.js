@@ -33000,6 +33000,8 @@ function aggregateSiHua(palaces, lifePalaceStem, decadeStem, annualStem) {
   const maxStressPalace = stressNodes[0]?.palace ?? -1;
   const maxResourcePalace = resourceNodes[0]?.palace ?? -1;
   return {
+    // Raw Data
+    edges: allEdges,
     // Cycle Detection
     jiCycles,
     luCycles,
@@ -34018,6 +34020,9 @@ var init_agenticAzureService = __esm({
        */
       getBaziProfile(result) {
         const bazi = result.bazi;
+        if (!bazi?.fourPillars || !bazi?.wuxingDistribution) {
+          return "\u3010\u516B\u5B57\u547D\u76E4\u8CC7\u6599\u3011\n\n\u932F\u8AA4\uFF1A\u516B\u5B57\u6578\u64DA\u4E0D\u5B8C\u6574";
+        }
         const profile = [
           "\u3010\u516B\u5B57\u547D\u76E4\u8CC7\u6599\u3011",
           "",
@@ -34033,11 +34038,11 @@ var init_agenticAzureService = __esm({
           "\u65E5\u4E3B\uFF1A" + bazi.fourPillars.day.stem,
           "",
           "\u4E94\u884C\u5206\u5E03\uFF1A",
-          `\u6728\uFF1A${bazi.wuxingDistribution.adjusted.Wood} | \u706B\uFF1A${bazi.wuxingDistribution.adjusted.Fire} | \u571F\uFF1A${bazi.wuxingDistribution.adjusted.Earth} | \u91D1\uFF1A${bazi.wuxingDistribution.adjusted.Metal} | \u6C34\uFF1A${bazi.wuxingDistribution.adjusted.Water}`,
+          `\u6728\uFF1A${bazi.wuxingDistribution.adjusted?.Wood ?? 0} | \u706B\uFF1A${bazi.wuxingDistribution.adjusted?.Fire ?? 0} | \u571F\uFF1A${bazi.wuxingDistribution.adjusted?.Earth ?? 0} | \u91D1\uFF1A${bazi.wuxingDistribution.adjusted?.Metal ?? 0} | \u6C34\uFF1A${bazi.wuxingDistribution.adjusted?.Water ?? 0}`,
           "",
           "\u547D\u5C40\u7279\u5FB5\uFF1A",
-          `\u4E3B\u5C0E\u4E94\u884C\uFF1A${bazi.wuxingDistribution.dominant}`,
-          `\u7F3A\u5931\u4E94\u884C\uFF1A${bazi.wuxingDistribution.deficient}`
+          `\u4E3B\u5C0E\u4E94\u884C\uFF1A${bazi.wuxingDistribution.dominant ?? "\u672A\u77E5"}`,
+          `\u7F3A\u5931\u4E94\u884C\uFF1A${bazi.wuxingDistribution.deficient ?? "\u672A\u77E5"}`
         ];
         return profile.join("\n");
       }
@@ -34065,13 +34070,23 @@ var init_agenticAzureService = __esm({
             }
           }
         });
-        if (ziwei.sihua && ziwei.sihua.summary) {
+        if (ziwei.sihuaAggregation?.edges && result.bazi.fourPillars.year.stem) {
+          const birthYearStem = result.bazi.fourPillars.year.stem;
+          const natalEdges = ziwei.sihuaAggregation.edges.filter(
+            (edge) => edge.layer === "natal" && edge.sourceStem === birthYearStem
+          );
+          const sihuaSummary = {
+            lu: natalEdges.find((e) => e.sihuaType === "\u797F")?.starName || "\u7121",
+            quan: natalEdges.find((e) => e.sihuaType === "\u6B0A")?.starName || "\u7121",
+            ke: natalEdges.find((e) => e.sihuaType === "\u79D1")?.starName || "\u7121",
+            ji: natalEdges.find((e) => e.sihuaType === "\u5FCC")?.starName || "\u7121"
+          };
           chart.push("");
           chart.push("\u56DB\u5316\u60C5\u6CC1\uFF1A");
-          chart.push(`\u5316\u797F\uFF1A${ziwei.sihua.summary.lu || "\u7121"}`);
-          chart.push(`\u5316\u6B0A\uFF1A${ziwei.sihua.summary.quan || "\u7121"}`);
-          chart.push(`\u5316\u79D1\uFF1A${ziwei.sihua.summary.ke || "\u7121"}`);
-          chart.push(`\u5316\u5FCC\uFF1A${ziwei.sihua.summary.ji || "\u7121"}`);
+          chart.push(`\u5316\u797F\uFF1A${sihuaSummary.lu}`);
+          chart.push(`\u5316\u6B0A\uFF1A${sihuaSummary.quan}`);
+          chart.push(`\u5316\u79D1\uFF1A${sihuaSummary.ke}`);
+          chart.push(`\u5316\u5FCC\uFF1A${sihuaSummary.ji}`);
         }
         return chart.join("\n");
       }
@@ -34116,17 +34131,19 @@ var init_agenticAzureService = __esm({
         }
         context.push("\u4E09\u3001\u6D41\u5E74\u8207\u547D\u76E4\u4E92\u52D5");
         const interactions = annual.interactions;
-        if (interactions.stemCombinations.length > 0) {
+        const stemCombinations = interactions?.stemCombinations ?? [];
+        if (stemCombinations.length > 0) {
           context.push("\u5929\u5E72\u4E94\u5408\uFF1A");
-          interactions.stemCombinations.forEach((comb) => {
+          stemCombinations.forEach((comb) => {
             context.push(`  \u2022 ${comb.natal} + ${comb.annual} \u2192 ${comb.resultElement}`);
           });
         } else {
           context.push("\u5929\u5E72\u4E94\u5408\uFF1A\u7121");
         }
-        if (interactions.branchClashes.length > 0) {
+        const branchClashes = interactions?.branchClashes ?? [];
+        if (branchClashes.length > 0) {
           context.push("\u5730\u652F\u516D\u6C96\uFF1A");
-          interactions.branchClashes.forEach((clash) => {
+          branchClashes.forEach((clash) => {
             context.push(`  \u2022 ${clash.natal} \u26A1 ${clash.annual}\uFF08${clash.severity}\uFF09`);
           });
         } else {
@@ -34149,23 +34166,24 @@ var init_agenticAzureService = __esm({
         const wuxing = result.bazi.wuxingDistribution;
         forces.push("\u4E00\u3001\u4E94\u884C\u80FD\u91CF\u5206\u5E03");
         forces.push("\u8ABF\u6574\u5F8C\u5206\u6578\uFF1A");
-        forces.push(`  \u6728\uFF1A${wuxing.adjusted.Wood.toFixed(2)}`);
-        forces.push(`  \u706B\uFF1A${wuxing.adjusted.Fire.toFixed(2)}`);
-        forces.push(`  \u571F\uFF1A${wuxing.adjusted.Earth.toFixed(2)}`);
-        forces.push(`  \u91D1\uFF1A${wuxing.adjusted.Metal.toFixed(2)}`);
-        forces.push(`  \u6C34\uFF1A${wuxing.adjusted.Water.toFixed(2)}`);
+        forces.push(`  \u6728\uFF1A${(wuxing.adjusted?.Wood ?? 0).toFixed(2)}`);
+        forces.push(`  \u706B\uFF1A${(wuxing.adjusted?.Fire ?? 0).toFixed(2)}`);
+        forces.push(`  \u571F\uFF1A${(wuxing.adjusted?.Earth ?? 0).toFixed(2)}`);
+        forces.push(`  \u91D1\uFF1A${(wuxing.adjusted?.Metal ?? 0).toFixed(2)}`);
+        forces.push(`  \u6C34\uFF1A${(wuxing.adjusted?.Water ?? 0).toFixed(2)}`);
         forces.push("");
-        forces.push(`\u4E3B\u5C0E\u4E94\u884C\uFF1A${wuxing.dominant}\uFF08\u80FD\u91CF\u6700\u5F37\uFF09`);
-        forces.push(`\u7F3A\u5931\u4E94\u884C\uFF1A${wuxing.deficient}\uFF08\u80FD\u91CF\u6700\u5F31\uFF09`);
-        forces.push(`\u5E73\u8861\u6307\u6578\uFF1A${(wuxing.balance * 100).toFixed(1)}%`);
+        forces.push(`\u4E3B\u5C0E\u4E94\u884C\uFF1A${wuxing.dominant ?? "\u672A\u77E5"}\uFF08\u80FD\u91CF\u6700\u5F37\uFF09`);
+        forces.push(`\u7F3A\u5931\u4E94\u884C\uFF1A${wuxing.deficient ?? "\u672A\u77E5"}\uFF08\u80FD\u91CF\u6700\u5F31\uFF09`);
+        forces.push(`\u5E73\u8861\u6307\u6578\uFF1A${((wuxing.balance ?? 0) * 100).toFixed(1)}%`);
         forces.push("");
         const sihua = result.ziwei.sihuaAggregation;
         if (sihua) {
           forces.push("\u4E8C\u3001\u56DB\u5316\u80FD\u91CF\u805A\u6563\u5206\u6790");
           forces.push("");
           forces.push("\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u9AD8\u5FCC\u5165\u5EA6\uFF09\uFF1A");
-          if (sihua.stressNodes.length > 0) {
-            sihua.stressNodes.forEach((node) => {
+          const stressNodes = sihua.stressNodes ?? [];
+          if (stressNodes.length > 0) {
+            stressNodes.forEach((node) => {
               forces.push(`  \u2022 ${node.palaceName}\uFF08\u5165\u5EA6: ${node.inDegree}\uFF09`);
             });
           } else {
@@ -34173,15 +34191,16 @@ var init_agenticAzureService = __esm({
           }
           forces.push("");
           forces.push("\u8CC7\u6E90\u767C\u6E90\u9EDE\uFF08\u9AD8\u797F\u51FA\u5EA6\uFF09\uFF1A");
-          if (sihua.resourceNodes.length > 0) {
-            sihua.resourceNodes.forEach((node) => {
+          const resourceNodes = sihua.resourceNodes ?? [];
+          if (resourceNodes.length > 0) {
+            resourceNodes.forEach((node) => {
               forces.push(`  \u2022 ${node.palaceName}\uFF08\u51FA\u5EA6: ${node.outDegree}\uFF09`);
             });
           } else {
             forces.push("  \u7121\u660E\u986F\u8CC7\u6E90\u767C\u6E90\u9EDE");
           }
           forces.push("");
-          forces.push(`\u7E3D\u908A\u6578\uFF1A${sihua.totalEdges}`);
+          forces.push(`\u7E3D\u908A\u6578\uFF1A${sihua.totalEdges ?? 0}`);
         } else {
           forces.push("\u4E8C\u3001\u56DB\u5316\u80FD\u91CF\u805A\u6563\u5206\u6790");
           forces.push("\u6CE8\u610F\uFF1A\u76EE\u524D\u7121\u56DB\u5316\u805A\u6563\u8CC7\u6599\u3002");
@@ -34216,21 +34235,24 @@ var init_agenticAzureService = __esm({
           "",
           "\u6D41\u5E74\u8CC7\u8A0A\uFF1A"
         ];
-        if (bazi.fortune && bazi.fortune.annual) {
-          const annual = bazi.fortune.annual;
-          transit.push(`\u6D41\u5E74\u5E72\u652F\uFF1A${annual.pillar.stem}${annual.pillar.branch}`);
-          if (annual.taiSui) {
-            transit.push(`\u592A\u6B72\uFF1A${annual.taiSui.deity} (${annual.taiSui.direction})`);
+        if (result.annualFortune) {
+          const annual = result.annualFortune;
+          transit.push(`\u6D41\u5E74\u5E72\u652F\uFF1A${annual.annualPillar.stem}${annual.annualPillar.branch}`);
+          if (annual.taiSuiAnalysis && annual.taiSuiAnalysis.severity !== "none") {
+            transit.push(`\u592A\u6B72\u4E92\u52D5\uFF1A${annual.taiSuiAnalysis.types.join("\u3001")}`);
           }
+        } else {
+          transit.push("\u6D41\u5E74\u8CC7\u8A0A\uFF1A\u5C1A\u672A\u8A08\u7B97\uFF08\u9700\u8981\u63D0\u4F9B\u67E5\u8A62\u5E74\u4EFD\uFF09");
         }
-        if (bazi.fortune && bazi.fortune.dayun) {
-          const current = bazi.fortune.dayun.current;
-          if (current) {
-            transit.push("");
-            transit.push("\u7576\u524D\u5927\u904B\uFF1A");
-            transit.push(`\u5927\u904B\u5E72\u652F\uFF1A${current.stem}${current.branch}`);
-            transit.push(`\u8D77\u904B\u5E74\u9F61\uFF1A${current.startAge} - ${current.endAge}\u6B72`);
-          }
+        if (bazi.fortuneCycles && bazi.fortuneCycles.currentDayun) {
+          const current = bazi.fortuneCycles.currentDayun;
+          transit.push("");
+          transit.push("\u7576\u524D\u5927\u904B\uFF1A");
+          transit.push(`\u5927\u904B\u5E72\u652F\uFF1A${current.stem}${current.branch}`);
+          transit.push(`\u8D77\u904B\u5E74\u9F61\uFF1A${current.startAge} - ${current.endAge}\u6B72`);
+        } else {
+          transit.push("");
+          transit.push("\u7576\u524D\u5927\u904B\uFF1A\u5C1A\u672A\u8A08\u7B97\u6216\u4E0D\u5728\u5927\u904B\u9031\u671F\u5167");
         }
         transit.push("");
         transit.push("\u5EFA\u8B70\uFF1A\u6839\u64DA\u6D41\u904B\u8207\u547D\u76E4\u7684\u4E92\u52D5\u95DC\u4FC2,\u53EF\u4EE5\u5206\u6790\u4ECA\u65E5\u7684\u5409\u51F6\u8DA8\u52E2\u3002");
@@ -34309,22 +34331,48 @@ var init_agenticAzureService = __esm({
                     content: null,
                     tool_calls: toolCalls
                   });
-                  for (const toolCall of toolCalls) {
+                  const toolExecutionPromises = toolCalls.map(async (toolCall) => {
                     const stepStart = Date.now();
-                    const observation = await self.executeTool(toolCall.function.name, calculationResult, locale2);
-                    const stepLatency = Date.now() - stepStart;
-                    steps.push({
-                      toolName: toolCall.function.name,
-                      toolArgs: toolCall.function.arguments ? JSON.parse(toolCall.function.arguments) : void 0,
-                      toolOutput: observation,
-                      latency: stepLatency
-                    });
-                    conversationHistory.push({
-                      role: "tool",
-                      tool_call_id: toolCall.id,
-                      name: toolCall.function.name,
-                      content: observation
-                    });
+                    try {
+                      const observation = await self.executeTool(toolCall.function.name, calculationResult, locale2);
+                      const stepLatency = Date.now() - stepStart;
+                      return {
+                        success: true,
+                        toolCall,
+                        observation,
+                        stepLatency
+                      };
+                    } catch (error46) {
+                      const stepLatency = Date.now() - stepStart;
+                      const errorMsg = locale2 === "zh-TW" ? `\u932F\u8AA4\uFF1A\u5DE5\u5177 "${toolCall.function.name}" \u57F7\u884C\u5931\u6557 - ${error46 instanceof Error ? error46.message : String(error46)}` : `Error: Tool "${toolCall.function.name}" execution failed - ${error46 instanceof Error ? error46.message : String(error46)}`;
+                      console.error(`[AgenticAzure] Tool execution failed: ${toolCall.function.name}`, error46);
+                      return {
+                        success: false,
+                        toolCall,
+                        observation: errorMsg,
+                        stepLatency
+                      };
+                    }
+                  });
+                  const results = await Promise.allSettled(toolExecutionPromises);
+                  for (const result of results) {
+                    if (result.status === "fulfilled") {
+                      const { success: success2, toolCall, observation, stepLatency } = result.value;
+                      steps.push({
+                        toolName: toolCall.function.name,
+                        toolArgs: toolCall.function.arguments ? JSON.parse(toolCall.function.arguments) : void 0,
+                        toolOutput: observation,
+                        latency: stepLatency
+                      });
+                      conversationHistory.push({
+                        role: "tool",
+                        tool_call_id: toolCall.id,
+                        name: toolCall.function.name,
+                        content: observation
+                      });
+                    } else {
+                      console.error("[AgenticAzure] Tool promise rejected:", result.reason);
+                    }
                   }
                 } else {
                   const text2 = self.extractContent(response);
@@ -38073,6 +38121,9 @@ var AgenticGeminiService = class {
    */
   getBaziProfile(result, locale2 = "zh-TW") {
     const bazi = result.bazi;
+    if (!bazi?.fourPillars || !bazi?.wuxingDistribution) {
+      return locale2 === "zh-TW" ? "\u3010\u516B\u5B57\u547D\u76E4\u8CC7\u6599\u3011\n\n\u932F\u8AA4\uFF1A\u516B\u5B57\u6578\u64DA\u4E0D\u5B8C\u6574" : "\u3010BaZi Chart Profile\u3011\n\nError: BaZi data incomplete";
+    }
     if (locale2 === "zh-TW") {
       const profile = [
         "\u3010\u516B\u5B57\u547D\u76E4\u8CC7\u6599\u3011",
@@ -38089,11 +38140,11 @@ var AgenticGeminiService = class {
         "\u65E5\u4E3B\uFF1A" + bazi.fourPillars.day.stem,
         "",
         "\u4E94\u884C\u5206\u5E03\uFF1A",
-        `\u6728\uFF1A${bazi.wuxingDistribution.adjusted.Wood} | \u706B\uFF1A${bazi.wuxingDistribution.adjusted.Fire} | \u571F\uFF1A${bazi.wuxingDistribution.adjusted.Earth} | \u91D1\uFF1A${bazi.wuxingDistribution.adjusted.Metal} | \u6C34\uFF1A${bazi.wuxingDistribution.adjusted.Water}`,
+        `\u6728\uFF1A${bazi.wuxingDistribution.adjusted?.Wood ?? 0} | \u706B\uFF1A${bazi.wuxingDistribution.adjusted?.Fire ?? 0} | \u571F\uFF1A${bazi.wuxingDistribution.adjusted?.Earth ?? 0} | \u91D1\uFF1A${bazi.wuxingDistribution.adjusted?.Metal ?? 0} | \u6C34\uFF1A${bazi.wuxingDistribution.adjusted?.Water ?? 0}`,
         "",
         "\u547D\u5C40\u7279\u5FB5\uFF1A",
-        `\u4E3B\u5C0E\u4E94\u884C\uFF1A${bazi.wuxingDistribution.dominant}`,
-        `\u7F3A\u5931\u4E94\u884C\uFF1A${bazi.wuxingDistribution.deficient}`
+        `\u4E3B\u5C0E\u4E94\u884C\uFF1A${bazi.wuxingDistribution.dominant ?? "\u672A\u77E5"}`,
+        `\u7F3A\u5931\u4E94\u884C\uFF1A${bazi.wuxingDistribution.deficient ?? "\u672A\u77E5"}`
       ];
       return profile.join("\n");
     } else {
@@ -38112,11 +38163,11 @@ var AgenticGeminiService = class {
         "Day Master: " + bazi.fourPillars.day.stem,
         "",
         "Five Elements Distribution:",
-        `Wood: ${bazi.wuxingDistribution.adjusted.Wood} | Fire: ${bazi.wuxingDistribution.adjusted.Fire} | Earth: ${bazi.wuxingDistribution.adjusted.Earth} | Metal: ${bazi.wuxingDistribution.adjusted.Metal} | Water: ${bazi.wuxingDistribution.adjusted.Water}`,
+        `Wood: ${bazi.wuxingDistribution.adjusted?.Wood ?? 0} | Fire: ${bazi.wuxingDistribution.adjusted?.Fire ?? 0} | Earth: ${bazi.wuxingDistribution.adjusted?.Earth ?? 0} | Metal: ${bazi.wuxingDistribution.adjusted?.Metal ?? 0} | Water: ${bazi.wuxingDistribution.adjusted?.Water ?? 0}`,
         "",
         "Chart Characteristics:",
-        `Dominant Element: ${bazi.wuxingDistribution.dominant}`,
-        `Deficient Element: ${bazi.wuxingDistribution.deficient}`
+        `Dominant Element: ${bazi.wuxingDistribution.dominant ?? "Unknown"}`,
+        `Deficient Element: ${bazi.wuxingDistribution.deficient ?? "Unknown"}`
       ];
       return profile.join("\n");
     }
@@ -38145,13 +38196,23 @@ var AgenticGeminiService = class {
         }
       }
     });
-    if (ziwei.sihua && ziwei.sihua.summary) {
+    if (ziwei.sihuaAggregation?.edges && result.bazi.fourPillars.year.stem) {
+      const birthYearStem = result.bazi.fourPillars.year.stem;
+      const natalEdges = ziwei.sihuaAggregation.edges.filter(
+        (edge) => edge.layer === "natal" && edge.sourceStem === birthYearStem
+      );
+      const sihuaSummary = {
+        lu: natalEdges.find((e) => e.sihuaType === "\u797F")?.starName || "\u7121",
+        quan: natalEdges.find((e) => e.sihuaType === "\u6B0A")?.starName || "\u7121",
+        ke: natalEdges.find((e) => e.sihuaType === "\u79D1")?.starName || "\u7121",
+        ji: natalEdges.find((e) => e.sihuaType === "\u5FCC")?.starName || "\u7121"
+      };
       chart.push("");
       chart.push("\u56DB\u5316\u60C5\u6CC1\uFF1A");
-      chart.push(`\u5316\u797F\uFF1A${ziwei.sihua.summary.lu || "\u7121"}`);
-      chart.push(`\u5316\u6B0A\uFF1A${ziwei.sihua.summary.quan || "\u7121"}`);
-      chart.push(`\u5316\u79D1\uFF1A${ziwei.sihua.summary.ke || "\u7121"}`);
-      chart.push(`\u5316\u5FCC\uFF1A${ziwei.sihua.summary.ji || "\u7121"}`);
+      chart.push(`\u5316\u797F\uFF1A${sihuaSummary.lu}`);
+      chart.push(`\u5316\u6B0A\uFF1A${sihuaSummary.quan}`);
+      chart.push(`\u5316\u79D1\uFF1A${sihuaSummary.ke}`);
+      chart.push(`\u5316\u5FCC\uFF1A${sihuaSummary.ji}`);
     }
     return chart.join("\n");
   }
@@ -38168,21 +38229,24 @@ var AgenticGeminiService = class {
       "",
       "\u6D41\u5E74\u8CC7\u8A0A\uFF1A"
     ];
-    if (bazi.fortune && bazi.fortune.annual) {
-      const annual = bazi.fortune.annual;
-      transit.push(`\u6D41\u5E74\u5E72\u652F\uFF1A${annual.pillar.stem}${annual.pillar.branch}`);
-      if (annual.taiSui) {
-        transit.push(`\u592A\u6B72\uFF1A${annual.taiSui.deity} (${annual.taiSui.direction})`);
+    if (result.annualFortune) {
+      const annual = result.annualFortune;
+      transit.push(`\u6D41\u5E74\u5E72\u652F\uFF1A${annual.annualPillar.stem}${annual.annualPillar.branch}`);
+      if (annual.taiSuiAnalysis && annual.taiSuiAnalysis.severity !== "none") {
+        transit.push(`\u592A\u6B72\u4E92\u52D5\uFF1A${annual.taiSuiAnalysis.types.join("\u3001")}`);
       }
+    } else {
+      transit.push("\u6D41\u5E74\u8CC7\u8A0A\uFF1A\u5C1A\u672A\u8A08\u7B97\uFF08\u9700\u8981\u63D0\u4F9B\u67E5\u8A62\u5E74\u4EFD\uFF09");
     }
-    if (bazi.fortune && bazi.fortune.dayun) {
-      const current = bazi.fortune.dayun.current;
-      if (current) {
-        transit.push("");
-        transit.push("\u7576\u524D\u5927\u904B\uFF1A");
-        transit.push(`\u5927\u904B\u5E72\u652F\uFF1A${current.stem}${current.branch}`);
-        transit.push(`\u8D77\u904B\u5E74\u9F61\uFF1A${current.startAge} - ${current.endAge}\u6B72`);
-      }
+    if (bazi.fortuneCycles && bazi.fortuneCycles.currentDayun) {
+      const current = bazi.fortuneCycles.currentDayun;
+      transit.push("");
+      transit.push("\u7576\u524D\u5927\u904B\uFF1A");
+      transit.push(`\u5927\u904B\u5E72\u652F\uFF1A${current.stem}${current.branch}`);
+      transit.push(`\u8D77\u904B\u5E74\u9F61\uFF1A${current.startAge} - ${current.endAge}\u6B72`);
+    } else {
+      transit.push("");
+      transit.push("\u7576\u524D\u5927\u904B\uFF1A\u5C1A\u672A\u8A08\u7B97\u6216\u4E0D\u5728\u5927\u904B\u9031\u671F\u5167");
     }
     transit.push("");
     transit.push("\u5EFA\u8B70\uFF1A\u6839\u64DA\u6D41\u904B\u8207\u547D\u76E4\u7684\u4E92\u52D5\u95DC\u4FC2,\u53EF\u4EE5\u5206\u6790\u4ECA\u65E5\u7684\u5409\u51F6\u8DA8\u52E2\u3002");
@@ -38220,7 +38284,7 @@ var AgenticGeminiService = class {
       const interactions2 = [];
       if (taiSui.zhi) interactions2.push("\u503C\u592A\u6B72\uFF08\u672C\u547D\u5E74\uFF09");
       if (taiSui.chong) interactions2.push("\u6C96\u592A\u6B72\uFF08\u516D\u6C96\uFF09");
-      if (taiSui.xing.hasXing) {
+      if (taiSui.xing?.hasXing) {
         const xingDesc = taiSui.xing.description || "\u5211\u592A\u6B72";
         interactions2.push(xingDesc);
       }
@@ -38240,25 +38304,28 @@ var AgenticGeminiService = class {
     }
     context.push("\u4E09\u3001\u6D41\u5E74\u8207\u547D\u76E4\u4E92\u52D5");
     const interactions = annual.interactions;
-    if (interactions.stemCombinations.length > 0) {
+    const stemCombinations = interactions?.stemCombinations ?? [];
+    if (stemCombinations.length > 0) {
       context.push("\u5929\u5E72\u4E94\u5408\uFF1A");
-      interactions.stemCombinations.forEach((comb) => {
+      stemCombinations.forEach((comb) => {
         context.push(`  \u2022 ${comb.natal} + ${comb.annual} \u2192 ${comb.resultElement}\uFF08${comb.type}\uFF09`);
       });
     } else {
       context.push("\u5929\u5E72\u4E94\u5408\uFF1A\u7121");
     }
-    if (interactions.branchClashes.length > 0) {
+    const branchClashes = interactions?.branchClashes ?? [];
+    if (branchClashes.length > 0) {
       context.push("\u5730\u652F\u516D\u6C96\uFF1A");
-      interactions.branchClashes.forEach((clash) => {
+      branchClashes.forEach((clash) => {
         context.push(`  \u2022 ${clash.natal} \u26A1 ${clash.annual}\uFF08${clash.severity}\uFF09`);
       });
     } else {
       context.push("\u5730\u652F\u516D\u6C96\uFF1A\u7121");
     }
-    if (interactions.harmoniousCombinations.length > 0) {
+    const harmoniousCombinations = interactions?.harmoniousCombinations ?? [];
+    if (harmoniousCombinations.length > 0) {
       context.push("\u5409\u7965\u7D44\u5408\uFF08\u4E09\u5408/\u4E09\u6703\uFF09\uFF1A");
-      interactions.harmoniousCombinations.forEach((combo) => {
+      harmoniousCombinations.forEach((combo) => {
         context.push(`  \u2022 ${combo.branches.join("\u3001")} \u2192 ${combo.resultElement}\uFF08${combo.type}\uFF09`);
       });
     } else {
@@ -38270,16 +38337,20 @@ var AgenticGeminiService = class {
       context.push("\u56DB\u3001\u5168\u5E74\u904B\u52E2\u9810\u6E2C");
       if (forecast.currentPeriod) {
         const curr = forecast.currentPeriod;
-        context.push(`\u7576\u524D\u968E\u6BB5\uFF1A${curr.pillar.stem}${curr.pillar.branch}\u5E74`);
-        context.push(`\u6642\u9593\u7BC4\u570D\uFF1A${curr.startDate.split("T")[0]} \u81F3 ${curr.endDate.split("T")[0]}`);
-        context.push(`\u6B72\u6578\uFF1A${curr.age}\u6B72`);
+        if (curr.pillar) {
+          context.push(`\u7576\u524D\u968E\u6BB5\uFF1A${curr.pillar.stem}${curr.pillar.branch}\u5E74`);
+          context.push(`\u6642\u9593\u7BC4\u570D\uFF1A${curr.startDate.split("T")[0]} \u81F3 ${curr.endDate.split("T")[0]}`);
+          context.push(`\u6B72\u6578\uFF1A${curr.age}\u6B72`);
+        }
       }
       if (forecast.nextPeriod) {
         const next = forecast.nextPeriod;
-        context.push("");
-        context.push(`\u4E0B\u500B\u968E\u6BB5\uFF1A${next.pillar.stem}${next.pillar.branch}\u5E74`);
-        context.push(`\u6642\u9593\u7BC4\u570D\uFF1A${next.startDate.split("T")[0]} \u81F3 ${next.endDate.split("T")[0]}`);
-        context.push(`\u6B72\u6578\uFF1A${next.age}\u6B72`);
+        if (next.pillar) {
+          context.push("");
+          context.push(`\u4E0B\u500B\u968E\u6BB5\uFF1A${next.pillar.stem}${next.pillar.branch}\u5E74`);
+          context.push(`\u6642\u9593\u7BC4\u570D\uFF1A${next.startDate.split("T")[0]} \u81F3 ${next.endDate.split("T")[0]}`);
+          context.push(`\u6B72\u6578\uFF1A${next.age}\u6B72`);
+        }
       }
       context.push("");
       context.push("\u6CE8\u610F\uFF1A\u6D41\u5E74\u4EE5\u7ACB\u6625\u70BA\u754C,\u4E0D\u662F\u4EE5\u570B\u66C61\u67081\u65E5\u70BA\u754C\u3002");
@@ -38302,29 +38373,30 @@ var AgenticGeminiService = class {
     const wuxing = result.bazi.wuxingDistribution;
     forces.push("\u4E00\u3001\u4E94\u884C\u80FD\u91CF\u5206\u5E03");
     forces.push("\u8ABF\u6574\u5F8C\u5206\u6578\uFF08\u5DF2\u542B\u5B63\u7BC0\u6B0A\u91CD\uFF09\uFF1A");
-    forces.push(`  \u6728\uFF1A${wuxing.adjusted.Wood.toFixed(2)}`);
-    forces.push(`  \u706B\uFF1A${wuxing.adjusted.Fire.toFixed(2)}`);
-    forces.push(`  \u571F\uFF1A${wuxing.adjusted.Earth.toFixed(2)}`);
-    forces.push(`  \u91D1\uFF1A${wuxing.adjusted.Metal.toFixed(2)}`);
-    forces.push(`  \u6C34\uFF1A${wuxing.adjusted.Water.toFixed(2)}`);
+    forces.push(`  \u6728\uFF1A${(wuxing.adjusted?.Wood ?? 0).toFixed(2)}`);
+    forces.push(`  \u706B\uFF1A${(wuxing.adjusted?.Fire ?? 0).toFixed(2)}`);
+    forces.push(`  \u571F\uFF1A${(wuxing.adjusted?.Earth ?? 0).toFixed(2)}`);
+    forces.push(`  \u91D1\uFF1A${(wuxing.adjusted?.Metal ?? 0).toFixed(2)}`);
+    forces.push(`  \u6C34\uFF1A${(wuxing.adjusted?.Water ?? 0).toFixed(2)}`);
     forces.push("");
-    forces.push(`\u4E3B\u5C0E\u4E94\u884C\uFF1A${wuxing.dominant}\uFF08\u80FD\u91CF\u6700\u5F37\uFF09`);
-    forces.push(`\u7F3A\u5931\u4E94\u884C\uFF1A${wuxing.deficient}\uFF08\u80FD\u91CF\u6700\u5F31\uFF09`);
-    forces.push(`\u5E73\u8861\u6307\u6578\uFF1A${(wuxing.balance * 100).toFixed(1)}%\uFF08100%\u70BA\u5B8C\u7F8E\u5E73\u8861\uFF09`);
+    forces.push(`\u4E3B\u5C0E\u4E94\u884C\uFF1A${wuxing.dominant ?? "\u672A\u77E5"}\uFF08\u80FD\u91CF\u6700\u5F37\uFF09`);
+    forces.push(`\u7F3A\u5931\u4E94\u884C\uFF1A${wuxing.deficient ?? "\u672A\u77E5"}\uFF08\u80FD\u91CF\u6700\u5F31\uFF09`);
+    forces.push(`\u5E73\u8861\u6307\u6578\uFF1A${((wuxing.balance ?? 0) * 100).toFixed(1)}%\uFF08100%\u70BA\u5B8C\u7F8E\u5E73\u8861\uFF09`);
     forces.push("");
     forces.push("\u539F\u59CB\u8A08\u6578\uFF08\u672A\u8ABF\u6574\uFF09\uFF1A");
     forces.push("  \u5929\u5E72\u5206\u5E03\uFF1A");
-    forces.push(`    \u6728\uFF1A${wuxing.raw.tiangan.Wood} | \u706B\uFF1A${wuxing.raw.tiangan.Fire} | \u571F\uFF1A${wuxing.raw.tiangan.Earth} | \u91D1\uFF1A${wuxing.raw.tiangan.Metal} | \u6C34\uFF1A${wuxing.raw.tiangan.Water}`);
+    forces.push(`    \u6728\uFF1A${wuxing.raw?.tiangan?.Wood ?? 0} | \u706B\uFF1A${wuxing.raw?.tiangan?.Fire ?? 0} | \u571F\uFF1A${wuxing.raw?.tiangan?.Earth ?? 0} | \u91D1\uFF1A${wuxing.raw?.tiangan?.Metal ?? 0} | \u6C34\uFF1A${wuxing.raw?.tiangan?.Water ?? 0}`);
     forces.push("  \u85CF\u5E72\u5206\u5E03\uFF08\u52A0\u6B0A\uFF09\uFF1A");
-    forces.push(`    \u6728\uFF1A${wuxing.raw.hiddenStems.Wood.toFixed(2)} | \u706B\uFF1A${wuxing.raw.hiddenStems.Fire.toFixed(2)} | \u571F\uFF1A${wuxing.raw.hiddenStems.Earth.toFixed(2)} | \u91D1\uFF1A${wuxing.raw.hiddenStems.Metal.toFixed(2)} | \u6C34\uFF1A${wuxing.raw.hiddenStems.Water.toFixed(2)}`);
+    forces.push(`    \u6728\uFF1A${(wuxing.raw?.hiddenStems?.Wood ?? 0).toFixed(2)} | \u706B\uFF1A${(wuxing.raw?.hiddenStems?.Fire ?? 0).toFixed(2)} | \u571F\uFF1A${(wuxing.raw?.hiddenStems?.Earth ?? 0).toFixed(2)} | \u91D1\uFF1A${(wuxing.raw?.hiddenStems?.Metal ?? 0).toFixed(2)} | \u6C34\uFF1A${(wuxing.raw?.hiddenStems?.Water ?? 0).toFixed(2)}`);
     forces.push("");
     const sihua = result.ziwei.sihuaAggregation;
     if (sihua) {
       forces.push("\u4E8C\u3001\u56DB\u5316\u80FD\u91CF\u805A\u6563\u5206\u6790");
       forces.push("");
       forces.push("\u58D3\u529B\u532F\u805A\u9EDE\uFF08\u9AD8\u5FCC\u5165\u5EA6\uFF09\uFF1A");
-      if (sihua.stressNodes.length > 0) {
-        sihua.stressNodes.forEach((node) => {
+      const stressNodes = sihua.stressNodes ?? [];
+      if (stressNodes.length > 0) {
+        stressNodes.forEach((node) => {
           forces.push(`  \u2022 ${node.palaceName}\uFF08\u5165\u5EA6: ${node.inDegree}, \u56B4\u91CD\u6027: ${node.severity}\uFF09`);
         });
         forces.push("  \u2192 \u9019\u4E9B\u5BAE\u4F4D\u627F\u53D7\u8F03\u591A\u7684\u5316\u5FCC\u80FD\u91CF,\u5BB9\u6613\u5F62\u6210\u58D3\u529B\u6216\u6311\u6230");
@@ -38333,8 +38405,9 @@ var AgenticGeminiService = class {
       }
       forces.push("");
       forces.push("\u8CC7\u6E90\u767C\u6E90\u9EDE\uFF08\u9AD8\u797F\u51FA\u5EA6\uFF09\uFF1A");
-      if (sihua.resourceNodes.length > 0) {
-        sihua.resourceNodes.forEach((node) => {
+      const resourceNodes = sihua.resourceNodes ?? [];
+      if (resourceNodes.length > 0) {
+        resourceNodes.forEach((node) => {
           forces.push(`  \u2022 ${node.palaceName}\uFF08\u51FA\u5EA6: ${node.outDegree}, \u91CD\u8981\u6027: ${node.severity}\uFF09`);
         });
         forces.push("  \u2192 \u9019\u4E9B\u5BAE\u4F4D\u80FD\u5411\u5916\u8F38\u51FA\u8CC7\u6E90\u8207\u8CA1\u5BCC\u80FD\u91CF");
@@ -38343,8 +38416,9 @@ var AgenticGeminiService = class {
       }
       forces.push("");
       forces.push("\u6B0A\u529B\u4E2D\u5FC3\uFF08\u9AD8\u6B0A\u51FA\u5EA6\uFF09\uFF1A");
-      if (sihua.powerNodes.length > 0) {
-        sihua.powerNodes.forEach((node) => {
+      const powerNodes = sihua.powerNodes ?? [];
+      if (powerNodes.length > 0) {
+        powerNodes.forEach((node) => {
           forces.push(`  \u2022 ${node.palaceName}\uFF08\u51FA\u5EA6: ${node.outDegree}, \u91CD\u8981\u6027: ${node.severity}\uFF09`);
         });
         forces.push("  \u2192 \u9019\u4E9B\u5BAE\u4F4D\u80FD\u5411\u5916\u8F38\u51FA\u6B0A\u5A01\u8207\u5F71\u97FF\u529B");
@@ -38353,8 +38427,9 @@ var AgenticGeminiService = class {
       }
       forces.push("");
       forces.push("\u540D\u8072\u4E2D\u5FC3\uFF08\u9AD8\u79D1\u51FA\u5EA6\uFF09\uFF1A");
-      if (sihua.fameNodes.length > 0) {
-        sihua.fameNodes.forEach((node) => {
+      const fameNodes = sihua.fameNodes ?? [];
+      if (fameNodes.length > 0) {
+        fameNodes.forEach((node) => {
           forces.push(`  \u2022 ${node.palaceName}\uFF08\u51FA\u5EA6: ${node.outDegree}, \u91CD\u8981\u6027: ${node.severity}\uFF09`);
         });
         forces.push("  \u2192 \u9019\u4E9B\u5BAE\u4F4D\u80FD\u5411\u5916\u8F38\u51FA\u540D\u8072\u8207\u5B78\u8B58\u80FD\u91CF");
@@ -38363,25 +38438,35 @@ var AgenticGeminiService = class {
       }
       forces.push("");
       forces.push("\u80FD\u91CF\u5FAA\u74B0\u5075\u6E2C\uFF1A");
-      if (sihua.hasJiCycle) {
-        forces.push(`  \u2022 \u5075\u6E2C\u5230\u5316\u5FCC\u5FAA\u74B0\uFF08${sihua.jiCycles.length}\u500B\uFF09`);
-        sihua.jiCycles.forEach((cycle, idx) => {
+      const jiCycles = sihua.jiCycles ?? [];
+      const luCycles = sihua.luCycles ?? [];
+      const quanCycles = sihua.quanCycles ?? [];
+      const keCycles = sihua.keCycles ?? [];
+      if (sihua.hasJiCycle && jiCycles.length > 0) {
+        forces.push(`  \u2022 \u5075\u6E2C\u5230\u5316\u5FCC\u5FAA\u74B0\uFF08${jiCycles.length}\u500B\uFF09`);
+        jiCycles.forEach((cycle, idx) => {
           forces.push(`    ${idx + 1}. ${cycle.description}\uFF08\u56B4\u91CD\u6027: ${cycle.severity}\uFF09`);
         });
       }
-      if (sihua.hasLuCycle) {
-        forces.push(`  \u2022 \u5075\u6E2C\u5230\u5316\u797F\u5FAA\u74B0\uFF08${sihua.luCycles.length}\u500B\uFF09`);
-        sihua.luCycles.forEach((cycle, idx) => {
+      if (sihua.hasLuCycle && luCycles.length > 0) {
+        forces.push(`  \u2022 \u5075\u6E2C\u5230\u5316\u797F\u5FAA\u74B0\uFF08${luCycles.length}\u500B\uFF09`);
+        luCycles.forEach((cycle, idx) => {
           forces.push(`    ${idx + 1}. ${cycle.description}\uFF08\u56B4\u91CD\u6027: ${cycle.severity}\uFF09`);
         });
       }
-      if (sihua.quanCycles.length > 0) {
-        forces.push(`  \u2022 \u5075\u6E2C\u5230\u5316\u6B0A\u5FAA\u74B0\uFF08${sihua.quanCycles.length}\u500B\uFF09`);
+      if (quanCycles.length > 0) {
+        forces.push(`  \u2022 \u5075\u6E2C\u5230\u5316\u6B0A\u5FAA\u74B0\uFF08${quanCycles.length}\u500B\uFF09`);
+        quanCycles.forEach((cycle, idx) => {
+          forces.push(`    ${idx + 1}. ${cycle.description}\uFF08\u56B4\u91CD\u6027: ${cycle.severity}\uFF09`);
+        });
       }
-      if (sihua.keCycles.length > 0) {
-        forces.push(`  \u2022 \u5075\u6E2C\u5230\u5316\u79D1\u5FAA\u74B0\uFF08${sihua.keCycles.length}\u500B\uFF09`);
+      if (keCycles.length > 0) {
+        forces.push(`  \u2022 \u5075\u6E2C\u5230\u5316\u79D1\u5FAA\u74B0\uFF08${keCycles.length}\u500B\uFF09`);
+        keCycles.forEach((cycle, idx) => {
+          forces.push(`    ${idx + 1}. ${cycle.description}\uFF08\u56B4\u91CD\u6027: ${cycle.severity}\uFF09`);
+        });
       }
-      if (!sihua.hasJiCycle && !sihua.hasLuCycle && sihua.quanCycles.length === 0 && sihua.keCycles.length === 0) {
+      if (jiCycles.length === 0 && luCycles.length === 0 && quanCycles.length === 0 && keCycles.length === 0) {
         forces.push("  \u7121\u5075\u6E2C\u5230\u80FD\u91CF\u5FAA\u74B0");
       }
       forces.push("");
@@ -38526,22 +38611,48 @@ ${question}` }]
                 parts: modelParts
               });
               const functionResponses = [];
-              for (const fc of functionCalls) {
+              const toolExecutionPromises = functionCalls.map(async (fc) => {
                 const stepStart = Date.now();
-                const observation = await self.executeTool(fc.name, calculationResult, locale2);
-                const stepLatency = Date.now() - stepStart;
-                steps.push({
-                  toolName: fc.name,
-                  toolArgs: fc.args,
-                  toolOutput: observation,
-                  latency: stepLatency
-                });
-                functionResponses.push({
-                  functionResponse: {
-                    name: fc.name,
-                    response: { result: observation }
-                  }
-                });
+                try {
+                  const observation = await self.executeTool(fc.name, calculationResult, locale2);
+                  const stepLatency = Date.now() - stepStart;
+                  return {
+                    success: true,
+                    functionCall: fc,
+                    observation,
+                    stepLatency
+                  };
+                } catch (error46) {
+                  const stepLatency = Date.now() - stepStart;
+                  const errorMsg = locale2 === "zh-TW" ? `\u932F\u8AA4\uFF1A\u5DE5\u5177 "${fc.name}" \u57F7\u884C\u5931\u6557 - ${error46 instanceof Error ? error46.message : String(error46)}` : `Error: Tool "${fc.name}" execution failed - ${error46 instanceof Error ? error46.message : String(error46)}`;
+                  console.error(`[AgenticGemini] Tool execution failed: ${fc.name}`, error46);
+                  return {
+                    success: false,
+                    functionCall: fc,
+                    observation: errorMsg,
+                    stepLatency
+                  };
+                }
+              });
+              const results = await Promise.allSettled(toolExecutionPromises);
+              for (const result of results) {
+                if (result.status === "fulfilled") {
+                  const { success: success2, functionCall, observation, stepLatency } = result.value;
+                  steps.push({
+                    toolName: functionCall.name,
+                    toolArgs: functionCall.args,
+                    toolOutput: observation,
+                    latency: stepLatency
+                  });
+                  functionResponses.push({
+                    functionResponse: {
+                      name: functionCall.name,
+                      response: { result: observation }
+                    }
+                  });
+                } else {
+                  console.error("[AgenticGemini] Tool promise rejected:", result.reason);
+                }
               }
               conversationHistory.push({
                 role: "user",

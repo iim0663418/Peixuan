@@ -256,3 +256,11 @@
 - [DECISION] 2025-12-22: 每日分析一致性策略完整提交成功。Commit 6a3b931 包含所有核心修改，已推送到 main 分支。準備合併到 main。
 
 - [DECISION] 2025-12-24: Gemini優化分析中止。生成了完整的雙引擎差異分析報告(.specify/specs/gemini_optimization_analysis.md)，識別關鍵優化點：並行工具執行、提示詞調優、ReAct循環強化。用戶決定暫停實施，保留分析結果供未來參考。
+
+- [DECISION] 2026-01-01: P1 完成 - 剩餘3工具null-safety修復成功。get_bazi_profile、get_annual_context、get_life_forces已添加完整的可選鏈接和空值合併保護。雙服務同步修復，staging部署版本 fbdcfd0b-1a80-4101-a942-27c17bca1383。
+
+- [DECISION] 2026-01-01: Phase 2 Priority 1 完成 - 並行工具執行優化實施成功。使用Promise.allSettled()實現5工具並行執行，預期30-40%延遲降低。雙服務同步優化，staging部署版本 721629fc-611e-4c4e-9177-f69e4c3f6bfc。
+
+- [DECISION] 2026-01-01: Phase 2 Priority 2 完成 - 視覺化組件庫實施成功。創建WuXingRadar雷達圖組件，實現圖表類型切換，零依賴原生SVG實現。staging部署版本 d6c5e12b-38d0-4897-958a-a79295435163。
+
+- [DECISION] 2026-01-01: 整合測試套件實施完成但需要Mock修復。創建了ReAct流程和並行執行測試基礎設施，但測試調用真實Gemini API而非Mock。需要修復Mock注入機制以實現離線測試。

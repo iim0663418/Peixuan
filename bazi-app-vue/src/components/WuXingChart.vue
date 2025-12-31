@@ -1,6 +1,15 @@
 <template>
   <div class="wuxing-chart">
-    <div class="chart-container">
+    <!-- Chart Type Toggle -->
+    <div class="chart-controls">
+      <el-radio-group v-model="chartType" size="small" class="chart-type-toggle">
+        <el-radio-button value="bar">長條圖</el-radio-button>
+        <el-radio-button value="radar">雷達圖</el-radio-button>
+      </el-radio-group>
+    </div>
+
+    <!-- Bar Chart View -->
+    <div v-if="chartType === 'bar'" class="chart-container">
       <div v-for="element in elements" :key="element.name" class="element-bar">
         <div class="element-info">
           <span class="element-name" :style="{ color: element.color }">{{
@@ -32,6 +41,15 @@
       </div>
     </div>
 
+    <!-- Radar Chart View -->
+    <WuXingRadar
+      v-else
+      :distribution="distribution"
+      :show-raw="true"
+      :show-score-labels="false"
+    />
+
+    <!-- Summary (shown for both views) -->
     <div class="summary">
       <el-tag v-if="distribution.dominant" type="success" size="large">
         優勢: {{ distribution.dominant }}
@@ -44,7 +62,8 @@
       </el-tag>
     </div>
 
-    <div class="legend">
+    <!-- Legend (shown only for bar chart) -->
+    <div v-if="chartType === 'bar'" class="legend">
       <span class="legend-item">
         <span class="legend-dot raw" />
         原始得分
@@ -58,39 +77,31 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-
-interface WuXingDistribution {
-  raw: { 木: number; 火: number; 土: number; 金: number; 水: number };
-  adjusted: { 木: number; 火: number; 土: number; 金: number; 水: number };
-  dominant: string | null;
-  deficient: string | null;
-  balance: number;
-}
+import { computed, ref } from 'vue';
+import WuXingRadar from './visualizations/WuXingRadar.vue';
+import {
+  ELEMENT_COLORS,
+  ELEMENT_NAMES,
+  type WuXingDistribution,
+} from './visualizations/constants';
 
 interface Props {
   distribution: WuXingDistribution;
+  defaultChartType?: 'bar' | 'radar';
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  defaultChartType: 'bar',
+});
 
-const ELEMENT_COLORS: Record<string, string> = {
-  木: '#10b981',
-  火: '#ef4444',
-  土: '#f59e0b',
-  金: '#fbbf24',
-  水: '#3b82f6',
-};
+// Chart type toggle state
+const chartType = ref<'bar' | 'radar'>(props.defaultChartType);
 
 const elements = computed(() => {
-  const elementNames = ['木', '火', '土', '金', '水'];
-  return elementNames.map((name) => ({
+  return ELEMENT_NAMES.map((name) => ({
     name,
-    raw: props.distribution.raw[name as keyof typeof props.distribution.raw],
-    adjusted:
-      props.distribution.adjusted[
-        name as keyof typeof props.distribution.adjusted
-      ],
+    raw: props.distribution.raw[name],
+    adjusted: props.distribution.adjusted[name],
     color: ELEMENT_COLORS[name],
   }));
 });
@@ -129,6 +140,18 @@ const getBarWidth = (score: number): string => {
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+}
+
+.chart-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: clamp(12px, 3vw, 16px);
+  box-sizing: border-box;
+}
+
+.chart-type-toggle {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
 }
 
 .chart-container {

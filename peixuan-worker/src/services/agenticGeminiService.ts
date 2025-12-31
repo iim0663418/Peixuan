@@ -199,6 +199,13 @@ export class AgenticGeminiService {
   private getBaziProfile(result: CalculationResult, locale: string = 'zh-TW'): string {
     const bazi = result.bazi;
 
+    // Validate required data
+    if (!bazi?.fourPillars || !bazi?.wuxingDistribution) {
+      return locale === 'zh-TW'
+        ? '【八字命盤資料】\n\n錯誤：八字數據不完整'
+        : '【BaZi Chart Profile】\n\nError: BaZi data incomplete';
+    }
+
     if (locale === 'zh-TW') {
       // Chinese version
       const profile = [
@@ -216,11 +223,11 @@ export class AgenticGeminiService {
         '日主：' + bazi.fourPillars.day.stem,
         '',
         '五行分布：',
-        `木：${bazi.wuxingDistribution.adjusted.Wood} | 火：${bazi.wuxingDistribution.adjusted.Fire} | 土：${bazi.wuxingDistribution.adjusted.Earth} | 金：${bazi.wuxingDistribution.adjusted.Metal} | 水：${bazi.wuxingDistribution.adjusted.Water}`,
+        `木：${bazi.wuxingDistribution.adjusted?.Wood ?? 0} | 火：${bazi.wuxingDistribution.adjusted?.Fire ?? 0} | 土：${bazi.wuxingDistribution.adjusted?.Earth ?? 0} | 金：${bazi.wuxingDistribution.adjusted?.Metal ?? 0} | 水：${bazi.wuxingDistribution.adjusted?.Water ?? 0}`,
         '',
         '命局特徵：',
-        `主導五行：${bazi.wuxingDistribution.dominant}`,
-        `缺失五行：${bazi.wuxingDistribution.deficient}`
+        `主導五行：${bazi.wuxingDistribution.dominant ?? '未知'}`,
+        `缺失五行：${bazi.wuxingDistribution.deficient ?? '未知'}`
       ];
       return profile.join('\n');
     } else {
@@ -240,11 +247,11 @@ export class AgenticGeminiService {
         'Day Master: ' + bazi.fourPillars.day.stem,
         '',
         'Five Elements Distribution:',
-        `Wood: ${bazi.wuxingDistribution.adjusted.Wood} | Fire: ${bazi.wuxingDistribution.adjusted.Fire} | Earth: ${bazi.wuxingDistribution.adjusted.Earth} | Metal: ${bazi.wuxingDistribution.adjusted.Metal} | Water: ${bazi.wuxingDistribution.adjusted.Water}`,
+        `Wood: ${bazi.wuxingDistribution.adjusted?.Wood ?? 0} | Fire: ${bazi.wuxingDistribution.adjusted?.Fire ?? 0} | Earth: ${bazi.wuxingDistribution.adjusted?.Earth ?? 0} | Metal: ${bazi.wuxingDistribution.adjusted?.Metal ?? 0} | Water: ${bazi.wuxingDistribution.adjusted?.Water ?? 0}`,
         '',
         'Chart Characteristics:',
-        `Dominant Element: ${bazi.wuxingDistribution.dominant}`,
-        `Deficient Element: ${bazi.wuxingDistribution.deficient}`
+        `Dominant Element: ${bazi.wuxingDistribution.dominant ?? 'Unknown'}`,
+        `Deficient Element: ${bazi.wuxingDistribution.deficient ?? 'Unknown'}`
       ];
       return profile.join('\n');
     }
@@ -282,14 +289,29 @@ export class AgenticGeminiService {
       }
     });
 
-    // Add SiHua summary if available
-    if (ziwei.sihua && ziwei.sihua.summary) {
+    // Add SiHua summary if available - extract from sihuaAggregation
+    if (ziwei.sihuaAggregation?.edges && result.bazi.fourPillars.year.stem) {
+      const birthYearStem = result.bazi.fourPillars.year.stem;
+
+      // Filter natal edges matching birth year stem
+      const natalEdges = ziwei.sihuaAggregation.edges.filter(
+        edge => edge.layer === 'natal' && edge.sourceStem === birthYearStem
+      );
+
+      // Extract star names by transformation type
+      const sihuaSummary = {
+        lu: natalEdges.find(e => e.sihuaType === '祿')?.starName || '無',
+        quan: natalEdges.find(e => e.sihuaType === '權')?.starName || '無',
+        ke: natalEdges.find(e => e.sihuaType === '科')?.starName || '無',
+        ji: natalEdges.find(e => e.sihuaType === '忌')?.starName || '無'
+      };
+
       chart.push('');
       chart.push('四化情況：');
-      chart.push(`化祿：${ziwei.sihua.summary.lu || '無'}`);
-      chart.push(`化權：${ziwei.sihua.summary.quan || '無'}`);
-      chart.push(`化科：${ziwei.sihua.summary.ke || '無'}`);
-      chart.push(`化忌：${ziwei.sihua.summary.ji || '無'}`);
+      chart.push(`化祿：${sihuaSummary.lu}`);
+      chart.push(`化權：${sihuaSummary.quan}`);
+      chart.push(`化科：${sihuaSummary.ke}`);
+      chart.push(`化忌：${sihuaSummary.ji}`);
     }
 
     return chart.join('\n');
@@ -312,24 +334,27 @@ export class AgenticGeminiService {
     ];
 
     // Add annual fortune if available
-    if (bazi.fortune && bazi.fortune.annual) {
-      const annual = bazi.fortune.annual;
-      transit.push(`流年干支：${annual.pillar.stem}${annual.pillar.branch}`);
+    if (result.annualFortune) {
+      const annual = result.annualFortune;
+      transit.push(`流年干支：${annual.annualPillar.stem}${annual.annualPillar.branch}`);
 
-      if (annual.taiSui) {
-        transit.push(`太歲：${annual.taiSui.deity} (${annual.taiSui.direction})`);
+      if (annual.taiSuiAnalysis && annual.taiSuiAnalysis.severity !== 'none') {
+        transit.push(`太歲互動：${annual.taiSuiAnalysis.types.join('、')}`);
       }
+    } else {
+      transit.push('流年資訊：尚未計算（需要提供查詢年份）');
     }
 
     // Add current decade (大運) if available
-    if (bazi.fortune && bazi.fortune.dayun) {
-      const current = bazi.fortune.dayun.current;
-      if (current) {
-        transit.push('');
-        transit.push('當前大運：');
-        transit.push(`大運干支：${current.stem}${current.branch}`);
-        transit.push(`起運年齡：${current.startAge} - ${current.endAge}歲`);
-      }
+    if (bazi.fortuneCycles && bazi.fortuneCycles.currentDayun) {
+      const current = bazi.fortuneCycles.currentDayun;
+      transit.push('');
+      transit.push('當前大運：');
+      transit.push(`大運干支：${current.stem}${current.branch}`);
+      transit.push(`起運年齡：${current.startAge} - ${current.endAge}歲`);
+    } else {
+      transit.push('');
+      transit.push('當前大運：尚未計算或不在大運週期內');
     }
 
     transit.push('');
@@ -380,7 +405,7 @@ export class AgenticGeminiService {
       const interactions = [];
       if (taiSui.zhi) interactions.push('值太歲（本命年）');
       if (taiSui.chong) interactions.push('沖太歲（六沖）');
-      if (taiSui.xing.hasXing) {
+      if (taiSui.xing?.hasXing) {
         const xingDesc = taiSui.xing.description || '刑太歲';
         interactions.push(xingDesc);
       }
@@ -408,9 +433,10 @@ export class AgenticGeminiService {
     const interactions = annual.interactions;
 
     // Stem combinations (天干五合)
-    if (interactions.stemCombinations.length > 0) {
+    const stemCombinations = interactions?.stemCombinations ?? [];
+    if (stemCombinations.length > 0) {
       context.push('天干五合：');
-      interactions.stemCombinations.forEach(comb => {
+      stemCombinations.forEach(comb => {
         context.push(`  • ${comb.natal} + ${comb.annual} → ${comb.resultElement}（${comb.type}）`);
       });
     } else {
@@ -418,9 +444,10 @@ export class AgenticGeminiService {
     }
 
     // Branch clashes (地支六沖)
-    if (interactions.branchClashes.length > 0) {
+    const branchClashes = interactions?.branchClashes ?? [];
+    if (branchClashes.length > 0) {
       context.push('地支六沖：');
-      interactions.branchClashes.forEach(clash => {
+      branchClashes.forEach(clash => {
         context.push(`  • ${clash.natal} ⚡ ${clash.annual}（${clash.severity}）`);
       });
     } else {
@@ -428,9 +455,10 @@ export class AgenticGeminiService {
     }
 
     // Harmonious combinations (三合/三會)
-    if (interactions.harmoniousCombinations.length > 0) {
+    const harmoniousCombinations = interactions?.harmoniousCombinations ?? [];
+    if (harmoniousCombinations.length > 0) {
       context.push('吉祥組合（三合/三會）：');
-      interactions.harmoniousCombinations.forEach(combo => {
+      harmoniousCombinations.forEach(combo => {
         context.push(`  • ${combo.branches.join('、')} → ${combo.resultElement}（${combo.type}）`);
       });
     } else {
@@ -445,17 +473,21 @@ export class AgenticGeminiService {
 
       if (forecast.currentPeriod) {
         const curr = forecast.currentPeriod;
-        context.push(`當前階段：${curr.pillar.stem}${curr.pillar.branch}年`);
-        context.push(`時間範圍：${curr.startDate.split('T')[0]} 至 ${curr.endDate.split('T')[0]}`);
-        context.push(`歲數：${curr.age}歲`);
+        if (curr.pillar) {
+          context.push(`當前階段：${curr.pillar.stem}${curr.pillar.branch}年`);
+          context.push(`時間範圍：${curr.startDate.split('T')[0]} 至 ${curr.endDate.split('T')[0]}`);
+          context.push(`歲數：${curr.age}歲`);
+        }
       }
 
       if (forecast.nextPeriod) {
         const next = forecast.nextPeriod;
-        context.push('');
-        context.push(`下個階段：${next.pillar.stem}${next.pillar.branch}年`);
-        context.push(`時間範圍：${next.startDate.split('T')[0]} 至 ${next.endDate.split('T')[0]}`);
-        context.push(`歲數：${next.age}歲`);
+        if (next.pillar) {
+          context.push('');
+          context.push(`下個階段：${next.pillar.stem}${next.pillar.branch}年`);
+          context.push(`時間範圍：${next.startDate.split('T')[0]} 至 ${next.endDate.split('T')[0]}`);
+          context.push(`歲數：${next.age}歲`);
+        }
       }
 
       context.push('');
@@ -485,21 +517,21 @@ export class AgenticGeminiService {
 
     forces.push('一、五行能量分布');
     forces.push('調整後分數（已含季節權重）：');
-    forces.push(`  木：${wuxing.adjusted.Wood.toFixed(2)}`);
-    forces.push(`  火：${wuxing.adjusted.Fire.toFixed(2)}`);
-    forces.push(`  土：${wuxing.adjusted.Earth.toFixed(2)}`);
-    forces.push(`  金：${wuxing.adjusted.Metal.toFixed(2)}`);
-    forces.push(`  水：${wuxing.adjusted.Water.toFixed(2)}`);
+    forces.push(`  木：${(wuxing.adjusted?.Wood ?? 0).toFixed(2)}`);
+    forces.push(`  火：${(wuxing.adjusted?.Fire ?? 0).toFixed(2)}`);
+    forces.push(`  土：${(wuxing.adjusted?.Earth ?? 0).toFixed(2)}`);
+    forces.push(`  金：${(wuxing.adjusted?.Metal ?? 0).toFixed(2)}`);
+    forces.push(`  水：${(wuxing.adjusted?.Water ?? 0).toFixed(2)}`);
     forces.push('');
-    forces.push(`主導五行：${wuxing.dominant}（能量最強）`);
-    forces.push(`缺失五行：${wuxing.deficient}（能量最弱）`);
-    forces.push(`平衡指數：${(wuxing.balance * 100).toFixed(1)}%（100%為完美平衡）`);
+    forces.push(`主導五行：${wuxing.dominant ?? '未知'}（能量最強）`);
+    forces.push(`缺失五行：${wuxing.deficient ?? '未知'}（能量最弱）`);
+    forces.push(`平衡指數：${((wuxing.balance ?? 0) * 100).toFixed(1)}%（100%為完美平衡）`);
     forces.push('');
     forces.push('原始計數（未調整）：');
     forces.push('  天干分布：');
-    forces.push(`    木：${wuxing.raw.tiangan.Wood} | 火：${wuxing.raw.tiangan.Fire} | 土：${wuxing.raw.tiangan.Earth} | 金：${wuxing.raw.tiangan.Metal} | 水：${wuxing.raw.tiangan.Water}`);
+    forces.push(`    木：${wuxing.raw?.tiangan?.Wood ?? 0} | 火：${wuxing.raw?.tiangan?.Fire ?? 0} | 土：${wuxing.raw?.tiangan?.Earth ?? 0} | 金：${wuxing.raw?.tiangan?.Metal ?? 0} | 水：${wuxing.raw?.tiangan?.Water ?? 0}`);
     forces.push('  藏干分布（加權）：');
-    forces.push(`    木：${wuxing.raw.hiddenStems.Wood.toFixed(2)} | 火：${wuxing.raw.hiddenStems.Fire.toFixed(2)} | 土：${wuxing.raw.hiddenStems.Earth.toFixed(2)} | 金：${wuxing.raw.hiddenStems.Metal.toFixed(2)} | 水：${wuxing.raw.hiddenStems.Water.toFixed(2)}`);
+    forces.push(`    木：${(wuxing.raw?.hiddenStems?.Wood ?? 0).toFixed(2)} | 火：${(wuxing.raw?.hiddenStems?.Fire ?? 0).toFixed(2)} | 土：${(wuxing.raw?.hiddenStems?.Earth ?? 0).toFixed(2)} | 金：${(wuxing.raw?.hiddenStems?.Metal ?? 0).toFixed(2)} | 水：${(wuxing.raw?.hiddenStems?.Water ?? 0).toFixed(2)}`);
     forces.push('');
 
     // 2. SiHua Aggregation (四化能量聚散)
@@ -511,8 +543,9 @@ export class AgenticGeminiService {
 
       // Stress nodes (壓力匯聚點)
       forces.push('壓力匯聚點（高忌入度）：');
-      if (sihua.stressNodes.length > 0) {
-        sihua.stressNodes.forEach(node => {
+      const stressNodes = sihua.stressNodes ?? [];
+      if (stressNodes.length > 0) {
+        stressNodes.forEach(node => {
           forces.push(`  • ${node.palaceName}（入度: ${node.inDegree}, 嚴重性: ${node.severity}）`);
         });
         forces.push('  → 這些宮位承受較多的化忌能量,容易形成壓力或挑戰');
@@ -523,8 +556,9 @@ export class AgenticGeminiService {
 
       // Resource nodes (資源發源點)
       forces.push('資源發源點（高祿出度）：');
-      if (sihua.resourceNodes.length > 0) {
-        sihua.resourceNodes.forEach(node => {
+      const resourceNodes = sihua.resourceNodes ?? [];
+      if (resourceNodes.length > 0) {
+        resourceNodes.forEach(node => {
           forces.push(`  • ${node.palaceName}（出度: ${node.outDegree}, 重要性: ${node.severity}）`);
         });
         forces.push('  → 這些宮位能向外輸出資源與財富能量');
@@ -535,8 +569,9 @@ export class AgenticGeminiService {
 
       // Power nodes (權力中心)
       forces.push('權力中心（高權出度）：');
-      if (sihua.powerNodes.length > 0) {
-        sihua.powerNodes.forEach(node => {
+      const powerNodes = sihua.powerNodes ?? [];
+      if (powerNodes.length > 0) {
+        powerNodes.forEach(node => {
           forces.push(`  • ${node.palaceName}（出度: ${node.outDegree}, 重要性: ${node.severity}）`);
         });
         forces.push('  → 這些宮位能向外輸出權威與影響力');
@@ -547,8 +582,9 @@ export class AgenticGeminiService {
 
       // Fame nodes (名聲中心)
       forces.push('名聲中心（高科出度）：');
-      if (sihua.fameNodes.length > 0) {
-        sihua.fameNodes.forEach(node => {
+      const fameNodes = sihua.fameNodes ?? [];
+      if (fameNodes.length > 0) {
+        fameNodes.forEach(node => {
           forces.push(`  • ${node.palaceName}（出度: ${node.outDegree}, 重要性: ${node.severity}）`);
         });
         forces.push('  → 這些宮位能向外輸出名聲與學識能量');
@@ -560,29 +596,40 @@ export class AgenticGeminiService {
       // Cycle detection (能量循環)
       forces.push('能量循環偵測：');
 
-      if (sihua.hasJiCycle) {
-        forces.push(`  • 偵測到化忌循環（${sihua.jiCycles.length}個）`);
-        sihua.jiCycles.forEach((cycle, idx) => {
+      const jiCycles = sihua.jiCycles ?? [];
+      const luCycles = sihua.luCycles ?? [];
+      const quanCycles = sihua.quanCycles ?? [];
+      const keCycles = sihua.keCycles ?? [];
+
+      if (sihua.hasJiCycle && jiCycles.length > 0) {
+        forces.push(`  • 偵測到化忌循環（${jiCycles.length}個）`);
+        jiCycles.forEach((cycle, idx) => {
           forces.push(`    ${idx + 1}. ${cycle.description}（嚴重性: ${cycle.severity}）`);
         });
       }
 
-      if (sihua.hasLuCycle) {
-        forces.push(`  • 偵測到化祿循環（${sihua.luCycles.length}個）`);
-        sihua.luCycles.forEach((cycle, idx) => {
+      if (sihua.hasLuCycle && luCycles.length > 0) {
+        forces.push(`  • 偵測到化祿循環（${luCycles.length}個）`);
+        luCycles.forEach((cycle, idx) => {
           forces.push(`    ${idx + 1}. ${cycle.description}（嚴重性: ${cycle.severity}）`);
         });
       }
 
-      if (sihua.quanCycles.length > 0) {
-        forces.push(`  • 偵測到化權循環（${sihua.quanCycles.length}個）`);
+      if (quanCycles.length > 0) {
+        forces.push(`  • 偵測到化權循環（${quanCycles.length}個）`);
+        quanCycles.forEach((cycle, idx) => {
+          forces.push(`    ${idx + 1}. ${cycle.description}（嚴重性: ${cycle.severity}）`);
+        });
       }
 
-      if (sihua.keCycles.length > 0) {
-        forces.push(`  • 偵測到化科循環（${sihua.keCycles.length}個）`);
+      if (keCycles.length > 0) {
+        forces.push(`  • 偵測到化科循環（${keCycles.length}個）`);
+        keCycles.forEach((cycle, idx) => {
+          forces.push(`    ${idx + 1}. ${cycle.description}（嚴重性: ${cycle.severity}）`);
+        });
       }
 
-      if (!sihua.hasJiCycle && !sihua.hasLuCycle && sihua.quanCycles.length === 0 && sihua.keCycles.length === 0) {
+      if (jiCycles.length === 0 && luCycles.length === 0 && quanCycles.length === 0 && keCycles.length === 0) {
         forces.push('  無偵測到能量循環');
       }
       forces.push('');
@@ -789,27 +836,66 @@ export class AgenticGeminiService {
                 parts: modelParts
               });
 
-              // Execute tools and collect observations
+              // Execute tools in parallel with error handling for partial failures
               const functionResponses = [];
-              for (const fc of functionCalls) {
+
+              // Execute all tools concurrently using Promise.allSettled for partial failure handling
+              const toolExecutionPromises = functionCalls.map(async (fc) => {
                 const stepStart = Date.now();
-                const observation = await self.executeTool(fc.name, calculationResult, locale);
-                const stepLatency = Date.now() - stepStart;
+                try {
+                  const observation = await self.executeTool(fc.name, calculationResult, locale);
+                  const stepLatency = Date.now() - stepStart;
 
-                // Track step for analytics
-                steps.push({
-                  toolName: fc.name,
-                  toolArgs: fc.args,
-                  toolOutput: observation,
-                  latency: stepLatency
-                });
+                  return {
+                    success: true,
+                    functionCall: fc,
+                    observation,
+                    stepLatency
+                  };
+                } catch (error) {
+                  const stepLatency = Date.now() - stepStart;
+                  const errorMsg = locale === 'zh-TW'
+                    ? `錯誤：工具 "${fc.name}" 執行失敗 - ${error instanceof Error ? error.message : String(error)}`
+                    : `Error: Tool "${fc.name}" execution failed - ${error instanceof Error ? error.message : String(error)}`;
 
-                functionResponses.push({
-                  functionResponse: {
-                    name: fc.name,
-                    response: { result: observation }
-                  }
-                });
+                  console.error(`[AgenticGemini] Tool execution failed: ${fc.name}`, error);
+
+                  return {
+                    success: false,
+                    functionCall: fc,
+                    observation: errorMsg,
+                    stepLatency
+                  };
+                }
+              });
+
+              // Wait for all tools to complete (or fail)
+              const results = await Promise.allSettled(toolExecutionPromises);
+
+              // Process results and collect analytics
+              for (const result of results) {
+                if (result.status === 'fulfilled') {
+                  const { success, functionCall, observation, stepLatency } = result.value;
+
+                  // Track step for analytics
+                  steps.push({
+                    toolName: functionCall.name,
+                    toolArgs: functionCall.args,
+                    toolOutput: observation,
+                    latency: stepLatency
+                  });
+
+                  // Add to function responses (even if failed, pass error message to LLM)
+                  functionResponses.push({
+                    functionResponse: {
+                      name: functionCall.name,
+                      response: { result: observation }
+                    }
+                  });
+                } else {
+                  // Promise.allSettled rejection (should be rare as we catch inside)
+                  console.error('[AgenticGemini] Tool promise rejected:', result.reason);
+                }
               }
 
               // Add function responses to history

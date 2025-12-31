@@ -264,3 +264,9 @@
 - [DECISION] 2026-01-01: Phase 2 Priority 2 完成 - 視覺化組件庫實施成功。創建WuXingRadar雷達圖組件，實現圖表類型切換，零依賴原生SVG實現。staging部署版本 d6c5e12b-38d0-4897-958a-a79295435163。
 
 - [DECISION] 2026-01-01: 整合測試套件實施完成但需要Mock修復。創建了ReAct流程和並行執行測試基礎設施，但測試調用真實Gemini API而非Mock。需要修復Mock注入機制以實現離線測試。
+
+- [DECISION] 2026-01-01: 整合測試套件Mock修復完成但需要Mock機制需要修復以實現離線測試。
+
+- [DECISION] 2026-01-01: 整合測試套件Mock修復完成。5個失敗測試全部修復：SSE [DONE] token處理、對話歷史存取修正、變數命名改善。測試現在正確使用Mock而非真實API，實現完全離線測試。
+
+- [DECISION] 2026-01-01: Phase 2 Priority 3 完成 - 整合測試套件基礎設施實施成功。創建了ReAct流程和並行執行測試基礎設施，MockLLMProvider框架，8個測試案例全部通過。Mock注入機制修復完成，實現完全離線測試。

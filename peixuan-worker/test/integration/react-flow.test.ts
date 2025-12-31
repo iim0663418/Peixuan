@@ -90,7 +90,7 @@ describe('ReAct Flow Integration Tests', () => {
 
       // Inject mock into service
       // @ts-expect-error - Accessing private method for testing
-      service.callGeminiAPI = mockCallGeminiAPI;
+      service.callGeminiWithFunctions = mockCallGeminiAPI;
 
       // Execute: Generate daily insight
       const stream = await service.generateDailyInsight(
@@ -113,7 +113,10 @@ describe('ReAct Flow Integration Tests', () => {
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
-            const data = JSON.parse(line.substring(6));
+            const dataStr = line.substring(6);
+            // Skip [DONE] token
+            if (dataStr === '[DONE]') continue;
+            const data = JSON.parse(dataStr);
             events.push(data);
           }
         }
@@ -158,9 +161,10 @@ describe('ReAct Flow Integration Tests', () => {
       // 4. Should emit SSE events with correct sequence
       expect(events.length).toBeGreaterThan(0);
 
-      // Find thought event
-      const thoughtEvent = events.find(e => e.state && e.state.includes('查看八字命盤'));
-      expect(thoughtEvent).toBeDefined();
+      // Find action event (state message about executing get_bazi_profile)
+      const actionEvent = events.find(e => e.state && e.state.includes('get_bazi_profile'));
+      expect(actionEvent).toBeDefined();
+      expect(actionEvent?.state).toContain('正在查詢');
 
       // Find final answer chunks
       const answerChunks = events.filter(e => e.text);
@@ -233,7 +237,7 @@ describe('ReAct Flow Integration Tests', () => {
       });
 
       // @ts-expect-error - Accessing private method for testing
-      service.callGeminiAPI = mockCallGeminiAPI;
+      service.callGeminiWithFunctions = mockCallGeminiAPI;
 
       // Execute
       const stream = await service.generateDailyInsight(
@@ -252,18 +256,22 @@ describe('ReAct Flow Integration Tests', () => {
       // Assert: Should have made 3 API calls
       expect(mockCallGeminiAPI).toHaveBeenCalledTimes(3);
 
-      // Verify conversation history grows with each turn
-      const call2 = mockCallGeminiAPI.mock.calls[1][0];
-      const call3 = mockCallGeminiAPI.mock.calls[2][0];
+      // Note: conversationHistory is mutated between calls, so we can't compare lengths directly
+      // Instead, verify the final conversation history has the correct structure
+      const finalMessages = mockCallGeminiAPI.mock.calls[2][0];
 
-      // Second call should have more messages than first
-      expect(call2.length).toBeGreaterThan(mockCallGeminiAPI.mock.calls[0][0].length);
+      // Final call should have 5 messages: initial user + (model + user function response) x 2
+      expect(finalMessages.length).toBe(5);
 
-      // Third call should have more messages than second
-      expect(call3.length).toBeGreaterThan(call2.length);
+      // Verify message structure: user, model, user, model, user
+      expect(finalMessages[0].role).toBe('user');
+      expect(finalMessages[1].role).toBe('model');
+      expect(finalMessages[2].role).toBe('user');
+      expect(finalMessages[3].role).toBe('model');
+      expect(finalMessages[4].role).toBe('user');
 
       // Verify both function responses are in the final call
-      const call3String = JSON.stringify(call3);
+      const call3String = JSON.stringify(finalMessages);
       expect(call3String).toContain('get_bazi_profile');
       expect(call3String).toContain('get_ziwei_chart');
     });
@@ -293,7 +301,7 @@ describe('ReAct Flow Integration Tests', () => {
       mockCallGeminiAPI.mockImplementation(async () => mockResponses[0]);
 
       // @ts-expect-error - Accessing private method for testing
-      service.callGeminiAPI = mockCallGeminiAPI;
+      service.callGeminiWithFunctions = mockCallGeminiAPI;
 
       // Execute with history context
       const historyContext = '使用者: 我最近工作壓力很大\n佩璇: 我了解您的壓力...';
@@ -345,7 +353,7 @@ describe('ReAct Flow Integration Tests', () => {
       mockCallGeminiAPI.mockImplementation(async () => mockResponses[0]);
 
       // @ts-expect-error - Accessing private method for testing
-      service.callGeminiAPI = mockCallGeminiAPI;
+      service.callGeminiWithFunctions = mockCallGeminiAPI;
 
       // Execute with options including chartId
       const stream = await service.generateDailyInsight(

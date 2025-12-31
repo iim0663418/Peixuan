@@ -91,7 +91,7 @@ describe('Parallel Tool Execution Integration Tests', () => {
       });
 
       // @ts-expect-error - Accessing private method for testing
-      service.callGeminiAPI = mockCallGeminiAPI;
+      service.callGeminiWithFunctions = mockCallGeminiAPI;
 
       // Execute
       const startTime = Date.now();
@@ -185,7 +185,7 @@ describe('Parallel Tool Execution Integration Tests', () => {
       });
 
       // @ts-expect-error - Accessing private method for testing
-      service.callGeminiAPI = mockCallGeminiAPI;
+      service.callGeminiWithFunctions = mockCallGeminiAPI;
 
       // Execute
       const stream = await service.generateDailyInsight(
@@ -228,7 +228,9 @@ describe('Parallel Tool Execution Integration Tests', () => {
 
       // 3. Second API call should include all function responses (including error)
       const secondCall = mockCallGeminiAPI.mock.calls[1][0];
-      const functionResponseParts = secondCall.find((msg: any) => msg.role === 'user')?.parts || [];
+      // Find the LAST user message (which contains function responses)
+      const userMessages = secondCall.filter((msg: any) => msg.role === 'user');
+      const functionResponseParts = userMessages[userMessages.length - 1]?.parts || [];
 
       // Should have 3 function responses
       expect(functionResponseParts.length).toBe(3);
@@ -294,7 +296,7 @@ describe('Parallel Tool Execution Integration Tests', () => {
       });
 
       // @ts-expect-error - Accessing private method for testing
-      service.callGeminiAPI = mockCallGeminiAPI;
+      service.callGeminiWithFunctions = mockCallGeminiAPI;
 
       // Execute
       const stream = await service.generateDailyInsight(
@@ -311,7 +313,9 @@ describe('Parallel Tool Execution Integration Tests', () => {
 
       // Assert: Error message should be in Chinese and informative
       const secondCall = mockCallGeminiAPI.mock.calls[1][0];
-      const errorResponse = secondCall.find((msg: any) => msg.role === 'user')?.parts[0];
+      // Find the LAST user message (which contains function responses)
+      const userMessages = secondCall.filter((msg: any) => msg.role === 'user');
+      const errorResponse = userMessages[userMessages.length - 1]?.parts[0];
 
       expect(errorResponse).toBeDefined();
       const errorText = JSON.stringify(errorResponse);
@@ -371,7 +375,7 @@ describe('Parallel Tool Execution Integration Tests', () => {
       });
 
       // @ts-expect-error - Accessing private method for testing
-      service.callGeminiAPI = mockCallGeminiAPI;
+      service.callGeminiWithFunctions = mockCallGeminiAPI;
 
       // Execute
       const stream = await service.generateDailyInsight(
@@ -398,7 +402,9 @@ describe('Parallel Tool Execution Integration Tests', () => {
 
       // Second call should have 2 error responses
       const secondCall = mockCallGeminiAPI.mock.calls[1][0];
-      const responses = secondCall.find((msg: any) => msg.role === 'user')?.parts || [];
+      // Find the LAST user message (which contains function responses)
+      const userMessages = secondCall.filter((msg: any) => msg.role === 'user');
+      const responses = userMessages[userMessages.length - 1]?.parts || [];
       expect(responses.length).toBe(2);
 
       // Both should contain error messages

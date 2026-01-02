@@ -46,7 +46,7 @@ export class DailyReminderController {
     db: D1Database,
     chartId: string,
     date: string | Date,
-    locale: string = 'zh-TW'
+    locale = 'zh-TW'
   ): Promise<DailyReminder> {
     try {
       // Step 1: Query chart data from D1

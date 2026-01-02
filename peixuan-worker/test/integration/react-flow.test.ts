@@ -106,7 +106,7 @@ describe('ReAct Flow Integration Tests', () => {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {break;}
 
         const chunk = decoder.decode(value);
         const lines = chunk.split('\n');
@@ -115,7 +115,7 @@ describe('ReAct Flow Integration Tests', () => {
           if (line.startsWith('data: ')) {
             const dataStr = line.substring(6);
             // Skip [DONE] token
-            if (dataStr === '[DONE]') continue;
+            if (dataStr === '[DONE]') {continue;}
             const data = JSON.parse(dataStr);
             events.push(data);
           }
@@ -250,7 +250,7 @@ describe('ReAct Flow Integration Tests', () => {
       const reader = stream.getReader();
       while (true) {
         const { done } = await reader.read();
-        if (done) break;
+        if (done) {break;}
       }
 
       // Assert: Should have made 3 API calls
@@ -316,7 +316,7 @@ describe('ReAct Flow Integration Tests', () => {
       const reader = stream.getReader();
       while (true) {
         const { done } = await reader.read();
-        if (done) break;
+        if (done) {break;}
       }
 
       // Assert: First call should include history in system prompt
@@ -368,7 +368,7 @@ describe('ReAct Flow Integration Tests', () => {
       const reader = stream.getReader();
       while (true) {
         const { done } = await reader.read();
-        if (done) break;
+        if (done) {break;}
       }
 
       // Assert: System prompt should include metadata

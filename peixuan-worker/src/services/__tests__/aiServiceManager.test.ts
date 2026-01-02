@@ -4,7 +4,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AIServiceManager } from '../aiServiceManager';
-import { AIProvider, AIProviderError, AIErrorCode, AIResponse } from '../../types/aiTypes';
+import type { AIProvider, AIResponse } from '../../types/aiTypes';
+import { AIProviderError, AIErrorCode } from '../../types/aiTypes';
 
 // Mock provider for testing
 class MockAIProvider implements AIProvider {

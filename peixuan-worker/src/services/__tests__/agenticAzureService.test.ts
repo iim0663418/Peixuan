@@ -100,7 +100,7 @@ describe('AgenticAzureService', () => {
   it('should have 5 tools defined', () => {
     const service = new AgenticAzureService(mockConfig);
     // Access private field for testing via type assertion
-    const tools = (service as any).tools;
+    const {tools} = (service as any);
     expect(tools).toHaveLength(5);
     expect(tools.map((t: any) => t.name)).toEqual([
       'get_bazi_profile',
@@ -269,7 +269,7 @@ describe('AgenticAzureService', () => {
     };
 
     const service = new AgenticAzureService(configWithSlash);
-    const endpoint = (service as any).endpoint;
+    const {endpoint} = (service as any);
 
     expect(endpoint).toBe('https://test.openai.azure.com');
     expect(endpoint.endsWith('/')).toBe(false);

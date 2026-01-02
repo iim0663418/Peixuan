@@ -112,10 +112,10 @@ function detectTaiSuiTypes(birthBranch: string, nextYearBranch: string): TaiSuiT
 
   // Calculate severity
   const count = [types.zhi, types.chong, types.xing, types.po, types.hai].filter(Boolean).length;
-  if (count === 0) types.severity = 'NONE';
-  else if (count === 1) types.severity = 'LOW';
-  else if (count === 2) types.severity = 'MEDIUM';
-  else types.severity = 'HIGH';
+  if (count === 0) {types.severity = 'NONE';}
+  else if (count === 1) {types.severity = 'LOW';}
+  else if (count === 2) {types.severity = 'MEDIUM';}
+  else {types.severity = 'HIGH';}
 
   return types;
 }

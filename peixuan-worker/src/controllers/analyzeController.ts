@@ -8,7 +8,7 @@ import type { AIOptions } from '../types/aiTypes';
 import { UnifiedCalculator } from '../calculation/integration/calculator';
 import { formatToMarkdown } from '../formatters/markdownFormatter';
 import { formatAdvancedMarkdown } from '../formatters/advancedMarkdownFormatter';
-import { AIServiceManager } from '../services/aiServiceManager';
+import type { AIServiceManager } from '../services/aiServiceManager';
 import { ChartCacheService } from '../services/chartCacheService';
 import { AnalysisCacheService } from '../services/analysisCacheService';
 import { AdvancedAnalysisCacheService } from '../services/advancedAnalysisCacheService';

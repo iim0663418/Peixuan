@@ -270,3 +270,5 @@
 - [DECISION] 2026-01-01: 整合測試套件Mock修復完成。5個失敗測試全部修復：SSE [DONE] token處理、對話歷史存取修正、變數命名改善。測試現在正確使用Mock而非真實API，實現完全離線測試。
 
 - [DECISION] 2026-01-01: Phase 2 Priority 3 完成 - 整合測試套件基礎設施實施成功。創建了ReAct流程和並行執行測試基礎設施，MockLLMProvider框架，8個測試案例全部通過。Mock注入機制修復完成，實現完全離線測試。
+
+- [DECISION] 2026-01-02: calculateYearlyForecast.ts ESLint 錯誤修正完成。移除重複 import、函數重載、max-params 違規、未使用變數和非空斷言。功能完全保持，42/42 測試通過。

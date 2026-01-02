@@ -216,7 +216,7 @@ export const MockScenarios = {
               }
             ]
           };
-        } else {
+        } 
           return {
             type: 'final_answer' as const,
             parts: [
@@ -225,7 +225,7 @@ export const MockScenarios = {
               }
             ]
           };
-        }
+        
       })
     };
   },

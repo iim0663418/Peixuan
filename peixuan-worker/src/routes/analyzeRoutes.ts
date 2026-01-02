@@ -85,7 +85,7 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
   router.post('/api/v1/daily-insight/check', async (req: IRequest) => {
     try {
       const body = await req.json() as { chartId?: string };
-      const chartId = body.chartId;
+      const {chartId} = body;
 
       if (!chartId) {
         return new Response(
@@ -541,8 +541,8 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
     try {
       // Parse request body
       const body = await req.json() as { chartId?: string; question?: string; locale?: string };
-      const chartId = body.chartId;
-      const question = body.question;
+      const {chartId} = body;
+      const {question} = body;
       const locale = body.locale || 'zh_TW';
       // Normalize locale format (support both zh_TW and zh-TW)
       const normalizedLocale = locale.replace('_', '-');
@@ -645,7 +645,7 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
             const recentQuestion = questionMatch[1];
             // Use first 50 chars as reference
             memoryReference = recentQuestion.length > 50
-              ? recentQuestion.substring(0, 47) + '...'
+              ? `${recentQuestion.substring(0, 47)  }...`
               : recentQuestion;
           } else {
             memoryReference = normalizedLocale === 'zh-TW'

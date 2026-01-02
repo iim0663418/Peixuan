@@ -147,7 +147,7 @@ describe('AgenticGeminiService', () => {
   it('should have 5 tools defined', () => {
     const service = new AgenticGeminiService(mockApiKey);
     // Access private field for testing via type assertion
-    const tools = (service as any).tools;
+    const {tools} = (service as any);
     expect(tools).toHaveLength(5);
     expect(tools.map((t: any) => t.name)).toEqual([
       'get_bazi_profile',

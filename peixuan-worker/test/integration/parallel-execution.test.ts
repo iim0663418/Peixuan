@@ -105,7 +105,7 @@ describe('Parallel Tool Execution Integration Tests', () => {
       const reader = stream.getReader();
       while (true) {
         const { done } = await reader.read();
-        if (done) break;
+        if (done) {break;}
       }
       const totalTime = Date.now() - startTime;
 
@@ -308,7 +308,7 @@ describe('Parallel Tool Execution Integration Tests', () => {
       const reader = stream.getReader();
       while (true) {
         const { done } = await reader.read();
-        if (done) break;
+        if (done) {break;}
       }
 
       // Assert: Error message should be in Chinese and informative

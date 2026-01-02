@@ -28,11 +28,12 @@
 	},
 	"dependencies": {
 		"@cloudflare/kv-asset-handler": "^0.4.1",
+		"date-fns": "^4.1.0",
 		"drizzle-kit": "^0.18.1",
 		"drizzle-orm": "^0.44.7",
 		"drizzle-zod": "^0.8.3",
 		"itty-router": "^5.0.22",
-		"lunar-typescript": "^1.8.6",
+		"lunar-typescript": "~1.8.6",
 		"uuid": "^13.0.0",
 		"zod": "^4.1.13"
 	}

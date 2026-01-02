@@ -10,8 +10,10 @@ export {
 
 export {
   calculateYearlyForecast,
+  calculateSixMonthForecast,
   calculateDuration,
   calculateWeight,
   type YearlyForecast,
-  type YearlyPeriod
+  type YearlyPeriod,
+  type YearlyForecastOptions,
 } from './calculateYearlyForecast';

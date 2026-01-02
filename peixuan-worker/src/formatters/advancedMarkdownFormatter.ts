@@ -6,12 +6,13 @@
  * 1. Fortune Cycles (bazi.fortuneCycles) - current life phase
  * 2. SiHua aggregation (ziwei.sihuaAggregation) - energy flow
  * 3. Star symmetry (ziwei.starSymmetry) - energy balance
- * 4. Next year prediction (using NextYearCalculator) - future forecast
+ * 4. Six-month forecast (using calculateSixMonthForecast) - future forecast with Lichun awareness
  */
 
 import type { CalculationResult, BirthInfo, StarSymmetry } from '../calculation/types';
 import type { SiHuaCycle } from '../calculation/ziwei/sihua/types';
-import { calculateNextYear } from '../calculation/annual/nextYearCalculator';
+import { calculateSixMonthForecast } from '../services/annualFortune';
+import type { YearlyForecast } from '../services/annualFortune';
 
 /**
  * Format calculation result as Markdown for advanced analysis
@@ -34,8 +35,8 @@ export function formatAdvancedMarkdown(result: CalculationResult): string {
   // 3. Star Symmetry
   sections.push(formatStarSymmetry(result));
 
-  // 4. Next Year Prediction
-  sections.push(formatNextYearBasic(result));
+  // 4. Six-Month Forecast
+  sections.push(formatSixMonthForecast(result));
 
   return sections.join('\n---\n\n');
 }
@@ -178,64 +179,81 @@ function formatStarSymmetry(result: CalculationResult): string {
 }
 
 /**
- * Format next year prediction using NextYearCalculator module
- * Simplified to provide only basic facts, letting AI interpret freely
+ * Format six-month forecast using calculateSixMonthForecast
+ * Provides dual-period model with Lichun boundary awareness
  */
-function formatNextYearBasic(result: CalculationResult): string {
-  const { input, annualFortune } = result;
-  const lines: string[] = ['## 🔮 下一年預測\n'];
-
-  // Calculate current year for context
-  const currentYear = new Date().getFullYear();
-  const currentStem = annualFortune?.annualPillar.stem || '';
-  const currentBranch = annualFortune?.annualPillar.branch || '';
+function formatSixMonthForecast(result: CalculationResult): string {
+  const { input, bazi, ziwei } = result;
+  const lines: string[] = [];
 
   try {
     // Convert input dates from string to Date if needed
-    const birthInfo: BirthInfo = {
-      ...input,
-      solarDate: typeof input.solarDate === 'string' ? new Date(input.solarDate) : input.solarDate,
-    };
+    const birthDate = typeof input.solarDate === 'string' ? new Date(input.solarDate) : input.solarDate;
+    const queryDate = new Date(); // Use current date as query date
 
-    // Use NextYearCalculator to get full prediction
-    const nextYearFortune = calculateNextYear(birthInfo, currentYear);
+    // Get current Dayun for interaction analysis
+    const currentDayun = bazi.fortuneCycles?.currentDayun
+      ? { stem: bazi.fortuneCycles.currentDayun.stem, branch: bazi.fortuneCycles.currentDayun.branch }
+      : undefined;
 
-    // Next year overview
-    lines.push(`### ${nextYearFortune.year} 年干支`);
-    lines.push(`- **當前年份**：${currentYear}（${currentStem}${currentBranch}）`);
-    lines.push(`- **下一年**：${nextYearFortune.year}（${nextYearFortune.stemBranch.stem}${nextYearFortune.stemBranch.branch}）`);
-    lines.push(`- **立春時間**：${nextYearFortune.lichunDate.toISOString().split('T')[0]}`);
+    // Calculate 6-month forecast
+    const forecast: YearlyForecast = calculateSixMonthForecast({
+      birthDate,
+      queryDate,
+      palaces: ziwei.palaces || [],
+      fourPillars: bazi.fourPillars,
+      currentDayun,
+    });
 
-    // Tai Sui analysis (facts only, no severity rating)
-    const { taiSuiTypes } = nextYearFortune;
-    if (taiSuiTypes.severity !== 'NONE') {
-      lines.push('\n### 犯太歲');
-      const taiSuiList: string[] = [];
-      if (taiSuiTypes.zhi) {
-        taiSuiList.push('值太歲');
+    // Dynamic title based on period dates
+    const startMonth = forecast.queryDate.toISOString().slice(0, 7); // YYYY-MM
+    const endMonth = forecast.endDate.toISOString().slice(0, 7); // YYYY-MM
+    lines.push(`## 🔮 未來半年運勢（${startMonth} - ${endMonth}）\n`);
+
+    // Iterate through periods (1 or 2 periods)
+    forecast.periods.forEach((period, index) => {
+      const periodNum = index + 1;
+      const periodStart = period.startDate.toISOString().split('T')[0];
+      const periodEnd = period.endDate.toISOString().split('T')[0];
+      const weightPercent = (period.weight * 100).toFixed(1);
+
+      lines.push(`### 時段 ${periodNum}：${period.annualPillar.stem}${period.annualPillar.branch} 年`);
+      lines.push(`- **日期範圍**：${periodStart} 至 ${periodEnd}`);
+      lines.push(`- **時長**：${period.durationDays.toFixed(0)} 天（權重 ${weightPercent}%）`);
+      lines.push(`- **流年干支**：${period.annualPillar.stem}${period.annualPillar.branch}`);
+
+      // Tai Sui analysis
+      const taiSui = period.taiSuiAnalysis;
+      if (taiSui && taiSui.severity !== 'NONE') {
+        const taiSuiList: string[] = [];
+        if (taiSui.types.zhi) {taiSuiList.push('值太歲');}
+        if (taiSui.types.chong) {taiSuiList.push('沖太歲');}
+        if (taiSui.types.xing) {taiSuiList.push('刑太歲');}
+        if (taiSui.types.po) {taiSuiList.push('破太歲');}
+        if (taiSui.types.hai) {taiSuiList.push('害太歲');}
+        lines.push(`- **犯太歲**：${taiSuiList.join('、')}`);
+      } else {
+        lines.push('- **犯太歲**：無');
       }
-      if (taiSuiTypes.chong) {
-        taiSuiList.push('沖太歲');
+
+      // Add blank line between periods
+      if (index < forecast.periods.length - 1) {
+        lines.push('');
       }
-      if (taiSuiTypes.xing) {
-        taiSuiList.push('刑太歲');
-      }
-      if (taiSuiTypes.po) {
-        taiSuiList.push('破太歲');
-      }
-      if (taiSuiTypes.hai) {
-        taiSuiList.push('害太歲');
-      }
-      lines.push(`- **類型**：${taiSuiList.join('、')}`);
-    } else {
-      lines.push('\n### 犯太歲');
-      lines.push('- **無犯太歲**');
+    });
+
+    // Add cross-year notice if there are 2 periods
+    if (forecast.periods.length === 2) {
+      lines.push('\n**📌 跨流年說明**');
+      const lichunDate = forecast.periods[1].startDate.toISOString().split('T')[0];
+      lines.push(`立春日（${lichunDate}）是能量轉換的關鍵分界點，前後運勢特性可能截然不同。`);
     }
 
   } catch (error) {
     // Fallback if calculation fails
-    lines.push('\n### 計算錯誤');
-    lines.push(`無法計算下一年運勢：${error instanceof Error ? error.message : '未知錯誤'}`);
+    lines.push('## 🔮 未來半年運勢\n');
+    lines.push('### 計算錯誤');
+    lines.push(`無法計算運勢：${error instanceof Error ? error.message : '未知錯誤'}`);
   }
 
   return lines.join('\n');

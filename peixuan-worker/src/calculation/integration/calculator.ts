@@ -331,13 +331,13 @@ export class UnifiedCalculator {
     const currentDayunGanZhi = bazi.fortuneCycles.currentDayun
       ? { stem: bazi.fortuneCycles.currentDayun.stem, branch: bazi.fortuneCycles.currentDayun.branch }
       : undefined;
-    const yearlyForecast = calculateYearlyForecast(
-      input.solarDate,
+    const yearlyForecast = calculateYearlyForecast({
+      birthDate: input.solarDate,
       queryDate,
-      ziwei.palaces,
-      bazi.fourPillars,
-      currentDayunGanZhi
-    );
+      palaces: ziwei.palaces,
+      fourPillars: bazi.fourPillars,
+      currentDayun: currentDayunGanZhi,
+    });
 
     // Step 5: Return unified result
     return {

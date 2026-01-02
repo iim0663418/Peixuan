@@ -32613,19 +32613,47 @@ function findStarPalace(palaces, starName) {
     const palace = palaces[i];
     if (palace && Array.isArray(palace.stars)) {
       const { stars } = palace;
-      if (stars.some((star) => star.name === starName || star === starName)) {
+      if (stars.some((star) => typeof star === "string" ? star === starName : star.name === starName)) {
         return i;
       }
     }
   }
   return -1;
 }
-function getPalaceStem(lifePalaceStem, palaceIndex) {
-  const lifePalaceStemIndex = HEAVENLY_STEMS3.indexOf(lifePalaceStem);
-  if (lifePalaceStemIndex === -1) {
+function isHeavenlyStem(stem) {
+  return HEAVENLY_STEMS3.includes(stem);
+}
+function getPalaceStem(baseStem, palaceIndex) {
+  if (!isHeavenlyStem(baseStem)) {
     return "";
   }
-  return HEAVENLY_STEMS3[(lifePalaceStemIndex + palaceIndex) % 10];
+  const baseStemIdx = HEAVENLY_STEMS3.indexOf(baseStem);
+  const yinStemMap = {
+    0: 2,
+    // 甲 -> 丙 (index 2)
+    1: 4,
+    // 乙 -> 戊 (index 4) 
+    2: 6,
+    // 丙 -> 庚 (index 6)
+    3: 8,
+    // 丁 -> 壬 (index 8)
+    4: 0,
+    // 戊 -> 甲 (index 0)
+    5: 2,
+    // 己 -> 丙 (index 2)
+    6: 4,
+    // 庚 -> 戊 (index 4)
+    7: 6,
+    // 辛 -> 庚 (index 6)
+    8: 8,
+    // 壬 -> 壬 (index 8)
+    9: 0
+    // 癸 -> 甲 (index 0)
+  };
+  const yinPalaceStemIdx = yinStemMap[baseStemIdx];
+  const steps = (palaceIndex - 2 + 12) % 12;
+  const finalStemIdx = (yinPalaceStemIdx + steps) % 10;
+  return HEAVENLY_STEMS3[finalStemIdx];
 }
 function generateNatalEdges(palaces, lifePalaceStem) {
   const edges = [];

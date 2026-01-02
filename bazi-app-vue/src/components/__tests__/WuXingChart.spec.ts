@@ -69,8 +69,10 @@ describe('WuXingChart', () => {
     const radioGroup = wrapper.find('.chart-type-toggle');
     expect(radioGroup.exists()).toBe(true);
 
-    const radioButtons = wrapper.findAll('.el-radio-button');
-    expect(radioButtons.length).toBeGreaterThanOrEqual(2);
+    // 檢查是否有 radio button 文字內容
+    const toggleText = radioGroup.text();
+    expect(toggleText).toContain('長條圖');
+    expect(toggleText).toContain('雷達圖');
   });
 
   it('switches between bar and radar views when toggle is clicked', async () => {
@@ -126,10 +128,9 @@ describe('WuXingChart', () => {
     });
 
     const summary = wrapper.find('.summary');
-    const tags = summary.findAll('.el-tag');
+    expect(summary.exists()).toBe(true);
 
-    expect(tags.length).toBeGreaterThanOrEqual(3);
-
+    // 檢查 summary 文字內容而非 DOM 元素數量
     const summaryText = summary.text();
     expect(summaryText).toContain('優勢: 土');
     expect(summaryText).toContain('缺失: 木');

@@ -96,8 +96,8 @@
   );
   color: white;
   /* Added fallbacks for spacing variables */
-  padding: var(--spacing-xl, 32px) var(--spacing-lg, 24px)
-    var(--spacing-lg, 24px);
+  padding: var(--space-3xl, 32px) var(--space-2xl, 24px)
+    var(--space-2xl, 24px);
 }
 
 .footer-content {
@@ -105,18 +105,18 @@
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--spacing-lg, 24px);
+  gap: var(--space-2xl, 24px);
 }
 
 .footer-section h4 {
   color: var(--footer-text-gold, #f0e68c);
-  margin: 0 0 var(--spacing-md, 16px) 0;
+  margin: 0 0 var(--space-lg, 16px) 0;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 .footer-section p {
-  margin: calc(var(--spacing-sm, 8px) * 1) 0;
+  margin: var(--space-sm, 8px) 0;
   color: var(--footer-text-cream, #e6ddd4);
   line-height: 1.6;
 }
@@ -124,13 +124,13 @@
 .footer-links {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--spacing-sm, 8px) * 1);
+  gap: var(--space-sm, 8px);
 }
 
 .footer-links a {
   color: var(--footer-text-cream, #e6ddd4);
   text-decoration: none;
-  transition: var(--transition-base, all 0.3s ease);
+  transition: var(--transition-normal, all 0.3s ease);
 }
 
 .footer-links a:hover {
@@ -140,13 +140,13 @@
 .footer-licenses {
   font-size: 12px;
   color: rgba(230, 221, 212, 0.7);
-  margin-top: var(--spacing-sm, 8px);
+  margin-top: var(--space-sm, 8px);
 }
 
 .footer-licenses a {
   color: var(--footer-text-cream, #e6ddd4);
   text-decoration: none;
-  transition: var(--transition-base, all 0.3s ease);
+  transition: var(--transition-normal, all 0.3s ease);
 }
 
 .footer-licenses a:hover {
@@ -154,18 +154,18 @@
 }
 
 .footer-github {
-  margin: var(--spacing-md, 16px) 0 calc(var(--spacing-sm, 8px) * 1) 0;
+  margin: var(--space-lg, 16px) 0 var(--space-sm, 8px) 0;
 }
 
 .github-link {
   display: inline-flex;
   align-items: center;
-  gap: calc(var(--spacing-sm, 8px) * 1);
+  gap: var(--space-sm, 8px);
   color: var(--footer-text-cream, #e6ddd4);
   text-decoration: none;
-  transition: var(--transition-base, all 0.3s ease);
+  transition: var(--transition-normal, all 0.3s ease);
   font-size: 14px;
-  padding: calc(var(--spacing-sm, 8px) * 1) 0;
+  padding: var(--space-sm, 8px) 0;
 }
 
 .github-link svg {
@@ -187,7 +187,7 @@
 
   .footer-content {
     grid-template-columns: 1fr;
-    gap: var(--spacing-lg, 24px);
+    gap: var(--space-2xl, 24px);
     text-align: center;
   }
 }
@@ -195,13 +195,13 @@
 /* 平板 (768px+) */
 @media (min-width: 768px) {
   .app-footer {
-    padding: var(--spacing-xl, 32px) var(--spacing-lg, 24px)
-      var(--spacing-lg, 24px);
+    padding: var(--space-3xl, 32px) var(--space-2xl, 24px)
+      var(--space-2xl, 24px);
   }
 
   .footer-content {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: var(--spacing-lg, 24px);
+    gap: var(--space-2xl, 24px);
     text-align: left;
   }
 }
@@ -214,7 +214,7 @@
 
   .footer-content {
     grid-template-columns: 1fr;
-    gap: var(--spacing-lg, 24px);
+    gap: var(--space-2xl, 24px);
     text-align: center;
   }
 }

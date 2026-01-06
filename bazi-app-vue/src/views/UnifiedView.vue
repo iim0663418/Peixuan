@@ -258,7 +258,7 @@ h4 {
   line-height: 1.4;
 }
 
-/* Card header styling */
+/* Component-specific: Card and Alert responsive padding */
 :deep(.el-card__header) {
   padding: clamp(1rem, 3vw, 1.25rem);
 }
@@ -267,7 +267,6 @@ h4 {
   padding: clamp(1rem, 3vw, 1.5rem);
 }
 
-/* Alert styling for better mobile readability */
 :deep(.el-alert) {
   padding: clamp(0.75rem, 2.5vw, 1rem);
   font-size: clamp(0.875rem, 2vw, 1rem);
@@ -279,7 +278,6 @@ h4 {
   line-height: 1.5;
 }
 
-/* Skeleton loading optimization */
 :deep(.el-skeleton) {
   padding: clamp(1rem, 3vw, 1.5rem);
 }
@@ -531,34 +529,7 @@ h4 {
 
 /* 深色模式優化 */
 @media (prefers-color-scheme: dark) {
-  /* Element Plus Dialog 深色模式 */
-  :deep(.el-dialog) {
-    background: var(--bg-secondary) !important;
-    border: 1px solid var(--border-light) !important;
-  }
-
-  :deep(.el-dialog__header) {
-    background: var(--bg-tertiary) !important;
-    border-bottom: 1px solid var(--border-light) !important;
-  }
-
-  :deep(.el-dialog__title) {
-    color: var(--text-primary) !important;
-  }
-
-  :deep(.el-dialog__body) {
-    background: var(--bg-secondary) !important;
-    color: var(--text-primary) !important;
-  }
-
-  :deep(.el-dialog__footer) {
-    background: var(--bg-tertiary) !important;
-    border-top: 1px solid var(--border-light) !important;
-  }
-
-  :deep(.el-overlay) {
-    background: rgba(0, 0, 0, 0.7) !important;
-  }
+  /* Element Plus components handled by element-plus.css and dialog.css */
 
   /* Choice Card 深色模式 - Enhanced with colored glows */
   .choice-card {

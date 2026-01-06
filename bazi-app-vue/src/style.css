@@ -1,9 +1,10 @@
 /* 引入設計Token系統 */
 @import './styles/design-tokens.css';
-@import './styles/variables.css';
 @import './styles/animations.css';
 @import './styles/markdown.css';
+@import './styles/element-plus.css';
 @import './styles/dialog.css';
+@import './styles/element-plus-buttons.css';
 
 /* 統一的 will-change 類別 */
 .will-change-transform {

@@ -1,0 +1,197 @@
+/* ==========================================
+   Element Plus Button 統一樣式系統
+   ========================================== */
+
+/* 基礎 Button 樣式 */
+:deep(.el-button) {
+  min-height: 44px !important;
+  min-width: 44px !important;
+  padding: var(--space-sm) var(--space-lg) !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: var(--font-weight-medium) !important;
+  transition: all 0.2s ease !important;
+  font-size: var(--font-size-base) !important;
+  line-height: var(--line-height-normal) !important;
+}
+
+/* Primary Button */
+:deep(.el-button--primary) {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+  border: none !important;
+  color: var(--text-inverse) !important;
+  box-shadow: 0 2px 4px rgba(210, 105, 30, 0.2) !important;
+}
+
+:deep(.el-button--primary:hover) {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary-color)) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(210, 105, 30, 0.3) !important;
+}
+
+:deep(.el-button--primary:active) {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(210, 105, 30, 0.2) !important;
+}
+
+/* Secondary Button */
+:deep(.el-button--default) {
+  background: var(--bg-primary) !important;
+  border: 1px solid var(--border-medium) !important;
+  color: var(--text-primary) !important;
+}
+
+:deep(.el-button--default:hover) {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-dark) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Warning Button */
+:deep(.el-button--warning) {
+  background: linear-gradient(135deg, var(--warning), var(--warning-light)) !important;
+  border: none !important;
+  color: var(--text-inverse) !important;
+}
+
+:deep(.el-button--warning:hover) {
+  background: linear-gradient(135deg, var(--warning-dark), var(--warning)) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Danger Button */
+:deep(.el-button--danger) {
+  background: linear-gradient(135deg, var(--danger), var(--danger-light)) !important;
+  border: none !important;
+  color: var(--text-inverse) !important;
+}
+
+:deep(.el-button--danger:hover) {
+  background: linear-gradient(135deg, var(--danger-dark), var(--danger)) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Small Button */
+:deep(.el-button--small) {
+  min-height: 36px !important;
+  min-width: 36px !important;
+  padding: var(--space-xs) var(--space-md) !important;
+  font-size: var(--font-size-sm) !important;
+}
+
+/* Large Button */
+:deep(.el-button--large) {
+  min-height: 52px !important;
+  min-width: 52px !important;
+  padding: var(--space-md) var(--space-xl) !important;
+  font-size: var(--font-size-lg) !important;
+}
+
+/* Disabled Button */
+:deep(.el-button:disabled) {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Loading Button */
+:deep(.el-button.is-loading) {
+  pointer-events: none !important;
+}
+
+/* Text Button */
+:deep(.el-button--text) {
+  background: transparent !important;
+  border: none !important;
+  color: var(--primary-color) !important;
+  min-height: auto !important;
+  min-width: auto !important;
+  padding: var(--space-xs) var(--space-sm) !important;
+}
+
+:deep(.el-button--text:hover) {
+  background: rgba(210, 105, 30, 0.1) !important;
+  color: var(--primary-dark) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Focus 狀態 */
+:deep(.el-button:focus-visible) {
+  outline: 2px solid var(--primary-color) !important;
+  outline-offset: 2px !important;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  :deep(.el-button) {
+    min-height: 48px !important;
+    min-width: 48px !important;
+    padding: var(--space-md) var(--space-lg) !important;
+  }
+  
+  :deep(.el-button--small) {
+    min-height: 40px !important;
+    min-width: 40px !important;
+  }
+}
+
+/* 深色模式優化 */
+@media (prefers-color-scheme: dark) {
+  :deep(.el-button--default) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  :deep(.el-button--default:hover) {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border-medium) !important;
+  }
+  
+  :deep(.el-button--text) {
+    color: var(--primary-light) !important;
+  }
+  
+  :deep(.el-button--text:hover) {
+    background: rgba(255, 140, 0, 0.1) !important;
+    color: var(--primary-lighter) !important;
+  }
+}
+
+/* 無障礙優化 */
+@media (prefers-reduced-motion: reduce) {
+  :deep(.el-button) {
+    transition: none !important;
+  }
+  
+  :deep(.el-button:hover) {
+    transform: none !important;
+  }
+}
+
+/* 特殊場景按鈕 */
+
+/* Dialog Footer 按鈕 (已在 dialog.css 中定義，這裡提供備用) */
+:deep(.el-dialog__footer .el-button) {
+  min-height: 40px !important;
+}
+
+/* Input Group 按鈕 */
+:deep(.el-input-group__append .el-button) {
+  min-height: 44px !important;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0 !important;
+}
+
+/* Form 按鈕組 */
+:deep(.el-form-item .el-button + .el-button) {
+  margin-left: var(--space-md) !important;
+}
+
+@media (max-width: 768px) {
+  :deep(.el-form-item .el-button + .el-button) {
+    margin-left: 0 !important;
+    margin-top: var(--space-sm) !important;
+  }
+}

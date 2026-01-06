@@ -446,51 +446,8 @@ const getStarBrightness = (
   flex: 1;
 }
 
-/* Phase 3: Multi-layer shadows for depth */
-:deep(.el-descriptions),
-:deep(.el-card) {
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.05),
-    0 2px 6px rgba(0, 0, 0, 0.08),
-    0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-/* Phase 2: Collapse header customization */
-:deep(.el-collapse-item__header) {
-  min-height: 56px;
-  padding: var(--space-md) var(--space-lg);
-  background: var(--bg-secondary);
-  border: none;
-  font-size: var(--font-size-base);
-  transition: background-color 0.3s ease;
-}
-
-:deep(.el-collapse-item__header:hover) {
-  background: linear-gradient(
-    90deg,
-    rgba(53, 126, 221, 0.05) 0%,
-    rgba(53, 126, 221, 0.02) 100%
-  );
-}
-
-:deep(.el-collapse-item__wrap) {
-  border: none;
-  background: var(--bg-primary);
-}
-
-:deep(.el-collapse-item__content) {
-  padding: var(--space-lg);
-  background: var(--bg-primary);
-}
-
-/* Mobile: Larger touch targets for collapse */
+/* Mobile: Component-specific mobile optimizations */
 @media (max-width: 767px) {
-  :deep(.el-collapse-item__header) {
-    min-height: 60px;
-    padding: var(--space-lg);
-    -webkit-tap-highlight-color: transparent;
-  }
-
   .collapse-title {
     font-size: var(--font-size-base);
   }
@@ -702,24 +659,7 @@ h4::after {
   }
 }
 
-/* Phase 3: Glow effects on focus for accessibility */
-:deep(.el-tabs__item):focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px rgba(53, 126, 221, 0.3),
-    0 0 12px rgba(53, 126, 221, 0.4);
-  border-radius: var(--radius-sm);
-}
-
-:deep(.el-button):focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 3px rgba(53, 126, 221, 0.1),
-    0 0 0 5px rgba(53, 126, 221, 0.2),
-    0 0 20px rgba(53, 126, 221, 0.3);
-}
-
-/* Phase 3: Enhanced table row hover effects */
+/* Component-specific: Enhanced table row hover effects */
 :deep(.el-descriptions__body tr) {
   transition:
     transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
@@ -729,14 +669,9 @@ h4::after {
 
 :deep(.el-descriptions__body tr:hover) {
   transform: scale(1.01) translateZ(0);
-  background: linear-gradient(
-    90deg,
-    rgba(53, 126, 221, 0.03) 0%,
-    rgba(53, 126, 221, 0.01) 100%
-  );
 }
 
-/* Phase 3: Accessibility - Respect prefers-reduced-motion */
+/* Accessibility - Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   .section,
   .star-card,
@@ -748,11 +683,6 @@ h4::after {
   .star-card:hover,
   :deep(.el-descriptions__body tr:hover) {
     transform: none;
-  }
-
-  :deep(.el-tabs__item):focus-visible,
-  :deep(.el-button):focus-visible {
-    animation: none;
   }
 }
 
@@ -785,60 +715,6 @@ h4::after {
     color: var(--text-primary) !important;
   }
 
-  :deep(.el-descriptions__body tr:hover) {
-    background: var(--bg-tertiary) !important;
-  }
-
-  :deep(.el-descriptions-item__label) {
-    color: var(--text-secondary) !important;
-  }
-
-  :deep(.el-descriptions-item__content) {
-    color: var(--text-primary) !important;
-  }
-
-  /* Element Plus 手風琴深色模式 */
-  :deep(.el-collapse) {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-  }
-
-  :deep(.el-collapse-item__header) {
-    background: var(--bg-secondary) !important;
-    color: var(--text-primary) !important;
-    border-color: var(--border-light) !important;
-  }
-
-  :deep(.el-collapse-item__header:hover) {
-    background: var(--bg-tertiary) !important;
-    color: var(--text-primary) !important;
-  }
-
-  :deep(.el-collapse-item__content) {
-    background: var(--bg-secondary) !important;
-    color: var(--text-primary) !important;
-  }
-
-  :deep(.el-collapse-item__wrap) {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-  }
-
-  /* Element Plus 卡片深色模式 */
-  :deep(.el-card) {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-  }
-
-  :deep(.el-card.is-always-shadow) {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-    box-shadow: var(--shadow-md) !important;
-  }
-
-  :deep(.result-card) {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-  }
+  /* Component-specific dark mode overrides handled by element-plus.css */
 }
 </style>

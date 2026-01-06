@@ -60,6 +60,12 @@
   --border-medium: #dee2e6;
   --border-dark: #adb5bd;
 
+  /* ===== 品牌專用色 Brand-Specific Colors ===== */
+  --brand-brown: #8b4513;
+  --brand-brown-light: #a0522d;
+  --footer-text-gold: #f0e68c;
+  --footer-text-cream: #e6ddd4;
+
   /* ===== 陰影 Shadows ===== */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.12);

@@ -347,65 +347,27 @@ pre {
   overflow-y: auto;
 }
 
+/* Component-specific: Collapse header color */
 :deep(.el-collapse-item__header) {
   font-weight: 600;
   color: var(--info);
-  /* Phase 3: Smooth transitions */
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease;
 }
 
-:deep(.el-collapse-item__header):hover {
-  background-color: rgba(53, 126, 221, 0.05);
-}
-
-/* Phase 3: Glow effect on focus */
-:deep(.el-collapse-item__header):focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px rgba(53, 126, 221, 0.3),
-    0 0 12px rgba(53, 126, 221, 0.4);
-  border-radius: var(--radius-sm);
-}
-
+/* Component-specific: Timeline styling */
 :deep(.el-timeline-item__timestamp) {
   font-weight: 600;
   color: var(--text-tertiary);
-  /* Phase 3: Enhanced text shadow */
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 
-/* Phase 3: Card transitions */
-:deep(.el-card) {
-  transition:
-    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateZ(0);
-}
-
-:deep(.el-card):hover {
-  transform: translateY(-2px) translateZ(0);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.08),
-    0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-/* Phase 3: Accessibility - Respect prefers-reduced-motion */
+/* Accessibility - Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
-  .detail-section,
-  :deep(.el-card),
-  :deep(.el-collapse-item__header) {
+  .detail-section {
     transition: none;
   }
 
-  .detail-section:hover,
-  :deep(.el-card):hover {
+  .detail-section:hover {
     transform: none;
-  }
-
-  :deep(.el-collapse-item__header):hover {
-    background-color: transparent;
   }
 }
 
@@ -458,22 +420,6 @@ pre {
     color: var(--text-primary) !important;
   }
 
-  :deep(.el-descriptions-item__label) {
-    color: var(--text-secondary) !important;
-  }
-
-  :deep(.el-descriptions-item__content) {
-    color: var(--text-primary) !important;
-  }
-
-  :deep(.el-card) {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-  }
-
-  :deep(.el-card__header) {
-    background: var(--bg-tertiary) !important;
-    color: var(--text-primary) !important;
-  }
+  /* Component-specific dark mode overrides handled by element-plus.css */
 }
 </style>

@@ -3,6 +3,7 @@
 @import './styles/variables.css';
 @import './styles/animations.css';
 @import './styles/markdown.css';
+@import './styles/dialog.css';
 
 /* 統一的 will-change 類別 */
 .will-change-transform {

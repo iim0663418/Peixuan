@@ -1,17 +1,28 @@
 /**
  * Geocoding composable for address-to-coordinate conversion
+ * Supports both autocomplete and manual geocoding modes
  */
 import { ref, reactive } from 'vue';
 import {
   GeocodeService,
   type GeocodeCandidate,
 } from '../services/geocodeService';
+import type { CityOption } from './useFormData';
+
+export interface AutocompleteOption {
+  value: string;
+  label: string;
+  type: 'address' | 'city';
+  candidate?: GeocodeCandidate;
+  cityData?: CityOption;
+}
 
 export function useGeocoding() {
   const addressInput = ref('');
   const geocoding = ref(false);
   const candidateAddresses = ref<GeocodeCandidate[]>([]);
   const selectedCandidateIndex = ref<number | null>(null);
+  const autocompleteOptions = ref<AutocompleteOption[]>([]);
   const geocodeStatus = reactive<{
     message: string;
     type: 'success' | 'warning' | 'danger' | 'info';
@@ -146,11 +157,91 @@ export function useGeocoding() {
     return GeocodeService.formatCandidateForDisplay(candidate);
   };
 
+  // Autocomplete query search - combines geocoding and city suggestions
+  const queryAutocompleteSearch = async (
+    queryString: string,
+    cb: (results: AutocompleteOption[]) => void,
+    majorCities: CityOption[],
+  ) => {
+    if (!queryString || queryString.trim().length < 2) {
+      cb([]);
+      return;
+    }
+
+    const query = queryString.toLowerCase().trim();
+    const results: AutocompleteOption[] = [];
+
+    // Filter major cities that match the query
+    const matchingCities = majorCities.filter(
+      (city) =>
+        city.label.toLowerCase().includes(query) ||
+        city.value.toLowerCase().includes(query),
+    );
+
+    // Add city suggestions first
+    matchingCities.forEach((city) => {
+      results.push({
+        value: city.label,
+        label: `📍 ${city.label}`,
+        type: 'city',
+        cityData: city,
+      });
+    });
+
+    // If query is long enough, try geocoding
+    if (query.length >= 3) {
+      try {
+        geocoding.value = true;
+        const geocodeResult = await GeocodeService.geocodeAddress(queryString);
+
+        if (geocodeResult.success && geocodeResult.candidates.length > 0) {
+          geocodeResult.candidates.slice(0, 5).forEach((candidate) => {
+            results.push({
+              value: candidate.attributes.Match_addr,
+              label: `🔍 ${GeocodeService.formatCandidateForDisplay(candidate)}`,
+              type: 'address',
+              candidate,
+            });
+          });
+        }
+      } catch (error) {
+        console.error('Autocomplete geocoding error:', error);
+      } finally {
+        geocoding.value = false;
+      }
+    }
+
+    cb(results);
+  };
+
+  // Handle autocomplete selection
+  const handleAutocompleteSelect = (
+    item: AutocompleteOption,
+  ): {
+    longitude: number;
+    latitude: number;
+    timezone?: string;
+  } | null => {
+    if (item.type === 'city' && item.cityData) {
+      setGeocodeStatus('已選擇城市座標', 'success');
+      return {
+        longitude: item.cityData.longitude,
+        latitude: item.cityData.latitude,
+        timezone: item.cityData.timezone,
+      };
+    } else if (item.type === 'address' && item.candidate) {
+      setGeocodeStatus('已選擇地址座標', 'success');
+      return fillCoordinatesFromCandidate(item.candidate);
+    }
+    return null;
+  };
+
   return {
     addressInput,
     geocoding,
     candidateAddresses,
     selectedCandidateIndex,
+    autocompleteOptions,
     geocodeStatus,
     handleAddressInput,
     geocodeCurrentAddress,
@@ -158,5 +249,7 @@ export function useGeocoding() {
     selectCandidate,
     formatCandidateDisplay,
     clearGeocodeStatus,
+    queryAutocompleteSearch,
+    handleAutocompleteSelect,
   };
 }

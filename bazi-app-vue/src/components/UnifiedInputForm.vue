@@ -37,31 +37,28 @@
       </el-radio-group>
     </el-form-item>
 
-    <!-- 中文地址輸入 -->
-    <el-form-item :label="$t('unifiedForm.address_label')">
-      <el-input
+    <!-- 地點輸入 (Autocomplete with Progressive Disclosure) -->
+    <el-form-item :label="$t('unifiedForm.location_input_label')">
+      <el-autocomplete
         v-model="addressInput"
-        :placeholder="$t('unifiedForm.address_placeholder')"
+        :fetch-suggestions="querySearch"
+        :placeholder="$t('unifiedForm.location_input_placeholder')"
         :loading="geocoding"
         clearable
-        @input="handleAddressInput"
+        value-key="value"
+        @select="handleLocationSelect"
       >
-        <template #append>
-          <el-button
-            :loading="geocoding"
-            :disabled="!addressInput"
-            type="primary"
-            @click="geocodeCurrentAddress"
-          >
-            {{ $t('unifiedForm.geocode_button') }}
-          </el-button>
+        <template #default="{ item }">
+          <div class="autocomplete-item">
+            <span class="autocomplete-label">{{ item.label }}</span>
+          </div>
         </template>
-      </el-input>
+      </el-autocomplete>
 
       <!-- 說明文字與 Esri 歸屬聲明 -->
       <div class="field-hint">
         <el-text type="info" size="small">
-          {{ $t('unifiedForm.address_hint') }}
+          {{ $t('unifiedForm.location_input_hint') }}
         </el-text>
         <el-text class="esri-attribution" type="info" size="small">
           Powered by Esri
@@ -74,32 +71,20 @@
           {{ geocodeStatus.message }}
         </el-text>
       </div>
-
-      <!-- 多候選地址選擇 -->
-      <el-select
-        v-if="candidateAddresses.length > 1"
-        v-model="selectedCandidateIndex"
-        :placeholder="$t('unifiedForm.candidate_select_placeholder')"
-        class="candidate-select"
-        @change="selectCandidate"
-      >
-        <el-option
-          v-for="(candidate, index) in candidateAddresses"
-          :key="index"
-          :label="formatCandidateDisplay(candidate)"
-          :value="index"
-        />
-      </el-select>
     </el-form-item>
 
     <!-- Advanced Options Toggle -->
     <el-form-item>
       <el-button
         text
-        @click="showAdvancedOptions = !showAdvancedOptions"
         class="advanced-options-toggle"
+        @click="showAdvancedOptions = !showAdvancedOptions"
       >
-        {{ showAdvancedOptions ? $t('unifiedForm.hide_advanced') : $t('unifiedForm.show_advanced') }}
+        {{
+          showAdvancedOptions
+            ? $t('unifiedForm.hide_advanced')
+            : $t('unifiedForm.show_advanced')
+        }}
         <el-icon :class="{ 'rotate-icon': showAdvancedOptions }">
           <ArrowDown />
         </el-icon>
@@ -108,90 +93,67 @@
 
     <!-- 精確地理位置輸入 (Hidden in Advanced Options) -->
     <el-collapse-transition>
-      <el-form-item
-        v-show="showAdvancedOptions"
-        :label="$t('unifiedForm.location_label')"
-        prop="location"
-        class="location-form-item"
-      >
-        <div class="coordinate-inputs">
-          <div class="coordinate-field">
-            <el-form-item prop="longitude">
-              <el-input
-                v-model.number="formData.longitude"
-                :placeholder="$t('unifiedForm.longitude_placeholder')"
-                type="number"
-                :min="-180"
-                :max="180"
-                :step="0.000001"
-                class="coordinate-input"
+      <div v-show="showAdvancedOptions">
+        <el-form-item
+          :label="$t('unifiedForm.manual_coordinates_label')"
+          prop="location"
+          class="location-form-item"
+        >
+          <div class="coordinate-inputs">
+            <div class="coordinate-field">
+              <el-form-item prop="longitude">
+                <el-input
+                  v-model.number="formData.longitude"
+                  :placeholder="$t('unifiedForm.longitude_placeholder')"
+                  type="number"
+                  :min="-180"
+                  :max="180"
+                  :step="0.000001"
+                  class="coordinate-input"
+                >
+                  <template #prepend>{{
+                    $t('unifiedForm.longitude')
+                  }}</template>
+                </el-input>
+              </el-form-item>
+            </div>
+            <div class="coordinate-field">
+              <el-form-item prop="latitude">
+                <el-input
+                  v-model.number="formData.latitude"
+                  :placeholder="$t('unifiedForm.latitude_placeholder')"
+                  type="number"
+                  :min="-90"
+                  :max="90"
+                  :step="0.000001"
+                  class="coordinate-input"
+                >
+                  <template #prepend>{{ $t('unifiedForm.latitude') }}</template>
+                </el-input>
+              </el-form-item>
+            </div>
+            <div class="coordinate-field timezone-field">
+              <el-select
+                v-model="formData.timezone"
+                filterable
+                :placeholder="$t('unifiedForm.timezone_placeholder')"
+                class="timezone-select"
               >
-                <template #prepend>{{ $t('unifiedForm.longitude') }}</template>
-              </el-input>
-            </el-form-item>
+                <el-option
+                  v-for="tz in timezones"
+                  :key="tz.value"
+                  :label="tz.label"
+                  :value="tz.value"
+                />
+              </el-select>
+            </div>
           </div>
-          <div class="coordinate-field">
-            <el-form-item prop="latitude">
-              <el-input
-                v-model.number="formData.latitude"
-                :placeholder="$t('unifiedForm.latitude_placeholder')"
-                type="number"
-                :min="-90"
-                :max="90"
-                :step="0.000001"
-                class="coordinate-input"
-              >
-                <template #prepend>{{ $t('unifiedForm.latitude') }}</template>
-              </el-input>
-            </el-form-item>
-          </div>
-          <div class="coordinate-field timezone-field">
-            <el-select
-              v-model="formData.timezone"
-              filterable
-              :placeholder="$t('unifiedForm.timezone_placeholder')"
-              class="timezone-select"
-            >
-              <el-option
-                v-for="tz in timezones"
-                :key="tz.value"
-                :label="tz.label"
-                :value="tz.value"
-              />
-            </el-select>
-          </div>
-        </div>
-        <el-text type="warning" size="small" class="coordinate-warning">
-          {{ $t('unifiedForm.coordinate_warning') }}
-        </el-text>
-      </el-form-item>
-    </el-collapse-transition>
-
-    <!-- 快速城市選擇（可選） -->
-    <el-form-item :label="$t('unifiedForm.city_label')">
-      <el-select
-        v-model="selectedCity"
-        filterable
-        :placeholder="$t('unifiedForm.city_placeholder')"
-        class="city-select"
-        clearable
-        @change="fillCityCoordinates"
-      >
-        <el-option
-          v-for="city in majorCities"
-          :key="city.value"
-          :label="city.label"
-          :value="city.value"
-        />
-      </el-select>
-
-      <!-- 說明文字 -->
-      <div class="field-hint">
-        <el-text type="info" size="small">
-          {{ $t('unifiedForm.city_hint') }}
-        </el-text>
+          <el-text type="warning" size="small" class="coordinate-warning">
+            {{ $t('unifiedForm.manual_coordinates_hint') }}
+          </el-text>
+        </el-form-item>
       </div>
-    </el-form-item>
+    </el-collapse-transition>
 
     <!-- 閏月提示（自動判斷） -->
     <el-form-item v-if="formData.isLeapMonth">
@@ -256,7 +218,7 @@ import { saveTimeZoneInfo, getTimeZoneInfo } from '../utils/storageService';
 import { useChartStore } from '../stores/chartStore';
 import { useFormData } from '../composables/useFormData';
 import { useFormValidation } from '../composables/useFormValidation';
-import { useGeocoding } from '../composables/useGeocoding';
+import { useGeocoding, type AutocompleteOption } from '../composables/useGeocoding';
 
 const chartStore = useChartStore();
 
@@ -264,15 +226,8 @@ const chartStore = useChartStore();
 const showAdvancedOptions = ref(false);
 
 // 使用表單資料管理 composable
-const {
-  formData,
-  timezones,
-  majorCities,
-  selectedCity,
-  leapMonthInfo,
-  fillCityCoordinates: cityCoordinatesFiller,
-  detectLeapMonth,
-} = useFormData();
+const { formData, timezones, majorCities, leapMonthInfo, detectLeapMonth } =
+  useFormData();
 
 // 使用表單驗證 composable
 const { createFormRules } = useFormValidation();
@@ -281,15 +236,9 @@ const { createFormRules } = useFormValidation();
 const {
   addressInput,
   geocoding,
-  candidateAddresses,
-  selectedCandidateIndex,
   geocodeStatus,
-  handleAddressInput: geocodeInputHandler,
-  geocodeCurrentAddress: geocodeAddress,
-  fillCoordinatesFromCandidate,
-  selectCandidate: selectGeocandidate,
-  formatCandidateDisplay,
-  clearGeocodeStatus,
+  queryAutocompleteSearch,
+  handleAutocompleteSelect,
 } = useGeocoding();
 
 // 檢查是否有快取(鎖定表單)
@@ -346,27 +295,14 @@ const unifiedForm = ref();
 // 創建表單驗證規則
 const formRules = createFormRules(formData);
 
-// 地址輸入處理
-const handleAddressInput = () => {
-  geocodeInputHandler(geocodeCurrentAddress);
+// Autocomplete query search handler
+const querySearch = (queryString: string, cb: (results: AutocompleteOption[]) => void) => {
+  queryAutocompleteSearch(queryString, cb, majorCities.value);
 };
 
-// 執行地址解析
-const geocodeCurrentAddress = async () => {
-  const candidate = await geocodeAddress();
-  if (candidate) {
-    const coords = fillCoordinatesFromCandidate(candidate);
-    formData.longitude = coords.longitude;
-    formData.latitude = coords.latitude;
-    if (coords.timezone) {
-      formData.timezone = coords.timezone;
-    }
-  }
-};
-
-// 選擇候選地址
-const selectCandidate = (index: number) => {
-  const coords = selectGeocandidate(index);
+// Handle location selection from autocomplete
+const handleLocationSelect = (item: AutocompleteOption) => {
+  const coords = handleAutocompleteSelect(item);
   if (coords) {
     formData.longitude = coords.longitude;
     formData.latitude = coords.latitude;
@@ -374,12 +310,6 @@ const selectCandidate = (index: number) => {
       formData.timezone = coords.timezone;
     }
   }
-};
-
-// 填入城市座標
-const fillCityCoordinates = (cityValue: string) => {
-  cityCoordinatesFiller(cityValue);
-  clearGeocodeStatus();
 };
 
 // Track if user has interacted with the form to prevent premature validation

@@ -124,7 +124,9 @@ const startStreaming = async () => {
   streamAbortController = new AbortController();
 
   try {
-    const response = await fetch(apiUrl, { signal: streamAbortController.signal });
+    const response = await fetch(apiUrl, {
+      signal: streamAbortController.signal,
+    });
 
     // Read X-Generated-At header if present
     const generatedAt = response.headers.get('X-Generated-At');
@@ -216,7 +218,9 @@ const handleChartCreated = () => {
 
 const handleForceRefresh = async () => {
   const { chartId } = chartStore;
-  if (!chartId) return;
+  if (!chartId) {
+    return;
+  }
 
   // Clear cache metadata
   cacheTimestamp.value = null;
@@ -243,7 +247,9 @@ const handleForceRefresh = async () => {
   streamAbortController = new AbortController();
 
   try {
-    const response = await fetch(apiUrl, { signal: streamAbortController.signal });
+    const response = await fetch(apiUrl, {
+      signal: streamAbortController.signal,
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
@@ -471,7 +477,10 @@ onUnmounted(() => {
 
         <!-- Markdown 渲染 -->
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <div class="markdown-body markdown-content" v-html="renderMarkdown(displayedText)" />
+        <div
+          class="markdown-body markdown-content"
+          v-html="renderMarkdown(displayedText)"
+        />
       </div>
 
       <!-- Quick Setup Modal -->

@@ -7,9 +7,12 @@
         <h2 class="voice-title">{{ t('narrative.peixuanSays') }}</h2>
       </div>
 
-      <div class="narrative-content" v-if="narrativeText">
+      <div v-if="narrativeText" class="narrative-content">
         <!-- AI Analysis displayed with serif font for warmth -->
-        <div class="narrative-text markdown-content" v-html="renderedNarrative"></div>
+        <div
+          class="narrative-text markdown-content"
+          v-html="renderedNarrative"
+        />
       </div>
 
       <!-- Loading state -->
@@ -28,19 +31,11 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="quick-actions" v-if="narrativeText && !isLoading">
-      <el-button
-        :icon="CopyDocument"
-        @click="copyToClipboard"
-        size="small"
-      >
+    <div v-if="narrativeText && !isLoading" class="quick-actions">
+      <el-button :icon="CopyDocument" size="small" @click="copyToClipboard">
         {{ t('narrative.copy') }}
       </el-button>
-      <el-button
-        :icon="RefreshRight"
-        @click="regenerateAnalysis"
-        size="small"
-      >
+      <el-button :icon="RefreshRight" size="small" @click="regenerateAnalysis">
         {{ t('narrative.regenerate') }}
       </el-button>
     </div>
@@ -73,7 +68,9 @@ const { t } = useI18n();
 
 // Render markdown with keyword highlighting
 const renderedNarrative = computed(() => {
-  if (!props.narrativeText) return '';
+  if (!props.narrativeText) {
+    return '';
+  }
   return parseReportMarkdown(props.narrativeText);
 });
 
@@ -316,38 +313,28 @@ const regenerateAnalysis = () => {
     background: var(--bg-secondary);
     border-color: var(--border-light);
   }
-  
+
   .peixuan-voice {
     background: var(--bg-tertiary) !important;
     border-color: var(--border-light) !important;
   }
-  
+
   .narrative-text {
     color: var(--text-primary) !important;
   }
-  
-  .action-buttons .el-button {
-    background: var(--bg-primary) !important;
-    border-color: var(--border-light) !important;
-    color: var(--text-primary) !important;
-  }
-  
-  .action-buttons .el-button:hover {
-    background: var(--bg-tertiary) !important;
-  }
-  
+
   /* Element Plus 卡片深色模式 */
   :deep(.el-card) {
     background: var(--bg-secondary) !important;
     border-color: var(--border-light) !important;
   }
-  
+
   :deep(.el-card.is-always-shadow) {
     background: var(--bg-secondary) !important;
     border-color: var(--border-light) !important;
     box-shadow: var(--shadow-md) !important;
   }
-  
+
   :deep(.result-card) {
     background: var(--bg-secondary) !important;
     border-color: var(--border-light) !important;

@@ -30,134 +30,140 @@
       <div class="detail-content">
         <!-- 統計資訊 -->
         <el-card class="section-card">
-      <template #header>
-        <span>飛化統計</span>
-      </template>
-      <el-descriptions :column="2" border size="small">
-        <el-descriptions-item label="總飛化邊數">
-          {{ sihuaAggregation.totalEdges }}
-        </el-descriptions-item>
-        <el-descriptions-item label="生年四化">
-          {{ sihuaAggregation.edgesByLayer.natal }}
-        </el-descriptions-item>
-        <el-descriptions-item label="大限四化">
-          {{ sihuaAggregation.edgesByLayer.decade }}
-        </el-descriptions-item>
-        <el-descriptions-item label="流年四化">
-          {{ sihuaAggregation.edgesByLayer.annual }}
-        </el-descriptions-item>
-      </el-descriptions>
-
-      <el-divider />
-
-      <el-descriptions :column="4" border size="small">
-        <el-descriptions-item label="化祿">
-          {{ sihuaAggregation.edgesByType['祿'] || 0 }}
-        </el-descriptions-item>
-        <el-descriptions-item label="化權">
-          {{ sihuaAggregation.edgesByType['權'] || 0 }}
-        </el-descriptions-item>
-        <el-descriptions-item label="化科">
-          {{ sihuaAggregation.edgesByType['科'] || 0 }}
-        </el-descriptions-item>
-        <el-descriptions-item label="化忌">
-          {{ sihuaAggregation.edgesByType['忌'] || 0 }}
-        </el-descriptions-item>
-      </el-descriptions>
-    </el-card>
-
-    <!-- 循環分析 -->
-    <el-card v-if="hasCycles" class="section-card">
-      <template #header>
-        <span>能量循環</span>
-      </template>
-
-      <!-- 化忌循環（業力迴圈） -->
-      <div v-if="sihuaAggregation.jiCycles.length > 0" class="cycle-section">
-        <h5>
-          <el-tag type="danger" size="small">化忌循環</el-tag>
-          業力迴圈
-        </h5>
-        <el-alert
-          v-for="(cycle, index) in sihuaAggregation.jiCycles"
-          :key="`ji-${index}`"
-          :title="cycle.description"
-          :type="getSeverityType(cycle.severity)"
-          :closable="false"
-          class="cycle-alert"
-        >
-          <template #default>
-            <div>宮位: {{ formatPalaces(cycle.palaces) }}</div>
-            <div>嚴重度: {{ formatSeverity(cycle.severity) }}</div>
+          <template #header>
+            <span>飛化統計</span>
           </template>
-        </el-alert>
-      </div>
+          <el-descriptions :column="2" border size="small">
+            <el-descriptions-item label="總飛化邊數">
+              {{ sihuaAggregation.totalEdges }}
+            </el-descriptions-item>
+            <el-descriptions-item label="生年四化">
+              {{ sihuaAggregation.edgesByLayer.natal }}
+            </el-descriptions-item>
+            <el-descriptions-item label="大限四化">
+              {{ sihuaAggregation.edgesByLayer.decade }}
+            </el-descriptions-item>
+            <el-descriptions-item label="流年四化">
+              {{ sihuaAggregation.edgesByLayer.annual }}
+            </el-descriptions-item>
+          </el-descriptions>
 
-      <!-- 化祿循環（資源閉環） -->
-      <div v-if="sihuaAggregation.luCycles.length > 0" class="cycle-section">
-        <h5>
-          <el-tag type="success" size="small">化祿循環</el-tag>
-          資源閉環
-        </h5>
-        <el-alert
-          v-for="(cycle, index) in sihuaAggregation.luCycles.slice(0, 3)"
-          :key="`lu-${index}`"
-          :title="cycle.description"
-          type="success"
-          :closable="false"
-          class="cycle-alert"
-        >
-          <template #default>
-            <div>宮位: {{ formatPalaces(cycle.palaces) }}</div>
+          <el-divider />
+
+          <el-descriptions :column="4" border size="small">
+            <el-descriptions-item label="化祿">
+              {{ sihuaAggregation.edgesByType['祿'] || 0 }}
+            </el-descriptions-item>
+            <el-descriptions-item label="化權">
+              {{ sihuaAggregation.edgesByType['權'] || 0 }}
+            </el-descriptions-item>
+            <el-descriptions-item label="化科">
+              {{ sihuaAggregation.edgesByType['科'] || 0 }}
+            </el-descriptions-item>
+            <el-descriptions-item label="化忌">
+              {{ sihuaAggregation.edgesByType['忌'] || 0 }}
+            </el-descriptions-item>
+          </el-descriptions>
+        </el-card>
+
+        <!-- 循環分析 -->
+        <el-card v-if="hasCycles" class="section-card">
+          <template #header>
+            <span>能量循環</span>
           </template>
-        </el-alert>
-      </div>
-    </el-card>
 
-    <!-- 中心性分析 -->
-    <el-card class="section-card">
-      <template #header>
-        <span>能量中心</span>
-      </template>
-
-      <el-row :gutter="16">
-        <el-col :span="12">
-          <div class="centrality-box">
+          <!-- 化忌循環（業力迴圈） -->
+          <div
+            v-if="sihuaAggregation.jiCycles.length > 0"
+            class="cycle-section"
+          >
             <h5>
-              <el-tag type="danger" size="small">壓力匯聚點</el-tag>
+              <el-tag type="danger" size="small">化忌循環</el-tag>
+              業力迴圈
             </h5>
-            <div v-if="topStressNodes.length > 0">
-              <div
-                v-for="node in topStressNodes"
-                :key="`stress-${node.palace}`"
-                class="node-item"
-              >
-                {{ node.palaceName }} (入度: {{ node.inDegree }})
-              </div>
-            </div>
-            <div v-else class="no-data">無明顯壓力匯聚</div>
+            <el-alert
+              v-for="(cycle, index) in sihuaAggregation.jiCycles"
+              :key="`ji-${index}`"
+              :title="cycle.description"
+              :type="getSeverityType(cycle.severity)"
+              :closable="false"
+              class="cycle-alert"
+            >
+              <template #default>
+                <div>宮位: {{ formatPalaces(cycle.palaces) }}</div>
+                <div>嚴重度: {{ formatSeverity(cycle.severity) }}</div>
+              </template>
+            </el-alert>
           </div>
-        </el-col>
 
-        <el-col :span="12">
-          <div class="centrality-box">
+          <!-- 化祿循環（資源閉環） -->
+          <div
+            v-if="sihuaAggregation.luCycles.length > 0"
+            class="cycle-section"
+          >
             <h5>
-              <el-tag type="success" size="small">資源源頭</el-tag>
+              <el-tag type="success" size="small">化祿循環</el-tag>
+              資源閉環
             </h5>
-            <div v-if="topResourceNodes.length > 0">
-              <div
-                v-for="node in topResourceNodes"
-                :key="`resource-${node.palace}`"
-                class="node-item"
-              >
-                {{ node.palaceName }} (出度: {{ node.outDegree }})
-              </div>
-            </div>
-            <div v-else class="no-data">無明顯資源源頭</div>
+            <el-alert
+              v-for="(cycle, index) in sihuaAggregation.luCycles.slice(0, 3)"
+              :key="`lu-${index}`"
+              :title="cycle.description"
+              type="success"
+              :closable="false"
+              class="cycle-alert"
+            >
+              <template #default>
+                <div>宮位: {{ formatPalaces(cycle.palaces) }}</div>
+              </template>
+            </el-alert>
           </div>
-        </el-col>
-      </el-row>
-    </el-card>
+        </el-card>
+
+        <!-- 中心性分析 -->
+        <el-card class="section-card">
+          <template #header>
+            <span>能量中心</span>
+          </template>
+
+          <el-row :gutter="16">
+            <el-col :span="12">
+              <div class="centrality-box">
+                <h5>
+                  <el-tag type="danger" size="small">壓力匯聚點</el-tag>
+                </h5>
+                <div v-if="topStressNodes.length > 0">
+                  <div
+                    v-for="node in topStressNodes"
+                    :key="`stress-${node.palace}`"
+                    class="node-item"
+                  >
+                    {{ node.palaceName }} (入度: {{ node.inDegree }})
+                  </div>
+                </div>
+                <div v-else class="no-data">無明顯壓力匯聚</div>
+              </div>
+            </el-col>
+
+            <el-col :span="12">
+              <div class="centrality-box">
+                <h5>
+                  <el-tag type="success" size="small">資源源頭</el-tag>
+                </h5>
+                <div v-if="topResourceNodes.length > 0">
+                  <div
+                    v-for="node in topResourceNodes"
+                    :key="`resource-${node.palace}`"
+                    class="node-item"
+                  >
+                    {{ node.palaceName }} (出度: {{ node.outDegree }})
+                  </div>
+                </div>
+                <div v-else class="no-data">無明顯資源源頭</div>
+              </div>
+            </el-col>
+          </el-row>
+        </el-card>
       </div>
     </div>
   </div>
@@ -218,9 +224,8 @@ function getSummaryText(): string {
     return `發現 ${jiCycles.length} 個化忌循環（業力迴圈），建議查看能量分析`;
   } else if (luCycles.length > 0) {
     return `發現 ${luCycles.length} 個化祿循環（資源閉環），共 ${totalEdges} 條飛化邊`;
-  } else {
-    return `共有 ${totalEdges} 條四化飛星，無明顯循環結構`;
   }
+  return `共有 ${totalEdges} 條四化飛星，無明顯循環結構`;
 }
 
 function formatPalaces(palaces: number[]): string {

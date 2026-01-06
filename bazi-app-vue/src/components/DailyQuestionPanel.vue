@@ -5,14 +5,14 @@
       <div class="avatar-section">
         <div class="peixuan-avatar">
           <span class="avatar-emoji">🔮</span>
-          <div v-if="isAsking" class="status-indicator"></div>
+          <div v-if="isAsking" class="status-indicator" />
         </div>
         <div class="header-text">
           <h3>{{ $t('dailyQuestion.askPeixuan') }}</h3>
           <p class="subtitle">{{ $t('dailyQuestion.oncePerDay') }}</p>
         </div>
       </div>
-      
+
       <!-- Dynamic Status Indicator -->
       <transition name="fade">
         <div v-if="isAsking && currentStatus" class="status-display">
@@ -25,7 +25,7 @@
     </div>
 
     <!-- Chat Messages Area -->
-    <div class="messages-container" ref="messagesContainer">
+    <div ref="messagesContainer" class="messages-container">
       <!-- Welcome Message -->
       <ChatBubble
         v-if="!hasAskedToday && !response && !validationError"
@@ -34,18 +34,17 @@
       />
 
       <!-- User Question -->
-      <ChatBubble
-        v-if="userQuestion"
-        type="user"
-        :content="userQuestion"
-      />
+      <ChatBubble v-if="userQuestion" type="user" :content="userQuestion" />
 
       <!-- AI Thinking Animation -->
-      <div v-if="isAsking && chatBubbles.length === 0" class="message ai-message thinking-message">
+      <div
+        v-if="isAsking && chatBubbles.length === 0"
+        class="message ai-message thinking-message"
+      >
         <div class="thinking-dots">
-          <span class="will-change-transform"></span>
-          <span class="will-change-transform"></span>
-          <span class="will-change-transform"></span>
+          <span class="will-change-transform" />
+          <span class="will-change-transform" />
+          <span class="will-change-transform" />
         </div>
       </div>
 
@@ -56,16 +55,19 @@
         type="ai"
         :content="bubble"
         :delay="index * 100"
-        :hasMemoryContext="index === 0 && hasMemoryContext"
-        :memoryReference="index === 0 ? memoryReference : ''"
+        :has-memory-context="index === 0 && hasMemoryContext"
+        :memory-reference="index === 0 ? memoryReference : ''"
       />
 
       <!-- Typing Indicator (while streaming) -->
-      <div v-if="isAsking && chatBubbles.length > 0" class="message ai-message thinking-message">
+      <div
+        v-if="isAsking && chatBubbles.length > 0"
+        class="message ai-message thinking-message"
+      >
         <div class="thinking-dots">
-          <span class="will-change-transform"></span>
-          <span class="will-change-transform"></span>
-          <span class="will-change-transform"></span>
+          <span class="will-change-transform" />
+          <span class="will-change-transform" />
+          <span class="will-change-transform" />
         </div>
       </div>
 
@@ -89,7 +91,12 @@
       <!-- Daily Limit Display -->
       <div class="daily-limit-display">
         <el-icon class="limit-icon"><ChatDotRound /></el-icon>
-        <span class="limit-text">{{ $t('dailyQuestion.questionsRemaining', { current: hasAskedToday ? 0 : 1, total: 1 }) }}</span>
+        <span class="limit-text">{{
+          $t('dailyQuestion.questionsRemaining', {
+            current: hasAskedToday ? 0 : 1,
+            total: 1,
+          })
+        }}</span>
       </div>
 
       <!-- Quick Prompts -->
@@ -117,14 +124,14 @@
           class="question-input"
           @keydown.enter.prevent="askQuestion"
         />
-        
+
         <el-button
           type="primary"
           size="large"
           :disabled="!question.trim() || question.length < 3 || isAsking"
           :loading="isAsking"
-          @click="askQuestion"
           class="ask-button"
+          @click="askQuestion"
         >
           <el-icon><ChatDotRound /></el-icon>
           {{ $t('dailyQuestion.askButton') }}
@@ -135,31 +142,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { ElMessageBox } from 'element-plus'
-import { useDailyQuestion } from '@/composables/useDailyQuestion'
-import ChatBubble from './ChatBubble.vue'
-import { splitIntoSentences, chunkSentences } from '@/utils/textSplitter'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { ElMessageBox } from 'element-plus';
+import { useDailyQuestion } from '@/composables/useDailyQuestion';
+import ChatBubble from './ChatBubble.vue';
+import { splitIntoSentences, chunkSentences } from '@/utils/textSplitter';
 import {
   ChatDotRound,
   MagicStick,
   Compass,
   Cpu,
-  Loading
-} from '@element-plus/icons-vue'
+  Loading,
+} from '@element-plus/icons-vue';
 
 interface Props {
-  chartId: string
+  chartId: string;
 }
 
-const props = defineProps<Props>()
-const { t, locale } = useI18n()
-const messagesContainer = ref<HTMLElement>()
-const userQuestion = ref('')
-const validationError = ref('')
-const chatBubbles = ref<string[]>([])
-let bubbleTimers: number[] = []
+const props = defineProps<Props>();
+const { t, locale } = useI18n();
+const messagesContainer = ref<HTMLElement>();
+const userQuestion = ref('');
+const validationError = ref('');
+const chatBubbles = ref<string[]>([]);
+let bubbleTimers: number[] = [];
 
 const {
   question,
@@ -171,102 +178,104 @@ const {
   hasMemoryContext,
   memoryReference,
   askQuestion: performAsk,
-  checkDailyLimit
-} = useDailyQuestion(props.chartId)
+  checkDailyLimit,
+} = useDailyQuestion(props.chartId);
 
 // Watch response changes and split into chat bubbles
 // Uses pure complete processing approach for consistent sentence boundaries
 watch(response, (newResponse) => {
   if (!newResponse) {
-    chatBubbles.value = []
-    bubbleTimers.forEach(timer => clearTimeout(timer))
-    bubbleTimers = []
-    return
+    chatBubbles.value = [];
+    bubbleTimers.forEach((timer) => clearTimeout(timer));
+    bubbleTimers = [];
+    return;
   }
 
   // Always process the complete response for consistent sentence boundaries
-  const sentences = splitIntoSentences(newResponse)
-  const chunks = chunkSentences(sentences, 2) // Max 2 sentences per bubble
+  const sentences = splitIntoSentences(newResponse);
+  const chunks = chunkSentences(sentences, 2); // Max 2 sentences per bubble
 
   // 清除現有的計時器
-  bubbleTimers.forEach(timer => clearTimeout(timer))
-  bubbleTimers.length = 0
-  
+  bubbleTimers.forEach((timer) => clearTimeout(timer));
+  bubbleTimers.length = 0;
+
   // 完全替換聊天氣泡陣列以確保內容同步
-  chatBubbles.value = [...chunks]
-  
+  chatBubbles.value = [...chunks];
+
   // 滾動到底部
-  nextTick(() => scrollToBottom())
-})
+  nextTick(() => scrollToBottom());
+});
 
 // Status mapping based on doc specification
 const statusMap: Record<string, { text: string; icon: any }> = {
-  'REASONING': { text: '佩璇正在解讀問題意圖...', icon: MagicStick },
-  'FETCHING_DATA': { text: '正在調閱您的命盤卷宗...', icon: Compass },
-  'ANALYZING': { text: '結合時空能量編寫啟示中...', icon: Cpu },
-  'COMPLETED': { text: '分析完成', icon: ChatDotRound }
-}
+  REASONING: { text: '佩璇正在解讀問題意圖...', icon: MagicStick },
+  FETCHING_DATA: { text: '正在調閱您的命盤卷宗...', icon: Compass },
+  ANALYZING: { text: '結合時空能量編寫啟示中...', icon: Cpu },
+  COMPLETED: { text: '分析完成', icon: ChatDotRound },
+};
 
 const getStatusIcon = (status: string) => {
   // Parse backend status format like "[思考中] 第 1 輪推理..."
   if (status.includes('思考中') || status.includes('Thinking')) {
-    return statusMap['REASONING'].icon
+    return statusMap['REASONING'].icon;
   }
   if (status.includes('執行中') || status.includes('Executing')) {
-    return statusMap['FETCHING_DATA'].icon
+    return statusMap['FETCHING_DATA'].icon;
   }
   if (status.includes('切換中') || status.includes('Switching')) {
-    return statusMap['ANALYZING'].icon
+    return statusMap['ANALYZING'].icon;
   }
-  return Loading
-}
+  return Loading;
+};
 
 const getStatusText = (status: string) => {
   // Convert technical status to warm Peixuan messages
   if (status.includes('思考中')) {
-    return '佩璇正在仔細思考您的問題...'
+    return '佩璇正在仔細思考您的問題...';
   }
   if (status.includes('Thinking')) {
-    return 'Peixuan is carefully considering your question...'
+    return 'Peixuan is carefully considering your question...';
   }
   if (status.includes('執行中')) {
-    return '正在為您調閱命盤資料...'
+    return '正在為您調閱命盤資料...';
   }
   if (status.includes('Executing')) {
-    return 'Retrieving your chart data...'
+    return 'Retrieving your chart data...';
   }
   if (status.includes('切換中')) {
-    return '佩璇換個角度來分析...'
+    return '佩璇換個角度來分析...';
   }
   if (status.includes('Switching')) {
-    return 'Peixuan is trying a different approach...'
+    return 'Peixuan is trying a different approach...';
   }
-  return status
-}
+  return status;
+};
 
 const quickPrompts = [
   '我今天的運勢如何？',
   '適合在今天做重大決定嗎？',
-  '最近工作壓力大，有什麼建議？'
-]
+  '最近工作壓力大，有什麼建議？',
+];
 
 const useQuickPrompt = (prompt: string) => {
-  question.value = prompt
-  askQuestion()
-}
+  question.value = prompt;
+  askQuestion();
+};
 
 const askQuestion = async () => {
-  if (!question.value.trim() || isAsking.value) return
+  if (!question.value.trim() || isAsking.value) {
+    return;
+  }
 
   // Clear previous validation errors
-  validationError.value = ''
+  validationError.value = '';
 
   // Validate question length
   if (question.value.trim().length < 3) {
-    validationError.value = t('dailyQuestion.validation.tooShort')
-    await nextTick()
-    scrollToBottom()
-    return
+    validationError.value = t('dailyQuestion.validation.tooShort');
+    await nextTick();
+    scrollToBottom();
+    return;
   }
 
   try {
@@ -281,39 +290,39 @@ const askQuestion = async () => {
         center: true,
         customClass: 'daily-question-confirm-dialog',
         confirmButtonClass: 'daily-question-confirm-btn',
-        cancelButtonClass: 'daily-question-cancel-btn'
-      }
-    )
+        cancelButtonClass: 'daily-question-cancel-btn',
+      },
+    );
 
     // User confirmed, proceed with question
-    userQuestion.value = question.value
-    await performAsk(question.value, locale.value)
-    question.value = ''
+    userQuestion.value = question.value;
+    await performAsk(question.value, locale.value);
+    question.value = '';
 
     // Scroll to bottom after response
-    await nextTick()
-    scrollToBottom()
+    await nextTick();
+    scrollToBottom();
   } catch (error) {
     // User canceled, do nothing
-    console.log('User canceled question')
+    console.log('User canceled question');
   }
-}
+};
 
 const scrollToBottom = () => {
   if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
   }
-}
+};
 
 onMounted(() => {
-  checkDailyLimit()
-})
+  checkDailyLimit();
+});
 
 onUnmounted(() => {
   // Clean up timers on component unmount
-  bubbleTimers.forEach(timer => clearTimeout(timer))
-  bubbleTimers = []
-})
+  bubbleTimers.forEach((timer) => clearTimeout(timer));
+  bubbleTimers = [];
+});
 </script>
 
 <style scoped>
@@ -333,7 +342,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-md) var(--space-lg);
-  background: linear-gradient(135deg, var(--purple-star) 0%, #4a148c 100%);
+  background: linear-gradient(135deg, var(--purple-star) 0%, var(--purple-star-dark) 100%);
   position: relative;
   overflow: hidden;
   min-height: 70px;
@@ -411,7 +420,7 @@ onUnmounted(() => {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   margin: 0 0 var(--space-xs) 0;
-  color: #ffffff;
+  color: var(--text-inverse);
 }
 
 .subtitle {
@@ -440,7 +449,7 @@ onUnmounted(() => {
 .status-text {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  color: #ffffff;
+  color: var(--text-inverse);
 }
 
 /* Messages Container */
@@ -486,11 +495,17 @@ onUnmounted(() => {
   animation: thinking 1.4s infinite ease-in-out both;
 }
 
-.thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
-.thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
+.thinking-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.thinking-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
 
 @keyframes thinking {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     transform: scale(0) translateZ(0);
   }
   40% {
@@ -510,7 +525,11 @@ onUnmounted(() => {
   align-items: center;
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-md);
-  background: linear-gradient(135deg, var(--info-lightest) 0%, var(--purple-star-lightest) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--info-lightest) 0%,
+    var(--purple-star-lightest) 100%
+  );
   border: 1px solid var(--info-lighter);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-md);
@@ -589,7 +608,9 @@ onUnmounted(() => {
   border-radius: 50%;
   background: var(--bg-overlay);
   transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
+  transition:
+    width 0.6s,
+    height 0.6s;
 }
 
 .ask-button:hover:not(:disabled) {
@@ -613,7 +634,9 @@ onUnmounted(() => {
 
 /* Animations - Loading states only (acceptable continuous animations) */
 @keyframes thinking {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     transform: scale(0);
     opacity: 0.5;
   }
@@ -624,7 +647,8 @@ onUnmounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -665,11 +689,13 @@ onUnmounted(() => {
   }
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
 
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 
@@ -681,24 +707,24 @@ onUnmounted(() => {
     gap: var(--space-md);
     text-align: center;
   }
-  
+
   .messages-container {
     padding: var(--space-md);
     max-height: 300px;
   }
-  
+
   .message {
     max-width: 95%;
   }
-  
+
   .input-section {
     padding: var(--space-md);
   }
-  
+
   .quick-prompts {
     justify-content: center;
   }
-  
+
   .ask-button {
     align-self: stretch;
   }
@@ -710,43 +736,43 @@ onUnmounted(() => {
     padding: var(--space-sm) var(--space-md);
     min-height: 60px;
   }
-  
+
   .messages-container {
     padding: var(--space-sm);
   }
-  
+
   .input-section {
     padding: var(--space-xs) var(--space-md);
   }
-  
+
   .quick-prompts {
     justify-content: flex-start;
     gap: var(--space-xs);
   }
-  
+
   .quick-prompt-btn {
     font-size: 11px;
     padding: 6px 10px;
     min-height: 28px;
   }
-  
+
   .ask-button {
     align-self: stretch;
   }
-  
+
   /* 移動端動畫速度調整 */
   .panel-header::before {
     animation-duration: 80s;
   }
-  
+
   .status-indicator {
     animation-duration: 3s;
   }
-  
+
   .status-icon {
     animation-duration: 3s;
   }
-  
+
   .thinking-dots span {
     animation-duration: 1.8s;
   }
@@ -772,7 +798,7 @@ onUnmounted(() => {
   .messages-container {
     padding: var(--space-lg);
   }
-  
+
   .quick-prompts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -783,16 +809,16 @@ onUnmounted(() => {
 /* 深色模式文字對比度優化 */
 @media (prefers-color-scheme: dark) {
   .limit-text {
-    color: #e5e7eb !important;
+    color: var(--text-secondary) !important;
   }
 
   .daily-question-panel {
-    color: #ffffff;
+    color: var(--text-primary);
   }
 
   .daily-limit-display {
-    background: #374151 !important;
-    border-color: #4b5563 !important;
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border-medium) !important;
   }
 }
 
@@ -864,27 +890,27 @@ onUnmounted(() => {
 /* 深色模式下的確認對話框 */
 @media (prefers-color-scheme: dark) {
   :deep(.daily-question-confirm-dialog) {
-    background: #1f2937 !important;
-    border-color: #374151 !important;
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-light) !important;
   }
-  
+
   :deep(.daily-question-confirm-dialog .el-message-box__content) {
-    color: #e5e7eb !important;
+    color: var(--text-secondary) !important;
   }
-  
+
   :deep(.daily-question-confirm-dialog .el-message-box__btns) {
-    border-top-color: #374151 !important;
+    border-top-color: var(--border-light) !important;
   }
-  
+
   :deep(.daily-question-cancel-btn) {
-    background: #374151 !important;
-    border-color: #4b5563 !important;
-    color: #e5e7eb !important;
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border-medium) !important;
+    color: var(--text-secondary) !important;
   }
-  
+
   :deep(.daily-question-cancel-btn:hover) {
-    background: #4b5563 !important;
-    border-color: #6b7280 !important;
+    background: var(--border-medium) !important;
+    border-color: var(--border-dark) !important;
   }
 }
 </style>

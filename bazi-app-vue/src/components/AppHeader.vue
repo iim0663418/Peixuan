@@ -468,12 +468,12 @@ const handleAdvancedAnalysis = () => {
   .desktop-menu {
     gap: 2.5rem;
   }
-  
+
   .navbar {
     padding: 1rem 2rem;
     max-width: 1200px;
   }
-  
+
   .nav-controls {
     min-width: 140px; /* 確保語言選擇器有足夠空間 */
   }
@@ -523,50 +523,50 @@ const handleAdvancedAnalysis = () => {
 /* 深色模式下的 mobile button 樣式 */
 @media (prefers-color-scheme: dark) {
   .app-header {
-    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    border-bottom-color: #374151;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    border-bottom-color: var(--border-light);
   }
 
   .nav-brand h1 {
-    color: #f0e68c;
+    color: var(--footer-text-gold);
   }
 
   .brand-subtitle {
-    color: #d97706;
+    color: var(--bazi-orange-dark-mode);
   }
 
   .nav-link {
-    color: #e5e7eb;
+    color: var(--text-secondary);
   }
 
   .nav-link:hover {
-    color: #f0e68c;
+    color: var(--footer-text-gold);
     background: rgba(240, 230, 140, 0.1);
   }
 
   .mobile-menu {
-    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    border-top-color: #374151;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    border-top-color: var(--border-light);
   }
 
   .mobile-nav-link {
-    color: #e5e7eb;
-    border-bottom-color: #374151;
+    color: var(--text-secondary);
+    border-bottom-color: var(--border-light);
   }
 
   .mobile-nav-link:hover {
-    color: #f0e68c;
+    color: var(--footer-text-gold);
     background: rgba(240, 230, 140, 0.1);
   }
 
   .mobile-nav-link.active {
-    color: #f0e68c;
+    color: var(--footer-text-gold);
     background: linear-gradient(90deg, rgba(240, 230, 140, 0.15), transparent);
-    border-left-color: #f0e68c;
+    border-left-color: var(--footer-text-gold);
   }
 
   .mobile-menu-button span {
-    background: #e5e7eb;
+    background: var(--text-secondary);
   }
 }
 

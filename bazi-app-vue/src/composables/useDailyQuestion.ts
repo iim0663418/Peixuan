@@ -140,7 +140,7 @@ export function useDailyQuestion(chartId: string) {
                   memoryReference.value = data.data.memoryReference || '';
                   console.log('[useDailyQuestion] Memory metadata received:', {
                     hasMemoryContext: hasMemoryContext.value,
-                    memoryReference: memoryReference.value
+                    memoryReference: memoryReference.value,
                   });
                 }
               } else if (data.state) {

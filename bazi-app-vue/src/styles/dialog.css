@@ -1,0 +1,199 @@
+/* ==========================================
+   Element Plus Dialog 統一樣式優化
+   ========================================== */
+
+/* 基礎 Dialog 樣式 */
+:deep(.el-dialog) {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid var(--border-light) !important;
+  overflow: hidden !important;
+}
+
+/* 居中對話框特殊樣式 */
+:deep(.el-dialog--center) {
+  margin: auto !important;
+  transform: none !important;
+}
+
+/* Dialog Header */
+:deep(.el-dialog__header) {
+  padding: var(--space-lg) var(--space-xl) !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  background: linear-gradient(135deg, 
+    var(--bg-primary) 0%, 
+    var(--bg-secondary) 100%) !important;
+}
+
+:deep(.el-dialog__title) {
+  font-size: var(--font-size-lg) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  color: var(--text-primary) !important;
+  line-height: var(--line-height-tight) !important;
+}
+
+:deep(.el-dialog__headerbtn) {
+  top: var(--space-lg) !important;
+  right: var(--space-lg) !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: var(--radius-sm) !important;
+  transition: all 0.2s ease !important;
+}
+
+:deep(.el-dialog__headerbtn:hover) {
+  background: var(--bg-tertiary) !important;
+}
+
+:deep(.el-dialog__close) {
+  color: var(--text-secondary) !important;
+  font-size: 16px !important;
+}
+
+/* Dialog Body */
+:deep(.el-dialog__body) {
+  padding: var(--space-xl) !important;
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  line-height: var(--line-height-normal) !important;
+}
+
+/* Dialog Footer */
+:deep(.el-dialog__footer) {
+  padding: var(--space-lg) var(--space-xl) !important;
+  background: linear-gradient(135deg, 
+    var(--bg-secondary) 0%, 
+    var(--bg-tertiary) 100%) !important;
+  border-top: 1px solid var(--border-light) !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: var(--space-md) !important;
+  min-height: 60px !important;
+}
+
+/* Footer 按鈕樣式增強 */
+:deep(.el-dialog__footer .el-button) {
+  min-height: 40px !important;
+  padding: var(--space-sm) var(--space-lg) !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: var(--font-weight-medium) !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+:deep(.el-dialog__footer .el-button:hover) {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+:deep(.el-dialog__footer .el-button--primary) {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+  border: none !important;
+}
+
+:deep(.el-dialog__footer .el-button--primary:hover) {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary-color)) !important;
+}
+
+/* Overlay 背景 */
+:deep(.el-overlay) {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  :deep(.el-dialog) {
+    width: 95vw !important;
+    margin: var(--space-md) !important;
+    border-radius: var(--radius-md) !important;
+  }
+  
+  :deep(.el-dialog__header) {
+    padding: var(--space-md) var(--space-lg) !important;
+  }
+  
+  :deep(.el-dialog__body) {
+    padding: var(--space-lg) !important;
+  }
+  
+  :deep(.el-dialog__footer) {
+    padding: var(--space-md) var(--space-lg) !important;
+    flex-direction: column !important;
+  }
+  
+  :deep(.el-dialog__footer .el-button) {
+    width: 100% !important;
+    margin: 0 !important;
+    min-height: 48px !important;
+  }
+  
+  :deep(.el-dialog__footer .el-button + .el-button) {
+    margin-top: var(--space-sm) !important;
+  }
+}
+
+/* 深色模式優化 */
+@media (prefers-color-scheme: dark) {
+  :deep(.el-dialog) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-dark) !important;
+    box-shadow: 
+      0 20px 25px -5px rgba(0, 0, 0, 0.4),
+      0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  :deep(.el-dialog__header) {
+    background: linear-gradient(135deg, 
+      var(--bg-tertiary) 0%, 
+      var(--bg-secondary) 100%) !important;
+    border-bottom-color: var(--border-dark) !important;
+  }
+  
+  :deep(.el-dialog__footer) {
+    background: linear-gradient(135deg, 
+      var(--bg-tertiary) 0%, 
+      var(--bg-secondary) 100%) !important;
+    border-top-color: var(--border-dark) !important;
+  }
+  
+  :deep(.el-dialog__footer .el-button) {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  :deep(.el-dialog__footer .el-button:hover) {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  :deep(.el-overlay) {
+    background: rgba(0, 0, 0, 0.7) !important;
+  }
+}
+
+/* 動畫優化 */
+:deep(.el-dialog) {
+  animation-duration: 0.3s !important;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* 無障礙優化 */
+@media (prefers-reduced-motion: reduce) {
+  :deep(.el-dialog) {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  :deep(.el-dialog__headerbtn) {
+    transition: none !important;
+  }
+}
+
+/* Focus 狀態優化 */
+:deep(.el-dialog__headerbtn:focus) {
+  outline: 2px solid var(--primary) !important;
+  outline-offset: 2px !important;
+}

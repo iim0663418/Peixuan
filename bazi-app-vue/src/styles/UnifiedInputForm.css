@@ -167,15 +167,63 @@
   line-height: var(--line-height-normal);
 }
 
-/* Candidate address select */
-.candidate-select {
+/* Autocomplete styling */
+:deep(.el-autocomplete) {
   width: 100%;
-  margin-top: var(--space-sm);
 }
 
-/* City select */
-.city-select {
-  width: 100%;
+:deep(.el-autocomplete .el-input__inner) {
+  min-height: 44px;
+  font-size: 16px !important; /* Prevent iOS zoom */
+}
+
+.autocomplete-item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-xs) 0;
+  line-height: var(--line-height-normal);
+}
+
+.autocomplete-label {
+  font-size: var(--font-size-base);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Autocomplete dropdown styling */
+:deep(.el-autocomplete-suggestion) {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+:deep(.el-autocomplete-suggestion__list) {
+  padding: var(--space-xs) 0;
+}
+
+:deep(.el-autocomplete-suggestion li) {
+  padding: var(--space-sm) var(--space-md);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+:deep(.el-autocomplete-suggestion li:hover) {
+  background-color: var(--el-fill-color-light);
+}
+
+/* Mobile autocomplete adjustments */
+@media (max-width: 767px) {
+  :deep(.el-autocomplete-suggestion) {
+    max-height: 250px;
+  }
+
+  :deep(.el-autocomplete-suggestion li) {
+    padding: var(--space-md) var(--space-lg);
+    min-height: 48px;
+  }
 }
 
 /* Checkbox - WCAG AA compliant touch targets */

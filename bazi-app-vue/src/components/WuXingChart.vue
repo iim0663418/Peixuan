@@ -2,7 +2,11 @@
   <div class="wuxing-chart">
     <!-- Chart Type Toggle -->
     <div class="chart-controls">
-      <el-radio-group v-model="chartType" size="small" class="chart-type-toggle">
+      <el-radio-group
+        v-model="chartType"
+        size="small"
+        class="chart-type-toggle"
+      >
         <el-radio-button value="bar">長條圖</el-radio-button>
         <el-radio-button value="radar">雷達圖</el-radio-button>
       </el-radio-group>

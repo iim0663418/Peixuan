@@ -81,12 +81,9 @@ function transformBackendChartData(backendResult: any): CalculationResult {
             adjusted: {
               木: backendResult.bazi.wuxingDistribution.adjusted['Wood'] || 0,
               火: backendResult.bazi.wuxingDistribution.adjusted['Fire'] || 0,
-              土:
-                backendResult.bazi.wuxingDistribution.adjusted['Earth'] || 0,
-              金:
-                backendResult.bazi.wuxingDistribution.adjusted['Metal'] || 0,
-              水:
-                backendResult.bazi.wuxingDistribution.adjusted['Water'] || 0,
+              土: backendResult.bazi.wuxingDistribution.adjusted['Earth'] || 0,
+              金: backendResult.bazi.wuxingDistribution.adjusted['Metal'] || 0,
+              水: backendResult.bazi.wuxingDistribution.adjusted['Water'] || 0,
             },
             dominant: backendResult.bazi.wuxingDistribution.dominant,
             deficient: backendResult.bazi.wuxingDistribution.deficient,

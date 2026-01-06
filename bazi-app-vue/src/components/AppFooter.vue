@@ -10,7 +10,9 @@
         <div class="footer-links">
           <router-link to="/">{{ $t('navigation.home') }}</router-link>
           <router-link to="/unified">{{ $t('astrology.unified') }}</router-link>
-          <router-link to="/daily-question">{{ $t('navigation.daily_question') }}</router-link>
+          <router-link to="/daily-question">{{
+            $t('navigation.daily_question')
+          }}</router-link>
           <router-link to="/personality">{{
             $t('navigation.personality')
           }}</router-link>
@@ -87,10 +89,15 @@
 <style scoped>
 .app-footer {
   /* Added fallbacks for brand colors to ensure visibility in light mode */
-  background: linear-gradient(135deg, var(--brand-brown, #8b4513) 0%, var(--brand-brown-light, #a0522d) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--brand-brown, #8b4513) 0%,
+    var(--brand-brown-light, #a0522d) 100%
+  );
   color: white;
   /* Added fallbacks for spacing variables */
-  padding: var(--spacing-xl, 32px) var(--spacing-lg, 24px) var(--spacing-lg, 24px);
+  padding: var(--spacing-xl, 32px) var(--spacing-lg, 24px)
+    var(--spacing-lg, 24px);
 }
 
 .footer-content {
@@ -188,7 +195,8 @@
 /* 平板 (768px+) */
 @media (min-width: 768px) {
   .app-footer {
-    padding: var(--spacing-xl, 32px) var(--spacing-lg, 24px) var(--spacing-lg, 24px);
+    padding: var(--spacing-xl, 32px) var(--spacing-lg, 24px)
+      var(--spacing-lg, 24px);
   }
 
   .footer-content {

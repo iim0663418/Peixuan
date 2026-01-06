@@ -9,11 +9,7 @@
     <!-- Section 1: Key Traits -->
     <div class="skeleton-subheader" />
     <div class="skeleton-list">
-      <div
-        v-for="n in 3"
-        :key="`s1-${n}`"
-        class="skeleton-list-item"
-      />
+      <div v-for="n in 3" :key="`s1-${n}`" class="skeleton-list-item" />
     </div>
 
     <!-- Section 2: Detailed Analysis -->

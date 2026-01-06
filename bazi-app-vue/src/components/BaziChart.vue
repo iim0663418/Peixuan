@@ -8,7 +8,7 @@
         class="pillar-card-display will-change-transform"
         :class="{
           highlighted: props.highlightedPillars?.includes(pillarKey),
-          'day-master': pillarKey === 'dayPillar'
+          'day-master': pillarKey === 'dayPillar',
         }"
       >
         <h5>{{ getPillarName(pillarKey) }}</h5>
@@ -87,16 +87,16 @@ const getPillarName = (key: PillarKey): string => {
 // Element color mapping for visual coding system
 const getElementClass = (element: string): string => {
   const elementMap: Record<string, string> = {
-    '木': 'element-wood',
-    'Wood': 'element-wood',
-    '火': 'element-fire',
-    'Fire': 'element-fire',
-    '土': 'element-earth',
-    'Earth': 'element-earth',
-    '金': 'element-metal',
-    'Metal': 'element-metal',
-    '水': 'element-water',
-    'Water': 'element-water',
+    木: 'element-wood',
+    Wood: 'element-wood',
+    火: 'element-fire',
+    Fire: 'element-fire',
+    土: 'element-earth',
+    Earth: 'element-earth',
+    金: 'element-metal',
+    Metal: 'element-metal',
+    水: 'element-water',
+    Water: 'element-water',
   };
   return elementMap[element] || '';
 };

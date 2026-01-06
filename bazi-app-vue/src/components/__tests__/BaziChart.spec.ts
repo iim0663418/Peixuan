@@ -85,11 +85,11 @@ describe('BaziChart.vue', () => {
     pillarData.forEach((pData, index) => {
       const pillarWrapper = pillarElements[index];
       expect(pillarWrapper.find('h5').text()).toBe(pData.name);
-      
+
       // 檢查天干 (stem-group 中的 char)
       const stemGroup = pillarWrapper.find('.stem-group');
       expect(stemGroup.find('.char').text()).toBe(pData.data.stem);
-      
+
       // 檢查地支 (branch-group 中的 char)
       const branchGroup = pillarWrapper.find('.branch-group');
       expect(branchGroup.find('.char').text()).toBe(pData.data.branch);

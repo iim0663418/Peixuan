@@ -16,53 +16,53 @@
       </div>
     </el-tooltip>
 
-    <div class="bubble-content markdown-content" v-html="formattedContent"></div>
+    <div class="bubble-content markdown-content" v-html="formattedContent" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { parseChatMarkdown } from '@/utils/markdown'
+import { ref, computed, onMounted } from 'vue';
+import { parseChatMarkdown } from '@/utils/markdown';
 
 interface Props {
-  content: string
-  type: 'ai' | 'user' | 'system'
-  delay?: number // Delay before showing (for progressive display)
-  hasMemoryContext?: boolean // Indicates if AI response used memory context
-  memoryReference?: string // Reference to what was remembered (e.g., "你上次提到工作壓力")
+  content: string;
+  type: 'ai' | 'user' | 'system';
+  delay?: number; // Delay before showing (for progressive display)
+  hasMemoryContext?: boolean; // Indicates if AI response used memory context
+  memoryReference?: string; // Reference to what was remembered (e.g., "你上次提到工作壓力")
 }
 
 const props = withDefaults(defineProps<Props>(), {
   delay: 0,
   hasMemoryContext: false,
-  memoryReference: ''
-})
+  memoryReference: '',
+});
 
-const isEntering = ref(true)
+const isEntering = ref(true);
 
 const formattedContent = computed(() => {
   if (props.type === 'user' || props.type === 'system') {
     // Plain text for user/system messages
-    return props.content
+    return props.content;
   }
   // Markdown for AI messages
-  return parseChatMarkdown(props.content)
-})
+  return parseChatMarkdown(props.content);
+});
 
 // Generate tooltip text for memory indicator
 const memoryTooltip = computed(() => {
   if (props.memoryReference) {
-    return `佩璇記得${props.memoryReference}`
+    return `佩璇記得${props.memoryReference}`;
   }
-  return '佩璇根據你的歷史對話調整了這個回應'
-})
+  return '佩璇根據你的歷史對話調整了這個回應';
+});
 
 onMounted(() => {
   // Remove entering class after animation
   setTimeout(() => {
-    isEntering.value = false
-  }, 300 + props.delay)
-})
+    isEntering.value = false;
+  }, 300 + props.delay);
+});
 </script>
 
 <style scoped>
@@ -87,7 +87,11 @@ onMounted(() => {
   gap: 4px;
   padding: 4px 8px;
   margin-bottom: 4px;
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(168, 85, 247, 0.15) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(147, 51, 234, 0.1) 0%,
+    rgba(168, 85, 247, 0.15) 100%
+  );
   border: 1px solid rgba(147, 51, 234, 0.3);
   border-radius: var(--radius-sm);
   font-size: 11px;
@@ -100,7 +104,11 @@ onMounted(() => {
 }
 
 .memory-indicator:hover {
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.15) 0%, rgba(168, 85, 247, 0.2) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(147, 51, 234, 0.15) 0%,
+    rgba(168, 85, 247, 0.2) 100%
+  );
   border-color: var(--purple-star);
   box-shadow: 0 2px 6px rgba(147, 51, 234, 0.2);
   transform: translateY(-1px);
@@ -117,7 +125,8 @@ onMounted(() => {
 }
 
 @keyframes memoryPulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.4);
   }
   50% {
@@ -126,7 +135,8 @@ onMounted(() => {
 }
 
 @keyframes sparkle {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -179,7 +189,11 @@ onMounted(() => {
 }
 
 .bubble-system .bubble-content {
-  background: linear-gradient(135deg, var(--info-lighter) 0%, var(--purple-star-lighter) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--info-lighter) 0%,
+    var(--purple-star-lighter) 100%
+  );
   color: var(--text-primary);
   text-align: center;
   font-weight: var(--font-weight-medium);
@@ -406,7 +420,7 @@ onMounted(() => {
     animation-duration: 0.2s;
     animation-timing-function: ease-out;
   }
-  
+
   .thinking-dots span {
     animation-duration: 1.8s;
   }
@@ -427,7 +441,7 @@ onMounted(() => {
     max-width: 90%;
     margin-bottom: 6px;
   }
-  
+
   .bubble-content {
     padding: 8px 12px;
     font-size: 13px;
@@ -444,7 +458,7 @@ onMounted(() => {
   .chat-bubble {
     max-width: 70%;
   }
-  
+
   .bubble-content {
     padding: var(--space-md) var(--space-lg);
     font-size: var(--font-size-md);
@@ -454,50 +468,58 @@ onMounted(() => {
 /* 深色模式文字對比度優化 */
 @media (prefers-color-scheme: dark) {
   .memory-indicator {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(192, 132, 252, 0.25) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(168, 85, 247, 0.2) 0%,
+      rgba(192, 132, 252, 0.25) 100%
+    );
     border-color: rgba(168, 85, 247, 0.4);
-    color: #c084fc;
+    color: var(--purple-star-dark-mode);
   }
 
   .memory-indicator:hover {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(192, 132, 252, 0.3) 100%);
-    border-color: #c084fc;
+    background: linear-gradient(
+      135deg,
+      rgba(168, 85, 247, 0.25) 0%,
+      rgba(192, 132, 252, 0.3) 100%
+    );
+    border-color: var(--purple-star-dark-mode);
     box-shadow: 0 2px 6px rgba(168, 85, 247, 0.3);
   }
 
   .bubble-content {
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
   }
 
   .bubble-content :deep(p) {
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
   }
 
   .bubble-content :deep(h1),
   .bubble-content :deep(h2),
   .bubble-content :deep(h3),
   .bubble-content :deep(h4) {
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
   }
 
   .bubble-content :deep(li) {
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
   }
 
   .bubble-content :deep(strong),
   .bubble-content :deep(b) {
-    color: #fbbf24 !important;
+    color: var(--warning) !important;
     font-weight: var(--font-weight-bold);
   }
 
   .bubble-ai .bubble-content {
-    color: #ffffff !important;
-    background: #374151 !important;
+    color: var(--text-primary) !important;
+    background: var(--bg-tertiary) !important;
   }
 
   .bubble-system .bubble-content {
-    color: #ffffff !important;
-    background: #4b5563 !important;
+    color: var(--text-primary) !important;
+    background: var(--bg-disabled) !important;
   }
 }
 </style>

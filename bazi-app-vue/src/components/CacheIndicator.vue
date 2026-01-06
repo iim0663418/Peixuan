@@ -17,15 +17,21 @@ const { t } = useI18n();
 const formattedDate = computed(() => {
   const date = new Date(props.timestamp);
   const now = new Date();
-  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+  const diffInHours = Math.floor(
+    (now.getTime() - date.getTime()) / (1000 * 60 * 60),
+  );
 
   // If less than 24 hours ago, show relative time
   if (diffInHours < 1) {
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    const diffInMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60),
+    );
     if (diffInMinutes < 1) {
       return t(`${props.analysisType}.cache_just_now`);
     }
-    return t(`${props.analysisType}.cache_minutes_ago`, { minutes: diffInMinutes });
+    return t(`${props.analysisType}.cache_minutes_ago`, {
+      minutes: diffInMinutes,
+    });
   } else if (diffInHours < 24) {
     return t(`${props.analysisType}.cache_hours_ago`, { hours: diffInHours });
   }
@@ -86,9 +92,13 @@ const handleRefresh = () => {
       >
         <polyline points="23 4 23 10 17 10" />
         <polyline points="1 20 1 14 7 14" />
-        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        <path
+          d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+        />
       </svg>
-      <span class="refresh-text">{{ $t(`${analysisType}.cache_refresh`) }}</span>
+      <span class="refresh-text">{{
+        $t(`${analysisType}.cache_refresh`)
+      }}</span>
     </button>
   </div>
 </template>

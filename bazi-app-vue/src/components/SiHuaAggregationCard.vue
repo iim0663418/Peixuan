@@ -266,7 +266,7 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-md);
-  background: var(--bg-secondary);
+  background: var(--card-bg-collapsed);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -274,7 +274,7 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
 }
 
 .summary-view:hover {
-  background: var(--bg-tertiary);
+  background: var(--bg-secondary);
   border-color: var(--purple-star);
   box-shadow: 0 2px 8px rgba(147, 51, 234, 0.15);
   transform: translateY(-1px);
@@ -331,7 +331,7 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
    EXPANDED VIEW
    ======================================== */
 .expanded-view {
-  background: var(--bg-secondary);
+  background: var(--card-bg-expanded);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -354,7 +354,7 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-md);
-  background: var(--bg-tertiary);
+  background: var(--card-header-bg);
   border-bottom: 1px solid var(--border-light);
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -410,7 +410,7 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
 
 .centrality-box {
   padding: 12px;
-  background: var(--bg-secondary);
+  background: var(--centrality-box-bg);
   border-radius: 4px;
 }
 
@@ -424,9 +424,11 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
 .node-item {
   padding: 8px;
   margin-bottom: 4px;
-  background: var(--bg-primary);
+  background: var(--node-item-bg);
+  border: 1px solid var(--border-light);
   border-radius: 4px;
   font-size: 14px;
+  color: var(--text-primary);
 }
 
 .no-data {
@@ -455,55 +457,26 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
   }
 }
 
-/* 深色模式優化 */
+/* 深色模式優化 - 統一選擇器，移除 !important，修復節點背景融合問題 */
+.sihua-aggregation {
+  /* 定義組件層級的動態 CSS 變數 - 預設(淺色) */
+  --card-bg-collapsed: var(--bg-secondary);
+  --card-bg-expanded: var(--bg-secondary);
+  --card-header-bg: var(--bg-tertiary);
+  --centrality-box-bg: var(--bg-secondary);
+  --node-item-bg: var(--bg-primary);
+}
+
+/* 統一深色模式選擇器：同時匹配 data-theme 和系統偏好 */
+:global([data-theme='dark']) .sihua-aggregation,
 @media (prefers-color-scheme: dark) {
-  .summary-view {
-    background: var(--bg-tertiary);
-    border-color: var(--border-light);
-  }
-
-  .summary-view:hover {
-    background: var(--bg-secondary);
-    box-shadow: 0 2px 8px rgba(147, 51, 234, 0.25);
-  }
-
-  .summary-title {
-    color: var(--text-primary) !important;
-  }
-
-  .summary-description {
-    color: var(--text-secondary) !important;
-  }
-
-  .expanded-view {
-    background: var(--bg-secondary);
-    border-color: var(--border-light);
-  }
-
-  .collapse-header {
-    background: var(--bg-tertiary);
-    border-color: var(--border-light);
-  }
-
-  .collapse-header:hover {
-    background: var(--bg-secondary);
-  }
-
-  .header-title {
-    color: var(--text-primary) !important;
-  }
-
-  .node-item {
-    background: var(--bg-tertiary) !important;
-    color: var(--text-primary) !important;
-  }
-
-  .no-data {
-    color: var(--text-secondary) !important;
-  }
-
-  .centrality-box {
-    background: var(--bg-tertiary);
+  .sihua-aggregation {
+    --card-bg-collapsed: var(--bg-tertiary);
+    --card-bg-expanded: var(--bg-secondary);
+    --card-header-bg: var(--bg-tertiary);
+    --centrality-box-bg: var(--bg-tertiary);
+    /* 修復：使用透明度疊加創造層次，避免與父容器背景融合 */
+    --node-item-bg: rgba(255, 255, 255, 0.05);
   }
 }
 </style>

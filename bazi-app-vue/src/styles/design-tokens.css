@@ -408,6 +408,11 @@
   --bazi-orange-lightest: #2d1810;
   --purple-star-lightest: #1f1629;
 
+  /* Info colors - Dark Mode Variants */
+  --info: #26c6da; /* Lighter cyan for dark backgrounds */
+  --info-lighter: #4dd0e1;
+  --info-lightest: #0d2838; /* Dark cyan background */
+
   /* Five Elements - Dark Mode Variants (Lighter colors for dark backgrounds) */
   /* Optimized for WCAG AA compliance on dark backgrounds */
   --element-wood: #81c784; /* Lighter green for sufficient contrast on dark bg */
@@ -486,6 +491,11 @@
     --primary-lightest: #2d1810;
     --bazi-orange-lightest: #2d1810;
     --purple-star-lightest: #1f1629;
+
+    /* Info colors - Dark Mode Variants */
+    --info: #26c6da; /* Lighter cyan for dark backgrounds */
+    --info-lighter: #4dd0e1;
+    --info-lightest: #0d2838; /* Dark cyan background */
 
     /* Five Elements - Dark Mode Variants (Lighter colors for dark backgrounds) */
     /* Optimized for WCAG AA compliance on dark backgrounds */

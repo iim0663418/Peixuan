@@ -1,66 +1,30 @@
 /**
  * Shared constants for WuXing visualizations
  * Extracted from WuXingChart.vue for reusability across multiple chart types
- * Phase 2: Migrated to CSS variables for dark mode support
+ * Phase 3: Direct CSS variable mapping for optimal performance and SSR compatibility
  */
 
 /**
- * Get element color from CSS variable
- * This function reads the color value from CSS variables defined in design-tokens.css
- * Supports automatic dark mode adaptation via CSS variable system
+ * Element colors mapped directly to CSS variable references
+ * These CSS variables are defined in design-tokens.css and support automatic dark mode adaptation
+ *
+ * Phase 3 Optimization Benefits:
+ * - ✅ Zero runtime overhead (no getComputedStyle calls)
+ * - ✅ SSR hydration safe (server and client render identical strings)
+ * - ✅ Native browser CSS variable resolution
+ * - ✅ Instant theme switching without Vue re-renders
+ *
+ * Format: 'var(--css-variable, fallback-hex)'
+ * - Browser automatically resolves CSS variables based on current theme
+ * - Fallback hex colors match Light Mode values for progressive enhancement
  */
-function getElementColor(element: string): string {
-  if (typeof window === 'undefined') {
-    // Fallback for SSR or non-browser environments
-    const fallbacks: Record<string, string> = {
-      木: '#2e7d32',
-      火: '#c62828',
-      土: '#5d4037',
-      金: '#424242',
-      水: '#01579b',
-    };
-    return fallbacks[element] || '#000000';
-  }
-
-  const varMap: Record<string, string> = {
-    木: '--element-wood',
-    火: '--element-fire',
-    土: '--element-earth',
-    金: '--element-metal',
-    水: '--element-water',
-  };
-
-  const cssVar = varMap[element];
-  if (!cssVar) return '#000000';
-
-  const color = getComputedStyle(document.documentElement)
-    .getPropertyValue(cssVar)
-    .trim();
-
-  return color || fallbacks[element] || '#000000';
-}
-
-// Fallback colors for SSR/initial render
-const fallbacks: Record<string, string> = {
-  木: '#2e7d32',
-  火: '#c62828',
-  土: '#5d4037',
-  金: '#424242',
-  水: '#01579b',
+export const ELEMENT_COLORS: Record<string, string> = {
+  木: 'var(--element-wood, #2e7d32)',
+  火: 'var(--element-fire, #c62828)',
+  土: 'var(--element-earth, #5d4037)',
+  金: 'var(--element-metal, #424242)',
+  水: 'var(--element-water, #01579b)',
 };
-
-/**
- * Element colors mapped to CSS variables
- * These values are computed at runtime to support dark mode adaptation
- */
-export const ELEMENT_COLORS: Record<string, string> = new Proxy(
-  {},
-  {
-    get: (_target, prop: string) => {
-      return getElementColor(prop);
-    },
-  }
-);
 
 export const ELEMENT_NAMES = ['木', '火', '土', '金', '水'] as const;
 

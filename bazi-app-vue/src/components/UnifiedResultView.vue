@@ -670,36 +670,4 @@ h4::after {
     transform: none;
   }
 }
-
-/* 深色模式優化 */
-@media (prefers-color-scheme: dark) {
-  .unified-result {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-  }
-
-  .technical-sections {
-    background: var(--bg-secondary);
-  }
-
-  .collapse-title {
-    color: var(--text-primary) !important;
-  }
-
-  .collapse-label {
-    color: var(--text-primary) !important;
-  }
-
-  .section {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-  }
-
-  .section h3,
-  .section h4 {
-    color: var(--text-primary) !important;
-  }
-
-  /* Component-specific dark mode overrides handled by element-plus.css */
-}
 </style>

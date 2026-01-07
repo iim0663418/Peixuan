@@ -241,8 +241,8 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
 }
 
 .dayun-segment.current {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
+  background: var(--gradient-primary);
+  border-color: var(--primary-color);
   color: white;
 }
 
@@ -272,15 +272,15 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
 
 .current-fortune {
   padding: clamp(12px, 3vw, 16px);
-  background: #f0f9ff;
+  background: var(--info-lightest);
   border-radius: 8px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--info-lighter);
 }
 
 .current-fortune h5 {
   margin: 0 0 clamp(10px, 2.5vw, 12px) 0;
   font-size: clamp(13px, 3.2vw, 14px);
-  color: #1e40af;
+  color: var(--info);
   font-weight: 600;
 }
 
@@ -347,9 +347,9 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
     opacity: 1;
     filter: none;
     transform: none;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: #667eea;
+    box-shadow: 0 4px 12px var(--primary-alpha-30);
+    background: var(--gradient-primary);
+    border-color: var(--primary-color);
     color: white;
   }
 

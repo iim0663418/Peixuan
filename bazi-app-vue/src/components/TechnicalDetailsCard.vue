@@ -164,7 +164,7 @@ const formatJSON = (obj: any) => {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-md);
-  background: var(--bg-secondary);
+  background: var(--card-bg-collapsed);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -172,7 +172,7 @@ const formatJSON = (obj: any) => {
 }
 
 .summary-view:hover {
-  background: var(--bg-tertiary);
+  background: var(--bg-secondary);
   border-color: var(--info);
   box-shadow: 0 2px 8px rgba(53, 126, 221, 0.15);
   transform: translateY(-1px);
@@ -229,7 +229,7 @@ const formatJSON = (obj: any) => {
    EXPANDED VIEW
    ======================================== */
 .expanded-view {
-  background: var(--bg-secondary);
+  background: var(--card-bg-expanded);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -252,7 +252,7 @@ const formatJSON = (obj: any) => {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-md);
-  background: var(--bg-tertiary);
+  background: var(--card-header-bg);
   border-bottom: 1px solid var(--border-light);
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -289,6 +289,7 @@ const formatJSON = (obj: any) => {
 
 .detail-section {
   margin-bottom: 24px;
+  background: var(--section-bg);
   /* Phase 3: Smooth transitions */
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateZ(0);
@@ -306,7 +307,7 @@ h5 {
   margin: 0 0 12px 0;
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--title-color);
   /* Phase 3: Enhanced text shadow for better readability */
   text-shadow: var(--text-shadow-sm);
   /* Phase 3: Gradient border */
@@ -371,55 +372,26 @@ pre {
   }
 }
 
-/* 深色模式優化 */
-@media (prefers-color-scheme: dark) {
-  .summary-view {
-    background: var(--bg-tertiary);
-    border-color: var(--border-light);
-  }
-
-  .summary-view:hover {
-    background: var(--bg-secondary);
-    box-shadow: 0 2px 8px rgba(53, 126, 221, 0.25);
-  }
-
-  .summary-title {
-    color: var(--text-primary) !important;
-  }
-
-  .summary-description {
-    color: var(--text-secondary) !important;
-  }
-
-  .expanded-view {
-    background: var(--bg-secondary);
-    border-color: var(--border-light);
-  }
-
-  .collapse-header {
-    background: var(--bg-tertiary);
-    border-color: var(--border-light);
-  }
-
-  .collapse-header:hover {
-    background: var(--bg-secondary);
-  }
-
-  .header-title {
-    color: var(--text-primary) !important;
-  }
-
-  .detail-section {
-    background: var(--bg-tertiary) !important;
-    border-color: var(--border-light) !important;
-  }
-
-  .detail-section h3,
-  .detail-section h4,
-  .detail-section h5 {
-    color: var(--text-primary) !important;
-  }
-
-  /* Component-specific dark mode overrides handled by element-plus.css */
+/* 深色模式優化 - 統一選擇器，移除 !important */
+.technical-details-card {
+  /* 定義組件層級的動態 CSS 變數 - 預設(淺色) */
+  --card-bg-collapsed: var(--bg-secondary);
+  --card-bg-expanded: var(--bg-secondary);
+  --card-header-bg: var(--bg-tertiary);
+  --section-bg: transparent;
+  --title-color: var(--text-secondary);
 }
+
+/* 統一深色模式選擇器：同時匹配 data-theme 和系統偏好 */
+:global([data-theme='dark']) .technical-details-card,
+@media (prefers-color-scheme: dark) {
+  .technical-details-card {
+    --card-bg-collapsed: var(--bg-tertiary);
+    --card-bg-expanded: var(--bg-secondary);
+    --card-header-bg: var(--bg-tertiary);
+    --section-bg: var(--bg-tertiary);
+    --title-color: var(--text-primary);
+  }
+}
+
 </style>

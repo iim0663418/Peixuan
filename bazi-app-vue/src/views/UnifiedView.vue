@@ -544,7 +544,7 @@ h4 {
 
 :global([data-theme='dark']) .choice-card:hover {
   background: var(--bg-primary) !important;
-  border-color: var(--purple-star-dark-mode) !important;
+  border-color: var(--brand-accent) !important;
   box-shadow: var(--shadow-card-hover) !important;
 }
 

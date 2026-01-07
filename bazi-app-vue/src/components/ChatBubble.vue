@@ -89,10 +89,10 @@ onMounted(() => {
   margin-bottom: 4px;
   background: linear-gradient(
     135deg,
-    rgba(147, 51, 234, 0.1) 0%,
-    rgba(168, 85, 247, 0.15) 100%
+    var(--chat-accent-alpha-10) 0%,
+    var(--brand-accent-alpha-15) 100%
   );
-  border: 1px solid rgba(147, 51, 234, 0.3);
+  border: 1px solid var(--chat-accent-alpha-30);
   border-radius: var(--radius-sm);
   font-size: 11px;
   font-weight: 600;
@@ -473,7 +473,7 @@ onMounted(() => {
     rgba(192, 132, 252, 0.25) 100%
   );
   border-color: rgba(168, 85, 247, 0.4);
-  color: var(--purple-star-dark-mode);
+  color: var(--brand-accent);
 }
 
 :global([data-theme='dark']) .memory-indicator:hover {
@@ -482,7 +482,7 @@ onMounted(() => {
     rgba(168, 85, 247, 0.25) 0%,
     rgba(192, 132, 252, 0.3) 100%
   );
-  border-color: var(--purple-star-dark-mode);
+  border-color: var(--brand-accent);
   box-shadow: 0 2px 6px rgba(168, 85, 247, 0.3);
 }
 

@@ -363,6 +363,31 @@
 
 /* ===== 深色主題變數 Dark Theme ===== */
 [data-theme='dark'] :root {
+  /* 統一品牌色彩系統 - Unified Brand Colors */
+  --brand-text-primary: #f0e68c;    /* 主要品牌文字色 (替換 --footer-text-gold) */
+  --brand-text-secondary: #e89050;  /* 次要品牌文字色 (替換 --bazi-orange-dark-mode) */
+  --brand-accent: #a855d8;          /* 品牌強調色 (替換 --purple-star-dark-mode) */
+
+  /* 統一 Alpha 色彩變數 - Unified Alpha Colors */
+  --brand-accent-alpha-04: rgba(168, 85, 216, 0.04);
+  --brand-accent-alpha-06: rgba(168, 85, 216, 0.06);
+  --brand-accent-alpha-08: rgba(168, 85, 216, 0.08);
+  --brand-accent-alpha-10: rgba(168, 85, 216, 0.1);
+  --brand-accent-alpha-12: rgba(168, 85, 216, 0.12);
+  --brand-accent-alpha-15: rgba(168, 85, 216, 0.15);
+  --brand-accent-alpha-18: rgba(168, 85, 216, 0.18);
+  --brand-accent-alpha-20: rgba(168, 85, 216, 0.2);
+  --brand-accent-alpha-25: rgba(168, 85, 216, 0.25);
+  --brand-accent-alpha-30: rgba(168, 85, 216, 0.3);
+  --brand-accent-alpha-35: rgba(168, 85, 216, 0.35);
+
+  /* ChatBubble 專用 Alpha 變數 */
+  --chat-accent-alpha-10: rgba(147, 51, 234, 0.1);
+  --chat-accent-alpha-15: rgba(147, 51, 234, 0.15);
+  --chat-accent-alpha-20: rgba(147, 51, 234, 0.2);
+  --chat-accent-alpha-30: rgba(147, 51, 234, 0.3);
+  --chat-accent-alpha-40: rgba(147, 51, 234, 0.4);
+
   /* Text Colors - Optimized for WCAG AA */
   --text-primary: rgba(255, 255, 255, 0.87); /* Softer than pure white, reduces halation */
   --text-secondary: #e5e7eb;
@@ -398,10 +423,6 @@
 
   /* Ambient Edge Light - Simulates light hitting the edge */
   --edge-highlight: 0 0 0 1px var(--purple-alpha-15);
-
-  /* Brand Colors - Slightly desaturated for dark mode */
-  --purple-star-dark-mode: #a855d8; /* Lighter and slightly desaturated */
-  --bazi-orange-dark-mode: #e89050; /* Lighter and slightly desaturated */
 
   /* Adjust lightest variants for dark mode */
   --primary-lightest: #2d1810;

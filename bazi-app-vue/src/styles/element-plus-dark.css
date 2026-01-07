@@ -15,8 +15,8 @@
 
   :deep(.el-button:hover) {
     background: var(--bg-tertiary) !important;
-    border-color: var(--purple-star-dark-mode) !important;
-    box-shadow: 0 4px 12px rgba(153, 50, 204, 0.2), var(--edge-highlight) !important;
+    border-color: var(--brand-accent) !important;
+    box-shadow: 0 4px 12px rgba(168, 85, 216, 0.2), var(--edge-highlight) !important;
     transform: translateY(-1px) !important;
   }
 
@@ -58,14 +58,14 @@
 
   :deep(.el-input__wrapper:hover) {
     background: rgba(0, 0, 0, 0.25) !important;
-    border-color: var(--purple-star-dark-mode) !important;
-    box-shadow: 0 0 0 1px var(--purple-star-dark-mode) inset, 0 0 8px rgba(153, 50, 204, 0.15) !important;
+    border-color: var(--brand-accent) !important;
+    box-shadow: 0 0 0 1px var(--brand-accent) inset, 0 0 8px rgba(168, 85, 216, 0.15) !important;
   }
 
   :deep(.el-input__wrapper.is-focus) {
     background: rgba(0, 0, 0, 0.3) !important;
-    border-color: var(--purple-star-dark-mode) !important;
-    box-shadow: 0 0 0 2px var(--purple-star-dark-mode) inset, 0 0 12px rgba(153, 50, 204, 0.3), 0 4px 8px rgba(153, 50, 204, 0.15) !important;
+    border-color: var(--brand-accent) !important;
+    box-shadow: 0 0 0 2px var(--brand-accent) inset, 0 0 12px rgba(168, 85, 216, 0.3), 0 4px 8px rgba(168, 85, 216, 0.15) !important;
   }
   
   /* ===== 選擇器組件 ===== */

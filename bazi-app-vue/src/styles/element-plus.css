@@ -19,7 +19,7 @@
 
 :deep(.el-card:hover) {
   box-shadow: var(--shadow-md) !important;
-  border-color: var(--purple-star-dark-mode) !important;
+  border-color: var(--brand-accent) !important;
   transform: translateY(-2px) !important;
 }
 
@@ -72,8 +72,8 @@
 
 :deep(.el-collapse-item__header:hover) {
   background: var(--bg-tertiary) !important;
-  border-color: var(--purple-star-dark-mode) !important;
-  box-shadow: 0 2px 8px rgba(153, 50, 204, 0.15) !important;
+  border-color: var(--brand-accent) !important;
+  box-shadow: 0 2px 8px rgba(168, 85, 216, 0.15) !important;
 }
 
 :deep(.el-collapse-item__header:focus-visible) {

@@ -238,21 +238,27 @@ const cycleTheme = () => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(auto, 1fr) auto auto;
+  grid-template-areas: "brand controls menu";
   align-items: center;
+  gap: 1rem;
   position: relative;
-  min-height: 80px; /* 確保足夠高度 */
+  min-height: 80px;
+}
+
+.nav-brand {
+  grid-area: brand;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .nav-brand .brand-link {
   text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 0; /* 允許 flex 子元素收縮 */
-  flex: 1;
-  max-width: calc(100vw - 160px); /* 考慮右側控制項空間 */
+  display: block;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .nav-brand h1 {
@@ -264,6 +270,32 @@ const cycleTheme = () => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.nav-controls {
+  grid-area: controls;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.mobile-menu-button {
+  grid-area: menu;
+  display: flex;
+  flex-direction: column;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
+  justify-content: space-around;
+  align-items: center;
+  position: relative;
+  z-index: 1000;
 }
 
 .brand-subtitle {
@@ -349,12 +381,7 @@ const cycleTheme = () => {
   transform: translateY(-1px);
 }
 
-.nav-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-shrink: 0; /* 防止在桌面版被壓縮 */
-}
+
 
 .theme-toggle {
   display: flex;
@@ -383,22 +410,7 @@ const cycleTheme = () => {
   transform: translateY(0);
 }
 
-.mobile-menu-button {
-  display: flex;
-  flex-direction: column;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  min-width: 44px;
-  min-height: 44px;
-  width: 44px;
-  height: 44px;
-  justify-content: space-around;
-  align-items: center;
-  position: relative;
-  z-index: 1000;
-}
+
 
 .mobile-menu-button span {
   width: 24px;
@@ -509,6 +521,9 @@ const cycleTheme = () => {
 @media (min-width: 768px) {
   .navbar {
     padding: 1rem 2rem;
+    grid-template-columns: minmax(auto, 30%) 1fr auto;
+    grid-template-areas: "brand navigation controls";
+    gap: 2rem;
   }
 
   .nav-brand h1 {
@@ -520,7 +535,9 @@ const cycleTheme = () => {
   }
 
   .desktop-menu {
+    grid-area: navigation;
     display: flex;
+    justify-self: center;
   }
 
   .mobile-menu-button {
@@ -603,11 +620,11 @@ const cycleTheme = () => {
   }
 
   .nav-brand h1 {
-    color: var(--footer-text-gold);
+    color: var(--brand-text-primary);
   }
 
   .brand-subtitle {
-    color: var(--bazi-orange-dark-mode);
+    color: var(--brand-text-secondary);
   }
 
   .nav-link {
@@ -615,7 +632,7 @@ const cycleTheme = () => {
   }
 
   .nav-link:hover {
-    color: var(--footer-text-gold);
+    color: var(--brand-text-primary);
     background: rgba(240, 230, 140, 0.1);
   }
 
@@ -634,14 +651,14 @@ const cycleTheme = () => {
   }
 
   .mobile-nav-link:hover {
-    color: var(--footer-text-gold);
+    color: var(--brand-text-primary);
     background: rgba(240, 230, 140, 0.1);
   }
 
   .mobile-nav-link.active {
-    color: var(--footer-text-gold);
+    color: var(--brand-text-primary);
     background: linear-gradient(90deg, rgba(240, 230, 140, 0.15), transparent);
-    border-left-color: var(--footer-text-gold);
+    border-left-color: var(--brand-text-primary);
   }
 
   .mobile-menu-button span {
@@ -654,8 +671,8 @@ const cycleTheme = () => {
   }
 
   .theme-toggle:hover {
-    color: var(--footer-text-gold);
-    border-color: var(--footer-text-gold);
+    color: var(--brand-text-primary);
+    border-color: var(--brand-text-primary);
     background: rgba(240, 230, 140, 0.1);
   }
 }

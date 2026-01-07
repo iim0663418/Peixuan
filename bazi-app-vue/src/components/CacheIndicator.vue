@@ -112,10 +112,10 @@ const handleRefresh = () => {
   padding: var(--space-md) var(--space-lg);
   background: linear-gradient(
     135deg,
-    rgba(153, 50, 204, 0.08) 0%,
-    rgba(153, 50, 204, 0.04) 100%
+    var(--brand-accent-alpha-08) 0%,
+    var(--brand-accent-alpha-04) 100%
   );
-  border: 1px solid rgba(153, 50, 204, 0.15);
+  border: 1px solid var(--brand-accent-alpha-15);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-xl);
   transition: all var(--transition-normal);
@@ -124,10 +124,10 @@ const handleRefresh = () => {
 .cache-indicator:hover {
   background: linear-gradient(
     135deg,
-    rgba(153, 50, 204, 0.12) 0%,
-    rgba(153, 50, 204, 0.06) 100%
+    var(--brand-accent-alpha-12) 0%,
+    var(--brand-accent-alpha-06) 100%
   );
-  border-color: rgba(153, 50, 204, 0.25);
+  border-color: var(--brand-accent-alpha-25);
 }
 
 .cache-info {
@@ -219,19 +219,19 @@ const handleRefresh = () => {
 :global([data-theme='dark']) .cache-indicator {
   background: linear-gradient(
     135deg,
-    rgba(153, 50, 204, 0.12) 0%,
-    rgba(153, 50, 204, 0.06) 100%
+    var(--brand-accent-alpha-12) 0%,
+    var(--brand-accent-alpha-06) 100%
   );
-  border-color: rgba(153, 50, 204, 0.2);
+  border-color: var(--brand-accent-alpha-20);
 }
 
 :global([data-theme='dark']) .cache-indicator:hover {
   background: linear-gradient(
     135deg,
-    rgba(153, 50, 204, 0.18) 0%,
-    rgba(153, 50, 204, 0.1) 100%
+    var(--brand-accent-alpha-18) 0%,
+    var(--brand-accent-alpha-10) 100%
   );
-  border-color: rgba(153, 50, 204, 0.35);
+  border-color: var(--brand-accent-alpha-35);
 }
 
 :global([data-theme='dark']) .refresh-btn:hover {

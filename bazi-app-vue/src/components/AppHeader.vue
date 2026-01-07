@@ -250,6 +250,9 @@ const cycleTheme = () => {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-width: 0; /* 允許 flex 子元素收縮 */
+  flex: 1;
+  max-width: calc(100vw - 160px); /* 考慮右側控制項空間 */
 }
 
 .nav-brand h1 {
@@ -258,6 +261,9 @@ const cycleTheme = () => {
   font-weight: 700;
   color: var(--brand-brown);
   transition: color 0.3s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .brand-subtitle {
@@ -568,6 +574,7 @@ const cycleTheme = () => {
 @media (max-width: 479px) {
   .navbar {
     padding: 0.75rem 1rem;
+    min-height: 60px; /* 減少最小高度 */
   }
 
   .nav-brand h1 {
@@ -576,6 +583,7 @@ const cycleTheme = () => {
 
   .brand-subtitle {
     font-size: 0.6rem;
+    display: none; /* 隱藏副標題節省空間 */
   }
 
   .mobile-menu {

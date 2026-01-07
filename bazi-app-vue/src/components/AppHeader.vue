@@ -101,47 +101,47 @@ const cycleTheme = () => {
 
       <!-- 桌面版導航菜單 -->
       <div class="nav-menu desktop-menu">
-        <router-link
-          to="/"
+        <button
           class="nav-link"
           :class="{ active: route?.path === '/' }"
+          @click="() => router.push('/')"
         >
           {{ $t('navigation.home') }}
-        </router-link>
-
-        <router-link
-          to="/unified"
-          class="nav-link"
-          :class="{ active: route?.path?.startsWith('/unified') }"
-        >
-          {{ $t('astrology.unified') }}
-        </router-link>
-
-        <router-link
-          to="/daily-question"
-          class="nav-link"
-          :class="{ active: route?.path === '/daily-question' }"
-        >
-          {{ $t('navigation.dailyQuestion') }}
-        </router-link>
+        </button>
 
         <button
-          class="nav-link ai-analysis-btn"
+          class="nav-link"
+          :class="{ active: route?.path?.startsWith('/unified') }"
+          @click="() => router.push('/unified')"
+        >
+          {{ $t('astrology.unified') }}
+        </button>
+
+        <button
+          class="nav-link"
+          :class="{ active: route?.path === '/daily-question' }"
+          @click="() => router.push('/daily-question')"
+        >
+          {{ $t('navigation.dailyQuestion') }}
+        </button>
+
+        <button
+          class="nav-link"
           :class="{
             active: route?.path === '/personality',
           }"
           @click="handleAIAnalysis"
         >
-          <span>{{ $t('navigation.personality') }}</span>
+          {{ $t('navigation.personality') }}
         </button>
         <button
-          class="nav-link advanced-analysis-btn"
+          class="nav-link"
           :class="{
             active: route?.path === '/fortune',
           }"
           @click="handleAdvancedAnalysis"
         >
-          <span>{{ $t('navigation.fortune') }}</span>
+          {{ $t('navigation.fortune') }}
         </button>
       </div>
 
@@ -173,53 +173,48 @@ const cycleTheme = () => {
 
     <!-- 移動版導航菜單 -->
     <div class="mobile-menu" :class="{ show: showMobileMenu }">
-      <router-link
-        to="/"
+      <button
         class="mobile-nav-link"
         :class="{ active: route?.path === '/' }"
-        @click="closeMobileMenu"
+        @click="() => { router.push('/'); closeMobileMenu(); }"
       >
         {{ $t('navigation.home') }}
-      </router-link>
+      </button>
 
-      <router-link
-        to="/unified"
+      <button
         class="mobile-nav-link"
         :class="{ active: route?.path?.startsWith('/unified') }"
-        @click="closeMobileMenu"
+        @click="() => { router.push('/unified'); closeMobileMenu(); }"
       >
         {{ $t('astrology.unified') }}
-      </router-link>
+      </button>
 
-      <router-link
-        to="/daily-question"
+      <button
         class="mobile-nav-link"
         :class="{ active: route?.path === '/daily-question' }"
-        @click="closeMobileMenu"
+        @click="() => { router.push('/daily-question'); closeMobileMenu(); }"
       >
         {{ $t('navigation.dailyQuestion') }}
-      </router-link>
+      </button>
 
-      <a
-        href="/personality"
+      <button
         class="mobile-nav-link"
         :class="{
           active: route?.path === '/personality',
         }"
-        @click.prevent="handleAIAnalysis"
+        @click="handleAIAnalysis"
       >
         {{ $t('navigation.personality') }}
-      </a>
-      <a
-        href="/fortune"
+      </button>
+      <button
         class="mobile-nav-link"
         :class="{
           active: route?.path === '/fortune',
         }"
-        @click.prevent="handleAdvancedAnalysis"
+        @click="handleAdvancedAnalysis"
       >
         {{ $t('navigation.fortune') }}
-      </a>
+      </button>
     </div>
   </header>
 </template>
@@ -331,6 +326,25 @@ const cycleTheme = () => {
   white-space: nowrap;
 }
 
+/* 重置 button 標籤的預設樣式，統一與 router-link 表現 */
+button.nav-link {
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+button.mobile-nav-link {
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
 .nav-link:hover {
   color: var(--primary-color);
   background: var(--primary-alpha-10);
@@ -346,40 +360,7 @@ const cycleTheme = () => {
   box-shadow: var(--shadow-sm);
 }
 
-.ai-analysis-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: none;
-  cursor: pointer;
-}
 
-.ai-analysis-btn .icon {
-  font-size: 1.2rem;
-}
-
-.ai-analysis-btn.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  filter: grayscale(0.5);
-  pointer-events: none;
-}
-
-.ai-analysis-btn:not(.disabled):hover {
-  transform: translateY(-1px);
-}
-
-.advanced-analysis-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: none;
-  cursor: pointer;
-}
-
-.advanced-analysis-btn:hover {
-  transform: translateY(-1px);
-}
 
 
 
@@ -615,7 +596,7 @@ const cycleTheme = () => {
       135deg,
       var(--bg-secondary) 0%,
       var(--bg-primary) 100%
-    );
+    ) !important;
     border-bottom-color: var(--border-light);
   }
 
@@ -629,11 +610,17 @@ const cycleTheme = () => {
 
   .nav-link {
     color: var(--text-secondary);
+    background: transparent;
   }
 
   .nav-link:hover {
     color: var(--brand-text-primary);
-    background: rgba(240, 230, 140, 0.1);
+    background: var(--primary-alpha-10);
+  }
+
+  .nav-link.active {
+    color: white;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
   }
 
   .mobile-menu {
@@ -662,7 +649,8 @@ const cycleTheme = () => {
   }
 
   .mobile-menu-button span {
-    background: var(--text-secondary);
+    /* P2 修復: 使用品牌色而非通用文字色 */
+    background: var(--primary-color);
   }
 
   .theme-toggle {
@@ -671,9 +659,15 @@ const cycleTheme = () => {
   }
 
   .theme-toggle:hover {
-    color: var(--brand-text-primary);
-    border-color: var(--brand-text-primary);
-    background: rgba(240, 230, 140, 0.1);
+    /* P1 修復: 統一使用橙色強調色 */
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: var(--primary-alpha-10);
+  }
+
+  /* P2 修復: 移動端選單按鈕使用品牌色 */
+  .mobile-menu-button span {
+    background: var(--primary-color);
   }
 }
 

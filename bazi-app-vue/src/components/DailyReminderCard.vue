@@ -114,16 +114,16 @@ onMounted(() => {
 <style scoped>
 /* ===== 主容器 ===== */
 .daily-reminder-card {
-  background: var(--bg-secondary, #ffffff);
-  border: 1px solid var(--border-light, #e9ecef);
-  border-radius: var(--radius-lg, 16px);
-  padding: var(--space-2xl, 24px);
-  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.08));
-  transition: var(--transition-normal, 0.25s ease-out);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2xl);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-normal);
 }
 
 .daily-reminder-card:hover {
-  box-shadow: var(--shadow-md, 0 4px 20px rgba(0, 0, 0, 0.12));
+  box-shadow: var(--shadow-md);
 }
 
 /* ===== 提醒內容區域 ===== */
@@ -135,85 +135,85 @@ onMounted(() => {
 .cache-badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-xs, 4px);
-  padding: var(--space-xs, 4px) var(--space-md, 12px);
-  background: var(--success-lightest, #f1f8e9);
-  border: 1px solid var(--success-lighter, #c8e6c9);
-  border-radius: var(--radius-full, 9999px);
-  margin-bottom: var(--space-md, 12px);
-  font-size: var(--font-size-xs, 0.75rem);
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  background: var(--success-lightest);
+  border: 1px solid var(--success-lighter);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-md);
+  font-size: var(--font-size-xs);
 }
 
 .cache-icon {
-  font-size: var(--font-size-sm, 0.875rem);
+  font-size: var(--font-size-sm);
 }
 
 .cache-text {
-  color: var(--success, #28a745);
-  font-weight: var(--font-weight-medium, 500);
+  color: var(--success);
+  font-weight: var(--font-weight-medium);
 }
 
 /* 提醒文字 */
 .reminder-text-section {
-  margin-bottom: var(--space-lg, 16px);
+  margin-bottom: var(--space-lg);
 }
 
 .reminder-text {
-  font-size: var(--font-size-lg, 1.125rem);
-  line-height: var(--line-height-relaxed, 1.75);
-  color: var(--text-primary, #2c3e50);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-primary);
   margin: 0;
-  padding: var(--space-lg, 16px);
-  background: var(--bg-primary, #f7f8fa);
-  border-radius: var(--radius-md, 12px);
-  border-left: 4px solid var(--primary-color, #d2691e);
+  padding: var(--space-lg);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--primary-color);
 }
 
 /* 標籤區域 */
 .tags-section {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-sm, 8px);
-  margin-bottom: var(--space-md, 12px);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
 }
 
 .reminder-tag {
-  font-size: var(--font-size-sm, 0.875rem);
-  font-weight: var(--font-weight-medium, 500);
-  padding: var(--space-xs, 4px) var(--space-md, 12px);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: var(--space-xs) var(--space-md);
 }
 
 /* 錯誤提示 */
 .error-notice {
   display: flex;
   align-items: center;
-  gap: var(--space-sm, 8px);
-  padding: var(--space-md, 12px);
-  background: var(--info-lightest, #e0f2f1);
-  border: 1px solid var(--info-lighter, #b2ebf2);
-  border-radius: var(--radius-sm, 8px);
-  margin-top: var(--space-md, 12px);
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--info-lightest);
+  border: 1px solid var(--info-lighter);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-md);
 }
 
 .error-icon {
-  font-size: var(--font-size-lg, 1.125rem);
+  font-size: var(--font-size-lg);
 }
 
 .error-text {
-  font-size: var(--font-size-sm, 0.875rem);
-  color: var(--info, #17a2b8);
-  font-weight: var(--font-weight-medium, 500);
+  font-size: var(--font-size-sm);
+  color: var(--info);
+  font-weight: var(--font-weight-medium);
 }
 
 /* ===== 響應式設計 ===== */
 @media (max-width: 767px) {
   .daily-reminder-card {
-    padding: var(--space-lg, 16px);
+    padding: var(--space-lg);
   }
 
   .reminder-text {
-    font-size: var(--font-size-base, 1rem);
-    padding: var(--space-md, 12px);
+    font-size: var(--font-size-base);
+    padding: var(--space-md);
   }
 
   .tags-section {

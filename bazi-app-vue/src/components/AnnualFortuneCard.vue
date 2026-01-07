@@ -194,11 +194,14 @@ const formatDate = (date: Date | string): string => {
 
 <style scoped>
 /* Design tokens applied */
+
+/* Component-specific color mappings using design tokens */
+
 .annual-fortune-card {
   padding: clamp(16px, 4vw, 20px);
   background: var(--bg-primary);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   max-width: 100%;
   overflow: hidden;
 }
@@ -233,7 +236,7 @@ const formatDate = (date: Date | string): string => {
   height: 40px;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 12px;
 }
 
@@ -246,11 +249,11 @@ const formatDate = (date: Date | string): string => {
 }
 
 .period-segment.current-year {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--info-light) 0%, var(--info) 100%);
 }
 
 .period-segment.next-year {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, var(--success-light) 0%, var(--success) 100%);
 }
 
 .period-label {
@@ -271,7 +274,7 @@ const formatDate = (date: Date | string): string => {
   display: inline-block;
   width: 12px;
   height: 12px;
-  background: #3b82f6;
+  background: var(--info);
   border-radius: 2px;
   margin-right: 6px;
   vertical-align: middle;
@@ -282,7 +285,7 @@ const formatDate = (date: Date | string): string => {
   display: inline-block;
   width: 12px;
   height: 12px;
-  background: #10b981;
+  background: var(--success);
   border-radius: 2px;
   margin-right: 6px;
   vertical-align: middle;
@@ -305,13 +308,13 @@ const formatDate = (date: Date | string): string => {
 }
 
 .period-card.current-year-card {
-  border-color: #3b82f6;
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: var(--info);
+  background: linear-gradient(135deg, var(--info-lightest) 0%, var(--info-lighter) 100%);
 }
 
 .period-card.next-year-card {
-  border-color: #10b981;
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: var(--success);
+  background: linear-gradient(135deg, var(--success-lightest) 0%, var(--success-lighter) 100%);
 }
 
 .period-header {

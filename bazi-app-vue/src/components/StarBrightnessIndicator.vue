@@ -23,15 +23,15 @@ const brightnessMap: Record<string, { text: string; class: string }> = {
   temple: { text: '廟', class: 'brightness-temple' },
   prosperous: { text: '旺', class: 'brightness-prosperous' },
   advantageous: { text: '得', class: 'brightness-advantageous' },
-  neutral: { text: '平', class: 'brightness-neutral' },
+  neutral: { text: '平', class: 'brightness-ping' },
   trapped: { text: '陷', class: 'brightness-trapped' },
   // Chinese keys (fallback)
   廟: { text: '廟', class: 'brightness-temple' },
   旺: { text: '旺', class: 'brightness-prosperous' },
   得: { text: '得', class: 'brightness-advantageous' },
-  利: { text: '利', class: 'brightness-neutral' },
-  平: { text: '平', class: 'brightness-neutral' },
-  不: { text: '不', class: 'brightness-neutral' },
+  利: { text: '利', class: 'brightness-li' },
+  平: { text: '平', class: 'brightness-ping' },
+  不: { text: '不', class: 'brightness-bu' },
   陷: { text: '陷', class: 'brightness-trapped' },
 };
 
@@ -62,58 +62,46 @@ const brightnessClass = computed(() => normalizedBrightness.value?.class || '');
   line-height: 1.2;
 }
 
-/* Semantic Colors */
+/* Using Design Tokens - Brightness Levels */
 .brightness-temple {
-  background-color: rgba(255, 0, 0, 0.1);
-  color: #d32f2f; /* Red-700 */
-  border: 1px solid rgba(255, 0, 0, 0.2);
+  background-color: var(--star-brightness-庙-bg);
+  color: var(--star-brightness-庙);
+  border: 1px solid var(--star-brightness-庙-border);
 }
 
 .brightness-prosperous {
-  background-color: rgba(255, 87, 34, 0.1);
-  color: #e64a19; /* Orange-700 */
-  border: 1px solid rgba(255, 87, 34, 0.2);
+  background-color: var(--star-brightness-旺-bg);
+  color: var(--star-brightness-旺);
+  border: 1px solid var(--star-brightness-旺-border);
 }
 
 .brightness-advantageous {
-  background-color: rgba(76, 175, 80, 0.1);
-  color: #388e3c; /* Green-700 */
-  border: 1px solid rgba(76, 175, 80, 0.2);
+  background-color: var(--star-brightness-得-bg);
+  color: var(--star-brightness-得);
+  border: 1px solid var(--star-brightness-得-border);
 }
 
-.brightness-neutral {
-  background-color: rgba(33, 150, 243, 0.1);
-  color: #1976d2; /* Blue-700 */
-  border: 1px solid rgba(33, 150, 243, 0.2);
+.brightness-li {
+  background-color: var(--star-brightness-利-bg);
+  color: var(--star-brightness-利);
+  border: 1px solid var(--star-brightness-利-border);
+}
+
+.brightness-ping {
+  background-color: var(--star-brightness-平-bg);
+  color: var(--star-brightness-平);
+  border: 1px solid var(--star-brightness-平-border);
+}
+
+.brightness-bu {
+  background-color: var(--star-brightness-不-bg);
+  color: var(--star-brightness-不);
+  border: 1px solid var(--star-brightness-不-border);
 }
 
 .brightness-trapped {
-  background-color: rgba(158, 158, 158, 0.1);
-  color: #616161; /* Grey-700 */
-  border: 1px solid rgba(158, 158, 158, 0.2);
-}
-
-/* Dark mode adjustments (using CSS variables if available, otherwise explicit) */
-@media (prefers-color-scheme: dark) {
-  .brightness-temple {
-    background-color: rgba(255, 0, 0, 0.2);
-    color: #ff8a80;
-  }
-  .brightness-prosperous {
-    background-color: rgba(255, 87, 34, 0.2);
-    color: #ff9e80;
-  }
-  .brightness-advantageous {
-    background-color: rgba(76, 175, 80, 0.2);
-    color: #b9f6ca;
-  }
-  .brightness-neutral {
-    background-color: rgba(33, 150, 243, 0.2);
-    color: #82b1ff;
-  }
-  .brightness-trapped {
-    background-color: rgba(158, 158, 158, 0.2);
-    color: #eeeeee;
-  }
+  background-color: var(--star-brightness-陷-bg);
+  color: var(--star-brightness-陷);
+  border: 1px solid var(--star-brightness-陷-border);
 }
 </style>

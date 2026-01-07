@@ -206,7 +206,7 @@ onMounted(async () => {
 
 /* Error state styling */
 .result-card.error {
-  background-color: #fef0f0;
+  background-color: var(--error-lightest);
 }
 
 /* Result sections */
@@ -218,13 +218,13 @@ onMounted(async () => {
 .pillar {
   text-align: center;
   padding: clamp(0.875rem, 2.5vw, 1.25rem);
-  background: #f5f7fa;
+  background: var(--bg-primary);
   border-radius: 8px;
 }
 
 .pillar-label {
   font-size: clamp(0.875rem, 2vw, 1rem);
-  color: #909399;
+  color: var(--text-secondary);
   margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
   line-height: 1.4;
 }
@@ -232,7 +232,7 @@ onMounted(async () => {
 .pillar-value {
   font-size: clamp(1.25rem, 4vw, 1.75rem);
   font-weight: bold;
-  color: #303133;
+  color: var(--text-primary);
   line-height: 1.3;
 }
 
@@ -240,20 +240,20 @@ onMounted(async () => {
 h2 {
   margin: 0;
   font-size: clamp(1.125rem, 3vw, 1.5rem);
-  color: #303133;
+  color: var(--text-primary);
   line-height: 1.3;
 }
 
 h3 {
   margin: 0;
   font-size: clamp(1rem, 2.5vw, 1.25rem);
-  color: #303133;
+  color: var(--text-primary);
   line-height: 1.4;
 }
 
 h4 {
   font-size: clamp(0.875rem, 2vw, 1rem);
-  color: #606266;
+  color: var(--text-tertiary);
   margin-bottom: clamp(0.75rem, 2vw, 1rem);
   line-height: 1.4;
 }
@@ -353,7 +353,7 @@ h4 {
 
 .choice-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-layered-md);
 }
 
 .choice-content {
@@ -406,7 +406,7 @@ h4 {
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   margin: 0 0 var(--space-sm) 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -431,19 +431,19 @@ h4 {
   align-items: center;
   gap: var(--space-lg);
   padding: var(--space-xl);
-  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  background: var(--gradient-bg-subtle);
   border: 2px solid transparent;
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-layered-sm);
 }
 
 .choice-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-layered-lg);
   border-color: var(--primary-color);
-  background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
 }
 
 .choice-card:active {

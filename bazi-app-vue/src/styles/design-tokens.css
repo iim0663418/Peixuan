@@ -66,17 +66,141 @@
   --footer-text-gold: #f0e68c;
   --footer-text-cream: #e6ddd4;
 
+  /* ===== 星曜亮度指示器 Star Brightness Indicators ===== */
+  --star-brightness-庙: var(--error);
+  --star-brightness-庙-bg: var(--error-alpha-10);
+  --star-brightness-庙-border: var(--error-alpha-20);
+
+  --star-brightness-旺: var(--warning);
+  --star-brightness-旺-bg: var(--warning-alpha-10);
+  --star-brightness-旺-border: var(--warning-alpha-20);
+
+  --star-brightness-得: var(--success);
+  --star-brightness-得-bg: var(--success-alpha-10);
+  --star-brightness-得-border: var(--success-alpha-20);
+
+  --star-brightness-利: var(--info);
+  --star-brightness-利-bg: var(--info-alpha-10);
+  --star-brightness-利-border: var(--info-alpha-20);
+
+  --star-brightness-平: var(--text-secondary);
+  --star-brightness-平-bg: var(--bg-tertiary);
+  --star-brightness-平-border: var(--border-medium);
+
+  --star-brightness-不: var(--text-tertiary);
+  --star-brightness-不-bg: var(--bg-disabled);
+  --star-brightness-不-border: var(--border-light);
+
+  --star-brightness-陷: var(--text-disabled);
+  --star-brightness-陷-bg: var(--bg-disabled);
+  --star-brightness-陷-border: var(--border-light);
+
   /* ===== 陰影 Shadows ===== */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.15);
-  --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.18);
+  --shadow-sm: 0 2px 8px var(--black-alpha-08);
+  --shadow-md: 0 4px 20px var(--black-alpha-12);
+  --shadow-lg: 0 8px 30px var(--black-alpha-15);
+  --shadow-xl: 0 12px 40px var(--black-alpha-18);
 
   /* 特殊陰影 - Light Mode */
-  --shadow-purple: 0 4px 20px rgba(153, 50, 204, 0.15);
-  --shadow-orange: 0 4px 20px rgba(210, 105, 30, 0.15);
+  --shadow-purple: 0 4px 20px var(--purple-alpha-15);
+  --shadow-orange: 0 4px 20px var(--primary-alpha-15);
   --shadow-card: var(--shadow-md);
   --shadow-card-hover: var(--shadow-lg);
+
+  /* 複合陰影 - 多層效果 */
+  --shadow-layered-sm: 
+    0 1px 2px var(--black-alpha-05),
+    0 2px 4px var(--black-alpha-06);
+  --shadow-layered-md: 
+    0 2px 4px var(--black-alpha-08),
+    0 4px 8px var(--black-alpha-10);
+  --shadow-layered-lg: 
+    0 1px 2px var(--black-alpha-05),
+    0 2px 6px var(--black-alpha-08),
+    0 8px 16px var(--black-alpha-10);
+  --shadow-layered-xl: 
+    0 2px 4px var(--black-alpha-08),
+    0 4px 12px var(--black-alpha-12),
+    0 12px 24px var(--black-alpha-15);
+
+  /* ===== Alpha 變體 Alpha Variants ===== */
+  /* 語意色 Alpha 變體 */
+  --error-alpha-04: rgba(220, 53, 69, 0.04);
+  --error-alpha-08: rgba(220, 53, 69, 0.08);
+  --error-alpha-10: rgba(220, 53, 69, 0.1);
+  --error-alpha-15: rgba(220, 53, 69, 0.15);
+  --error-alpha-20: rgba(220, 53, 69, 0.2);
+  --error-alpha-25: rgba(220, 53, 69, 0.25);
+  --error-alpha-30: rgba(220, 53, 69, 0.3);
+
+  --warning-alpha-04: rgba(255, 193, 7, 0.04);
+  --warning-alpha-08: rgba(255, 193, 7, 0.08);
+  --warning-alpha-10: rgba(255, 193, 7, 0.1);
+  --warning-alpha-15: rgba(255, 193, 7, 0.15);
+  --warning-alpha-20: rgba(255, 193, 7, 0.2);
+  --warning-alpha-25: rgba(255, 193, 7, 0.25);
+  --warning-alpha-30: rgba(255, 193, 7, 0.3);
+
+  --success-alpha-04: rgba(40, 167, 69, 0.04);
+  --success-alpha-08: rgba(40, 167, 69, 0.08);
+  --success-alpha-10: rgba(40, 167, 69, 0.1);
+  --success-alpha-15: rgba(40, 167, 69, 0.15);
+  --success-alpha-20: rgba(40, 167, 69, 0.2);
+  --success-alpha-25: rgba(40, 167, 69, 0.25);
+  --success-alpha-30: rgba(40, 167, 69, 0.3);
+
+  --info-alpha-04: rgba(23, 162, 184, 0.04);
+  --info-alpha-08: rgba(23, 162, 184, 0.08);
+  --info-alpha-10: rgba(23, 162, 184, 0.1);
+  --info-alpha-15: rgba(23, 162, 184, 0.15);
+  --info-alpha-20: rgba(23, 162, 184, 0.2);
+  --info-alpha-25: rgba(23, 162, 184, 0.25);
+  --info-alpha-30: rgba(23, 162, 184, 0.3);
+
+  /* 紫色主題 Alpha 變體 */
+  --purple-alpha-04: rgba(153, 50, 204, 0.04);
+  --purple-alpha-06: rgba(153, 50, 204, 0.06);
+  --purple-alpha-08: rgba(153, 50, 204, 0.08);
+  --purple-alpha-10: rgba(153, 50, 204, 0.1);
+  --purple-alpha-12: rgba(153, 50, 204, 0.12);
+  --purple-alpha-15: rgba(153, 50, 204, 0.15);
+  --purple-alpha-18: rgba(153, 50, 204, 0.18);
+  --purple-alpha-20: rgba(153, 50, 204, 0.2);
+  --purple-alpha-25: rgba(153, 50, 204, 0.25);
+  --purple-alpha-30: rgba(153, 50, 204, 0.3);
+
+  /* 品牌色 Alpha 變體 */
+  --brand-brown-alpha-04: rgba(139, 69, 19, 0.04);
+  --brand-brown-alpha-08: rgba(139, 69, 19, 0.08);
+  --brand-brown-alpha-10: rgba(139, 69, 19, 0.1);
+  --brand-brown-alpha-15: rgba(139, 69, 19, 0.15);
+  --brand-brown-alpha-20: rgba(139, 69, 19, 0.2);
+  --brand-brown-alpha-25: rgba(139, 69, 19, 0.25);
+  --brand-brown-alpha-30: rgba(139, 69, 19, 0.3);
+
+  --primary-alpha-04: rgba(210, 105, 30, 0.04);
+  --primary-alpha-08: rgba(210, 105, 30, 0.08);
+  --primary-alpha-10: rgba(210, 105, 30, 0.1);
+  --primary-alpha-15: rgba(210, 105, 30, 0.15);
+  --primary-alpha-20: rgba(210, 105, 30, 0.2);
+  --primary-alpha-25: rgba(210, 105, 30, 0.25);
+  --primary-alpha-30: rgba(210, 105, 30, 0.3);
+
+  /* Footer 專用 Alpha 變體 */
+  --footer-text-cream-alpha-70: rgba(230, 221, 212, 0.7);
+
+  /* 黑色 Alpha 變體 (陰影用) */
+  --black-alpha-04: rgba(0, 0, 0, 0.04);
+  --black-alpha-05: rgba(0, 0, 0, 0.05);
+  --black-alpha-06: rgba(0, 0, 0, 0.06);
+  --black-alpha-08: rgba(0, 0, 0, 0.08);
+  --black-alpha-10: rgba(0, 0, 0, 0.1);
+  --black-alpha-12: rgba(0, 0, 0, 0.12);
+  --black-alpha-15: rgba(0, 0, 0, 0.15);
+  --black-alpha-18: rgba(0, 0, 0, 0.18);
+  --black-alpha-20: rgba(0, 0, 0, 0.2);
+  --black-alpha-25: rgba(0, 0, 0, 0.25);
+  --black-alpha-30: rgba(0, 0, 0, 0.3);
 
   /* 邊緣高光 - Ambient Edge Light */
   --edge-highlight: 0 0 0 1px rgba(255, 255, 255, 0.1);
@@ -185,19 +309,21 @@
   --border-dark: #6b7280;
 
   /* Shadows - Colored glows instead of heavy black shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(153, 50, 204, 0.08);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(153, 50, 204, 0.12);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(153, 50, 204, 0.15);
-  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(153, 50, 204, 0.18);
+  --black-alpha-40: rgba(0, 0, 0, 0.4);
+  --black-alpha-50: rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 8px var(--black-alpha-20), 0 0 0 1px var(--purple-alpha-08);
+  --shadow-md: 0 4px 16px var(--black-alpha-30), 0 0 0 1px var(--purple-alpha-12);
+  --shadow-lg: 0 8px 24px var(--black-alpha-40), 0 0 0 1px var(--purple-alpha-15);
+  --shadow-xl: 0 12px 32px var(--black-alpha-50), 0 0 0 1px var(--purple-alpha-18);
 
   /* Special Shadows - Enhanced colored glows for dark mode */
-  --shadow-purple: 0 4px 16px rgba(153, 50, 204, 0.25), 0 8px 32px rgba(153, 50, 204, 0.15), 0 0 0 1px rgba(153, 50, 204, 0.2);
-  --shadow-orange: 0 4px 16px rgba(210, 105, 30, 0.25), 0 8px 32px rgba(210, 105, 30, 0.15), 0 0 0 1px rgba(210, 105, 30, 0.2);
-  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(153, 50, 204, 0.1);
-  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(153, 50, 204, 0.2), 0 0 0 1px rgba(153, 50, 204, 0.25);
+  --shadow-purple: 0 4px 16px var(--purple-alpha-25), 0 8px 32px var(--purple-alpha-15), 0 0 0 1px var(--purple-alpha-20);
+  --shadow-orange: 0 4px 16px var(--primary-alpha-25), 0 8px 32px var(--primary-alpha-15), 0 0 0 1px var(--primary-alpha-20);
+  --shadow-card: 0 4px 16px var(--black-alpha-30), 0 0 0 1px var(--purple-alpha-10);
+  --shadow-card-hover: 0 8px 24px var(--black-alpha-40), 0 4px 12px var(--purple-alpha-20), 0 0 0 1px var(--purple-alpha-25);
 
   /* Ambient Edge Light - Simulates light hitting the edge */
-  --edge-highlight: 0 0 0 1px rgba(153, 50, 204, 0.15);
+  --edge-highlight: 0 0 0 1px var(--purple-alpha-15);
 
   /* Brand Colors - Slightly desaturated for dark mode */
   --purple-star-dark-mode: #a855d8; /* Lighter and slightly desaturated */
@@ -231,19 +357,21 @@
     --border-dark: #6b7280;
 
     /* Shadows - Colored glows instead of heavy black shadows */
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(153, 50, 204, 0.08);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(153, 50, 204, 0.12);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(153, 50, 204, 0.15);
-    --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(153, 50, 204, 0.18);
+    --black-alpha-40: rgba(0, 0, 0, 0.4);
+    --black-alpha-50: rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 2px 8px var(--black-alpha-20), 0 0 0 1px var(--purple-alpha-08);
+    --shadow-md: 0 4px 16px var(--black-alpha-30), 0 0 0 1px var(--purple-alpha-12);
+    --shadow-lg: 0 8px 24px var(--black-alpha-40), 0 0 0 1px var(--purple-alpha-15);
+    --shadow-xl: 0 12px 32px var(--black-alpha-50), 0 0 0 1px var(--purple-alpha-18);
 
     /* Special Shadows - Enhanced colored glows for dark mode */
-    --shadow-purple: 0 4px 16px rgba(153, 50, 204, 0.25), 0 8px 32px rgba(153, 50, 204, 0.15), 0 0 0 1px rgba(153, 50, 204, 0.2);
-    --shadow-orange: 0 4px 16px rgba(210, 105, 30, 0.25), 0 8px 32px rgba(210, 105, 30, 0.15), 0 0 0 1px rgba(210, 105, 30, 0.2);
-    --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(153, 50, 204, 0.1);
-    --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(153, 50, 204, 0.2), 0 0 0 1px rgba(153, 50, 204, 0.25);
+    --shadow-purple: 0 4px 16px var(--purple-alpha-25), 0 8px 32px var(--purple-alpha-15), 0 0 0 1px var(--purple-alpha-20);
+    --shadow-orange: 0 4px 16px var(--primary-alpha-25), 0 8px 32px var(--primary-alpha-15), 0 0 0 1px var(--primary-alpha-20);
+    --shadow-card: 0 4px 16px var(--black-alpha-30), 0 0 0 1px var(--purple-alpha-10);
+    --shadow-card-hover: 0 8px 24px var(--black-alpha-40), 0 4px 12px var(--purple-alpha-20), 0 0 0 1px var(--purple-alpha-25);
 
     /* Ambient Edge Light - Simulates light hitting the edge */
-    --edge-highlight: 0 0 0 1px rgba(153, 50, 204, 0.15);
+    --edge-highlight: 0 0 0 1px var(--purple-alpha-15);
 
     /* Brand Colors - Slightly desaturated for dark mode */
     --purple-star-dark-mode: #a855d8; /* Lighter and slightly desaturated */

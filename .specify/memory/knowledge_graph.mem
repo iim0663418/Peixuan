@@ -23,3 +23,9 @@ CSSVariables|ver|66ReplacementsAcross5ComponentsP1ArchitectureRefactoring|stat|C
 ElementPlusIntegration|ver|UnifiedButtonSystem44px
 DesignTokens|ver|SingleSourceOfTruth
 StagingDeployment|ver|HealthCheckPassed
+P1ArchitectureRefactoring|stat|PartiallyComplete
+260107|dec|P1StatusCorrected
+CSSIntegration|ver|ButtonsOnlyComplete
+HardcodedColors|ver|221ValuesRemaining
+ElementPlusIntegration|ver|434ComponentsNeedStyling
+P1RemainingWork|stat|Identified

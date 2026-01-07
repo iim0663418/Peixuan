@@ -194,9 +194,9 @@ const handleAdvancedAnalysis = () => {
 
 <style scoped>
 .app-header {
-  background: linear-gradient(135deg, #ffffff 0%, #fdf7f0 100%);
-  border-bottom: 1px solid #e9dcc9;
-  box-shadow: 0 2px 10px rgba(139, 69, 19, 0.1);
+  background: var(--gradient-bg-subtle);
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -224,19 +224,19 @@ const handleAdvancedAnalysis = () => {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 700;
-  color: #8b4513;
+  color: var(--brand-brown);
   transition: color 0.3s;
 }
 
 .brand-subtitle {
   font-size: 0.8rem;
-  color: #d2691e;
+  color: var(--primary-color);
   font-weight: 500;
   margin-top: 2px;
 }
 
 .nav-brand .brand-link:hover h1 {
-  color: #d2691e;
+  color: var(--primary-color);
 }
 
 .desktop-menu {
@@ -247,7 +247,7 @@ const handleAdvancedAnalysis = () => {
 
 .nav-link {
   text-decoration: none;
-  color: #8b4513;
+  color: var(--brand-brown);
   font-weight: 600;
   padding: 0.5rem 1rem;
   border-radius: 20px;
@@ -262,14 +262,14 @@ const handleAdvancedAnalysis = () => {
 }
 
 .nav-link:hover {
-  color: #d2691e;
-  background: rgba(210, 105, 30, 0.1);
+  color: var(--primary-color);
+  background: var(--primary-alpha-10);
 }
 
 .nav-link.active {
   color: white;
-  background: linear-gradient(135deg, #d2691e, #ff8c00);
-  box-shadow: 0 2px 8px rgba(210, 105, 30, 0.3);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  box-shadow: var(--shadow-sm);
 }
 
 .ai-analysis-btn {
@@ -334,7 +334,7 @@ const handleAdvancedAnalysis = () => {
 .mobile-menu-button span {
   width: 24px;
   height: 3px;
-  background: #8b4513;
+  background: var(--brand-brown);
   transition: all 0.3s ease-in-out;
   border-radius: 2px;
 }
@@ -357,9 +357,9 @@ const handleAdvancedAnalysis = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #ffffff 0%, #fdf7f0 100%);
+  background: var(--gradient-bg-subtle);
   padding: clamp(5rem, 15vh, 8rem) clamp(1.5rem, 5vw, 2rem) 2rem;
-  box-shadow: 0 4px 30px rgba(139, 69, 19, 0.2);
+  box-shadow: var(--shadow-md);
   z-index: 999;
   overflow-y: auto;
   opacity: 0;
@@ -381,11 +381,11 @@ const handleAdvancedAnalysis = () => {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #8b4513;
+  color: var(--brand-brown);
   font-weight: 600;
   padding: 1rem;
   min-height: 60px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-light);
   transition: all 0.3s ease-in-out;
   font-size: 1.1rem;
   justify-content: flex-start;
@@ -394,15 +394,15 @@ const handleAdvancedAnalysis = () => {
 }
 
 .mobile-nav-link:hover {
-  color: #d2691e;
-  background: rgba(210, 105, 30, 0.1);
+  color: var(--primary-color);
+  background: var(--primary-alpha-10);
   transform: translateX(8px);
 }
 
 .mobile-nav-link.active {
-  color: #d2691e;
-  background: linear-gradient(90deg, rgba(210, 105, 30, 0.15), transparent);
-  border-left: 4px solid #d2691e;
+  color: var(--primary-color);
+  background: linear-gradient(90deg, var(--primary-alpha-15), transparent);
+  border-left: 4px solid var(--primary-color);
   padding-left: calc(1rem - 4px);
 }
 

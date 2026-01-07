@@ -342,7 +342,11 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-md) var(--space-lg);
-  background: linear-gradient(135deg, var(--purple-star) 0%, var(--purple-star-dark) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--purple-star) 0%,
+    var(--purple-star-dark) 100%
+  );
   position: relative;
   overflow: hidden;
   min-height: 70px;
@@ -822,7 +826,11 @@ onUnmounted(() => {
 }
 
 :deep(.daily-question-confirm-dialog .el-message-box__header) {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-light)
+  ) !important;
   color: var(--text-inverse) !important;
   padding: var(--space-lg) !important;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
@@ -848,7 +856,11 @@ onUnmounted(() => {
 }
 
 :deep(.daily-question-confirm-btn) {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-light)
+  ) !important;
   border: none !important;
   color: var(--text-inverse) !important;
   padding: var(--space-sm) var(--space-lg) !important;
@@ -860,7 +872,9 @@ onUnmounted(() => {
 
 :deep(.daily-question-confirm-btn:hover) {
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px var(--primary-alpha-30), 0 8px 16px var(--primary-alpha-20) !important;
+  box-shadow:
+    0 4px 12px var(--primary-alpha-30),
+    0 8px 16px var(--primary-alpha-20) !important;
 }
 
 :deep(.daily-question-cancel-btn) {

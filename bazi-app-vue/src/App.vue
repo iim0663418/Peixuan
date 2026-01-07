@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, defineAsyncComponent } from 'vue';
 import { useChartStore } from '@/stores/chartStore';
+import { useTheme } from '@/composables/useTheme';
 
 // 動態導入組件以提升效能
 const AppHeader = defineAsyncComponent(
@@ -11,6 +12,7 @@ const AppFooter = defineAsyncComponent(
 );
 
 const chartStore = useChartStore();
+useTheme(); // 初始化主題系統 Initialize Theme System
 
 onMounted(() => {
   // 嘗試從 localStorage 載入歷史記錄

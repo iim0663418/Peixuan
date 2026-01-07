@@ -218,7 +218,10 @@ import { saveTimeZoneInfo, getTimeZoneInfo } from '../utils/storageService';
 import { useChartStore } from '../stores/chartStore';
 import { useFormData } from '../composables/useFormData';
 import { useFormValidation } from '../composables/useFormValidation';
-import { useGeocoding, type AutocompleteOption } from '../composables/useGeocoding';
+import {
+  useGeocoding,
+  type AutocompleteOption,
+} from '../composables/useGeocoding';
 
 const chartStore = useChartStore();
 
@@ -296,7 +299,10 @@ const unifiedForm = ref();
 const formRules = createFormRules(formData);
 
 // Autocomplete query search handler
-const querySearch = (queryString: string, cb: (results: AutocompleteOption[]) => void) => {
+const querySearch = (
+  queryString: string,
+  cb: (results: AutocompleteOption[]) => void,
+) => {
   queryAutocompleteSearch(queryString, cb, majorCities.value);
 };
 

@@ -13,8 +13,7 @@
     </el-card>
 
     <el-card v-else-if="error" class="result-card error">
-      <el-alert type="error" :title="error" show-icon
-:closable="false" />
+      <el-alert type="error" :title="error" show-icon :closable="false" />
     </el-card>
 
     <el-card v-else-if="result" class="result-card">
@@ -443,7 +442,11 @@ h4 {
   transform: translateY(-4px);
   box-shadow: var(--shadow-layered-lg);
   border-color: var(--primary-color);
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--bg-secondary) 0%,
+    var(--bg-primary) 100%
+  );
 }
 
 .choice-card:active {

@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import './style.css';
+import 'element-plus/theme-chalk/dark/css-vars.css'; // 導入 Element Plus 官方深色模式 CSS 變數
 import './styles/element-plus-dark.css'; // 導入 Element Plus 深色模式樣式
 import App from './App.vue';
 import router from './router'; // 導入 router

@@ -16,6 +16,12 @@
     "error": "Error",
     "period": "Period"
   },
+  "theme": {
+    "light": "Light Mode",
+    "dark": "Dark Mode",
+    "auto": "Auto",
+    "toggle": "Toggle Theme"
+  },
   "navigation": {
     "home": "Home",
     "purple_star": "Purple Star Astrology",

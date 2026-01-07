@@ -253,7 +253,11 @@ const formatDate = (date: Date | string): string => {
 }
 
 .period-segment.next-year {
-  background: linear-gradient(135deg, var(--success-light) 0%, var(--success) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--success-light) 0%,
+    var(--success) 100%
+  );
 }
 
 .period-label {
@@ -309,12 +313,20 @@ const formatDate = (date: Date | string): string => {
 
 .period-card.current-year-card {
   border-color: var(--info);
-  background: linear-gradient(135deg, var(--info-lightest) 0%, var(--info-lighter) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--info-lightest) 0%,
+    var(--info-lighter) 100%
+  );
 }
 
 .period-card.next-year-card {
   border-color: var(--success);
-  background: linear-gradient(135deg, var(--success-lightest) 0%, var(--success-lighter) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--success-lightest) 0%,
+    var(--success-lighter) 100%
+  );
 }
 
 .period-header {

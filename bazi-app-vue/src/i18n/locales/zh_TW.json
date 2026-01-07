@@ -13,6 +13,12 @@
     "cancel": "取消",
     "period": "期間"
   },
+  "theme": {
+    "light": "淺色模式",
+    "dark": "深色模式",
+    "auto": "自動",
+    "toggle": "切換主題"
+  },
   "navigation": {
     "home": "首頁",
     "purple_star": "紫微斗數",

@@ -96,8 +96,7 @@
   );
   color: white;
   /* Added fallbacks for spacing variables */
-  padding: var(--space-3xl) var(--space-2xl)
-    var(--space-2xl);
+  padding: var(--space-3xl) var(--space-2xl) var(--space-2xl);
 }
 
 .footer-content {
@@ -195,8 +194,7 @@
 /* 平板 (768px+) */
 @media (min-width: 768px) {
   .app-footer {
-    padding: var(--space-3xl) var(--space-2xl)
-      var(--space-2xl);
+    padding: var(--space-3xl) var(--space-2xl) var(--space-2xl);
   }
 
   .footer-content {

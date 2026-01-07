@@ -4,6 +4,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { useChartStore } from '@/stores/chartStore';
 import { ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
+import { useTheme, type Theme } from '@/composables/useTheme';
+import { Sunny, Moon, Monitor } from '@element-plus/icons-vue';
 
 const LanguageSelector = defineAsyncComponent(
   () => import('@/components/LanguageSelector.vue'),
@@ -13,6 +15,7 @@ const route = useRoute();
 const router = useRouter();
 const chartStore = useChartStore();
 const { t } = useI18n();
+const { theme, setTheme } = useTheme();
 const showMobileMenu = ref(false);
 
 const hasChartData = computed(() => chartStore.hasChart);
@@ -65,6 +68,24 @@ const handleAdvancedAnalysis = () => {
   }
   router.push('/fortune');
   closeMobileMenu();
+};
+
+const themeOptions = computed(() => [
+  { value: 'light' as Theme, icon: Sunny, label: t('theme.light') },
+  { value: 'dark' as Theme, icon: Moon, label: t('theme.dark') },
+  { value: 'auto' as Theme, icon: Monitor, label: t('theme.auto') },
+]);
+
+const currentThemeIcon = computed(() => {
+  const option = themeOptions.value.find((opt) => opt.value === theme.value);
+  return option?.icon || Monitor;
+});
+
+const cycleTheme = () => {
+  const themes: Theme[] = ['light', 'dark', 'auto'];
+  const currentIndex = themes.indexOf(theme.value);
+  const nextIndex = (currentIndex + 1) % themes.length;
+  setTheme(themes[nextIndex]);
 };
 </script>
 
@@ -125,6 +146,17 @@ const handleAdvancedAnalysis = () => {
       </div>
 
       <div class="nav-controls">
+        <button
+          class="theme-toggle"
+          :aria-label="t('theme.toggle')"
+          :title="themeOptions.find((opt) => opt.value === theme)?.label"
+          @click="cycleTheme"
+        >
+          <el-icon :size="20">
+            <component :is="currentThemeIcon" />
+          </el-icon>
+        </button>
+
         <LanguageSelector />
 
         <button
@@ -268,7 +300,11 @@ const handleAdvancedAnalysis = () => {
 
 .nav-link.active {
   color: white;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-light)
+  );
   box-shadow: var(--shadow-sm);
 }
 
@@ -312,6 +348,33 @@ const handleAdvancedAnalysis = () => {
   align-items: center;
   gap: 1rem;
   flex-shrink: 0; /* 防止在桌面版被壓縮 */
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--brand-brown);
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.theme-toggle:hover {
+  background: var(--primary-alpha-10);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-toggle:active {
+  transform: translateY(0);
 }
 
 .mobile-menu-button {
@@ -523,7 +586,11 @@ const handleAdvancedAnalysis = () => {
 /* 深色模式下的 mobile button 樣式 */
 @media (prefers-color-scheme: dark) {
   .app-header {
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--bg-secondary) 0%,
+      var(--bg-primary) 100%
+    );
     border-bottom-color: var(--border-light);
   }
 
@@ -545,7 +612,11 @@ const handleAdvancedAnalysis = () => {
   }
 
   .mobile-menu {
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--bg-secondary) 0%,
+      var(--bg-primary) 100%
+    );
     border-top-color: var(--border-light);
   }
 
@@ -567,6 +638,17 @@ const handleAdvancedAnalysis = () => {
 
   .mobile-menu-button span {
     background: var(--text-secondary);
+  }
+
+  .theme-toggle {
+    color: var(--text-secondary);
+    border-color: var(--border-light);
+  }
+
+  .theme-toggle:hover {
+    color: var(--footer-text-gold);
+    border-color: var(--footer-text-gold);
+    background: rgba(240, 230, 140, 0.1);
   }
 }
 

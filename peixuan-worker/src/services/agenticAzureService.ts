@@ -436,13 +436,21 @@ export class AgenticAzureService {
       '流年資訊：'
     ];
 
-    // Add annual fortune if available
-    if (result.annualFortune) {
-      const annual = result.annualFortune;
-      transit.push(`流年干支：${annual.annualPillar.stem}${annual.annualPillar.branch}`);
+    // Add annual fortune if available (check both possible paths)
+    const annual = result.annualFortune || bazi?.fortune?.annual;
+    if (annual) {
+      const pillar = annual.annualPillar || annual.pillar;
+      if (pillar) {
+        transit.push(`流年干支：${pillar.stem}${pillar.branch}`);
+      }
 
-      if (annual.taiSuiAnalysis && annual.taiSuiAnalysis.severity !== 'none') {
-        transit.push(`太歲互動：${annual.taiSuiAnalysis.types.join('、')}`);
+      const taiSuiInfo = annual.taiSuiAnalysis || annual.taiSui;
+      if (taiSuiInfo) {
+        if (annual.taiSuiAnalysis?.severity !== 'none' && annual.taiSuiAnalysis?.types) {
+          transit.push(`太歲互動：${annual.taiSuiAnalysis.types.join('、')}`);
+        } else if (annual.taiSui) {
+          transit.push(`太歲方位：${annual.taiSui.direction}`);
+        }
       }
     } else {
       transit.push('流年資訊：尚未計算（需要提供查詢年份）');

@@ -66,6 +66,33 @@
   --footer-text-gold: #f0e68c;
   --footer-text-cream: #e6ddd4;
 
+  /* ===== 五行色彩系統 Five Elements Color System ===== */
+  /* Light Mode - Optimized for light backgrounds with WCAG AA compliance (4.5:1) */
+  --element-wood: #2e7d32; /* Dark green for sufficient contrast on light bg */
+  --element-wood-light: #4caf50;
+  --element-wood-lighter: #81c784;
+  --element-wood-lightest: #e8f5e9;
+
+  --element-fire: #c62828; /* Dark red for sufficient contrast on light bg */
+  --element-fire-light: #e53935;
+  --element-fire-lighter: #ef5350;
+  --element-fire-lightest: #ffebee;
+
+  --element-earth: #5d4037; /* Dark brown for sufficient contrast on light bg */
+  --element-earth-light: #795548;
+  --element-earth-lighter: #a1887f;
+  --element-earth-lightest: #efebe9;
+
+  --element-metal: #424242; /* Dark gray for sufficient contrast on light bg */
+  --element-metal-light: #616161;
+  --element-metal-lighter: #9e9e9e;
+  --element-metal-lightest: #fafafa;
+
+  --element-water: #01579b; /* Dark blue for sufficient contrast on light bg */
+  --element-water-light: #0277bd;
+  --element-water-lighter: #4fc3f7;
+  --element-water-lightest: #e1f5fe;
+
   /* ===== 星曜亮度指示器 Star Brightness Indicators ===== */
   --star-brightness-庙: var(--error);
   --star-brightness-庙-bg: var(--error-alpha-10);
@@ -189,6 +216,52 @@
   /* Footer 專用 Alpha 變體 */
   --footer-text-cream-alpha-70: rgba(230, 221, 212, 0.7);
 
+  /* 五行 Alpha 變體 Five Elements Alpha Variants */
+  /* Wood (木) - Green tones */
+  --element-wood-alpha-04: rgba(46, 125, 50, 0.04);
+  --element-wood-alpha-08: rgba(46, 125, 50, 0.08);
+  --element-wood-alpha-10: rgba(46, 125, 50, 0.1);
+  --element-wood-alpha-15: rgba(46, 125, 50, 0.15);
+  --element-wood-alpha-20: rgba(46, 125, 50, 0.2);
+  --element-wood-alpha-25: rgba(46, 125, 50, 0.25);
+  --element-wood-alpha-30: rgba(46, 125, 50, 0.3);
+
+  /* Fire (火) - Red tones */
+  --element-fire-alpha-04: rgba(198, 40, 40, 0.04);
+  --element-fire-alpha-08: rgba(198, 40, 40, 0.08);
+  --element-fire-alpha-10: rgba(198, 40, 40, 0.1);
+  --element-fire-alpha-15: rgba(198, 40, 40, 0.15);
+  --element-fire-alpha-20: rgba(198, 40, 40, 0.2);
+  --element-fire-alpha-25: rgba(198, 40, 40, 0.25);
+  --element-fire-alpha-30: rgba(198, 40, 40, 0.3);
+
+  /* Earth (土) - Brown tones */
+  --element-earth-alpha-04: rgba(93, 64, 55, 0.04);
+  --element-earth-alpha-08: rgba(93, 64, 55, 0.08);
+  --element-earth-alpha-10: rgba(93, 64, 55, 0.1);
+  --element-earth-alpha-15: rgba(93, 64, 55, 0.15);
+  --element-earth-alpha-20: rgba(93, 64, 55, 0.2);
+  --element-earth-alpha-25: rgba(93, 64, 55, 0.25);
+  --element-earth-alpha-30: rgba(93, 64, 55, 0.3);
+
+  /* Metal (金) - Gray tones */
+  --element-metal-alpha-04: rgba(66, 66, 66, 0.04);
+  --element-metal-alpha-08: rgba(66, 66, 66, 0.08);
+  --element-metal-alpha-10: rgba(66, 66, 66, 0.1);
+  --element-metal-alpha-15: rgba(66, 66, 66, 0.15);
+  --element-metal-alpha-20: rgba(66, 66, 66, 0.2);
+  --element-metal-alpha-25: rgba(66, 66, 66, 0.25);
+  --element-metal-alpha-30: rgba(66, 66, 66, 0.3);
+
+  /* Water (水) - Blue tones */
+  --element-water-alpha-04: rgba(1, 87, 155, 0.04);
+  --element-water-alpha-08: rgba(1, 87, 155, 0.08);
+  --element-water-alpha-10: rgba(1, 87, 155, 0.1);
+  --element-water-alpha-15: rgba(1, 87, 155, 0.15);
+  --element-water-alpha-20: rgba(1, 87, 155, 0.2);
+  --element-water-alpha-25: rgba(1, 87, 155, 0.25);
+  --element-water-alpha-30: rgba(1, 87, 155, 0.3);
+
   /* 黑色 Alpha 變體 (陰影用) */
   --black-alpha-04: rgba(0, 0, 0, 0.04);
   --black-alpha-05: rgba(0, 0, 0, 0.05);
@@ -259,8 +332,9 @@
   --gradient-purple: linear-gradient(135deg, var(--purple-star) 0%, var(--purple-star-light) 100%);
 
   /* ===== 文字陰影 Text Shadows ===== */
-  --text-shadow-sm: 0 1px 2px rgba(102, 126, 234, 0.1);
-  --text-shadow-md: 0 1px 2px rgba(102, 126, 234, 0.2);
+  /* Light mode: Subtle black shadows for depth */
+  --text-shadow-sm: 0 1px 2px var(--black-alpha-05);
+  --text-shadow-md: 0 1px 2px var(--black-alpha-10);
 
   /* ===== 動畫 Animation ===== */
   --transition-fast: 0.15s ease-out;
@@ -333,6 +407,37 @@
   --primary-lightest: #2d1810;
   --bazi-orange-lightest: #2d1810;
   --purple-star-lightest: #1f1629;
+
+  /* Five Elements - Dark Mode Variants (Lighter colors for dark backgrounds) */
+  /* Optimized for WCAG AA compliance on dark backgrounds */
+  --element-wood: #81c784; /* Lighter green for sufficient contrast on dark bg */
+  --element-wood-light: #a5d6a7;
+  --element-wood-lighter: #c8e6c9;
+  --element-wood-lightest: #1b3a1e;
+
+  --element-fire: #ef5350; /* Lighter red for sufficient contrast on dark bg */
+  --element-fire-light: #e57373;
+  --element-fire-lighter: #ef9a9a;
+  --element-fire-lightest: #3a1616;
+
+  --element-earth: #a1887f; /* Lighter brown for sufficient contrast on dark bg */
+  --element-earth-light: #bcaaa4;
+  --element-earth-lighter: #d7ccc8;
+  --element-earth-lightest: #2a2421;
+
+  --element-metal: #e0e0e0; /* Light gray for sufficient contrast on dark bg */
+  --element-metal-light: #eeeeee;
+  --element-metal-lighter: #f5f5f5;
+  --element-metal-lightest: #212121;
+
+  --element-water: #4fc3f7; /* Lighter blue for sufficient contrast on dark bg */
+  --element-water-light: #81d4fa;
+  --element-water-lighter: #b3e5fc;
+  --element-water-lightest: #0d2838;
+
+  /* Text Shadows - Dark mode: lighter shadows with white glow for depth on dark backgrounds */
+  --text-shadow-sm: 0 1px 2px rgba(255, 255, 255, 0.05);
+  --text-shadow-md: 0 1px 2px rgba(255, 255, 255, 0.08);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -381,6 +486,37 @@
     --primary-lightest: #2d1810;
     --bazi-orange-lightest: #2d1810;
     --purple-star-lightest: #1f1629;
+
+    /* Five Elements - Dark Mode Variants (Lighter colors for dark backgrounds) */
+    /* Optimized for WCAG AA compliance on dark backgrounds */
+    --element-wood: #81c784; /* Lighter green for sufficient contrast on dark bg */
+    --element-wood-light: #a5d6a7;
+    --element-wood-lighter: #c8e6c9;
+    --element-wood-lightest: #1b3a1e;
+
+    --element-fire: #ef5350; /* Lighter red for sufficient contrast on dark bg */
+    --element-fire-light: #e57373;
+    --element-fire-lighter: #ef9a9a;
+    --element-fire-lightest: #3a1616;
+
+    --element-earth: #a1887f; /* Lighter brown for sufficient contrast on dark bg */
+    --element-earth-light: #bcaaa4;
+    --element-earth-lighter: #d7ccc8;
+    --element-earth-lightest: #2a2421;
+
+    --element-metal: #e0e0e0; /* Light gray for sufficient contrast on dark bg */
+    --element-metal-light: #eeeeee;
+    --element-metal-lighter: #f5f5f5;
+    --element-metal-lightest: #212121;
+
+    --element-water: #4fc3f7; /* Lighter blue for sufficient contrast on dark bg */
+    --element-water-light: #81d4fa;
+    --element-water-lighter: #b3e5fc;
+    --element-water-lightest: #0d2838;
+
+    /* Text Shadows - Dark mode: lighter shadows with white glow for depth on dark backgrounds */
+    --text-shadow-sm: 0 1px 2px rgba(255, 255, 255, 0.05);
+    --text-shadow-md: 0 1px 2px rgba(255, 255, 255, 0.08);
   }
 }
 

@@ -308,7 +308,7 @@ h5 {
   font-weight: 600;
   color: var(--text-secondary);
   /* Phase 3: Enhanced text shadow for better readability */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  text-shadow: var(--text-shadow-sm);
   /* Phase 3: Gradient border */
   position: relative;
   padding-bottom: 8px;
@@ -357,7 +357,7 @@ pre {
 :deep(.el-timeline-item__timestamp) {
   font-weight: 600;
   color: var(--text-tertiary);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  text-shadow: var(--text-shadow-sm);
 }
 
 /* Accessibility - Respect prefers-reduced-motion */

@@ -409,16 +409,12 @@ const getStarBrightness = (
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.05),
-    0 2px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-layered-sm);
   transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .collapse-section:hover {
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.08),
-    0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-layered-md);
 }
 
 /* Phase 2: Collapse title with icons - Sans-serif font for UI */
@@ -467,10 +463,7 @@ const getStarBrightness = (
   padding: var(--space-lg);
   margin-bottom: var(--space-lg);
   /* Phase 3: Multi-layer shadows */
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.05),
-    0 2px 6px rgba(0, 0, 0, 0.08),
-    0 8px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-layered-lg);
   transition:
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -480,10 +473,7 @@ const getStarBrightness = (
 /* Phase 3: Card flip effect on hover */
 .section:hover {
   transform: translateY(-2px) translateZ(0);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.08),
-    0 4px 12px rgba(0, 0, 0, 0.12),
-    0 12px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-layered-xl);
 }
 
 h4 {
@@ -492,7 +482,7 @@ h4 {
   margin: 0 0 var(--space-md) 0;
   font-weight: var(--font-weight-semibold);
   /* Phase 3: Enhanced text shadow for better readability */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  text-shadow: var(--text-shadow-sm);
   /* Phase 3: Gradient border bottom */
   position: relative;
   padding-bottom: var(--space-sm);
@@ -594,9 +584,7 @@ h4::after {
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   /* Phase 3: Multi-layer shadows */
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.05),
-    0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-layered-sm);
   margin-bottom: var(--space-md);
   min-height: 44px;
   /* Phase 3: Interactive effects */
@@ -609,10 +597,7 @@ h4::after {
 /* Phase 3: Card hover effect */
 .star-card:hover {
   transform: translateY(-2px) scale(1.02) translateZ(0);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.08),
-    0 4px 12px rgba(0, 0, 0, 0.12),
-    0 8px 20px rgba(53, 126, 221, 0.15);
+  box-shadow: var(--shadow-card-hover);
 }
 
 @media (min-width: 768px) {

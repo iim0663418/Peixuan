@@ -74,7 +74,7 @@ h4 {
   font-weight: 600;
   color: var(--text-primary);
   /* Phase 3: Enhanced text shadow for better readability */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  text-shadow: var(--text-shadow-sm);
 }
 
 .symmetry-grid {
@@ -89,9 +89,7 @@ h4 {
   border: 1px solid var(--border-light);
   background: var(--bg-secondary);
   /* Phase 3: Multi-layer shadows */
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.05),
-    0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-layered-sm);
   transition:
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -100,19 +98,14 @@ h4 {
 
 .symmetry-item:hover {
   /* Phase 3: Enhanced hover with multi-layer shadows */
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.08),
-    0 4px 12px rgba(0, 0, 0, 0.12),
-    0 8px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-layered-xl);
   transform: translateY(-3px) scale(1.02) translateZ(0);
 }
 
 /* Disable hover effects on touch devices */
 @media (hover: none) {
   .symmetry-item:hover {
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.05),
-      0 2px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-layered-sm);
     transform: none;
   }
 }

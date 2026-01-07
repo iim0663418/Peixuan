@@ -227,7 +227,7 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
   background: var(--info-lightest);
   border-color: var(--info-lighter);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 /* Disable segment hover effects on touch devices */
@@ -328,7 +328,7 @@ const isCurrentDayun = (dayun: DaYun): boolean => {
     background: white;
     border-radius: 8px;
     padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
     border: 1px solid var(--border-light);
     aspect-ratio: auto; /* Remove aspect ratio for card layout */
     min-height: auto;

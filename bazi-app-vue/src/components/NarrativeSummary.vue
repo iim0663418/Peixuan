@@ -110,10 +110,7 @@ const regenerateAnalysis = () => {
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
   padding: var(--space-2xl);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.04),
-    0 4px 16px rgba(0, 0, 0, 0.06),
-    0 8px 32px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-layered-lg);
   transition:
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -121,10 +118,7 @@ const regenerateAnalysis = () => {
 
 .peixuan-voice:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    0 8px 24px rgba(0, 0, 0, 0.12),
-    0 16px 48px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-layered-xl);
 }
 
 /* Voice Header */

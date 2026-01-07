@@ -154,7 +154,7 @@ const getBarWidth = (score: number): string => {
 }
 
 .chart-type-toggle {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   border-radius: 4px;
 }
 

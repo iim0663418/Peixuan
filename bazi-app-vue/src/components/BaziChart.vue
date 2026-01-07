@@ -182,7 +182,7 @@ const tenGodsForPillars = computed(() => {
 .pillar-card-display.day-master {
   border-width: 2px;
   border-color: var(--success);
-  background-color: rgba(66, 185, 131, 0.05);
+  background-color: var(--success-alpha-04);
 }
 
 .pillar-card-display.day-master h5 {
@@ -192,7 +192,7 @@ const tenGodsForPillars = computed(() => {
 
 .pillar-card-display.highlighted {
   border-color: var(--success);
-  box-shadow: 0 0 5px rgba(66, 185, 131, 0.5);
+  box-shadow: 0 0 5px var(--success-alpha-30);
 }
 
 /* Pillar header */
@@ -220,7 +220,7 @@ const tenGodsForPillars = computed(() => {
   font-size: clamp(0.65rem, 1.8vw, 0.75rem);
   padding: 2px 6px;
   border-radius: 10px;
-  background-color: rgba(66, 185, 131, 0.15);
+  background-color: var(--success-alpha-15);
   color: var(--success);
   font-weight: 500;
   margin-bottom: 2px;
@@ -235,24 +235,25 @@ const tenGodsForPillars = computed(() => {
 }
 
 /* Element color coding system */
+/* Phase 2: Using CSS variables for dark mode support */
 .element-wood {
-  color: #4caf50; /* Green */
+  color: var(--element-wood);
 }
 
 .element-fire {
-  color: #f44336; /* Red */
+  color: var(--element-fire);
 }
 
 .element-earth {
-  color: #795548; /* Brown */
+  color: var(--element-earth);
 }
 
 .element-metal {
-  color: #9e9e9e; /* Gray/Silver */
+  color: var(--element-metal);
 }
 
 .element-water {
-  color: #2196f3; /* Blue */
+  color: var(--element-water);
 }
 
 /* Mobile optimization (< 768px) */

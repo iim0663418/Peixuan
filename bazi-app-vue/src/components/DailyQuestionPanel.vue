@@ -527,10 +527,10 @@ onUnmounted(() => {
   padding: var(--space-sm) var(--space-md);
   background: linear-gradient(
     135deg,
-    var(--info-lightest) 0%,
-    var(--purple-star-lightest) 100%
+    var(--info-alpha-10) 0%,
+    var(--purple-alpha-10) 100%
   );
-  border: 1px solid var(--info-lighter);
+  border: 1px solid var(--info-alpha-20);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-md);
 }
@@ -808,17 +808,8 @@ onUnmounted(() => {
 
 /* 深色模式文字對比度優化 */
 @media (prefers-color-scheme: dark) {
-  .limit-text {
-    color: var(--text-secondary) !important;
-  }
-
   .daily-question-panel {
     color: var(--text-primary);
-  }
-
-  .daily-limit-display {
-    background: var(--bg-tertiary) !important;
-    border-color: var(--border-medium) !important;
   }
 }
 
@@ -826,20 +817,20 @@ onUnmounted(() => {
 :deep(.daily-question-confirm-dialog) {
   border-radius: var(--radius-lg) !important;
   background: var(--bg-primary) !important;
-  box-shadow: 0 20px 40px rgba(139, 69, 19, 0.15) !important;
-  border: 1px solid rgba(210, 105, 30, 0.2) !important;
+  box-shadow: 0 20px 40px var(--brand-brown-alpha-15) !important;
+  border: 1px solid var(--primary-alpha-20) !important;
 }
 
 :deep(.daily-question-confirm-dialog .el-message-box__header) {
-  background: linear-gradient(135deg, #d2691e, #ff8c00) !important;
-  color: white !important;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+  color: var(--text-inverse) !important;
   padding: var(--space-lg) !important;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
   border-bottom: none !important;
 }
 
 :deep(.daily-question-confirm-dialog .el-message-box__title) {
-  color: white !important;
+  color: var(--text-inverse) !important;
   font-weight: 600 !important;
   font-size: 1.1rem !important;
 }
@@ -857,19 +848,19 @@ onUnmounted(() => {
 }
 
 :deep(.daily-question-confirm-btn) {
-  background: linear-gradient(135deg, #d2691e, #ff8c00) !important;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
   border: none !important;
-  color: white !important;
+  color: var(--text-inverse) !important;
   padding: var(--space-sm) var(--space-lg) !important;
   border-radius: var(--radius-md) !important;
   font-weight: 600 !important;
   transition: all 0.3s ease !important;
-  box-shadow: 0 2px 8px rgba(210, 105, 30, 0.3) !important;
+  box-shadow: 0 2px 8px var(--primary-alpha-30) !important;
 }
 
 :deep(.daily-question-confirm-btn:hover) {
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(210, 105, 30, 0.4) !important;
+  box-shadow: 0 4px 12px var(--primary-alpha-30), 0 8px 16px var(--primary-alpha-20) !important;
 }
 
 :deep(.daily-question-cancel-btn) {

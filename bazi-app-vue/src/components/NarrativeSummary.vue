@@ -302,36 +302,34 @@ const regenerateAnalysis = () => {
 }
 
 /* 深色模式優化 */
-@media (prefers-color-scheme: dark) {
-  .narrative-summary {
-    background: var(--bg-secondary);
-    border-color: var(--border-light);
-  }
+:global([data-theme='dark']) .narrative-summary {
+  background: var(--bg-secondary);
+  border-color: var(--border-light);
+}
 
-  .peixuan-voice {
-    background: var(--bg-tertiary) !important;
-    border-color: var(--border-light) !important;
-  }
+:global([data-theme='dark']) .peixuan-voice {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border-light) !important;
+}
 
-  .narrative-text {
-    color: var(--text-primary) !important;
-  }
+:global([data-theme='dark']) .narrative-text {
+  color: var(--text-primary) !important;
+}
 
-  /* Element Plus 卡片深色模式 */
-  :deep(.el-card) {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-  }
+/* Element Plus 卡片深色模式 */
+:global([data-theme='dark']) .narrative-summary :deep(.el-card) {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-light) !important;
+}
 
-  :deep(.el-card.is-always-shadow) {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-    box-shadow: var(--shadow-md) !important;
-  }
+:global([data-theme='dark']) .narrative-summary :deep(.el-card.is-always-shadow) {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-light) !important;
+  box-shadow: var(--shadow-md) !important;
+}
 
-  :deep(.result-card) {
-    background: var(--bg-secondary) !important;
-    border-color: var(--border-light) !important;
-  }
+:global([data-theme='dark']) .narrative-summary :deep(.result-card) {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-light) !important;
 }
 </style>

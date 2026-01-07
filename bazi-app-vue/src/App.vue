@@ -40,7 +40,8 @@ onMounted(() => {
     Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr auto;
@@ -52,13 +53,5 @@ main {
   margin: 0;
   width: 100%;
   box-sizing: border-box;
-}
-
-/* 深色模式支援 */
-@media (prefers-color-scheme: dark) {
-  #app-container {
-    color: #f9fafb;
-    background-color: #111827;
-  }
 }
 </style>

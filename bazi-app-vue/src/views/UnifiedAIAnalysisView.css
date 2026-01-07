@@ -1011,7 +1011,7 @@
 }
 
 /* 深色模式優化 */
-@media (prefers-color-scheme: dark) {
+[data-theme='dark'] {
   /* Element Plus Dialog 深色模式 */
   :deep(.el-dialog) {
     background: var(--bg-secondary) !important;

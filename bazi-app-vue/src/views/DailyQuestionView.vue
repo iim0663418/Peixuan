@@ -158,15 +158,13 @@ onMounted(() => {
 }
 
 /* 深色模式優化 */
-@media (prefers-color-scheme: dark) {
-  .welcome-card h3 {
-    color: var(--text-primary) !important;
-  }
-
-  .welcome-card p {
-    color: var(--text-secondary) !important;
-  }
-
-  /* Dialog 樣式已統一到 dialog.css */
+:global([data-theme='dark']) .welcome-card h3 {
+  color: var(--text-primary) !important;
 }
+
+:global([data-theme='dark']) .welcome-card p {
+  color: var(--text-secondary) !important;
+}
+
+/* Dialog 樣式已統一到 dialog.css */
 </style>

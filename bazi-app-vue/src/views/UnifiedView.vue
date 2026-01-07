@@ -531,41 +531,41 @@ h4 {
 }
 
 /* 深色模式優化 */
-@media (prefers-color-scheme: dark) {
+:global([data-theme='dark']) {
   /* Element Plus components handled by element-plus.css and dialog.css */
+}
 
-  /* Choice Card 深色模式 - Enhanced with colored glows */
-  .choice-card {
-    background: var(--bg-tertiary) !important;
-    border-color: var(--border-light) !important;
-    box-shadow: var(--shadow-card) !important;
-  }
+/* Choice Card 深色模式 - Enhanced with colored glows */
+:global([data-theme='dark']) .choice-card {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--border-light) !important;
+  box-shadow: var(--shadow-card) !important;
+}
 
-  .choice-card:hover {
-    background: var(--bg-primary) !important;
-    border-color: var(--purple-star-dark-mode) !important;
-    box-shadow: var(--shadow-card-hover) !important;
-  }
+:global([data-theme='dark']) .choice-card:hover {
+  background: var(--bg-primary) !important;
+  border-color: var(--purple-star-dark-mode) !important;
+  box-shadow: var(--shadow-card-hover) !important;
+}
 
-  .choice-title {
-    color: var(--text-primary) !important;
-  }
+:global([data-theme='dark']) .choice-title {
+  color: var(--text-primary) !important;
+}
 
-  .choice-desc {
-    color: var(--text-secondary) !important;
-  }
+:global([data-theme='dark']) .choice-desc {
+  color: var(--text-secondary) !important;
+}
 
-  .choice-arrow {
-    color: var(--text-secondary) !important;
-  }
+:global([data-theme='dark']) .choice-arrow {
+  color: var(--text-secondary) !important;
+}
 
-  .dialog-title {
-    color: var(--text-primary) !important;
-  }
+:global([data-theme='dark']) .dialog-title {
+  color: var(--text-primary) !important;
+}
 
-  .dialog-subtitle {
-    color: var(--text-secondary) !important;
-  }
+:global([data-theme='dark']) .dialog-subtitle {
+  color: var(--text-secondary) !important;
 }
 
 /* 無障礙: 減少動畫 */

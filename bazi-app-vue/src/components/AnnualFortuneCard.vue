@@ -411,59 +411,36 @@ const formatDate = (date: Date | string): string => {
 }
 
 /* 深色模式優化 - 統一混合策略 */
-:global([data-theme='dark']) .annual-fortune-card,
-@media (prefers-color-scheme: dark) {
-  .annual-fortune-card {
-    background: var(--bg-secondary);
-    border-color: var(--border-light);
-  }
+:global([data-theme='dark']) .annual-fortune-card {
+  background: var(--bg-secondary);
+  border-color: var(--border-light);
 }
 
 :global([data-theme='dark']) .annual-fortune-card .yearly-header h4,
-:global([data-theme='dark']) .annual-fortune-card .period-header h5,
-@media (prefers-color-scheme: dark) {
-  .annual-fortune-card .yearly-header h4,
-  .annual-fortune-card .period-header h5 {
-    color: var(--text-primary);
-  }
+:global([data-theme='dark']) .annual-fortune-card .period-header h5 {
+  color: var(--text-primary);
 }
 
-:global([data-theme='dark']) .annual-fortune-card .date-range,
-@media (prefers-color-scheme: dark) {
-  .annual-fortune-card .date-range {
-    color: var(--text-secondary);
-  }
+:global([data-theme='dark']) .annual-fortune-card .date-range {
+  color: var(--text-secondary);
 }
 
-:global([data-theme='dark']) .annual-fortune-card .period-card,
-@media (prefers-color-scheme: dark) {
-  .annual-fortune-card .period-card {
-    background: var(--bg-tertiary);
-    border-color: var(--border-light);
-  }
+:global([data-theme='dark']) .annual-fortune-card .period-card {
+  background: var(--bg-tertiary);
+  border-color: var(--border-light);
 }
 
-:global([data-theme='dark']) .annual-fortune-card .period-label,
-@media (prefers-color-scheme: dark) {
-  .annual-fortune-card .period-label {
-    color: var(--text-inverse);
-  }
+:global([data-theme='dark']) .annual-fortune-card .period-label {
+  color: var(--text-inverse);
 }
 
 :global([data-theme='dark']) .annual-fortune-card .legend-current,
-:global([data-theme='dark']) .annual-fortune-card .legend-next,
-@media (prefers-color-scheme: dark) {
-  .annual-fortune-card .legend-current,
-  .annual-fortune-card .legend-next {
-    color: var(--text-secondary);
-  }
+:global([data-theme='dark']) .annual-fortune-card .legend-next {
+  color: var(--text-secondary);
 }
 
-:global([data-theme='dark']) .annual-fortune-card .fortune-content,
-@media (prefers-color-scheme: dark) {
-  .annual-fortune-card .fortune-content {
-    color: var(--text-primary);
-  }
+:global([data-theme='dark']) .annual-fortune-card .fortune-content {
+  color: var(--text-primary);
 }
 
 /* 無障礙: 減少動畫 */

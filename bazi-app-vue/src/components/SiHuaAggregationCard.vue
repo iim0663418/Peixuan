@@ -467,16 +467,13 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
   --node-item-bg: var(--bg-primary);
 }
 
-/* 統一深色模式選擇器：同時匹配 data-theme 和系統偏好 */
-:global([data-theme='dark']) .sihua-aggregation,
-@media (prefers-color-scheme: dark) {
-  .sihua-aggregation {
-    --card-bg-collapsed: var(--bg-tertiary);
-    --card-bg-expanded: var(--bg-secondary);
-    --card-header-bg: var(--bg-tertiary);
-    --centrality-box-bg: var(--bg-tertiary);
-    /* 修復：使用透明度疊加創造層次，避免與父容器背景融合 */
-    --node-item-bg: rgba(255, 255, 255, 0.05);
-  }
+/* 統一深色模式選擇器 */
+:global([data-theme='dark']) .sihua-aggregation {
+  --card-bg-collapsed: var(--bg-tertiary);
+  --card-bg-expanded: var(--bg-secondary);
+  --card-header-bg: var(--bg-tertiary);
+  --centrality-box-bg: var(--bg-tertiary);
+  /* 修復：使用透明度疊加創造層次，避免與父容器背景融合 */
+  --node-item-bg: rgba(255, 255, 255, 0.05);
 }
 </style>

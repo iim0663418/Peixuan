@@ -584,7 +584,7 @@ const cycleTheme = () => {
 }
 
 /* 深色模式下的 mobile button 樣式 */
-@media (prefers-color-scheme: dark) {
+[data-theme='dark'] {
   .app-header {
     background: linear-gradient(
       135deg,

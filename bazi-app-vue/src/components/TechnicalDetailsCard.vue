@@ -382,15 +382,12 @@ pre {
   --title-color: var(--text-secondary);
 }
 
-/* 統一深色模式選擇器：同時匹配 data-theme 和系統偏好 */
-:global([data-theme='dark']) .technical-details-card,
-@media (prefers-color-scheme: dark) {
-  .technical-details-card {
-    --card-bg-collapsed: var(--bg-tertiary);
-    --card-bg-expanded: var(--bg-secondary);
-    --card-header-bg: var(--bg-tertiary);
-    --section-bg: var(--bg-tertiary);
-    --title-color: var(--text-primary);
-  }
+/* 統一深色模式選擇器 */
+:global([data-theme='dark']) .technical-details-card {
+  --card-bg-collapsed: var(--bg-tertiary);
+  --card-bg-expanded: var(--bg-secondary);
+  --card-header-bg: var(--bg-tertiary);
+  --section-bg: var(--bg-tertiary);
+  --title-color: var(--text-primary);
 }
 </style>

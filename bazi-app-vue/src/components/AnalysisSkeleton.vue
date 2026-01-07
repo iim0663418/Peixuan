@@ -129,25 +129,23 @@
 }
 
 /* Dark Mode Enhancements */
-@media (prefers-color-scheme: dark) {
-  .skeleton-header,
-  .skeleton-subheader,
-  .skeleton-text,
-  .skeleton-list-item {
-    background: rgba(255, 255, 255, 0.08);
-  }
+:global([data-theme='dark']) .skeleton-header,
+:global([data-theme='dark']) .skeleton-subheader,
+:global([data-theme='dark']) .skeleton-text,
+:global([data-theme='dark']) .skeleton-list-item {
+  background: rgba(255, 255, 255, 0.08);
+}
 
-  .skeleton-header::after,
-  .skeleton-subheader::after,
-  .skeleton-text::after,
-  .skeleton-list-item::after {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(153, 50, 204, 0.15) 50%,
-      transparent 100%
-    );
-  }
+:global([data-theme='dark']) .skeleton-header::after,
+:global([data-theme='dark']) .skeleton-subheader::after,
+:global([data-theme='dark']) .skeleton-text::after,
+:global([data-theme='dark']) .skeleton-list-item::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(153, 50, 204, 0.15) 50%,
+    transparent 100%
+  );
 }
 
 /* Accessibility: 減慢動畫而非完全禁用 */

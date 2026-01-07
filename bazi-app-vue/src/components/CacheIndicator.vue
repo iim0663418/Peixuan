@@ -216,28 +216,26 @@ const handleRefresh = () => {
 }
 
 /* Dark Mode Enhancements */
-@media (prefers-color-scheme: dark) {
-  .cache-indicator {
-    background: linear-gradient(
-      135deg,
-      rgba(153, 50, 204, 0.12) 0%,
-      rgba(153, 50, 204, 0.06) 100%
-    );
-    border-color: rgba(153, 50, 204, 0.2);
-  }
+:global([data-theme='dark']) .cache-indicator {
+  background: linear-gradient(
+    135deg,
+    rgba(153, 50, 204, 0.12) 0%,
+    rgba(153, 50, 204, 0.06) 100%
+  );
+  border-color: rgba(153, 50, 204, 0.2);
+}
 
-  .cache-indicator:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(153, 50, 204, 0.18) 0%,
-      rgba(153, 50, 204, 0.1) 100%
-    );
-    border-color: rgba(153, 50, 204, 0.35);
-  }
+:global([data-theme='dark']) .cache-indicator:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(153, 50, 204, 0.18) 0%,
+    rgba(153, 50, 204, 0.1) 100%
+  );
+  border-color: rgba(153, 50, 204, 0.35);
+}
 
-  .refresh-btn:hover {
-    background: rgba(153, 50, 204, 0.15);
-  }
+:global([data-theme='dark']) .refresh-btn:hover {
+  background: rgba(153, 50, 204, 0.15);
 }
 
 /* Accessibility: Focus States */

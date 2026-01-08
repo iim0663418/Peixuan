@@ -1,6 +1,6 @@
 # 佩璇 (Peixuan) - 智慧命理分析平台
 
-![Version](https://img.shields.io/badge/version-1.2.1-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.2-blue.svg)
 ![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5-4FC08D.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6.svg)
@@ -11,24 +11,24 @@
 
 佩璇 (Peixuan) 是一個現代化的智慧命理分析平台，融合傳統中國命理學（八字四柱、紫微斗數）與先進的生成式 AI 技術 (Google Gemini)，透過 Cloudflare Workers 邊緣運算架構，為用戶提供快速、精準且富有洞察力的命運分析。
 
-## 🆕 最新更新 (v1.2.1 - 2025年12月)
+## 🆕 最新更新 (v1.2.2 - 2026年1月)
 
-### 🎨 UI/UX 完整優化
+### 🌙 深色模式系統完整修復
+- **CSS 變數語法修復**: 修正 `design-tokens.css` 中的 CSS 選擇器語法錯誤
+- **選擇器統一**: 18個文件統一使用 `html.dark` 選擇器，確保一致性
+- **Element Plus 整合**: 完全相容 Element Plus 官方深色模式標準
+- **測試驗證**: 623個測試全部通過，無回歸風險
+
+### 🎨 主題切換系統優化
+- **雙重觸發機制**: 保持 `html.dark` 類別 + `data-theme` 屬性向後相容
+- **視覺一致性**: 所有組件在深色/淺色模式下表現統一
+- **性能優化**: 移除冗餘選擇器，提升主題切換效率
+- **生產就緒**: 系統穩定，準備部署
+
+### 🔧 代碼品質提升 (v1.2.1 延續)
 - **AppFooter & AppHeader 重構**: 100% CSS 變數整合，統一品牌色彩系統
-- **亮色模式修復**: 完全解決 Footer 在亮色模式下的可見性問題
-- **響應式佈局**: 修復桌面版語言選擇器邊界問題，優化觸控體驗
-- **國際化完善**: 每日一問功能完整中英雙語支援
-
-### 📝 Markdown 渲染系統統一
-- **統一工具**: 創建 `markdown.ts` 工具，集中化所有 Markdown 配置
-- **樣式一致**: 建立 `markdown.css` 統一樣式系統，確保視覺一致性
-- **組件整合**: ChatBubble、NarrativeSummary、UnifiedAIAnalysisView 完全統一
-- **性能優化**: 消除重複配置，提升渲染效率和維護性
-
-### 🔧 技術品質提升
-- **每日一問佈局**: 修復用戶氣泡被容器切掉的問題
-- **設計系統**: 完整的 CSS 變數系統，提升維護性
-- **代碼清理**: 消除 Markdown 配置重複，統一錯誤處理
+- **Markdown 渲染統一**: 創建統一工具，消除重複配置
+- **響應式佈局**: 修復桌面版語言選擇器邊界問題
 - **無障礙改善**: SVG 圖標添加適當的 aria 屬性
 
 ---

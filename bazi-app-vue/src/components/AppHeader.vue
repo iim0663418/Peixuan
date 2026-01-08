@@ -176,7 +176,12 @@ const cycleTheme = () => {
       <button
         class="mobile-nav-link"
         :class="{ active: route?.path === '/' }"
-        @click="() => { router.push('/'); closeMobileMenu(); }"
+        @click="
+          () => {
+            router.push('/');
+            closeMobileMenu();
+          }
+        "
       >
         {{ $t('navigation.home') }}
       </button>
@@ -184,7 +189,12 @@ const cycleTheme = () => {
       <button
         class="mobile-nav-link"
         :class="{ active: route?.path?.startsWith('/unified') }"
-        @click="() => { router.push('/unified'); closeMobileMenu(); }"
+        @click="
+          () => {
+            router.push('/unified');
+            closeMobileMenu();
+          }
+        "
       >
         {{ $t('astrology.unified') }}
       </button>
@@ -192,7 +202,12 @@ const cycleTheme = () => {
       <button
         class="mobile-nav-link"
         :class="{ active: route?.path === '/daily-question' }"
-        @click="() => { router.push('/daily-question'); closeMobileMenu(); }"
+        @click="
+          () => {
+            router.push('/daily-question');
+            closeMobileMenu();
+          }
+        "
       >
         {{ $t('navigation.dailyQuestion') }}
       </button>
@@ -235,7 +250,7 @@ const cycleTheme = () => {
   padding: 1rem 2rem;
   display: grid;
   grid-template-columns: minmax(auto, 1fr) auto auto;
-  grid-template-areas: "brand controls menu";
+  grid-template-areas: 'brand controls menu';
   align-items: center;
   gap: 1rem;
   position: relative;
@@ -360,10 +375,6 @@ button.mobile-nav-link {
   box-shadow: var(--shadow-sm);
 }
 
-
-
-
-
 .theme-toggle {
   display: flex;
   align-items: center;
@@ -390,8 +401,6 @@ button.mobile-nav-link {
 .theme-toggle:active {
   transform: translateY(0);
 }
-
-
 
 .mobile-menu-button span {
   width: 24px;
@@ -503,7 +512,7 @@ button.mobile-nav-link {
   .navbar {
     padding: 1rem 2rem;
     grid-template-columns: minmax(auto, 30%) 1fr auto;
-    grid-template-areas: "brand navigation controls";
+    grid-template-areas: 'brand navigation controls';
     gap: 2rem;
   }
 
@@ -590,7 +599,7 @@ button.mobile-nav-link {
 }
 
 /* 深色模式下的 mobile button 樣式 */
-[data-theme='dark'] {
+html.dark {
   .app-header {
     background: linear-gradient(
       135deg,
@@ -620,7 +629,11 @@ button.mobile-nav-link {
 
   .nav-link.active {
     color: white;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--primary-light)
+    );
   }
 
   .mobile-menu {

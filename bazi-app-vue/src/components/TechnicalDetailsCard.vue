@@ -383,7 +383,7 @@ pre {
 }
 
 /* 統一深色模式選擇器 */
-:global([data-theme='dark']) .technical-details-card {
+:global(html.dark) .technical-details-card {
   --card-bg-collapsed: var(--bg-tertiary);
   --card-bg-expanded: var(--bg-secondary);
   --card-header-bg: var(--bg-tertiary);

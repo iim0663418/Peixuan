@@ -466,7 +466,7 @@ onMounted(() => {
 }
 
 /* 深色模式文字對比度優化 */
-:global([data-theme='dark']) .memory-indicator {
+:global(html.dark) .memory-indicator {
   background: linear-gradient(
     135deg,
     rgba(168, 85, 247, 0.2) 0%,
@@ -476,7 +476,7 @@ onMounted(() => {
   color: var(--brand-accent);
 }
 
-:global([data-theme='dark']) .memory-indicator:hover {
+:global(html.dark) .memory-indicator:hover {
   background: linear-gradient(
     135deg,
     rgba(168, 85, 247, 0.25) 0%,
@@ -486,37 +486,37 @@ onMounted(() => {
   box-shadow: 0 2px 6px rgba(168, 85, 247, 0.3);
 }
 
-:global([data-theme='dark']) .bubble-content {
+:global(html.dark) .bubble-content {
   color: var(--text-primary) !important;
 }
 
-:global([data-theme='dark']) .bubble-content :deep(p) {
+:global(html.dark) .bubble-content :deep(p) {
   color: var(--text-primary) !important;
 }
 
-:global([data-theme='dark']) .bubble-content :deep(h1),
-:global([data-theme='dark']) .bubble-content :deep(h2),
-:global([data-theme='dark']) .bubble-content :deep(h3),
-:global([data-theme='dark']) .bubble-content :deep(h4) {
+:global(html.dark) .bubble-content :deep(h1),
+:global(html.dark) .bubble-content :deep(h2),
+:global(html.dark) .bubble-content :deep(h3),
+:global(html.dark) .bubble-content :deep(h4) {
   color: var(--text-primary) !important;
 }
 
-:global([data-theme='dark']) .bubble-content :deep(li) {
+:global(html.dark) .bubble-content :deep(li) {
   color: var(--text-primary) !important;
 }
 
-:global([data-theme='dark']) .bubble-content :deep(strong),
-:global([data-theme='dark']) .bubble-content :deep(b) {
+:global(html.dark) .bubble-content :deep(strong),
+:global(html.dark) .bubble-content :deep(b) {
   color: var(--warning) !important;
   font-weight: var(--font-weight-bold);
 }
 
-:global([data-theme='dark']) .bubble-ai .bubble-content {
+:global(html.dark) .bubble-ai .bubble-content {
   color: var(--text-primary) !important;
   background: var(--bg-tertiary) !important;
 }
 
-:global([data-theme='dark']) .bubble-system .bubble-content {
+:global(html.dark) .bubble-system .bubble-content {
   color: var(--text-primary) !important;
   background: var(--bg-disabled) !important;
 }

@@ -126,7 +126,7 @@
 }
 
 /* 深色模式適配 */
-[data-theme='dark'] {
+html.dark {
   .markdown-content :deep(strong),
   .markdown-content :deep(b) {
     color: var(--warning-light, #fbbf24);

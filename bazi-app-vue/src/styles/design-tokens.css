@@ -362,7 +362,7 @@
 }
 
 /* ===== 深色主題變數 Dark Theme ===== */
-[data-theme='dark'] :root {
+html.dark {
   /* 統一品牌色彩系統 - Unified Brand Colors */
   --brand-text-primary: #f0e68c;    /* 主要品牌文字色 (替換 --footer-text-gold) */
   --brand-text-secondary: #e89050;  /* 次要品牌文字色 (替換 --bazi-orange-dark-mode) */

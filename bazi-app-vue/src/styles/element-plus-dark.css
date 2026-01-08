@@ -3,7 +3,7 @@
  * 統一處理所有 Element Plus 組件的深色模式適配
  */
 
-[data-theme='dark'] {
+html.dark {
   /* ===== 按鈕組件 - Enhanced with colored shadows ===== */
   :deep(.el-button) {
     background: var(--bg-secondary) !important;

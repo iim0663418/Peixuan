@@ -216,7 +216,7 @@ const handleRefresh = () => {
 }
 
 /* Dark Mode Enhancements */
-:global([data-theme='dark']) .cache-indicator {
+:global(html.dark) .cache-indicator {
   background: linear-gradient(
     135deg,
     var(--brand-accent-alpha-12) 0%,
@@ -225,7 +225,7 @@ const handleRefresh = () => {
   border-color: var(--brand-accent-alpha-20);
 }
 
-:global([data-theme='dark']) .cache-indicator:hover {
+:global(html.dark) .cache-indicator:hover {
   background: linear-gradient(
     135deg,
     var(--brand-accent-alpha-18) 0%,
@@ -234,7 +234,7 @@ const handleRefresh = () => {
   border-color: var(--brand-accent-alpha-35);
 }
 
-:global([data-theme='dark']) .refresh-btn:hover {
+:global(html.dark) .refresh-btn:hover {
   background: rgba(153, 50, 204, 0.15);
 }
 

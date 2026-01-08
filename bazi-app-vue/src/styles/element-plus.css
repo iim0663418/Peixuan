@@ -435,7 +435,7 @@
    深色模式優化
    ========================================== */
 
-[data-theme='dark'] {
+html.dark {
   /* Card 深色模式 */
   :deep(.el-card) {
     background: var(--bg-tertiary) !important;

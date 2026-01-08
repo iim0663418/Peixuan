@@ -302,33 +302,33 @@ const regenerateAnalysis = () => {
 }
 
 /* 深色模式優化 */
-:global([data-theme='dark']) .narrative-summary {
+:global(html.dark) .narrative-summary {
   background: var(--bg-secondary);
   border-color: var(--border-light);
 }
 
-:global([data-theme='dark']) .peixuan-voice {
+:global(html.dark) .peixuan-voice {
   background: var(--bg-tertiary) !important;
   border-color: var(--border-light) !important;
 }
 
-:global([data-theme='dark']) .narrative-text {
+:global(html.dark) .narrative-text {
   color: var(--text-primary) !important;
 }
 
 /* Element Plus 卡片深色模式 */
-:global([data-theme='dark']) .narrative-summary :deep(.el-card) {
+:global(html.dark) .narrative-summary :deep(.el-card) {
   background: var(--bg-secondary) !important;
   border-color: var(--border-light) !important;
 }
 
-:global([data-theme='dark']) .narrative-summary :deep(.el-card.is-always-shadow) {
+:global(html.dark) .narrative-summary :deep(.el-card.is-always-shadow) {
   background: var(--bg-secondary) !important;
   border-color: var(--border-light) !important;
   box-shadow: var(--shadow-md) !important;
 }
 
-:global([data-theme='dark']) .narrative-summary :deep(.result-card) {
+:global(html.dark) .narrative-summary :deep(.result-card) {
   background: var(--bg-secondary) !important;
   border-color: var(--border-light) !important;
 }

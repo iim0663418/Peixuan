@@ -468,7 +468,7 @@ function getSeverityType(severity: string): 'success' | 'warning' | 'error' {
 }
 
 /* 統一深色模式選擇器 */
-:global([data-theme='dark']) .sihua-aggregation {
+:global(html.dark) .sihua-aggregation {
   --card-bg-collapsed: var(--bg-tertiary);
   --card-bg-expanded: var(--bg-secondary);
   --card-header-bg: var(--bg-tertiary);

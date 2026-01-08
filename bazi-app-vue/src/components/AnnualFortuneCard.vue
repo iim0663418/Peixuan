@@ -411,35 +411,35 @@ const formatDate = (date: Date | string): string => {
 }
 
 /* 深色模式優化 - 統一混合策略 */
-:global([data-theme='dark']) .annual-fortune-card {
+:global(html.dark) .annual-fortune-card {
   background: var(--bg-secondary);
   border-color: var(--border-light);
 }
 
-:global([data-theme='dark']) .annual-fortune-card .yearly-header h4,
-:global([data-theme='dark']) .annual-fortune-card .period-header h5 {
+:global(html.dark) .annual-fortune-card .yearly-header h4,
+:global(html.dark) .annual-fortune-card .period-header h5 {
   color: var(--text-primary);
 }
 
-:global([data-theme='dark']) .annual-fortune-card .date-range {
+:global(html.dark) .annual-fortune-card .date-range {
   color: var(--text-secondary);
 }
 
-:global([data-theme='dark']) .annual-fortune-card .period-card {
+:global(html.dark) .annual-fortune-card .period-card {
   background: var(--bg-tertiary);
   border-color: var(--border-light);
 }
 
-:global([data-theme='dark']) .annual-fortune-card .period-label {
+:global(html.dark) .annual-fortune-card .period-label {
   color: var(--text-inverse);
 }
 
-:global([data-theme='dark']) .annual-fortune-card .legend-current,
-:global([data-theme='dark']) .annual-fortune-card .legend-next {
+:global(html.dark) .annual-fortune-card .legend-current,
+:global(html.dark) .annual-fortune-card .legend-next {
   color: var(--text-secondary);
 }
 
-:global([data-theme='dark']) .annual-fortune-card .fortune-content {
+:global(html.dark) .annual-fortune-card .fortune-content {
   color: var(--text-primary);
 }
 

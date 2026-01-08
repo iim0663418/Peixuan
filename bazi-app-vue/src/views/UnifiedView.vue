@@ -13,7 +13,8 @@
     </el-card>
 
     <el-card v-else-if="error" class="result-card error">
-      <el-alert type="error" :title="error" show-icon :closable="false" />
+      <el-alert type="error" :title="error" show-icon
+:closable="false" />
     </el-card>
 
     <el-card v-else-if="result" class="result-card">
@@ -531,40 +532,40 @@ h4 {
 }
 
 /* 深色模式優化 */
-:global([data-theme='dark']) {
+:global(html.dark) {
   /* Element Plus components handled by element-plus.css and dialog.css */
 }
 
 /* Choice Card 深色模式 - Enhanced with colored glows */
-:global([data-theme='dark']) .choice-card {
+:global(html.dark) .choice-card {
   background: var(--bg-tertiary) !important;
   border-color: var(--border-light) !important;
   box-shadow: var(--shadow-card) !important;
 }
 
-:global([data-theme='dark']) .choice-card:hover {
+:global(html.dark) .choice-card:hover {
   background: var(--bg-primary) !important;
   border-color: var(--brand-accent) !important;
   box-shadow: var(--shadow-card-hover) !important;
 }
 
-:global([data-theme='dark']) .choice-title {
+:global(html.dark) .choice-title {
   color: var(--text-primary) !important;
 }
 
-:global([data-theme='dark']) .choice-desc {
+:global(html.dark) .choice-desc {
   color: var(--text-secondary) !important;
 }
 
-:global([data-theme='dark']) .choice-arrow {
+:global(html.dark) .choice-arrow {
   color: var(--text-secondary) !important;
 }
 
-:global([data-theme='dark']) .dialog-title {
+:global(html.dark) .dialog-title {
   color: var(--text-primary) !important;
 }
 
-:global([data-theme='dark']) .dialog-subtitle {
+:global(html.dark) .dialog-subtitle {
   color: var(--text-secondary) !important;
 }
 

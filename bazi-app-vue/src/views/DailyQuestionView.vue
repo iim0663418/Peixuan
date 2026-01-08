@@ -158,11 +158,11 @@ onMounted(() => {
 }
 
 /* 深色模式優化 */
-:global([data-theme='dark']) .welcome-card h3 {
+:global(html.dark) .welcome-card h3 {
   color: var(--text-primary) !important;
 }
 
-:global([data-theme='dark']) .welcome-card p {
+:global(html.dark) .welcome-card p {
   color: var(--text-secondary) !important;
 }
 

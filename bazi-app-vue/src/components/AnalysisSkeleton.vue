@@ -129,17 +129,17 @@
 }
 
 /* Dark Mode Enhancements */
-:global([data-theme='dark']) .skeleton-header,
-:global([data-theme='dark']) .skeleton-subheader,
-:global([data-theme='dark']) .skeleton-text,
-:global([data-theme='dark']) .skeleton-list-item {
+:global(html.dark) .skeleton-header,
+:global(html.dark) .skeleton-subheader,
+:global(html.dark) .skeleton-text,
+:global(html.dark) .skeleton-list-item {
   background: rgba(255, 255, 255, 0.08);
 }
 
-:global([data-theme='dark']) .skeleton-header::after,
-:global([data-theme='dark']) .skeleton-subheader::after,
-:global([data-theme='dark']) .skeleton-text::after,
-:global([data-theme='dark']) .skeleton-list-item::after {
+:global(html.dark) .skeleton-header::after,
+:global(html.dark) .skeleton-subheader::after,
+:global(html.dark) .skeleton-text::after,
+:global(html.dark) .skeleton-list-item::after {
   background: linear-gradient(
     90deg,
     transparent 0%,

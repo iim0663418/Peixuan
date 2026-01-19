@@ -36056,11 +36056,19 @@ var init_agenticAzureService = __esm({
           "",
           "\u6D41\u5E74\u8CC7\u8A0A\uFF1A"
         ];
-        if (result.annualFortune) {
-          const annual = result.annualFortune;
-          transit.push(`\u6D41\u5E74\u5E72\u652F\uFF1A${annual.annualPillar.stem}${annual.annualPillar.branch}`);
-          if (annual.taiSuiAnalysis && annual.taiSuiAnalysis.severity !== "none") {
-            transit.push(`\u592A\u6B72\u4E92\u52D5\uFF1A${annual.taiSuiAnalysis.types.join("\u3001")}`);
+        const annual = result.annualFortune || bazi?.fortune?.annual;
+        if (annual) {
+          const pillar = annual.annualPillar || annual.pillar;
+          if (pillar) {
+            transit.push(`\u6D41\u5E74\u5E72\u652F\uFF1A${pillar.stem}${pillar.branch}`);
+          }
+          const taiSuiInfo = annual.taiSuiAnalysis || annual.taiSui;
+          if (taiSuiInfo) {
+            if (annual.taiSuiAnalysis?.severity !== "none" && annual.taiSuiAnalysis?.types) {
+              transit.push(`\u592A\u6B72\u4E92\u52D5\uFF1A${annual.taiSuiAnalysis.types.join("\u3001")}`);
+            } else if (annual.taiSui) {
+              transit.push(`\u592A\u6B72\u65B9\u4F4D\uFF1A${annual.taiSui.direction}`);
+            }
           }
         } else {
           transit.push("\u6D41\u5E74\u8CC7\u8A0A\uFF1A\u5C1A\u672A\u8A08\u7B97\uFF08\u9700\u8981\u63D0\u4F9B\u67E5\u8A62\u5E74\u4EFD\uFF09");
@@ -37349,7 +37357,7 @@ function formatToMarkdown(result, options = {}) {
     sections.push(formatFortuneCycles(result));
   }
   sections.push(formatZiWei(result, options));
-  if (result.ziwei.siHuaAggregation && !options.personalityOnly) {
+  if (result.ziwei.sihuaAggregation && !options.personalityOnly) {
     sections.push(formatSiHua(result));
   }
   if (result.annualFortune && !options.personalityOnly) {
@@ -37526,40 +37534,56 @@ function getBureauName(bureau) {
   return names[bureau] || `${bureau}\u5C40`;
 }
 function formatSiHua(result) {
-  const { siHuaAggregation } = result.ziwei;
-  if (!siHuaAggregation) {
+  const { sihuaAggregation } = result.ziwei;
+  if (!sihuaAggregation) {
     return "";
   }
   const sections = ["## \u2728 \u56DB\u5316\u98DB\u661F\n"];
   sections.push("### \u7D71\u8A08\u8CC7\u8A0A");
-  sections.push(`- **\u7E3D\u98DB\u5316\u908A\u6578**\uFF1A${siHuaAggregation.totalEdges}`);
-  sections.push(`- **\u751F\u5E74\u56DB\u5316**\uFF1A${siHuaAggregation.birthYearEdges} \u689D`);
-  sections.push(`- **\u5927\u9650\u56DB\u5316**\uFF1A${siHuaAggregation.decadeEdges} \u689D`);
-  sections.push(`- **\u6D41\u5E74\u56DB\u5316**\uFF1A${siHuaAggregation.annualEdges} \u689D`);
-  if (siHuaAggregation.cycles && siHuaAggregation.cycles.length > 0) {
+  sections.push(`- **\u7E3D\u98DB\u5316\u908A\u6578**\uFF1A${sihuaAggregation.totalEdges}`);
+  sections.push(`- **\u751F\u5E74\u56DB\u5316**\uFF1A${sihuaAggregation.edgesByLayer.natal || 0} \u689D`);
+  sections.push(`- **\u5927\u9650\u56DB\u5316**\uFF1A${sihuaAggregation.edgesByLayer.decade || 0} \u689D`);
+  sections.push(`- **\u6D41\u5E74\u56DB\u5316**\uFF1A${sihuaAggregation.edgesByLayer.annual || 0} \u689D`);
+  const allCycles = [
+    ...sihuaAggregation.jiCycles,
+    ...sihuaAggregation.luCycles,
+    ...sihuaAggregation.quanCycles,
+    ...sihuaAggregation.keCycles
+  ];
+  if (allCycles.length > 0) {
     sections.push("\n### \u5FAA\u74B0\u6AA2\u6E2C");
-    siHuaAggregation.cycles.forEach((cycle, index2) => {
+    allCycles.forEach((cycle, index2) => {
       sections.push(`
 **\u5FAA\u74B0 ${index2 + 1}**\uFF08${cycle.type}\uFF09`);
-      sections.push(`- \u8DEF\u5F91\uFF1A${cycle.path.join(" \u2192 ")}`);
-      sections.push(`- \u9577\u5EA6\uFF1A${cycle.length}`);
-      sections.push(`- \u5F37\u5EA6\uFF1A${cycle.strength.toFixed(2)}`);
+      sections.push(`- \u8DEF\u5F91\uFF1A${cycle.palaces.join(" \u2192 ")}`);
+      sections.push(`- \u56B4\u91CD\u5EA6\uFF1A${cycle.severity}`);
+      sections.push(`- \u63CF\u8FF0\uFF1A${cycle.description}`);
     });
   }
-  if (siHuaAggregation.centrality) {
-    sections.push("\n### \u4E2D\u5FC3\u6027\u5206\u6790");
-    if (siHuaAggregation.centrality.highInDegree.length > 0) {
-      sections.push("\n**\u58D3\u529B\u532F\u805A\u9EDE**\uFF08\u9AD8\u5165\u5EA6\uFF09");
-      siHuaAggregation.centrality.highInDegree.forEach((node) => {
-        sections.push(`- ${node.palace}\uFF1A\u5165\u5EA6 ${node.inDegree}`);
-      });
-    }
-    if (siHuaAggregation.centrality.highOutDegree.length > 0) {
-      sections.push("\n**\u8CC7\u6E90\u6E90\u982D**\uFF08\u9AD8\u51FA\u5EA6\uFF09");
-      siHuaAggregation.centrality.highOutDegree.forEach((node) => {
-        sections.push(`- ${node.palace}\uFF1A\u51FA\u5EA6 ${node.outDegree}`);
-      });
-    }
+  sections.push("\n### \u4E2D\u5FC3\u6027\u5206\u6790");
+  if (sihuaAggregation.stressNodes.length > 0) {
+    sections.push("\n**\u58D3\u529B\u532F\u805A\u9EDE**\uFF08\u9AD8\u5165\u5EA6\uFF09");
+    sihuaAggregation.stressNodes.forEach((node) => {
+      sections.push(`- ${node.palaceName}\uFF08\u7B2C${node.palace}\u5BAE\uFF09\uFF1A\u5165\u5EA6 ${node.inDegree}\u3001\u51FA\u5EA6 ${node.outDegree}`);
+    });
+  }
+  if (sihuaAggregation.resourceNodes.length > 0) {
+    sections.push("\n**\u8CC7\u6E90\u6E90\u982D**\uFF08\u9AD8\u51FA\u5EA6\uFF09");
+    sihuaAggregation.resourceNodes.forEach((node) => {
+      sections.push(`- ${node.palaceName}\uFF08\u7B2C${node.palace}\u5BAE\uFF09\uFF1A\u5165\u5EA6 ${node.inDegree}\u3001\u51FA\u5EA6 ${node.outDegree}`);
+    });
+  }
+  if (sihuaAggregation.powerNodes.length > 0) {
+    sections.push("\n**\u6B0A\u529B\u4E2D\u5FC3**\uFF08\u9AD8\u6B0A\u51FA\u5EA6\uFF09");
+    sihuaAggregation.powerNodes.forEach((node) => {
+      sections.push(`- ${node.palaceName}\uFF08\u7B2C${node.palace}\u5BAE\uFF09\uFF1A\u5165\u5EA6 ${node.inDegree}\u3001\u51FA\u5EA6 ${node.outDegree}`);
+    });
+  }
+  if (sihuaAggregation.fameNodes.length > 0) {
+    sections.push("\n**\u540D\u8072\u4E2D\u5FC3**\uFF08\u9AD8\u79D1\u51FA\u5EA6\uFF09");
+    sihuaAggregation.fameNodes.forEach((node) => {
+      sections.push(`- ${node.palaceName}\uFF08\u7B2C${node.palace}\u5BAE\uFF09\uFF1A\u5165\u5EA6 ${node.inDegree}\u3001\u51FA\u5EA6 ${node.outDegree}`);
+    });
   }
   return sections.join("\n");
 }
@@ -37699,8 +37723,8 @@ function formatAnnualFortune(result) {
     sections.push("## \u{1F4C5} \u6D41\u5E74\u5206\u6790\n");
     sections.push("### \u6D41\u5E74\u5E74\u67F1");
     sections.push(`- **\u5E72\u652F**\uFF1A${annualFortune.annualPillar.stem}${annualFortune.annualPillar.branch}`);
-    if (annualFortune.annualLifePalace !== void 0 && annualFortune.annualLifePalace >= 0) {
-      sections.push(`- **\u6D41\u5E74\u547D\u5BAE**\uFF1A\u7B2C${annualFortune.annualLifePalace}\u5BAE`);
+    if (annualFortune.annualLifePalaceIndex !== void 0 && annualFortune.annualLifePalaceIndex >= 0) {
+      sections.push(`- **\u6D41\u5E74\u547D\u5BAE**\uFF1A\u7B2C${annualFortune.annualLifePalaceIndex}\u5BAE`);
     }
   }
   if (annualFortune.interactions) {
@@ -37708,19 +37732,19 @@ function formatAnnualFortune(result) {
     if (interactions.stemCombinations && interactions.stemCombinations.length > 0) {
       sections.push("\n### \u5929\u5E72\u4E94\u5408");
       interactions.stemCombinations.forEach((combo) => {
-        sections.push(`- ${combo.stem1} + ${combo.stem2} \u2192 ${combo.result}\uFF08${combo.severity}\uFF09`);
+        sections.push(`- ${combo.pillar}\u67F1\u5408\u5316\uFF08${combo.element}\uFF09`);
       });
     }
     if (interactions.branchClashes && interactions.branchClashes.length > 0) {
       sections.push("\n### \u5730\u652F\u516D\u6C96");
       interactions.branchClashes.forEach((clash) => {
-        sections.push(`- ${clash.branch1} \u2694 ${clash.branch2}\uFF08${clash.severity}\uFF09`);
+        sections.push(`- ${clash.pillar}\u67F1\u516D\u6C96\uFF08${clash.severity}\uFF09`);
       });
     }
     if (interactions.harmoniousCombinations && interactions.harmoniousCombinations.length > 0) {
       sections.push("\n### \u548C\u8AE7\u7D44\u5408");
       interactions.harmoniousCombinations.forEach((combo) => {
-        sections.push(`- ${combo.type}\uFF1A${combo.branches.join("\u3001")} \u2192 ${combo.result}`);
+        sections.push(`- ${combo.type}\uFF1A${combo.branches.join("\u3001")} \u2192 ${combo.element}`);
       });
     }
   }
@@ -37734,7 +37758,7 @@ function formatAnnualFortune(result) {
     if (taiSuiAnalysis.chong) {
       violations.push("\u6C96\u592A\u6B72");
     }
-    if (taiSuiAnalysis.xing) {
+    if (taiSuiAnalysis.xing.hasXing) {
       violations.push("\u5211\u592A\u6B72");
     }
     if (taiSuiAnalysis.po) {
@@ -37746,7 +37770,6 @@ function formatAnnualFortune(result) {
     if (violations.length > 0) {
       sections.push(`- **\u72AF\u592A\u6B72\u985E\u578B**\uFF1A${violations.join("\u3001")}`);
       sections.push(`- **\u56B4\u91CD\u7A0B\u5EA6**\uFF1A${taiSuiAnalysis.severity}`);
-      sections.push(`- **\u7E3D\u5206**\uFF1A${taiSuiAnalysis.score}`);
     } else {
       sections.push("- **\u7121\u72AF\u592A\u6B72**");
     }

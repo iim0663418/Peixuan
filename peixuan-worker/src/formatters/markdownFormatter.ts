@@ -4,6 +4,7 @@
  */
 
 import type { CalculationResult } from '../calculation/types';
+import type { CentralityNode } from '../calculation/ziwei/sihua/types';
 
 /**
  * Formatting options
@@ -57,7 +58,7 @@ export function formatToMarkdown(result: CalculationResult, options: MarkdownOpt
   sections.push(formatZiWei(result, options));
 
   // 7. SiHua Flying Stars (exclude in personality-only mode)
-  if (result.ziwei.siHuaAggregation && !options.personalityOnly) {
+  if (result.ziwei.sihuaAggregation && !options.personalityOnly) {
     sections.push(formatSiHua(result));
   }
 
@@ -306,46 +307,65 @@ function getBureauName(bureau: number): string {
  * Format SiHua flying stars section
  */
 function formatSiHua(result: CalculationResult): string {
-  const { siHuaAggregation } = result.ziwei;
-  if (!siHuaAggregation) {return '';}
+  const { sihuaAggregation } = result.ziwei;
+  if (!sihuaAggregation) {return '';}
 
   const sections: string[] = ['## ✨ 四化飛星\n'];
 
   // Statistics
   sections.push('### 統計資訊');
-  sections.push(`- **總飛化邊數**：${siHuaAggregation.totalEdges}`);
-  sections.push(`- **生年四化**：${siHuaAggregation.birthYearEdges} 條`);
-  sections.push(`- **大限四化**：${siHuaAggregation.decadeEdges} 條`);
-  sections.push(`- **流年四化**：${siHuaAggregation.annualEdges} 條`);
+  sections.push(`- **總飛化邊數**：${sihuaAggregation.totalEdges}`);
+  sections.push(`- **生年四化**：${sihuaAggregation.edgesByLayer.natal || 0} 條`);
+  sections.push(`- **大限四化**：${sihuaAggregation.edgesByLayer.decade || 0} 條`);
+  sections.push(`- **流年四化**：${sihuaAggregation.edgesByLayer.annual || 0} 條`);
 
-  // Cycles
-  if (siHuaAggregation.cycles && siHuaAggregation.cycles.length > 0) {
+  // Cycles - Merge all cycle types
+  const allCycles = [
+    ...sihuaAggregation.jiCycles,
+    ...sihuaAggregation.luCycles,
+    ...sihuaAggregation.quanCycles,
+    ...sihuaAggregation.keCycles
+  ];
+
+  if (allCycles.length > 0) {
     sections.push('\n### 循環檢測');
-    siHuaAggregation.cycles.forEach((cycle, index) => {
+    allCycles.forEach((cycle, index) => {
       sections.push(`\n**循環 ${index + 1}**（${cycle.type}）`);
-      sections.push(`- 路徑：${cycle.path.join(' → ')}`);
-      sections.push(`- 長度：${cycle.length}`);
-      sections.push(`- 強度：${cycle.strength.toFixed(2)}`);
+      sections.push(`- 路徑：${cycle.palaces.join(' → ')}`);
+      sections.push(`- 嚴重度：${cycle.severity}`);
+      sections.push(`- 描述：${cycle.description}`);
     });
   }
 
-  // Centrality
-  if (siHuaAggregation.centrality) {
-    sections.push('\n### 中心性分析');
-    
-    if (siHuaAggregation.centrality.highInDegree.length > 0) {
-      sections.push('\n**壓力匯聚點**（高入度）');
-      siHuaAggregation.centrality.highInDegree.forEach(node => {
-        sections.push(`- ${node.palace}：入度 ${node.inDegree}`);
-      });
-    }
+  // Centrality Analysis - Use stressNodes and resourceNodes
+  sections.push('\n### 中心性分析');
 
-    if (siHuaAggregation.centrality.highOutDegree.length > 0) {
-      sections.push('\n**資源源頭**（高出度）');
-      siHuaAggregation.centrality.highOutDegree.forEach(node => {
-        sections.push(`- ${node.palace}：出度 ${node.outDegree}`);
-      });
-    }
+  if (sihuaAggregation.stressNodes.length > 0) {
+    sections.push('\n**壓力匯聚點**（高入度）');
+    sihuaAggregation.stressNodes.forEach((node: CentralityNode) => {
+      sections.push(`- ${node.palaceName}（第${node.palace}宮）：入度 ${node.inDegree}、出度 ${node.outDegree}`);
+    });
+  }
+
+  if (sihuaAggregation.resourceNodes.length > 0) {
+    sections.push('\n**資源源頭**（高出度）');
+    sihuaAggregation.resourceNodes.forEach((node: CentralityNode) => {
+      sections.push(`- ${node.palaceName}（第${node.palace}宮）：入度 ${node.inDegree}、出度 ${node.outDegree}`);
+    });
+  }
+
+  if (sihuaAggregation.powerNodes.length > 0) {
+    sections.push('\n**權力中心**（高權出度）');
+    sihuaAggregation.powerNodes.forEach((node: CentralityNode) => {
+      sections.push(`- ${node.palaceName}（第${node.palace}宮）：入度 ${node.inDegree}、出度 ${node.outDegree}`);
+    });
+  }
+
+  if (sihuaAggregation.fameNodes.length > 0) {
+    sections.push('\n**名聲中心**（高科出度）');
+    sihuaAggregation.fameNodes.forEach((node: CentralityNode) => {
+      sections.push(`- ${node.palaceName}（第${node.palace}宮）：入度 ${node.inDegree}、出度 ${node.outDegree}`);
+    });
   }
 
   return sections.join('\n');
@@ -529,8 +549,8 @@ function formatAnnualFortune(result: CalculationResult): string {
     sections.push(`- **干支**：${annualFortune.annualPillar.stem}${annualFortune.annualPillar.branch}`);
 
     // Annual Life Palace
-    if (annualFortune.annualLifePalace !== undefined && annualFortune.annualLifePalace >= 0) {
-      sections.push(`- **流年命宮**：第${annualFortune.annualLifePalace}宮`);
+    if (annualFortune.annualLifePalaceIndex !== undefined && annualFortune.annualLifePalaceIndex >= 0) {
+      sections.push(`- **流年命宮**：第${annualFortune.annualLifePalaceIndex}宮`);
     }
   }
 
@@ -542,7 +562,7 @@ function formatAnnualFortune(result: CalculationResult): string {
     if (interactions.stemCombinations && interactions.stemCombinations.length > 0) {
       sections.push('\n### 天干五合');
       interactions.stemCombinations.forEach(combo => {
-        sections.push(`- ${combo.stem1} + ${combo.stem2} → ${combo.result}（${combo.severity}）`);
+        sections.push(`- ${combo.pillar}柱合化（${combo.element}）`);
       });
     }
 
@@ -550,7 +570,7 @@ function formatAnnualFortune(result: CalculationResult): string {
     if (interactions.branchClashes && interactions.branchClashes.length > 0) {
       sections.push('\n### 地支六沖');
       interactions.branchClashes.forEach(clash => {
-        sections.push(`- ${clash.branch1} ⚔ ${clash.branch2}（${clash.severity}）`);
+        sections.push(`- ${clash.pillar}柱六沖（${clash.severity}）`);
       });
     }
 
@@ -558,7 +578,7 @@ function formatAnnualFortune(result: CalculationResult): string {
     if (interactions.harmoniousCombinations && interactions.harmoniousCombinations.length > 0) {
       sections.push('\n### 和諧組合');
       interactions.harmoniousCombinations.forEach(combo => {
-        sections.push(`- ${combo.type}：${combo.branches.join('、')} → ${combo.result}`);
+        sections.push(`- ${combo.type}：${combo.branches.join('、')} → ${combo.element}`);
       });
     }
   }
@@ -571,14 +591,13 @@ function formatAnnualFortune(result: CalculationResult): string {
     const violations: string[] = [];
     if (taiSuiAnalysis.zhi) {violations.push('值太歲');}
     if (taiSuiAnalysis.chong) {violations.push('沖太歲');}
-    if (taiSuiAnalysis.xing) {violations.push('刑太歲');}
+    if (taiSuiAnalysis.xing.hasXing) {violations.push('刑太歲');}
     if (taiSuiAnalysis.po) {violations.push('破太歲');}
     if (taiSuiAnalysis.hai) {violations.push('害太歲');}
 
     if (violations.length > 0) {
       sections.push(`- **犯太歲類型**：${violations.join('、')}`);
       sections.push(`- **嚴重程度**：${taiSuiAnalysis.severity}`);
-      sections.push(`- **總分**：${taiSuiAnalysis.score}`);
     } else {
       sections.push('- **無犯太歲**');
     }

@@ -3,8 +3,9 @@ import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useChartStore } from '@/stores/chartStore';
+import { Icon } from '@iconify/vue';
 import ServiceCard from '@/components/ServiceCard.vue';
-import DailyReminderCard from '@/components/DailyReminderCard.vue';
+import JourneyStep from '@/components/JourneyStep.vue';
 
 const router = useRouter();
 const chartStore = useChartStore();
@@ -12,7 +13,6 @@ const { t } = useI18n();
 
 // 檢測是否有保存的命盤
 const hasChart = computed(() => !!chartStore.currentChart?.chartId);
-const currentChartId = computed(() => chartStore.currentChart?.chartId);
 
 onMounted(() => {
   // 嘗試從 localStorage 載入歷史記錄
@@ -23,127 +23,133 @@ onMounted(() => {
 const services = computed(() => [
   {
     id: 'calculate',
-    icon: '📊',
-    title: t('home.services.calculate_title'),
-    desc: t('home.services.calculate_desc'),
+    icon: 'lucide:calculator',
+    title: t('home.services.calculate.title'),
+    desc: t('home.services.calculate.desc'),
     route: '/unified',
-    color: 'primary' as const,
+    color: '#8B4513',
+    badge: t('home.services.calculate.badge'),
   },
   {
-    id: 'dailyQuestion',
-    icon: '🦄',
-    title: t('home.services.dailyQuestion_title'),
-    desc: t('home.services.dailyQuestion_desc'),
-    route: '/daily-question',
-    color: 'info' as const,
-  },
-  {
-    id: 'personality',
-    icon: '💬',
-    title: t('home.services.personality_title'),
-    desc: t('home.services.personality_desc'),
+    id: 'ai-analysis',
+    icon: 'lucide:search',
+    title: t('home.services.aiAnalysis.title'),
+    desc: t('home.services.aiAnalysis.desc'),
     route: '/personality',
-    color: 'success' as const,
+    color: '#9370DB',
+    badge: t('home.services.aiAnalysis.badge'),
   },
   {
-    id: 'fortune',
-    icon: '🔮',
-    title: t('home.services.fortune_title'),
-    desc: t('home.services.fortune_desc'),
-    route: '/fortune',
-    color: 'warning' as const,
+    id: 'daily-question',
+    icon: 'lucide:message-circle',
+    title: t('home.services.dailyQuestion.title'),
+    desc: t('home.services.dailyQuestion.desc'),
+    route: '/daily-question',
+    color: '#D2691E',
+    badge: t('home.services.dailyQuestion.badge'),
   },
 ]);
 
 // 特色說明列表
 const features = computed(() => [
   {
-    icon: '💯',
+    icon: 'lucide:target',
     title: t('home.features.accurate_title'),
     desc: t('home.features.accurate_desc'),
   },
   {
-    icon: '💬',
+    icon: 'lucide:book-open',
     title: t('home.features.readable_title'),
     desc: t('home.features.readable_desc'),
   },
   {
-    icon: '⚡',
+    icon: 'lucide:zap',
     title: t('home.features.accessible_title'),
     desc: t('home.features.accessible_desc'),
   },
 ]);
 
-// 快速入口導航
-const quickStart = () => {
+// Journey Section 配置
+const journeySteps = computed(() => [
+  {
+    id: 'calculate',
+    icon: 'lucide:edit-3',
+    title: t('home.journey.step1.title'),
+    desc: t('home.journey.step1.desc'),
+  },
+  {
+    id: 'analyze',
+    icon: 'lucide:cpu',
+    title: t('home.journey.step2.title'),
+    desc: t('home.journey.step2.desc'),
+  },
+  {
+    id: 'companion',
+    icon: 'lucide:compass',
+    title: t('home.journey.step3.title'),
+    desc: t('home.journey.step3.desc'),
+  },
+]);
+
+// Hero Section & CTA 處理
+const handleStart = () => {
   router.push('/unified');
 };
 </script>
 
 <template>
   <div class="home-view">
-    <!-- Hero Section (主視覺區域) -->
+    <!-- Hero Section -->
     <section class="hero-section">
-      <div class="hero-content">
-        <h1 class="hero-title">{{ $t('home.title') }}</h1>
-        <p class="hero-subtitle">{{ $t('home.subtitle') }}</p>
-        <p class="hero-description">
-          {{ $t('home.description') }}
-        </p>
-      </div>
-    </section>
+      <div class="hero-container">
+        <!-- Glassmorphism 視覺元素 -->
+        <div class="hero-visual">
+          <div class="glass-container">
+            <Icon
+              icon="fluent-emoji-flat:unicorn"
+              width="180"
+              class="peixuan-avatar animate-float"
+            />
+          </div>
 
-    <!-- Services Section (服務卡片區域) -->
-    <section class="services-section">
-      <div class="section-container">
-        <h2 class="section-title">
-          {{ $t('home.sections.services') }}
-        </h2>
-        <div class="service-grid">
-          <ServiceCard
-            v-for="service in services"
-            :key="service.id"
-            :service="service"
+          <!-- 閃光效果 -->
+          <Icon
+            icon="lucide:sparkles"
+            class="sparkle sparkle-1 animate-twinkle"
+            width="56"
+          />
+          <Icon
+            icon="lucide:sparkles"
+            class="sparkle sparkle-2 animate-twinkle"
+            width="36"
           />
         </div>
-      </div>
-    </section>
 
-    <!-- Daily Reminder Section (每日運勢提醒區域) -->
-    <section v-if="currentChartId" class="daily-reminder-section">
-      <div class="section-container">
-        <h2 class="section-title">
-          {{ $t('home.sections.dailyReminder') }}
-        </h2>
-        <DailyReminderCard :chart-id="currentChartId" />
-      </div>
-    </section>
+        <!-- 文案區域 -->
+        <div class="hero-content">
+          <h1 class="hero-title">
+            {{ $t('home.hero.greeting') }}<br />
+            <span class="hero-subtitle">{{ $t('home.hero.tagline') }}</span>
+          </h1>
 
-    <!-- Quick Access Section (快速入口區域) -->
-    <section class="quick-access-section">
-      <div class="section-container">
-        <div class="quick-access-card">
-          <div v-if="hasChart" class="quick-access-content">
-            <h3 class="quick-access-title">
-              {{ $t('home.quick_access.welcome_title') }}
-            </h3>
-            <p class="quick-access-desc">
-              {{ $t('home.quick_access.welcome_desc') }}
-            </p>
-            <button class="quick-access-btn" @click="quickStart">
-              {{ $t('home.quick_access.welcome_btn') }}
-            </button>
-          </div>
-          <div v-else class="quick-access-content">
-            <h3 class="quick-access-title">
-              {{ $t('home.quick_access.start_title') }}
-            </h3>
-            <p class="quick-access-desc">
-              {{ $t('home.quick_access.start_desc') }}
-            </p>
-            <button class="quick-access-btn" @click="quickStart">
-              {{ $t('home.quick_access.start_btn') }}
-            </button>
+          <p class="hero-description">
+            {{ $t('home.hero.description') }}
+          </p>
+
+          <!-- Premium 按鈕 -->
+          <el-button
+            type="primary"
+            size="large"
+            class="btn-premium"
+            @click="handleStart"
+          >
+            {{ $t('home.hero.cta') }}
+          </el-button>
+
+          <!-- 隱私聲明 -->
+          <div class="privacy-badge">
+            <Icon icon="lucide:shield-check" width="16" />
+            <span>{{ $t('home.hero.privacy') }}</span>
           </div>
         </div>
       </div>
@@ -153,7 +159,7 @@ const quickStart = () => {
     <section class="features-section">
       <div class="section-container">
         <h2 class="section-title">
-          {{ $t('home.sections.features') }}
+          {{ $t('home.features.title') }}
         </h2>
         <div class="features-grid">
           <div
@@ -161,13 +167,111 @@ const quickStart = () => {
             :key="feature.title"
             class="feature-card"
           >
-            <div class="feature-icon">{{ feature.icon }}</div>
+            <div class="icon-container">
+              <Icon :icon="feature.icon" width="32" />
+            </div>
             <h3 class="feature-title">{{ feature.title }}</h3>
             <p class="feature-desc">{{ feature.desc }}</p>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- Services Section (服務卡片區域) -->
+    <section class="services-section">
+      <div class="section-container">
+        <h2 class="section-title">
+          {{ $t('home.services.title') }}
+        </h2>
+        <div class="services-grid">
+          <ServiceCard
+            v-for="service in services"
+            :key="service.id"
+            :service="service"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Journey Section -->
+    <section class="journey-section">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title">
+            {{ $t('home.journey.title') }}
+          </h2>
+          <p class="section-subtitle">
+            {{ $t('home.journey.subtitle') }}
+          </p>
+        </div>
+
+        <div class="journey-grid">
+          <!-- 連接線 (桌面版) -->
+          <div class="journey-line" />
+
+          <JourneyStep
+            v-for="(step, index) in journeySteps"
+            :key="step.id"
+            :step-number="index + 1"
+            :icon="step.icon"
+            :title="step.title"
+            :desc="step.desc"
+            :show-connector="index < journeySteps.length - 1"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+      <div class="section-container">
+        <div class="cta-card">
+          <!-- 背景裝飾 -->
+          <div class="cta-bg-decoration" />
+          <Icon
+            icon="fluent-emoji-flat:unicorn"
+            class="cta-bg-icon"
+            width="300"
+          />
+
+          <!-- 內容 -->
+          <div class="cta-content">
+            <h2 class="cta-title">
+              {{
+                hasChart
+                  ? $t('home.cta.returning.subtitle')
+                  : $t('home.cta.new.subtitle')
+              }}
+            </h2>
+            <p class="cta-desc">
+              {{
+                hasChart
+                  ? $t('home.cta.returning.desc')
+                  : $t('home.cta.new.desc')
+              }}
+            </p>
+
+            <el-button
+              type="primary"
+              size="large"
+              class="btn-premium"
+              @click="handleStart"
+            >
+              {{
+                hasChart
+                  ? $t('home.cta.returning.button')
+                  : $t('home.cta.new.button')
+              }}
+            </el-button>
+
+            <div class="cta-footer">
+              {{ $t('home.cta.footer') }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </div>
 </template>
 
@@ -177,95 +281,153 @@ const quickStart = () => {
   background: var(--bg-primary, #f7f8fa);
 }
 
-/* Hero Section */
+/* ========== Hero Section ========== */
 .hero-section {
-  background: linear-gradient(
-    135deg,
-    var(--primary-lightest) 0%,
-    var(--bg-secondary) 50%,
-    var(--primary-lightest) 100%
-  );
-  padding: var(--space-5xl, 3rem) var(--space-lg, 1.5rem);
-  text-align: center;
-  border-bottom: 1px solid var(--border-light);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3xl) var(--space-lg);
   position: relative;
   overflow: hidden;
+
+  /* 漸層背景 (採用雛形) */
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(147, 112, 219, 0.2),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      rgba(210, 105, 30, 0.1),
+      transparent 40%
+    ),
+    linear-gradient(135deg, #7c3aed 0%, var(--primary-color) 70%, #4a250a 100%);
 }
 
-/* 增加漸層裝飾效果 - Static on mobile for battery optimization */
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(
-    circle,
-    rgba(210, 105, 30, 0.05) 0%,
-    transparent 70%
-  );
-  opacity: 0.6;
-}
-
-/* Only animate on desktop with hover support */
-@media (hover: hover) and (min-width: 1024px) {
-  .hero-section::before {
-    animation: subtle-pulse 8s ease-in-out infinite;
-  }
-
-  @keyframes subtle-pulse {
-    0%,
-    100% {
-      transform: scale(1);
-      opacity: 0.5;
-    }
-    50% {
-      transform: scale(1.1);
-      opacity: 0.8;
-    }
-  }
-}
-
-.hero-content {
-  max-width: 800px;
+.hero-container {
+  max-width: 1200px;
   margin: 0 auto;
+  text-align: center;
   position: relative;
   z-index: 1;
 }
 
+/* ========== Glassmorphism 容器 ========== */
+.hero-visual {
+  position: relative;
+  display: inline-block;
+  margin-bottom: var(--space-3xl);
+}
+
+.glass-container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: 3rem;
+  box-shadow: var(--shadow-glass);
+  display: inline-block;
+}
+
+.peixuan-avatar {
+  display: block;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+}
+
+/* ========== 閃光效果 ========== */
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+}
+
+.sparkle-1 {
+  top: -2rem;
+  right: -2rem;
+  color: var(--peixuan-gold);
+}
+
+.sparkle-2 {
+  bottom: 1rem;
+  left: -2.5rem;
+  color: var(--peixuan-pink);
+  animation-delay: 2s;
+}
+
+/* ========== 文案樣式 ========== */
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 .hero-title {
-  font-size: var(--font-size-4xl, 2.25rem);
+  font-size: clamp(2.5rem, 8vw, 5rem);
   font-weight: var(--font-weight-bold);
-  color: var(--primary-color);
-  margin: 0 0 var(--space-lg, 1.5rem) 0;
+  color: var(--text-inverse);
   line-height: var(--line-height-tight);
-  background: linear-gradient(
-    135deg,
-    var(--primary-color),
-    var(--primary-light)
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-lg);
 }
 
 .hero-subtitle {
-  font-size: var(--font-size-xl, 1.25rem);
-  color: var(--primary-dark);
-  margin: 0 0 var(--space-xl, 2rem) 0;
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-normal);
+  display: block;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: var(--font-weight-semibold);
+  opacity: 0.8;
+  margin-top: var(--space-md);
 }
 
 .hero-description {
-  font-size: var(--font-size-base, 1rem);
-  color: var(--text-secondary);
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  color: rgba(255, 255, 255, 0.7);
   line-height: var(--line-height-relaxed);
-  margin: 0;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-bottom: var(--space-3xl);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ========== Premium 按鈕 ========== */
+.btn-premium {
+  /* 覆蓋 Element Plus 預設樣式 */
+  --el-button-bg-color: var(--peixuan-gold);
+  --el-button-border-color: var(--peixuan-gold);
+  --el-button-text-color: var(--primary-color);
+  --el-button-hover-bg-color: var(--peixuan-gold);
+  --el-button-hover-border-color: var(--peixuan-gold);
+  --el-button-hover-text-color: var(--primary-color);
+
+  font-weight: var(--font-weight-bold);
+  padding: 1.25rem 3.5rem !important;
+  border-radius: 2rem !important;
+  font-size: var(--font-size-xl) !important;
+  box-shadow: var(--shadow-premium);
+  transition: all var(--transition-slow) var(--ease-spring);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 56px;
+}
+
+.btn-premium:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: var(--shadow-premium-hover) !important;
+}
+
+.btn-premium:active {
+  transform: scale(0.98);
+}
+
+/* ========== 隱私聲明 ========== */
+.privacy-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-xl);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
 /* Section Container */
@@ -283,120 +445,130 @@ const quickStart = () => {
   margin: 0 0 var(--space-2xl, 3rem) 0;
 }
 
+/* ========== Journey Section ========== */
+.journey-section {
+  background: var(--bg-primary);
+  padding: var(--space-5xl, 8rem) 0;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: var(--space-4xl, 6rem);
+}
+
+.section-subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--text-tertiary);
+  margin-top: var(--space-md);
+}
+
+.journey-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-2xl, 3rem);
+  position: relative;
+}
+
+/* 連接線 (採用雛形設計) */
+.journey-line {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--peixuan-pink),
+    transparent
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
 /* Services Section */
 .services-section {
-  background: var(--bg-secondary, #ffffff);
-  padding: var(--space-2xl, 3rem) 0;
+  background: var(--bg-soft);
+  padding: var(--space-5xl) 0;
 }
 
-.service-grid {
+.services-grid {
   display: grid;
-  gap: var(--space-xl, 2rem);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-xl);
 }
 
-/* Daily Reminder Section */
-.daily-reminder-section {
-  background: var(--bg-primary, #f7f8fa);
-  padding: var(--space-2xl, 3rem) 0;
+/* CTA Section */
+.cta-section {
+  padding: var(--space-5xl) 0;
 }
 
-/* Quick Access Section */
-.quick-access-section {
-  background: var(--bg-primary, #f7f8fa);
-  padding: var(--space-2xl, 3rem) 0;
-}
-
-.quick-access-card {
-  background: linear-gradient(
-    135deg,
-    var(--primary-color) 0%,
-    var(--primary-light) 100%
-  );
-  border-radius: var(--radius-lg);
-  padding: var(--space-3xl);
+.cta-card {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: var(--text-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5xl) var(--space-3xl);
   text-align: center;
-  color: var(--text-inverse);
-  box-shadow: var(--shadow-orange);
   position: relative;
   overflow: hidden;
-  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-xl);
 }
 
-.quick-access-card::before {
-  content: '';
+/* 背景裝飾 */
+.cta-bg-decoration {
   position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 70%
-  );
-  opacity: 0.8;
+  top: -5rem;
+  left: -5rem;
+  width: 20rem;
+  height: 20rem;
+  background: radial-gradient(circle, rgba(147, 112, 219, 0.1), transparent);
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
 }
 
-/* Only animate on desktop - saves battery on mobile */
-@media (hover: hover) and (min-width: 1024px) {
-  .quick-access-card::before {
-    animation: rotate-gradient 10s linear infinite;
-  }
-
-  @keyframes rotate-gradient {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
+.cta-bg-icon {
+  position: absolute;
+  bottom: -5rem;
+  right: -5rem;
+  opacity: 0.05;
+  transform: rotate(-12deg);
+  pointer-events: none;
 }
 
-.quick-access-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(210, 105, 30, 0.25);
-}
-
-.quick-access-content {
+/* 內容 */
+.cta-content {
   position: relative;
   z-index: 1;
 }
 
-.quick-access-title {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
-  margin: 0 0 var(--space-md) 0;
+.cta-title {
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: var(--font-weight-bold);
   color: var(--text-inverse);
+  margin-bottom: var(--space-lg);
+  letter-spacing: -0.02em;
+  line-height: var(--line-height-tight);
 }
 
-.quick-access-desc {
-  font-size: var(--font-size-base);
-  margin: 0 0 var(--space-2xl) 0;
-  opacity: 0.95;
-  line-height: var(--line-height-normal);
-  color: var(--text-inverse);
+.cta-desc {
+  font-size: var(--font-size-xl);
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: var(--space-3xl);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: var(--line-height-relaxed);
 }
 
-.quick-access-btn {
-  background: var(--bg-secondary);
-  color: var(--primary-color);
-  border: none;
-  border-radius: var(--radius-md);
-  padding: var(--space-lg) var(--space-2xl);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  min-height: 44px;
-  min-width: 160px;
-  box-shadow: var(--shadow-sm);
-}
-
-.quick-access-btn:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: var(--shadow-md);
-  background: var(--text-inverse);
+.cta-footer {
+  margin-top: var(--space-xl);
+  font-size: 0.625rem;
+  font-weight: var(--font-weight-bold);
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
 }
 
 /* Features Section */
@@ -414,11 +586,32 @@ const quickStart = () => {
 .feature-card {
   text-align: center;
   padding: var(--space-lg, 1.5rem);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
 }
 
-.feature-icon {
-  font-size: 3rem;
-  margin-bottom: var(--space-md, 1rem);
+.feature-card:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-hover);
+}
+
+.feature-card .icon-container {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  color: var(--primary-color);
+  transition: all var(--transition-normal);
+}
+
+.feature-card:hover .icon-container {
+  box-shadow: var(--shadow-hover);
+  transform: scale(1.1);
 }
 
 .feature-title {
@@ -435,23 +628,35 @@ const quickStart = () => {
   margin: 0;
 }
 
-/* 響應式設計 */
-/* 移動版 (1 欄) */
+/* ========== 響應式 ========== */
 @media (max-width: 767px) {
   .hero-section {
-    padding: var(--space-3xl) var(--space-lg);
+    min-height: 80vh;
+    padding: var(--space-2xl) var(--space-lg);
   }
 
-  .hero-title {
-    font-size: var(--font-size-2xl);
+  .glass-container {
+    padding: 2rem;
   }
 
-  .hero-subtitle {
-    font-size: var(--font-size-lg);
+  .peixuan-avatar {
+    width: 120px;
+    height: 120px;
   }
 
-  .hero-description {
-    font-size: var(--font-size-sm);
+  .sparkle-1 {
+    width: 40px;
+    height: 40px;
+  }
+
+  .sparkle-2 {
+    width: 28px;
+    height: 28px;
+  }
+
+  .btn-premium {
+    width: 100%;
+    padding: 1rem 2rem !important;
   }
 
   .section-container {
@@ -463,8 +668,26 @@ const quickStart = () => {
     margin-bottom: var(--space-xl);
   }
 
-  .service-grid {
+  .journey-section {
+    padding: var(--space-3xl, 4rem) 0;
+  }
+
+  .journey-line {
+    display: none;
+  }
+
+  .journey-grid {
     grid-template-columns: 1fr;
+    gap: var(--space-xl, 2rem);
+  }
+
+  .services-section {
+    padding: var(--space-3xl) 0;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
   }
 
   .features-grid {
@@ -472,17 +695,16 @@ const quickStart = () => {
     gap: var(--space-lg);
   }
 
-  .quick-access-card {
-    padding: var(--space-2xl) var(--space-lg);
+  .cta-section {
+    padding: var(--space-3xl) 0;
   }
 
-  .quick-access-title {
-    font-size: var(--font-size-xl);
+  .cta-card {
+    padding: var(--space-3xl) var(--space-lg);
   }
 
-  .quick-access-btn {
+  .btn-premium {
     width: 100%;
-    min-width: auto;
   }
 }
 
@@ -496,7 +718,16 @@ const quickStart = () => {
     font-size: var(--font-size-3xl);
   }
 
-  .service-grid {
+  .journey-line {
+    display: none;
+  }
+
+  .journey-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+  }
+
+  .services-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -505,10 +736,10 @@ const quickStart = () => {
   }
 }
 
-/* 桌面版 (4 欄) */
+/* 桌面版 (3 欄) */
 @media (min-width: 1024px) {
-  .service-grid {
-    grid-template-columns: repeat(4, 1fr);
+  .services-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .features-grid {
@@ -516,22 +747,15 @@ const quickStart = () => {
   }
 }
 
-/* 無障礙增強 - 減少動畫 */
+/* ========== 無障礙 ========== */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation: none !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    transition-delay: 0ms !important;
+  .animate-float,
+  .animate-twinkle {
+    animation: none;
   }
 
-  /* Keep essential focus indicators for keyboard navigation */
-  :focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
+  .btn-premium:hover {
+    transform: none;
   }
 }
 </style>

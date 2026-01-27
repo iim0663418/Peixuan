@@ -10,6 +10,7 @@ import i18n from './i18n'; // 導入 i18n
 // 導入 Element Plus
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
+import './assets/styles/global.css';
 // 導入 Element Plus 繁體中文語言包
 import zhTw from 'element-plus/es/locale/lang/zh-tw';
 

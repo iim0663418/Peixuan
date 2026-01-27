@@ -70,7 +70,7 @@
 	 */
 	"env": {
 		"staging": {
-			"name": "peixuan-worker-staging",
+			"name": "peixuan-staging",
 			"compatibility_date": "2025-09-06",
 			"compatibility_flags": [
 				"nodejs_compat"
@@ -84,7 +84,7 @@
 				"AI_PROVIDER_TIMEOUT_MS": 45000,
 				"ENABLE_AI_FALLBACK": true,
 				// Analytics Configuration
-				"ENABLE_ANALYTICS_LOGGING": "false",
+				"ENABLE_ANALYTICS_LOGGING": "true",
 				"ANALYTICS_SAMPLE_RATE": "1.0"
 			},
 			"d1_databases": [

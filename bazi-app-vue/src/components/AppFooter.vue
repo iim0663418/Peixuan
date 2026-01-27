@@ -88,15 +88,16 @@
 
 <style scoped>
 .app-footer {
-  /* Added fallbacks for brand colors to ensure visibility in light mode */
+  /* Design system unified colors */
   background: linear-gradient(
     135deg,
-    var(--brand-brown) 0%,
-    var(--brand-brown-light) 100%
+    var(--primary-color) 0%,
+    var(--primary-light) 100%
   );
   color: white;
-  /* Added fallbacks for spacing variables */
   padding: var(--space-3xl) var(--space-2xl) var(--space-2xl);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
 }
 
 .footer-content {

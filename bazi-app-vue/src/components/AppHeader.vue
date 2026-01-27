@@ -275,7 +275,7 @@ const cycleTheme = () => {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 700;
-  color: var(--brand-brown);
+  color: var(--primary-color);
   transition: color 0.3s;
   white-space: nowrap;
   overflow: hidden;
@@ -327,7 +327,7 @@ const cycleTheme = () => {
 
 .nav-link {
   text-decoration: none;
-  color: var(--brand-brown);
+  color: var(--primary-color);
   font-weight: 600;
   padding: 0.5rem 1rem;
   border-radius: 20px;
@@ -385,7 +385,7 @@ button.mobile-nav-link {
   background: transparent;
   border: 1px solid var(--border-light);
   border-radius: 8px;
-  color: var(--brand-brown);
+  color: var(--primary-color);
   cursor: pointer;
   transition: all 0.3s ease-in-out;
 }
@@ -405,7 +405,7 @@ button.mobile-nav-link {
 .mobile-menu-button span {
   width: 24px;
   height: 3px;
-  background: var(--brand-brown);
+  background: var(--primary-color);
   transition: all 0.3s ease-in-out;
   border-radius: 2px;
 }
@@ -452,7 +452,7 @@ button.mobile-nav-link {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: var(--brand-brown);
+  color: var(--primary-color);
   font-weight: 600;
   padding: 1rem;
   min-height: 60px;

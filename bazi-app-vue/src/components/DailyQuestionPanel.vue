@@ -819,7 +819,7 @@ onUnmounted(() => {
 :deep(.daily-question-confirm-dialog) {
   border-radius: var(--radius-lg) !important;
   background: var(--bg-primary) !important;
-  box-shadow: 0 20px 40px var(--brand-brown-alpha-15) !important;
+  box-shadow: 0 20px 40px rgba(139, 69, 19, 0.15) !important;
   border: 1px solid var(--primary-alpha-20) !important;
 }
 

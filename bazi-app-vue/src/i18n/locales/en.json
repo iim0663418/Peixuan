@@ -358,32 +358,76 @@
     }
   },
   "home": {
+    "hero": {
+      "greeting": "Hi, I'm Peixuan",
+      "tagline": "Your AI Astrology Companion",
+      "description": "Blending traditional astrological wisdom with modern AI, I reveal your life's blueprint and guide you through every important choice.",
+      "cta": "Start Your Journey",
+      "privacy": "100% Anonymous • No Personal Data Collection"
+    },
+    "journey": {
+      "title": "Begin Your Exploration with Ease",
+      "subtitle": "Three steps to personalized life guidance",
+      "step1": {
+        "title": "Enter Your Data Mindfully",
+        "desc": "Provide your birth date and time—this is the first step to establish our connection."
+      },
+      "step2": {
+        "title": "AI Deep Decoding",
+        "desc": "Peixuan transforms complex chart data into essential life advice just for you."
+      },
+      "step3": {
+        "title": "Receive Life Guidance",
+        "desc": "Engage in deep conversation with Peixuan to resolve current confusion and see future clarity."
+      }
+    },
+    "services": {
+      "title": "Personalized Services",
+      "calculate": {
+        "title": "Core Chart",
+        "desc": "Foundational energy field analysis to understand your elemental personality and life structure.",
+        "badge": "Essential"
+      },
+      "aiAnalysis": {
+        "title": "Deep Insights",
+        "desc": "Career, wealth, and relationship forecasts with 10-year major cycles and annual details.",
+        "badge": "Advanced"
+      },
+      "dailyQuestion": {
+        "title": "On-Demand Consultation",
+        "desc": "Get astrological perspective on life's challenges anytime through AI guidance.",
+        "badge": "Interactive"
+      }
+    },
+    "cta": {
+      "new": {
+        "subtitle": "Ready to Meet a Better You?",
+        "desc": "Just a few mindful minutes of input, and Peixuan will open a journey deep into your inner self.",
+        "button": "Start Free Exploration Now"
+      },
+      "returning": {
+        "subtitle": "Welcome Back, Explorer",
+        "desc": "Peixuan has integrated the latest celestial movements to interpret today's energy flow for you.",
+        "button": "Enter Analysis Dashboard"
+      },
+      "footer": "Anonymous • No Personal Data • Professional Astrology AI"
+    },
     "title": "Peixuan Astrology Intelligence Platform",
     "subtitle": "Traditional Wisdom, Modern Precision",
     "description": "Professional analysis combining BaZi and Purple Star astrology, using AI technology to provide accessible astrological insights",
     "sections": {
       "services": "Services",
-      "dailyReminder": "Daily Fortune Reminder",
       "quickAccess": "Quick Access",
-      "features": "Platform Features"
-    },
-    "services": {
-      "calculate_title": "Chart Calculation",
-      "calculate_desc": "Dual analysis of BaZi and Purple Star astrology for comprehensive chart information",
-      "dailyQuestion_title": "Daily Question",
-      "dailyQuestion_desc": "Ask Peixuan for personalized astrological guidance 🦄",
-      "personality_title": "Peixuan Personality Analysis",
-      "personality_desc": "AI-driven deep personality insights to understand your true self",
-      "fortune_title": "Peixuan Fortune Analysis",
-      "fortune_desc": "Analyze yearly fortune, transformation energies, and future trends 💫"
+      "features": "Core Features"
     },
     "features": {
+      "title": "Platform Advantages",
       "accurate_title": "More Accurate",
       "accurate_desc": "Dual validation of BaZi and Purple Star for more reliable results",
       "readable_title": "Easier to Understand",
-      "readable_desc": "AI translates complex astrology into plain language",
+      "readable_desc": "I translate complex charts into life advice you can understand, like a heartfelt conversation between friends.",
       "accessible_title": "Always Accessible",
-      "accessible_desc": "Save your chart and access it anytime"
+      "accessible_desc": "Anonymous usage, no registration required. Chart data is stored with anonymous ID, contains no name or contact info, auto-deleted after 6 months."
     },
     "quick_access": {
       "welcome_title": "Welcome Back!",

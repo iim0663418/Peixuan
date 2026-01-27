@@ -96,7 +96,10 @@
   );
   color: white;
   padding: var(--space-3xl) var(--space-2xl) var(--space-2xl);
-  border-radius: var(--radius-md);
+  /* Full-width design with sharp corners */
+  border-radius: 0;
+  width: 100%;
+  margin: 0;
   box-shadow: var(--shadow-soft);
 }
 

@@ -40,6 +40,9 @@
       "register": "Member Register"
     }
   },
+  "status": {
+    "anonymous": "Anonymous Workspace"
+  },
   "dailyQuestion": {
     "title": "Daily Question",
     "subtitle": "Ask Peixuan for personalized astrological guidance",
@@ -53,13 +56,14 @@
     "askButton": "Ask Peixuan",
     "peixuanSays": "Peixuan says",
     "noChart": {
-      "title": "Chart Required",
+      "title": "No Chart Yet",
+      "subtitle": "Create one to chat with Peixuan",
+      "description": "Just birth date and time, start chatting in 30 seconds",
       "message": "Please calculate your birth chart first to ask Peixuan questions",
-      "description": "Please calculate your birth chart first to ask Peixuan questions",
       "calculateChart": "Calculate Chart",
-      "quickSetupTitle": "Quick Setup",
+      "quickSetupTitle": "Quick Chart Setup",
       "quickSetupDescription": "Just fill in your basic birth information to start asking Peixuan",
-      "quickSetupButton": "Start Setup"
+      "quickSetupButton": "Quick Setup"
     },
     "dailyLimit": {
       "title": "Daily Question Asked",
@@ -447,8 +451,9 @@
     "error_notice": "Unable to fetch fortune data, showing general reminder"
   },
   "personality": {
-    "title": "💝 Peixuan Personality Analysis",
-    "subtitle": "BaZi × Ten Gods × Purple Star × Deep Insights",
+    "title": "Deep Personality Analysis",
+    "subtitle": "Core Essence Analysis",
+    "whisper": "In the trajectory of stars, I see your courage. No matter how the external environment changes, remember to keep your inner purity, which is your strongest shield.",
     "recalc_notice": "✨ I recalculate daily! Come back often for new discoveries!",
     "loading_message": "Peixuan is analyzing your chart...",
     "loading_hint": "Let me take a closer look~ About half a minute ⏰",
@@ -471,8 +476,9 @@
     "cache_refresh_tooltip": "Regenerate analysis result"
   },
   "fortune": {
-    "title": "🔮 Peixuan Fortune Analysis",
-    "subtitle": "Transformation Stars × Annual Influences × Deep Insights",
+    "title": "Annual Fortune Insights",
+    "subtitle": "Annual Fortune Insights",
+    "whisper": "The energy of the year is paving the way for you. Keep your intuition sharp, those seemingly chance encounters are all arranged by fate.",
     "recalc_notice": "✨ I recalculate daily! Come back often for new discoveries!",
     "loading_message": "Peixuan is analyzing your fortune...",
     "loading_hint": "Let me take a closer look~ About half a minute ⏰",
@@ -553,13 +559,16 @@
   },
   "unifiedView": {
     "title": "Chart Calculation",
-    "result_title": "Calculation Results",
-    "dialog_title": "✨ Calculation Complete!",
-    "dialog_subtitle": "Choose your analysis type",
-    "personality_title": "Peixuan Personality Analysis",
-    "personality_desc": "Deep insights into your personality traits and talents",
-    "fortune_title": "Peixuan Fortune Analysis",
-    "fortune_desc": "View annual fortune and future trends",
+    "subtitle": "Enter birth info to explore your destiny together",
+    "result_title": "Your Chart Analysis",
+    "dialog_title": "Choose Analysis Type",
+    "dialog_subtitle": "I'm ready to dive deep with you",
+    "personality_title": "Personality Analysis",
+    "personality_desc": "Explore your talents, traits and essence together",
+    "fortune_title": "Fortune Analysis",
+    "fortune_desc": "Let me reveal your annual trends and opportunities",
+    "error_title": "Calculation Failed",
+    "error_retry": "Try Again",
     "dailyQuestion_desc": "Ask Peixuan for personalized guidance",
     "later_button": "Maybe Later",
     "messages": {

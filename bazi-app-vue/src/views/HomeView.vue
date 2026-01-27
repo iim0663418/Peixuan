@@ -271,7 +271,6 @@ const handleStart = () => {
         </div>
       </div>
     </section>
-
   </div>
 </template>
 

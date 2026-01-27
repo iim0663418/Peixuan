@@ -351,6 +351,18 @@
   --glass-border: rgba(255, 255, 255, 0.2);
   --glass-blur: 20px;
 
+  /* Enhanced Glassmorphism (from prototype) */
+  --glass-blur-enhanced: 24px;
+  --glass-saturate: 160%;
+  --shadow-glass-deep: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+
+  /* Enhanced Glassmorphism v2 (from UnifiedView prototype) */
+  --glass-saturate-enhanced: 180%;
+  --shadow-glass-deeper: 0 25px 60px -15px rgba(0, 0, 0, 0.1);
+
+  /* Bounce Easing (from prototype) */
+  --ease-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
   /* ===== 漸變色 Gradients ===== */
   --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --gradient-bg-subtle: linear-gradient(135deg, #fdfbfb 0%, #f7f8fa 100%);

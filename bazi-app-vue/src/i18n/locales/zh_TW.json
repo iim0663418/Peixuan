@@ -37,6 +37,9 @@
       "register": "會員註冊"
     }
   },
+  "status": {
+    "anonymous": "匿名使用空間"
+  },
   "dailyQuestion": {
     "title": "每日問答",
     "subtitle": "向佩璇提問，獲得專屬的命理指導",
@@ -50,13 +53,14 @@
     "askButton": "問佩璇",
     "peixuanSays": "佩璇說",
     "noChart": {
-      "title": "需要先計算命盤",
+      "title": "還沒有命盤呢",
+      "subtitle": "建立後就能向佩璇提問囉",
+      "description": "只需要出生日期和時間，30 秒就能開始對話",
       "message": "請先計算您的命盤，才能向佩璇提問",
-      "description": "請先計算您的命盤，才能向佩璇提問",
       "calculateChart": "計算命盤",
-      "quickSetupTitle": "快速設定",
+      "quickSetupTitle": "快速建立命盤",
       "quickSetupDescription": "只需填寫基本出生資料，即可開始向佩璇提問",
-      "quickSetupButton": "開始設定"
+      "quickSetupButton": "快速設定"
     },
     "dailyLimit": {
       "title": "今日已提問",
@@ -407,8 +411,9 @@
     "error_notice": "暫時無法取得運勢資料,顯示通用提醒"
   },
   "personality": {
-    "title": "💝 佩璇性格分析",
-    "subtitle": "八字 × 十神 × 紫微 × 深度解讀",
+    "title": "深度性格天賦分析",
+    "subtitle": "Core Essence Analysis",
+    "whisper": "在星辰的軌跡中，我看到了你的勇氣。無論外在環境如何變動，記得保持內心的純粹，那是你最強大的護盾。",
     "recalc_notice": "✨ 我每天都會重新幫你算一次喔～記得常回來看看，說不定會有新發現呢！",
     "loading_message": "佩璇正在分析你的命盤...",
     "loading_hint": "讓我仔細看看～大概需要半分鐘喔 ⏰",
@@ -431,8 +436,9 @@
     "cache_refresh_tooltip": "重新生成分析結果"
   },
   "fortune": {
-    "title": "🔮 佩璇運勢分析",
-    "subtitle": "四化飛星 × 流年太歲 × 深度解讀",
+    "title": "流年運勢深度洞察",
+    "subtitle": "Annual Fortune Insights",
+    "whisper": "流年的能量正在為你鋪路。保持敏銳的直覺，那些看似偶然的相遇，都是命運的安排。",
     "recalc_notice": "✨ 我每天都會重新幫你算一次喔～記得常回來看看，說不定會有新發現呢！",
     "loading_message": "佩璇正在分析你的運勢...",
     "loading_hint": "讓我仔細看看～大概需要半分鐘喔 ⏰",
@@ -513,13 +519,16 @@
   },
   "unifiedView": {
     "title": "命盤計算",
-    "result_title": "計算結果",
-    "dialog_title": "✨ 計算完成！",
-    "dialog_subtitle": "選擇您想要的分析類型",
-    "personality_title": "佩璇性格分析",
-    "personality_desc": "深入了解你的性格特質與天賦",
-    "fortune_title": "佩璇運勢分析",
-    "fortune_desc": "查看流年運勢與未來趨勢",
+    "subtitle": "輸入出生資訊，讓我們一起探索命運軌跡",
+    "result_title": "您的命盤解析",
+    "dialog_title": "選擇分析類型",
+    "dialog_subtitle": "我已經準備好為你深入解讀囉",
+    "personality_title": "性格分析",
+    "personality_desc": "一起探索你的天賦、隱藏性格與靈魂本質",
+    "fortune_title": "運勢分析",
+    "fortune_desc": "讓我為你洞察近期的流年運勢與人生機遇",
+    "error_title": "計算失敗",
+    "error_retry": "重新計算",
     "dailyQuestion_desc": "向佩璇提問，獲得專屬指導",
     "later_button": "稍後再說",
     "messages": {

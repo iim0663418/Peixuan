@@ -242,6 +242,9 @@ const cycleTheme = () => {
   position: sticky;
   top: 0;
   z-index: 100;
+  /* Full-width design with sharp corners */
+  border-radius: 0;
+  width: 100%;
 }
 
 .navbar {

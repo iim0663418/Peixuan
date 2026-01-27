@@ -1,17 +1,20 @@
 <script setup lang="ts">
+/* eslint-disable no-undef */
+// Browser APIs: IntersectionObserver, AbortController, TextDecoder
+/* eslint-disable complexity, max-depth, max-lines */
+// SSE streaming logic requires complex state management
+
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useChartStore } from '@/stores/chartStore';
 import { parseReportMarkdown } from '@/utils/markdown';
-import { setupKeywordHighlighting } from '@/utils/keywordHighlighting';
 import QuickSetupForm from '@/components/QuickSetupForm.vue';
 import AnalysisSkeleton from '@/components/AnalysisSkeleton.vue';
 import CacheIndicator from '@/components/CacheIndicator.vue';
-import './UnifiedAIAnalysisView.css';
+import { Icon } from '@iconify/vue';
 
 // Phase 3: Intersection Observer for scroll-triggered animations
-// eslint-disable-next-line no-undef
 let intersectionObserver: IntersectionObserver | null = null;
 
 const router = useRouter();
@@ -183,7 +186,7 @@ const startStreaming = async () => {
               displayedText.value = analysisText.value;
               progress.value = Math.min(progress.value + 2, 95);
             }
-          } catch (parseErr) {
+          } catch {
             // Ignore parse errors for malformed lines
             console.debug('[SSE] Parse error for line:', line);
           }
@@ -199,119 +202,12 @@ const startStreaming = async () => {
 
 const showQuickSetupModal = ref(false);
 
-const goBack = () => {
-  router.push({ name: 'unified' });
-};
-
-const openQuickSetup = () => {
-  showQuickSetupModal.value = true;
-};
-
 const handleChartCreated = () => {
   showQuickSetupModal.value = false;
   chartStore.loadFromLocalStorage();
   // Restart streaming with new chart
   if (chartStore.chartId) {
     startStreaming();
-  }
-};
-
-const handleForceRefresh = async () => {
-  const { chartId } = chartStore;
-  if (!chartId) {
-    return;
-  }
-
-  // Clear cache metadata
-  cacheTimestamp.value = null;
-  isCached.value = false;
-
-  // Restart streaming with force parameter
-  stopStreaming();
-  analysisText.value = '';
-  displayedText.value = '';
-  error.value = null;
-  isLoading.value = true;
-  progress.value = 0;
-
-  loadingMessage.value = t(`${i18nPrefix.value}.loading_message`);
-  loadingHint.value = t(`${i18nPrefix.value}.loading_hint`);
-
-  // Use fetch with streaming and force=true parameter
-  const { origin } = window.location;
-  const endpoints = getApiEndpoints();
-  const { stream } = endpoints;
-  const apiUrl = `${origin}${stream}?chartId=${chartId}&locale=${locale.value}&force=true`;
-
-  // Create new AbortController for this stream
-  streamAbortController = new AbortController();
-
-  try {
-    const response = await fetch(apiUrl, {
-      signal: streamAbortController.signal,
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    const reader = response.body?.getReader();
-    if (!reader) {
-      throw new Error('No response body');
-    }
-
-    const decoder = new TextDecoder();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        console.log('[SSE] Stream completed (force refresh)');
-        progress.value = 100;
-        isLoading.value = false;
-        // Update cache timestamp to now
-        cacheTimestamp.value = new Date().toISOString();
-        isCached.value = true;
-        break;
-      }
-
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
-
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          try {
-            const eventData = line.slice(6);
-
-            // Check for [DONE] signal
-            if (eventData === '[DONE]') {
-              continue;
-            }
-
-            const data = JSON.parse(eventData);
-
-            if (data.error) {
-              console.error('[SSE] Backend error:', data.error);
-              error.value = data.error;
-              isLoading.value = false;
-              return;
-            }
-
-            if (data.text) {
-              analysisText.value += data.text;
-              displayedText.value = analysisText.value;
-              progress.value = Math.min(progress.value + 2, 95);
-            }
-          } catch (parseErr) {
-            // Ignore parse errors for malformed lines
-            console.debug('[SSE] Parse error for line:', line);
-          }
-        }
-      }
-    }
-  } catch (err) {
-    console.error('[SSE] Connection error:', err);
-    error.value = t(`${i18nPrefix.value}.error_connection`);
-    isLoading.value = false;
   }
 };
 
@@ -341,7 +237,6 @@ const setupScrollAnimations = () => {
   }
 
   // Create Intersection Observer
-  // eslint-disable-next-line no-undef
   intersectionObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -406,95 +301,571 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="ai-analysis-view">
-    <!-- Phase 2: Atmospheric Background Effects -->
-    <div class="atmospheric-bg" aria-hidden="true">
-      <div class="floating-orb orb-1" />
-      <div class="floating-orb orb-2" />
-      <div class="floating-orb orb-3" />
+  <div class="unified-ai-analysis-view">
+    <!-- 背景漸層 -->
+    <div class="view-bg" />
+
+    <div class="container-full">
+      <!-- 主要內容區域 -->
+      <div class="content-grid">
+        <!-- 左側：分析報告 -->
+        <main class="main-content">
+          <!-- 錯誤狀態 -->
+          <div v-if="error" class="glass-card error-card" role="alert">
+            <Icon
+              icon="mdi:alert-circle-outline"
+              width="64"
+              class="error-icon"
+            />
+            <h2 class="error-title">分析中斷了</h2>
+            <p class="error-message">{{ error }}</p>
+            <el-button
+              type="primary"
+              size="large"
+              class="retry-btn"
+              @click="startStreaming"
+            >
+              重新連接星塵
+            </el-button>
+          </div>
+
+          <!-- 主內容卡片 -->
+          <div v-else class="glass-card main-card">
+            <!-- 標題區 -->
+            <div class="card-header">
+              <div class="icon-container">
+                <Icon
+                  :icon="
+                    analysisType === 'personality'
+                      ? 'mdi:account-star'
+                      : 'mdi:crystal-ball'
+                  "
+                  width="48"
+                  role="img"
+                  :aria-label="$t(`${i18nPrefix}.title`)"
+                />
+              </div>
+              <div class="header-text">
+                <p class="header-subtitle">
+                  {{ $t(`${i18nPrefix}.subtitle`) }}
+                </p>
+                <h1 class="header-title">{{ $t(`${i18nPrefix}.title`) }}</h1>
+              </div>
+            </div>
+
+            <!-- 載入中 (骨架屏) -->
+            <AnalysisSkeleton v-if="isLoading" />
+
+            <!-- 分析內容 -->
+            <div v-else class="analysis-content">
+              <!-- Markdown 渲染 -->
+              <!-- eslint-disable-next-line vue/no-v-html -->
+              <div
+                class="markdown-body"
+                aria-live="polite"
+                v-html="renderMarkdown(displayedText)"
+              />
+
+              <!-- 快取指示器 -->
+              <CacheIndicator
+                v-if="isCached && cacheTimestamp"
+                :timestamp="cacheTimestamp"
+                :analysis-type="analysisType"
+                @refresh="startStreaming"
+              />
+            </div>
+          </div>
+        </main>
+
+        <!-- 右側：佩璇互動區 -->
+        <aside class="sidebar">
+          <div class="sidebar-sticky">
+            <div class="peixuan-whisper">
+              <Icon
+                icon="fluent-emoji-flat:unicorn"
+                width="64"
+                class="whisper-icon"
+                role="img"
+                aria-label="佩璇形象"
+              />
+              <h4 class="whisper-title">佩璇的悄悄話</h4>
+              <div class="whisper-text">
+                {{ $t(`${i18nPrefix}.whisper`) }}
+              </div>
+            </div>
+
+            <!-- 返回按鈕 -->
+            <el-button class="back-btn" @click="router.push('/unified')">
+              <Icon icon="lucide:arrow-left" width="18" />
+              返回命盤
+            </el-button>
+          </div>
+        </aside>
+      </div>
     </div>
-    <div class="container">
-      <!-- 標題區域 -->
-      <div class="header">
-        <button class="back-btn" @click="goBack">
-          {{ $t(`${i18nPrefix}.btn_back`) }}
-        </button>
-        <h1 class="title">
-          {{ $t(`navigation.${analysisType}`) }}
-        </h1>
-        <p class="subtitle">
-          {{ $t(`${i18nPrefix}.subtitle`) }}
-        </p>
-      </div>
 
-      <!-- 重新計算提醒橫幅 -->
-      <div class="recalc-notice">
-        {{ $t(`${i18nPrefix}.recalc_notice`) }}
-      </div>
-
-      <!-- 載入狀態 -->
-      <div v-if="isLoading" class="loading">
-        <p class="loading-text">
-          {{ loadingMessage }}
-        </p>
-        <p class="loading-hint">
-          {{ loadingHint }}
-        </p>
-        <AnalysisSkeleton />
-      </div>
-
-      <!-- 錯誤狀態 -->
-      <div v-else-if="error" class="error">
-        <div class="error-icon">💫</div>
-        <h3>{{ $t(`${i18nPrefix}.error_no_chart_title`) }}</h3>
-        <p class="error-message">
-          {{ error }}
-        </p>
-        <div class="error-actions">
-          <button class="quick-setup-btn" @click="openQuickSetup">
-            {{ $t('dailyQuestion.noChart.quickSetupButton') }}
-          </button>
-          <button class="retry-btn secondary" @click="goBack">
-            {{ $t(`${i18nPrefix}.btn_go_calculate`) }}
-          </button>
-        </div>
-      </div>
-
-      <!-- 分析內容 -->
-      <div v-else class="analysis-content">
-        <!-- Cache Indicator -->
-        <CacheIndicator
-          v-if="isCached && cacheTimestamp"
-          :timestamp="cacheTimestamp"
-          :analysis-type="analysisType"
-          @refresh="handleForceRefresh"
-        />
-
-        <!-- 進度條 -->
-        <div v-if="progress < 100" class="progress-bar">
-          <div class="progress-fill" :style="{ width: `${progress}%` }" />
-        </div>
-
-        <!-- Markdown 渲染 -->
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <div
-          class="markdown-body markdown-content"
-          v-html="renderMarkdown(displayedText)"
-        />
-      </div>
-
-      <!-- Quick Setup Modal -->
-      <el-dialog
-        v-model="showQuickSetupModal"
-        :title="$t('dailyQuestion.noChart.quickSetupTitle')"
-        width="90%"
-        :style="{ maxWidth: '600px' }"
-        center
-      >
-        <QuickSetupForm @chart-created="handleChartCreated" />
-      </el-dialog>
-    </div>
+    <!-- Quick Setup Modal -->
+    <el-dialog
+      v-model="showQuickSetupModal"
+      :title="$t('dailyQuestion.noChart.quickSetupTitle')"
+      width="90%"
+      :style="{ maxWidth: '600px' }"
+      center
+      append-to-body
+    >
+      <QuickSetupForm @chart-created="handleChartCreated" />
+    </el-dialog>
   </div>
 </template>
 
-<style src="./UnifiedAIAnalysisView.css" scoped></style>
+<style scoped>
+/* ========== 容器 ========== */
+.unified-ai-analysis-view {
+  position: relative;
+  min-height: 100vh;
+}
+
+.view-bg {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(147, 112, 219, 0.1),
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      rgba(210, 105, 30, 0.08),
+      transparent 50%
+    ),
+    linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+  z-index: -1;
+}
+
+html.dark .view-bg {
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(147, 112, 219, 0.2),
+      transparent 50%
+    ),
+    linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.container-full {
+  min-height: 100vh;
+  padding: var(--space-3xl) var(--space-2xl) var(--space-2xl);
+  box-sizing: border-box;
+}
+
+/* ========== 雙欄佈局 ========== */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px; /* 縮小側邊欄 */
+  gap: var(--space-2xl);
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== Glassmorphism 卡片 ========== */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur))
+    saturate(var(--glass-saturate-enhanced));
+  -webkit-backdrop-filter: blur(var(--glass-blur))
+    saturate(var(--glass-saturate-enhanced));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3xl);
+  box-shadow: var(--shadow-glass);
+}
+
+.main-card {
+  border-radius: var(--radius-xl);
+}
+
+/* ========== 卡片標題 ========== */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+.icon-container {
+  width: 80px;
+  height: 80px;
+  background: rgba(147, 112, 219, 0.1);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-container :deep(svg) {
+  color: var(--peixuan-purple);
+}
+
+.header-text {
+  flex: 1;
+}
+
+.header-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--peixuan-purple);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.header-title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: var(--line-height-tight);
+}
+
+/* ========== 錯誤卡片 ========== */
+.error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-4xl);
+  text-align: center;
+  background: rgba(239, 68, 68, 0.05);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+html.dark .error-card {
+  background: rgba(69, 10, 10, 0.4);
+}
+
+.error-icon {
+  color: var(--color-error);
+}
+
+.error-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-error);
+  margin: 0;
+}
+
+.error-message {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.retry-btn {
+  --el-button-bg-color: var(--color-error);
+  --el-button-border-color: var(--color-error);
+  padding: var(--space-lg) var(--space-3xl) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+/* ========== 分析內容 ========== */
+.analysis-content {
+  line-height: 1.8;
+}
+
+.markdown-body {
+  font-size: 1.125rem; /* 18px - 最佳可讀性 */
+  line-height: 1.8; /* WCAG 建議 1.5-1.8 */
+  color: var(--text-primary);
+  max-width: 65ch; /* 最佳閱讀寬度 */
+  letter-spacing: 0.01em;
+}
+
+/* ========== 段落 ========== */
+.markdown-body :deep(p) {
+  margin-bottom: 1.5em; /* 2倍字體大小 */
+  line-height: 1.8;
+}
+
+/* ========== 標題層級 ========== */
+.markdown-body :deep(h1) {
+  font-size: 2em;
+  font-weight: 700;
+  margin: 1.5em 0 0.5em;
+  color: var(--peixuan-purple);
+  line-height: 1.3;
+}
+
+.markdown-body :deep(h2) {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin: 1.2em 0 0.4em;
+  color: var(--peixuan-purple);
+  line-height: 1.4;
+}
+
+.markdown-body :deep(h3) {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin: 1em 0 0.3em;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* ========== 列表 ========== */
+.markdown-body :deep(ul),
+.markdown-body :deep(ol) {
+  margin: 1em 0 1.5em;
+  padding-left: 2em;
+}
+
+.markdown-body :deep(li) {
+  margin-bottom: 0.5em;
+  line-height: 1.8;
+}
+
+.markdown-body :deep(li::marker) {
+  color: var(--peixuan-purple);
+  font-weight: 600;
+}
+
+/* ========== 引用區塊 ========== */
+.markdown-body :deep(blockquote) {
+  border-left: 4px solid var(--peixuan-purple);
+  padding-left: 1.5em;
+  margin: 1.5em 0;
+  font-style: italic;
+  opacity: 0.9;
+  background: rgba(147, 112, 219, 0.05);
+  padding: 1em 1.5em;
+  border-radius: 0.5rem;
+}
+
+/* ========== 代碼區塊 ========== */
+.markdown-body :deep(code) {
+  background: rgba(147, 112, 219, 0.1);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+  font-family: 'Courier New', monospace;
+}
+
+.markdown-body :deep(pre) {
+  background: rgba(147, 112, 219, 0.05);
+  padding: 1em;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5em 0;
+}
+
+.markdown-body :deep(pre code) {
+  background: none;
+  padding: 0;
+}
+
+/* ========== 連結 ========== */
+.markdown-body :deep(a) {
+  color: var(--peixuan-purple);
+  text-decoration: underline;
+  text-decoration-color: rgba(147, 112, 219, 0.3);
+  text-underline-offset: 0.2em;
+  transition: all 0.2s ease;
+}
+
+.markdown-body :deep(a:hover) {
+  text-decoration-color: var(--peixuan-purple);
+  text-shadow: 0 0 10px rgba(147, 112, 219, 0.3);
+}
+
+/* ========== 分隔線 ========== */
+.markdown-body :deep(hr) {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--peixuan-purple), transparent);
+  margin: 2em 0;
+  opacity: 0.3;
+}
+
+/* 粗體關鍵字高亮 - 2026 最佳實踐設計 */
+/* 使用 :deep() 穿透 scoped 限制，應用到 v-html 動態生成的元素 */
+.markdown-body :deep(b),
+.markdown-body :deep(strong) {
+  color: var(--peixuan-purple);
+  font-weight: 700;
+  /* 多層陰影創造深度和光暈效果 */
+  text-shadow: 
+    0 0 10px rgba(147, 112, 219, 0.4),
+    0 0 20px rgba(147, 112, 219, 0.3),
+    0 2px 4px rgba(147, 112, 219, 0.2);
+  /* 輕微放大強調 */
+  font-size: 1.05em;
+  letter-spacing: 0.02em;
+}
+
+/* 深色模式優化 */
+html.dark .markdown-body :deep(b),
+html.dark .markdown-body :deep(strong) {
+  color: #b794f6; /* 更亮的紫色 */
+  text-shadow: 
+    0 0 15px rgba(183, 148, 246, 0.6),
+    0 0 30px rgba(183, 148, 246, 0.4),
+    0 2px 6px rgba(183, 148, 246, 0.3);
+}
+
+html.dark .markdown-body :deep(h1),
+html.dark .markdown-body :deep(h2) {
+  color: #b794f6;
+}
+
+html.dark .markdown-body :deep(blockquote) {
+  background: rgba(183, 148, 246, 0.1);
+  border-left-color: #b794f6;
+}
+
+html.dark .markdown-body :deep(code) {
+  background: rgba(183, 148, 246, 0.15);
+}
+
+html.dark .markdown-body :deep(a) {
+  color: #b794f6;
+}
+
+/* ========== 側邊欄 ========== */
+.sidebar-sticky {
+  position: sticky;
+  top: calc(var(--space-3xl) + var(--space-lg));
+}
+
+.peixuan-whisper {
+  background: linear-gradient(135deg, var(--peixuan-purple), #7c3aed);
+  color: white;
+  padding: var(--space-xl); /* 從 2xl 改為 xl，更緊湊 */
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow: 0 20px 40px -10px rgba(124, 58, 237, 0.3);
+  margin-bottom: var(--space-lg);
+}
+
+/* 深色模式優化 */
+html.dark .peixuan-whisper {
+  background: linear-gradient(135deg, #6b21a8, #5b21b6);
+  box-shadow: 0 20px 40px -10px rgba(107, 33, 168, 0.5);
+}
+
+.whisper-icon {
+  margin-bottom: var(--space-lg);
+}
+
+.whisper-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-lg) 0;
+}
+
+.whisper-text {
+  background: rgba(255, 255, 255, 0.15);
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 深色模式優化 */
+html.dark .whisper-text {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.back-btn {
+  width: 100%;
+  height: 48px !important;
+  border-radius: var(--radius-lg) !important;
+  background: rgba(255, 255, 255, 0.6) !important;
+  border: none !important;
+}
+
+.back-btn:hover {
+  background: white !important;
+}
+
+/* 深色模式優化 */
+html.dark .back-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+html.dark .back-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ========== 響應式 ========== */
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-sticky {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  .container-full {
+    padding: var(--space-xl) var(--space-lg);
+  }
+
+  .glass-card {
+    padding: var(--space-xl);
+    border-radius: var(--radius-md);
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .icon-container {
+    width: 64px;
+    height: 64px;
+  }
+
+  .header-title {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+/* ========== 深色模式 ========== */
+html.dark .glass-card {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html.dark .header-subtitle {
+  color: var(--peixuan-pink);
+}
+
+html.dark .markdown-body {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ========== 無障礙 ========== */
+@media (prefers-reduced-motion: reduce) {
+  .content-grid {
+    animation: none;
+  }
+}
+</style>

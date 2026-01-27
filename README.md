@@ -1,6 +1,6 @@
 # 佩璇 (Peixuan) - 智慧命理分析平台
 
-![Version](https://img.shields.io/badge/version-1.2.2-blue.svg)
+![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)
 ![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-3.5-4FC08D.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6.svg)
@@ -11,9 +11,26 @@
 
 佩璇 (Peixuan) 是一個現代化的智慧命理分析平台，融合傳統中國命理學（八字四柱、紫微斗數）與先進的生成式 AI 技術 (Google Gemini)，透過 Cloudflare Workers 邊緣運算架構，為用戶提供快速、精準且富有洞察力的命運分析。
 
-## 🆕 最新更新 (v1.2.2 - 2026年1月)
+## 🆕 最新更新 (v1.3.0 - 2026年1月)
 
-### 🌙 深色模式系統完整修復
+### 🎨 前端 Glassmorphism 2.0 完整重構
+- **4 大頁面全面升級**: HomeView, DailyQuestionView, UnifiedView, UnifiedAIAnalysisView
+- **設計系統統一**: 使用 design-tokens.css 變數，確保視覺一致性
+- **Glassmorphism 效果**: blur 24px, saturate 180%, 深度陰影系統
+- **響應式設計**: 完整適配桌面 (1200px+)、平板 (768-1024px)、手機 (<768px)
+- **深色模式完善**: 所有組件完整適配，WCAG AA 對比度合規
+
+### 📝 Markdown 排版系統 (2026 最佳實踐)
+- **基礎排版**: 18px 字體, 1.8 行高, 65ch 最佳閱讀寬度
+- **段落系統**: 1.5em 間距, WCAG 合規
+- **標題層級**: H1-H3 紫色主題, 清晰視覺層級
+- **列表樣式**: 紫色標記, 2em 縮排, 0.5em 項目間距
+- **引用區塊**: 左邊框 + 半透明背景 + 圓角設計
+- **代碼區塊**: 行內/區塊樣式, 語法高亮支援
+- **連結樣式**: hover 光暈效果, 0.2s 過渡動畫
+- **粗體文字特效**: 3 層 text-shadow 光暈, 紫色主題, 1.05em 放大
+
+### 🌙 深色模式系統完整修復 (v1.2.2 延續)
 - **CSS 變數語法修復**: 修正 `design-tokens.css` 中的 CSS 選擇器語法錯誤
 - **選擇器統一**: 18個文件統一使用 `html.dark` 選擇器，確保一致性
 - **Element Plus 整合**: 完全相容 Element Plus 官方深色模式標準

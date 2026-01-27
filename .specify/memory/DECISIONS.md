@@ -109,6 +109,12 @@
 - **性能優化**: 連續動畫改用 iteration-count: 1，保留入場動畫
 - **狀態**: ✓ 全面修復完成，生產環境部署中
 
+- [DECISION] 2026-01-27: 前端 Glassmorphism 2.0 完整重構完成。4大頁面全面升級：HomeView v2.0, DailyQuestionView v2.1, UnifiedView v2.2, UnifiedAIAnalysisView v2.3。設計系統統一使用 design-tokens.css，Markdown 排版系統採用 2026 最佳實踐，深色模式完整適配。刪除 Legacy 檔案，代碼庫清理完成。
+
+- [DECISION] 2026-01-27: Markdown 排版系統完整實施。基於 2026 最佳實踐：18px 字體、1.8 行高、65ch 閱讀寬度、段落 1.5em 間距、標題層級紫色主題、列表紫色標記、引用區塊半透明背景、代碼區塊樣式、連結 hover 光暈、粗體 3 層 text-shadow。使用 :deep() 選擇器穿透 scoped CSS 限制。
+
+- [DECISION] 2026-01-27: UnifiedAIAnalysisView 重構完成。雙欄佈局 (主內容 + 側邊欄 280px)、佩璇悄悄話互動區、移除無 API 支援功能 (PDF/分享/後續提問)、保留核心功能 (SSE 串流/Markdown/快取)、完整深色模式適配、刪除獨立 CSS 檔案整合到 scoped styles。
+
 - [DECISION] 2025-12-21: CSS 動畫移動端修復完成。移除激進 !important，統一 will-change 管理，補齊無障礙支援，全面 iOS Safari 兼容。用戶體驗問題已解決。
 
 - [DECISION] 2025-12-21: 兩環境配置完善完成。生產環境補上 ENVIRONMENT secret，修正 staging 環境 vars 配置警告，創建重建腳本。配置現已完全一致。

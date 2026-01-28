@@ -223,3 +223,9 @@ ProductionReady|stat|Verified
 260127|DesignTokens|ver|EnhancedGlassmorphismAdded
 260127|i18n|ver|DailyQuestionOptimized
 260127|Iconify|ver|UnicornSparklesIntegrated
+260128|bug|DailyQuestionLogsTextOverflow
+AnalyticsService|fix|FinalAnswerTruncation2000Chars
+D1Schema|ver|TextFieldLengthHandling
+260128|infra|RemoteStagingD1Migration0004Applied
+daily_question_logs|stat|RemoteTableCreated
+agent_execution_traces|stat|RemoteTableCreated

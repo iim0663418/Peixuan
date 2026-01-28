@@ -22,6 +22,12 @@ export interface AnalyticsPayload {
   }>;
 }
 
+function truncateText(text: string | null | undefined, maxLength: number): string | null {
+  if (text == null) return null;
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength - 3) + "...";
+}
+
 export class AnalyticsService {
   constructor(private db: DrizzleD1Database<typeof schema>) {}
 
@@ -29,12 +35,11 @@ export class AnalyticsService {
     const logId = crypto.randomUUID();
 
     try {
-      // 1. 寫入主記錄
       await this.db.insert(dailyQuestionLogs).values({
         id: logId,
         chartId: payload.chartId,
-        question: payload.question,
-        finalAnswer: payload.finalAnswer,
+        question: truncateText(payload.question, 500),
+        finalAnswer: truncateText(payload.finalAnswer, 2000),
         isSuccess: payload.isSuccess,
         provider: payload.provider,
         model: payload.model,
@@ -43,23 +48,21 @@ export class AnalyticsService {
         totalLatencyMs: payload.totalLatencyMs,
       });
 
-      // 2. 寫入執行歷程 (如果有)
       if (payload.steps && payload.steps.length > 0) {
         const traces = payload.steps.map((step, index) => ({
           id: crypto.randomUUID(),
           logId,
           stepNumber: index,
-          thought: step.thought,
+          thought: truncateText(step.thought, 1000),
           action: step.toolName,
           actionInput: step.toolArgs ? JSON.stringify(step.toolArgs) : null,
-          observation: step.toolOutput,
+          observation: truncateText(step.toolOutput, 1000),
           stepLatencyMs: step.latency,
         }));
         await this.db.insert(agentExecutionTraces).values(traces);
       }
     } catch (error) {
       console.error('[Analytics] Failed to log interaction:', error);
-      // 靜默失敗：捕獲所有錯誤，確保不影響主流程
     }
   }
 

@@ -35663,6 +35663,11 @@ var init_advancedAnalysisCacheService = __esm({
 });
 
 // src/services/analyticsService.ts
+function truncateText(text2, maxLength) {
+  if (text2 == null) return null;
+  if (text2.length <= maxLength) return text2;
+  return text2.substring(0, maxLength - 3) + "...";
+}
 var AnalyticsService;
 var init_analyticsService = __esm({
   "src/services/analyticsService.ts"() {
@@ -35680,8 +35685,8 @@ var init_analyticsService = __esm({
           await this.db.insert(dailyQuestionLogs).values({
             id: logId,
             chartId: payload.chartId,
-            question: payload.question,
-            finalAnswer: payload.finalAnswer,
+            question: truncateText(payload.question, 500),
+            finalAnswer: truncateText(payload.finalAnswer, 2e3),
             isSuccess: payload.isSuccess,
             provider: payload.provider,
             model: payload.model,
@@ -35694,10 +35699,10 @@ var init_analyticsService = __esm({
               id: crypto.randomUUID(),
               logId,
               stepNumber: index2,
-              thought: step.thought,
+              thought: truncateText(step.thought, 1e3),
               action: step.toolName,
               actionInput: step.toolArgs ? JSON.stringify(step.toolArgs) : null,
-              observation: step.toolOutput,
+              observation: truncateText(step.toolOutput, 1e3),
               stepLatencyMs: step.latency
             }));
             await this.db.insert(agentExecutionTraces).values(traces);

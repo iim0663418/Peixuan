@@ -41,6 +41,29 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vue 核心
+          'vue-vendor': ['vue', 'vue-router', 'pinia'],
+          // Element Plus UI 庫 (分割成更小的塊)
+          'element-plus-core': ['element-plus'],
+          // Markdown 渲染
+          'markdown': ['marked'],
+          // 圖標庫
+          'iconify': ['@iconify/vue'],
+          // 農曆計算庫
+          'lunar': ['lunar-typescript'],
+          // HTTP 客戶端
+          'axios': ['axios'],
+          // i18n
+          'i18n': ['vue-i18n'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 900, // Element Plus 壓縮後約 285 KB，原始約 890 KB
+  },
   server: {
     proxy: {
       '/api': {

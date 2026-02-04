@@ -14,7 +14,9 @@
     "loading": "Loading...",
     "reset": "Reset",
     "error": "Error",
-    "period": "Period"
+    "period": "Period",
+    "cached": "Cached",
+    "generating": "Generating"
   },
   "theme": {
     "light": "Light Mode",
@@ -473,7 +475,9 @@
     "cache_minutes_ago": "{minutes} minutes ago",
     "cache_hours_ago": "{hours} hours ago",
     "cache_refresh": "Regenerate",
-    "cache_refresh_tooltip": "Regenerate analysis result"
+    "cache_refresh_tooltip": "Regenerate analysis result",
+    "encouragement_1": "Peixuan is thinking hard...",
+    "encouragement_2": "Almost done, just a moment!"
   },
   "fortune": {
     "title": "Annual Fortune Insights",
@@ -498,7 +502,9 @@
     "cache_minutes_ago": "{minutes} minutes ago",
     "cache_hours_ago": "{hours} hours ago",
     "cache_refresh": "Regenerate",
-    "cache_refresh_tooltip": "Regenerate fortune analysis"
+    "cache_refresh_tooltip": "Regenerate fortune analysis",
+    "encouragement_1": "Peixuan is thinking hard...",
+    "encouragement_2": "Almost done, just a moment!"
   },
   "annualFortune": {
     "yearlyForecast": {
@@ -555,7 +561,21 @@
     "candidate_select_placeholder": "Multiple addresses found, please select the most accurate one",
     "show_advanced": "Advanced Options",
     "hide_advanced": "Hide Advanced Options",
-    "submit_success": "Chart calculation successful!"
+    "submit_success": "Chart calculation successful!",
+    "location_input_hint_required": "Enter address to auto-fill coordinates",
+    "address_geocode_success": "Address resolved! Coordinates auto-filled",
+    "address_geocode_failed": "Address not found. Please check format or enter coordinates manually",
+    "address_or_coordinates_required": "Please enter birth location address or coordinates manually",
+    "longitude_invalid": "Longitude must be a valid number",
+    "longitude_range": "Longitude must be between -180 and 180",
+    "latitude_invalid": "Latitude must be a valid number",
+    "latitude_range": "Latitude must be between -90 and 90",
+    "validation_failed": "Form validation failed",
+    "birth_date_future": "Birth date cannot be a future date",
+    "birth_date_required": "Please select birth date",
+    "birth_time_required": "Please select birth time",
+    "birth_time_invalid": "Invalid time format, please use HH:mm (e.g., 14:30)",
+    "gender_required": "Please select gender"
   },
   "unifiedView": {
     "title": "Chart Calculation",

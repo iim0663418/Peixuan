@@ -11,7 +11,9 @@
     "settings": "設定",
     "submit": "提交",
     "cancel": "取消",
-    "period": "期間"
+    "period": "期間",
+    "cached": "快取讀取",
+    "generating": "AI 生成中"
   },
   "theme": {
     "light": "淺色模式",
@@ -433,7 +435,9 @@
     "cache_minutes_ago": "{minutes} 分鐘前",
     "cache_hours_ago": "{hours} 小時前",
     "cache_refresh": "重新分析",
-    "cache_refresh_tooltip": "重新生成分析結果"
+    "cache_refresh_tooltip": "重新生成分析結果",
+    "encouragement_1": "佩璇正在努力思考中...",
+    "encouragement_2": "快完成了，再等一下下！"
   },
   "fortune": {
     "title": "流年運勢深度洞察",
@@ -458,7 +462,9 @@
     "cache_minutes_ago": "{minutes} 分鐘前",
     "cache_hours_ago": "{hours} 小時前",
     "cache_refresh": "重新分析",
-    "cache_refresh_tooltip": "重新生成運勢分析"
+    "cache_refresh_tooltip": "重新生成運勢分析",
+    "encouragement_1": "佩璇正在努力思考中...",
+    "encouragement_2": "快完成了，再等一下下！"
   },
   "annualFortune": {
     "yearlyForecast": {
@@ -515,7 +521,21 @@
     "candidate_select_placeholder": "發現多個匹配地址，請選擇最準確的",
     "show_advanced": "進階選項",
     "hide_advanced": "隱藏進階選項",
-    "submit_success": "命盤計算成功！"
+    "submit_success": "命盤計算成功！",
+    "location_input_hint_required": "請輸入地址，系統將自動解析經緯度並填入座標",
+    "address_geocode_success": "地址解析成功！座標已自動填入",
+    "address_geocode_failed": "找不到匹配的地址，請檢查地址格式或手動輸入經緯度",
+    "address_or_coordinates_required": "請輸入出生地地址，或手動填寫經緯度",
+    "longitude_invalid": "經度必須是有效的數字",
+    "longitude_range": "經度必須在 -180 到 180 之間",
+    "latitude_invalid": "緯度必須是有效的數字",
+    "latitude_range": "緯度必須在 -90 到 90 之間",
+    "validation_failed": "表單驗證失敗",
+    "birth_date_future": "出生日期不能是未來日期",
+    "birth_date_required": "請選擇出生日期",
+    "birth_time_required": "請選擇出生時間",
+    "birth_time_invalid": "時間格式錯誤，請使用 HH:mm 格式（例如：14:30）",
+    "gender_required": "請選擇性別"
   },
   "unifiedView": {
     "title": "命盤計算",

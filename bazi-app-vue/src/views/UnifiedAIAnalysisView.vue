@@ -38,6 +38,25 @@ const loadingHint = ref('');
 const cacheTimestamp = ref<string | null>(null);
 const isCached = ref(false);
 
+// Phase 3: 載入開始時刻 + 鼓勵訊息
+const loadingStartTime = ref<number>(0);
+const encouragementTick = ref<number>(0); // 每秒跳動，觸發 computed 重算
+let encouragementInterval: ReturnType<typeof setInterval> | null = null;
+
+const encouragementMessage = computed(() => {
+  if (!isLoading.value || !loadingStartTime.value) {
+    return '';
+  }
+  const elapsed = encouragementTick.value - loadingStartTime.value;
+  if (elapsed > 20000) {
+    return t(`${i18nPrefix.value}.encouragement_2`);
+  }
+  if (elapsed > 10000) {
+    return t(`${i18nPrefix.value}.encouragement_1`);
+  }
+  return '';
+});
+
 // AbortController for canceling fetch streams
 let streamAbortController: AbortController | null = null;
 
@@ -99,6 +118,15 @@ const startStreaming = async () => {
   error.value = null; // Clear previous errors
   isLoading.value = true; // Set loading state
   progress.value = 0; // Reset progress
+
+  // Phase 3: 啟動鼓勵訊息計時器
+  loadingStartTime.value = Date.now();
+  if (encouragementInterval) {
+    clearInterval(encouragementInterval);
+  }
+  encouragementInterval = setInterval(() => {
+    encouragementTick.value = Date.now();
+  }, 1000);
 
   const { chartId } = chartStore;
 
@@ -211,6 +239,14 @@ const handleChartCreated = () => {
   }
 };
 
+// Phase 3: 停止鼓勵計時器
+watch(isLoading, (val) => {
+  if (!val && encouragementInterval) {
+    clearInterval(encouragementInterval);
+    encouragementInterval = null;
+  }
+});
+
 // Watch for analysisType changes to restart the stream
 watch(
   analysisType,
@@ -292,7 +328,11 @@ onMounted(() => {
 onUnmounted(() => {
   stopStreaming(); // Ensure stream is closed when component is unmounted
 
-  // Phase 3: Cleanup Intersection Observer
+  // Phase 3: Cleanup timers & observers
+  if (encouragementInterval) {
+    clearInterval(encouragementInterval);
+    encouragementInterval = null;
+  }
   if (intersectionObserver) {
     intersectionObserver.disconnect();
     intersectionObserver = null;
@@ -353,8 +393,83 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <!-- 載入中 (骨架屏) -->
-            <AnalysisSkeleton v-if="isLoading" />
+            <!-- 載入中 (增強骨架屏) -->
+            <div v-if="isLoading" class="loading-container">
+              <!-- 載入訊息區 -->
+              <div class="loading-header">
+                <!-- 動態圖標 -->
+                <div class="loading-icon" :class="{ cached: isCached }">
+                  <Icon
+                    :icon="
+                      isCached
+                        ? 'svg-spinners:ring-resize'
+                        : 'svg-spinners:3-dots-fade'
+                    "
+                    width="48"
+                    height="48"
+                    role="status"
+                    :aria-label="
+                      isCached ? $t('common.cached') : $t('common.generating')
+                    "
+                  />
+                </div>
+
+                <!-- 載入訊息與提示 -->
+                <p class="loading-message">{{ loadingMessage }}</p>
+                <p class="loading-hint">
+                  <Icon
+                    icon="lucide:clock"
+                    width="16"
+                    height="16"
+                    class="hint-icon"
+                  />
+                  {{ loadingHint }}
+                </p>
+
+                <!-- 狀態標籤 -->
+                <span class="loading-badge" :class="{ cached: isCached }">
+                  <Icon
+                    :icon="isCached ? 'lucide:database' : 'lucide:sparkles'"
+                    width="14"
+                    height="14"
+                  />
+                  {{ isCached ? $t('common.cached') : $t('common.generating') }}
+                </span>
+
+                <!-- 進度條（僅 AI 生成時） -->
+                <div v-if="!isCached" class="progress-section">
+                  <div
+                    class="progress-bar-container"
+                    role="progressbar"
+                    :aria-valuenow="progress"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                  >
+                    <div
+                      class="progress-bar"
+                      :style="{ width: progress + '%' }"
+                    />
+                  </div>
+                  <span class="progress-text">{{ progress }}%</span>
+                </div>
+
+                <!-- 鼓勵訊息 -->
+                <transition name="fade">
+                  <p v-if="encouragementMessage" class="encouragement-message">
+                    <Icon
+                      icon="fluent-emoji-flat:unicorn"
+                      width="20"
+                      height="20"
+                      class="encouragement-icon"
+                    />
+                    {{ encouragementMessage }}
+                  </p>
+                </transition>
+              </div>
+
+              <!-- 骨架屏 -->
+              <AnalysisSkeleton />
+            </div>
 
             <!-- 分析內容 -->
             <div v-else class="analysis-content">
@@ -581,9 +696,173 @@ html.dark .error-card {
   border-radius: var(--radius-lg) !important;
 }
 
+/* ========== 載入狀態 ========== */
+.loading-container {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.loading-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md, 12px);
+  padding: var(--space-xl, 24px) 0 var(--space-lg, 16px);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-lg, 16px);
+}
+
+/* 圖標 */
+.loading-icon {
+  color: var(--color-primary, #9370db);
+  filter: drop-shadow(0 0 12px rgba(147, 112, 219, 0.3));
+}
+
+.loading-icon.cached {
+  color: #34d399;
+  filter: drop-shadow(0 0 12px rgba(52, 211, 153, 0.3));
+}
+
+/* 訊息 */
+.loading-message {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+/* 提示 */
+.loading-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.hint-icon {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* 狀態標籤 */
+.loading-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(147, 112, 219, 0.12);
+  color: var(--color-primary, #9370db);
+  border: 1px solid rgba(147, 112, 219, 0.2);
+}
+
+.loading-badge.cached {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.2);
+}
+
+/* 進度條 */
+.progress-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.progress-bar-container {
+  flex: 1;
+  height: 6px;
+  background: rgba(147, 112, 219, 0.12);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary, #9370db),
+    var(--color-accent, #e8845c)
+  );
+  border-radius: 3px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 12px rgba(147, 112, 219, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+/* shimmer 光暈 */
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.progress-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+/* 鼓勵訊息 */
+.encouragement-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: var(--peixuan-purple, #9370db);
+  margin: 0;
+  font-style: italic;
+}
+
+.encouragement-icon {
+  flex-shrink: 0;
+}
+
+/* fade transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.4s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
 /* ========== 分析內容 ========== */
 .analysis-content {
   line-height: 1.8;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .markdown-body {
@@ -694,7 +973,12 @@ html.dark .error-card {
 .markdown-body :deep(hr) {
   border: none;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--peixuan-purple), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--peixuan-purple),
+    transparent
+  );
   margin: 2em 0;
   opacity: 0.3;
 }
@@ -706,7 +990,7 @@ html.dark .error-card {
   color: var(--peixuan-purple);
   font-weight: 700;
   /* 多層陰影創造深度和光暈效果 */
-  text-shadow: 
+  text-shadow:
     0 0 10px rgba(147, 112, 219, 0.4),
     0 0 20px rgba(147, 112, 219, 0.3),
     0 2px 4px rgba(147, 112, 219, 0.2);
@@ -719,7 +1003,7 @@ html.dark .error-card {
 html.dark .markdown-body :deep(b),
 html.dark .markdown-body :deep(strong) {
   color: #b794f6; /* 更亮的紫色 */
-  text-shadow: 
+  text-shadow:
     0 0 15px rgba(183, 148, 246, 0.6),
     0 0 30px rgba(183, 148, 246, 0.4),
     0 2px 6px rgba(183, 148, 246, 0.3);
@@ -848,6 +1132,56 @@ html.dark .back-btn:hover {
   }
 }
 
+/* ========== 深色模式：載入狀態 ========== */
+html.dark .loading-header {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html.dark .loading-icon {
+  filter: drop-shadow(0 0 12px rgba(147, 112, 219, 0.5));
+}
+
+html.dark .loading-icon.cached {
+  filter: drop-shadow(0 0 12px rgba(52, 211, 153, 0.5));
+}
+
+html.dark .loading-message {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+html.dark .loading-hint {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+html.dark .loading-badge {
+  background: rgba(183, 148, 246, 0.15);
+  color: #b794f6;
+  border-color: rgba(183, 148, 246, 0.25);
+}
+
+html.dark .loading-badge.cached {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.25);
+}
+
+html.dark .progress-bar-container {
+  background: rgba(183, 148, 246, 0.15);
+}
+
+html.dark .progress-bar {
+  box-shadow: 0 0 12px rgba(183, 148, 246, 0.5);
+}
+
+html.dark .progress-text {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+html.dark .encouragement-message {
+  color: #b794f6;
+}
+
 /* ========== 深色模式 ========== */
 html.dark .glass-card {
   background: rgba(30, 41, 59, 0.7);
@@ -866,6 +1200,24 @@ html.dark .markdown-body {
 @media (prefers-reduced-motion: reduce) {
   .content-grid {
     animation: none;
+  }
+
+  .loading-container,
+  .analysis-content {
+    animation: none;
+  }
+
+  .progress-bar {
+    transition: width 3s ease;
+  }
+
+  .progress-bar::after {
+    animation: shimmer 3s infinite;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 3s ease;
   }
 }
 </style>

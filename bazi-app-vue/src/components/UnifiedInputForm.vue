@@ -16,6 +16,7 @@
         type="date"
         :placeholder="$t('unifiedForm.birth_date_placeholder')"
         value-format="YYYY-MM-DD"
+        @blur="validateField('birthDate')"
       />
     </el-form-item>
 
@@ -25,6 +26,7 @@
         :placeholder="$t('unifiedForm.birth_time_placeholder')"
         format="HH:mm"
         value-format="HH:mm"
+        @blur="validateField('birthTime')"
       />
     </el-form-item>
 
@@ -38,7 +40,11 @@
     </el-form-item>
 
     <!-- 地點輸入 (Autocomplete with Progressive Disclosure) -->
-    <el-form-item :label="$t('unifiedForm.location_input_label')">
+    <el-form-item
+      :label="$t('unifiedForm.location_input_label')"
+      prop="addressInput"
+      required
+    >
       <el-autocomplete
         v-model="addressInput"
         :fetch-suggestions="querySearch"
@@ -47,6 +53,7 @@
         clearable
         value-key="value"
         @select="handleLocationSelect"
+        @blur="validateField('addressInput')"
       >
         <template #default="{ item }">
           <div class="autocomplete-item">
@@ -58,7 +65,7 @@
       <!-- 說明文字與 Esri 歸屬聲明 -->
       <div class="field-hint">
         <el-text type="info" size="small">
-          {{ $t('unifiedForm.location_input_hint') }}
+          {{ $t('unifiedForm.location_input_hint_required') }}
         </el-text>
         <el-text class="esri-attribution" type="info" size="small">
           Powered by Esri
@@ -96,7 +103,6 @@
       <div v-show="showAdvancedOptions">
         <el-form-item
           :label="$t('unifiedForm.manual_coordinates_label')"
-          prop="location"
           class="location-form-item"
         >
           <div class="coordinate-inputs">
@@ -110,6 +116,7 @@
                   :max="180"
                   :step="0.000001"
                   class="coordinate-input"
+                  @blur="validateField('longitude')"
                 >
                   <template #prepend>{{
                     $t('unifiedForm.longitude')
@@ -127,6 +134,7 @@
                   :max="90"
                   :step="0.000001"
                   class="coordinate-input"
+                  @blur="validateField('latitude')"
                 >
                   <template #prepend>{{ $t('unifiedForm.latitude') }}</template>
                 </el-input>
@@ -211,7 +219,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { ElMessage } from 'element-plus';
 import { Lock, Check, Delete, ArrowDown } from '@element-plus/icons-vue';
 import { saveTimeZoneInfo, getTimeZoneInfo } from '../utils/storageService';
@@ -222,6 +231,8 @@ import {
   useGeocoding,
   type AutocompleteOption,
 } from '../composables/useGeocoding';
+
+const { t } = useI18n();
 
 const chartStore = useChartStore();
 
@@ -295,8 +306,21 @@ const emit = defineEmits(['submit']);
 
 const unifiedForm = ref();
 
-// 創建表單驗證規則
-const formRules = createFormRules(formData);
+// 創建表單驗證規則（驗證器透過閉包動態讀取當前值）
+const formRules = createFormRules(
+  {
+    get addressInput() {
+      return addressInput.value;
+    },
+    get longitude() {
+      return formData.longitude;
+    },
+    get latitude() {
+      return formData.latitude;
+    },
+  },
+  t,
+);
 
 // Autocomplete query search handler
 const querySearch = (
@@ -304,6 +328,15 @@ const querySearch = (
   cb: (results: AutocompleteOption[]) => void,
 ) => {
   queryAutocompleteSearch(queryString, cb, majorCities.value);
+};
+
+// 單一欄位驗證
+const validateField = async (fieldName: string) => {
+  try {
+    await unifiedForm.value?.validateField(fieldName);
+  } catch {
+    // 驗證失敗由 Element Plus 自動顯示內聯錯誤，無需額外處理
+  }
 };
 
 // Handle location selection from autocomplete
@@ -315,8 +348,34 @@ const handleLocationSelect = (item: AutocompleteOption) => {
     if (coords.timezone) {
       formData.timezone = coords.timezone;
     }
+    // 清除地址驗證錯誤（經緯度已填入）
+    nextTick(() => {
+      unifiedForm.value?.clearValidate('addressInput');
+    });
   }
 };
+
+// 監視地址輸入：解析失敗時智慧展開進階選項
+watch(
+  geocodeStatus,
+  (status) => {
+    if (status.type === 'danger' && status.message) {
+      // 地址解析失敗 → 更新訊息為引導用戶手動輸入的版本，並展開進階選項
+      geocodeStatus.message = t('unifiedForm.address_geocode_failed');
+      geocodeStatus.type = 'warning';
+      showAdvancedOptions.value = true;
+
+      nextTick(() => {
+        const coordinateInputs = document.querySelector('.coordinate-inputs');
+        coordinateInputs?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      });
+    }
+  },
+  { deep: true },
+);
 
 // Track if user has interacted with the form to prevent premature validation
 const hasUserInteracted = ref(false);
@@ -382,13 +441,34 @@ watch(
 );
 
 watch(
-  () => [formData.longitude, formData.latitude, formData.timezone],
+  () => [formData.longitude, formData.latitude],
   () => {
     if (unifiedForm.value && hasUserInteracted.value) {
-      unifiedForm.value.validateField('location');
+      // 經緯度變動時重新驗證地址欄位（可能從手動輸入經緯度來滿足條件）
+      unifiedForm.value.validateField('addressInput');
     }
   },
 );
+
+// 提取驗證錯誤中第一個具體訊息
+const extractFirstError = (
+  error: unknown,
+): { field: string; message: string } | null => {
+  if (error && typeof error === 'object') {
+    for (const [field, fieldErrors] of Object.entries(
+      error as Record<string, unknown>,
+    )) {
+      if (Array.isArray(fieldErrors) && fieldErrors.length > 0) {
+        const msg = (fieldErrors[0] as { message?: string })?.message;
+        return {
+          field,
+          message: msg || t('unifiedForm.validation_failed'),
+        };
+      }
+    }
+  }
+  return null;
+};
 
 const submitForm = async () => {
   if (!unifiedForm.value) {
@@ -398,13 +478,8 @@ const submitForm = async () => {
   try {
     const isValid = await unifiedForm.value.validate();
     if (isValid) {
-      if (!formData.birthDate || !formData.birthTime || !formData.gender) {
-        ElMessage.error('請填寫完整的出生資訊');
-        return;
-      }
-
       if (formData.longitude === null || formData.longitude === undefined) {
-        ElMessage.error('請提供出生地經度資訊');
+        ElMessage.error(t('unifiedForm.address_or_coordinates_required'));
         return;
       }
 
@@ -440,7 +515,18 @@ const submitForm = async () => {
     }
   } catch (error) {
     console.error('表單驗證失敗:', error);
-    ElMessage.error('表單驗證失敗，請檢查輸入資料');
+
+    const firstError = extractFirstError(error);
+    if (firstError) {
+      ElMessage.error(firstError.message);
+      // 滾動到第一個錯誤欄位
+      nextTick(() => {
+        const errorElement = document.querySelector('.is-error');
+        errorElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    } else {
+      ElMessage.error(t('unifiedForm.validation_failed'));
+    }
   }
 };
 </script>

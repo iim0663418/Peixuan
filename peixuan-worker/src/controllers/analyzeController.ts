@@ -156,11 +156,13 @@ export class AnalyzeController {
    * @returns ReadableStream in SSE format
    */
   async analyzeStream(chartId: string, env: { DB: D1Database }, locale = 'zh-TW', force = false): Promise<ReadableStream> {
-    console.log('[analyzeStream] Entry, chartId:', chartId, 'locale:', locale);
+    // Normalize locale format: convert underscore to hyphen (zh_TW -> zh-TW)
+    const normalizedLocale = locale.replace('_', '-');
+    console.log('[analyzeStream] Entry, chartId:', chartId, 'locale:', normalizedLocale);
 
     const encoder = new TextEncoder();
     // HOTFIX: Add analysis mode to cache key to prevent personality/fortune cross-contamination
-    const analysisType = `ai-streaming-${locale}-personality`;
+    const analysisType = `ai-streaming-${normalizedLocale}-personality`;
 
     // Preserve this context
     const { aiServiceManager } = this;
@@ -171,10 +173,10 @@ export class AnalyzeController {
       async start(controller) {
         try {
           // Send immediate loading message
-          const loadingMessage = getLoadingMessage(locale);
+          const loadingMessage = getLoadingMessage(normalizedLocale);
           const sseData = `data: ${JSON.stringify({ text: loadingMessage })}\n\n`;
           controller.enqueue(encoder.encode(sseData));
-          console.log('[analyzeStream] Loading message sent, locale:', locale);
+          console.log('[analyzeStream] Loading message sent, locale:', normalizedLocale);
 
           // Step 0: Check analysis cache first (Daily Consistency Policy - always check cache)
           const analysisCacheService = new AnalysisCacheService();
@@ -212,10 +214,10 @@ export class AnalyzeController {
 
           // Step 3: Build prompt and call AI service with fallback support
           console.log('[analyzeStream] Before buildAnalysisPrompt');
-          const prompt = buildAnalysisPrompt(markdown, locale);
+          const prompt = buildAnalysisPrompt(markdown, normalizedLocale);
 
           console.log('[analyzeStream] Before AI service generateStream');
-          const aiOptions: AIOptions = { locale };
+          const aiOptions: AIOptions = { locale: normalizedLocale };
           const { stream: aiStream, metadata } = await aiServiceManager.generateStream(prompt, aiOptions);
           console.log('[analyzeStream] AI service succeeded, provider:', metadata.provider, 'fallback:', metadata.fallbackTriggered);
 
@@ -227,14 +229,20 @@ export class AnalyzeController {
             '[analyzeStream]'
           );
 
+          console.log('[analyzeStream] fullText length:', fullText?.length || 0);
+
           // Save to cache with correct chartId and analysisType
           if (fullText) {
+            console.log('[analyzeStream] Saving to cache, chartId:', chartId, 'analysisType:', analysisType);
             await analysisCacheService.saveAnalysis(
               chartId,
               analysisType,
               { text: fullText },
               env
             );
+            console.log('[analyzeStream] Cache saved successfully');
+          } else {
+            console.error('[analyzeStream] fullText is empty, cache not saved');
           }
 
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));
@@ -377,10 +385,12 @@ export class AnalyzeController {
    * @returns ReadableStream in SSE format
    */
   async analyzeAdvancedStream(chartId: string, env: { DB: D1Database }, locale = 'zh-TW', force = false): Promise<ReadableStream> {
-    console.log('[analyzeAdvancedStream] Entry, chartId:', chartId, 'locale:', locale);
+    // Normalize locale format: convert underscore to hyphen (zh_TW -> zh-TW)
+    const normalizedLocale = locale.replace('_', '-');
+    console.log('[analyzeAdvancedStream] Entry, chartId:', chartId, 'locale:', normalizedLocale);
 
     // HOTFIX: Add analysis mode to cache key to prevent personality/fortune cross-contamination
-    const analysisType = `ai-advanced-${locale}-fortune`;
+    const analysisType = `ai-advanced-${normalizedLocale}-fortune`;
     const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
     if (cachedAnalysis) {
       if (force) {
@@ -413,10 +423,10 @@ export class AnalyzeController {
 
     // Step 3: Build prompt and call AI service with fallback support
     console.log('[analyzeAdvancedStream] Before buildAdvancedAnalysisPrompt');
-    const prompt = buildAdvancedAnalysisPrompt(advancedMarkdown, locale);
+    const prompt = buildAdvancedAnalysisPrompt(advancedMarkdown, normalizedLocale);
 
     console.log('[analyzeAdvancedStream] Before AI service generateStream');
-    const aiOptions: AIOptions = { locale };
+    const aiOptions: AIOptions = { locale: normalizedLocale };
     const { stream: aiStream, metadata } = await this.aiServiceManager.generateStream(prompt, aiOptions);
     console.log('[analyzeAdvancedStream] AI service succeeded, provider:', metadata.provider, 'fallback:', metadata.fallbackTriggered);
 

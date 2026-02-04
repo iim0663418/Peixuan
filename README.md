@@ -11,7 +11,22 @@
 
 佩璇 (Peixuan) 是一個現代化的智慧命理分析平台，融合傳統中國命理學（八字四柱、紫微斗數）與先進的生成式 AI 技術 (Google Gemini)，透過 Cloudflare Workers 邊緣運算架構，為用戶提供快速、精準且富有洞察力的命運分析。
 
-## 🆕 最新更新 (v1.3.0 - 2026年1月)
+## 🆕 最新更新 (v1.3.1 - 2026年2月)
+
+### 🚀 性能與體驗優化
+- **載入狀態優化**: 進度條 (0-95%)、動態鼓勵訊息、時間估算
+- **表單驗證優化**: 地址優先策略、即時內聯驗證、自動清除錯誤
+- **建置優化**: 代碼分割 (7 個 vendor chunks)，Element Plus 壓縮至 285 KB
+
+### 🤖 AI 提示詞優化 (2026 最佳實踐)
+- **運勢分析**: 基於 Taskade AI Prompting Guide 2026，聚焦未來半年
+- **每日一問**: 減少 70% token 消耗 (2000 → 600 tokens)
+- **思維鏈框架**: 5步驟分析流程，清晰的角色定義與情境脈絡
+
+### 🔧 Bug 修復
+- **快取機制**: 修復 locale 格式不匹配 (zh_TW → zh-TW)
+- **運勢分析 API**: 修復 locale 作用域錯誤
+- **類型錯誤**: 修復 BranchClash 介面屬性錯誤
 
 ### 🎨 前端 Glassmorphism 2.0 完整重構
 - **4 大頁面全面升級**: HomeView, DailyQuestionView, UnifiedView, UnifiedAIAnalysisView

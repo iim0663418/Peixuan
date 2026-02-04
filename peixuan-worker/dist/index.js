@@ -38628,20 +38628,21 @@ var AnalyzeController = class {
    * @returns ReadableStream in SSE format
    */
   async analyzeStream(chartId, env, locale2 = "zh-TW", force = false) {
-    console.log("[analyzeStream] Entry, chartId:", chartId, "locale:", locale2);
+    const normalizedLocale = locale2.replace("_", "-");
+    console.log("[analyzeStream] Entry, chartId:", chartId, "locale:", normalizedLocale);
     const encoder = new TextEncoder();
-    const analysisType = `ai-streaming-${locale2}-personality`;
+    const analysisType = `ai-streaming-${normalizedLocale}-personality`;
     const { aiServiceManager } = this;
     const self = this;
     return new ReadableStream({
       async start(controller) {
         try {
-          const loadingMessage = getLoadingMessage(locale2);
+          const loadingMessage = getLoadingMessage(normalizedLocale);
           const sseData = `data: ${JSON.stringify({ text: loadingMessage })}
 
 `;
           controller.enqueue(encoder.encode(sseData));
-          console.log("[analyzeStream] Loading message sent, locale:", locale2);
+          console.log("[analyzeStream] Loading message sent, locale:", normalizedLocale);
           const analysisCacheService = new AnalysisCacheService();
           const cachedAnalysis = await analysisCacheService.getAnalysis(chartId, analysisType, env);
           if (cachedAnalysis) {
@@ -38669,9 +38670,9 @@ var AnalyzeController = class {
           const calculation = typeof chart.chartData === "string" ? JSON.parse(chart.chartData) : chart.chartData;
           const markdown = formatToMarkdown(calculation, { excludeSteps: true, personalityOnly: true });
           console.log("[analyzeStream] Before buildAnalysisPrompt");
-          const prompt = buildAnalysisPrompt(markdown, locale2);
+          const prompt = buildAnalysisPrompt(markdown, normalizedLocale);
           console.log("[analyzeStream] Before AI service generateStream");
-          const aiOptions = { locale: locale2 };
+          const aiOptions = { locale: normalizedLocale };
           const { stream: aiStream, metadata } = await aiServiceManager.generateStream(prompt, aiOptions);
           console.log("[analyzeStream] AI service succeeded, provider:", metadata.provider, "fallback:", metadata.fallbackTriggered);
           const fullText = await self.processAIStream(
@@ -38680,13 +38681,18 @@ var AnalyzeController = class {
             controller,
             "[analyzeStream]"
           );
+          console.log("[analyzeStream] fullText length:", fullText?.length || 0);
           if (fullText) {
+            console.log("[analyzeStream] Saving to cache, chartId:", chartId, "analysisType:", analysisType);
             await analysisCacheService.saveAnalysis(
               chartId,
               analysisType,
               { text: fullText },
               env
             );
+            console.log("[analyzeStream] Cache saved successfully");
+          } else {
+            console.error("[analyzeStream] fullText is empty, cache not saved");
           }
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
@@ -38801,8 +38807,9 @@ var AnalyzeController = class {
    * @returns ReadableStream in SSE format
    */
   async analyzeAdvancedStream(chartId, env, locale2 = "zh-TW", force = false) {
-    console.log("[analyzeAdvancedStream] Entry, chartId:", chartId, "locale:", locale2);
-    const analysisType = `ai-advanced-${locale2}-fortune`;
+    const normalizedLocale = locale2.replace("_", "-");
+    console.log("[analyzeAdvancedStream] Entry, chartId:", chartId, "locale:", normalizedLocale);
+    const analysisType = `ai-advanced-${normalizedLocale}-fortune`;
     const cachedAnalysis = await this.advancedAnalysisCacheService.getAnalysis(chartId, analysisType, env);
     if (cachedAnalysis) {
       if (force) {
@@ -38825,9 +38832,9 @@ var AnalyzeController = class {
     const advancedMarkdown = formatAdvancedMarkdown(calculation);
     console.log("[analyzeAdvancedStream] advancedMarkdown length:", advancedMarkdown.length);
     console.log("[analyzeAdvancedStream] Before buildAdvancedAnalysisPrompt");
-    const prompt = buildAdvancedAnalysisPrompt(advancedMarkdown, locale2);
+    const prompt = buildAdvancedAnalysisPrompt(advancedMarkdown, normalizedLocale);
     console.log("[analyzeAdvancedStream] Before AI service generateStream");
-    const aiOptions = { locale: locale2 };
+    const aiOptions = { locale: normalizedLocale };
     const { stream: aiStream, metadata } = await this.aiServiceManager.generateStream(prompt, aiOptions);
     console.log("[analyzeAdvancedStream] AI service succeeded, provider:", metadata.provider, "fallback:", metadata.fallbackTriggered);
     return this.transformAdvancedToSSE(aiStream, chartId, analysisType, env, metadata.provider);
@@ -41205,11 +41212,11 @@ function createAnalyzeRoutes(router, env, ctx) {
     }
   });
   router.get("/api/v1/analyze/advanced/stream", async (req) => {
+    const url2 = new URL(req.url);
+    const chartId = url2.searchParams.get("chartId");
+    const locale2 = url2.searchParams.get("locale") || "zh-TW";
+    const force = url2.searchParams.get("force") === "true";
     try {
-      const url2 = new URL(req.url);
-      const chartId = url2.searchParams.get("chartId");
-      const locale2 = url2.searchParams.get("locale") || "zh-TW";
-      const force = url2.searchParams.get("force") === "true";
       if (!chartId) {
         return new Response(
           JSON.stringify({ error: "Missing chartId parameter" }),
@@ -41244,7 +41251,7 @@ function createAnalyzeRoutes(router, env, ctx) {
       return new Response(stream, { headers });
     } catch (error46) {
       console.error("Analyze advanced stream error:", error46);
-      let errorMessage = locale === "zh-TW" ? "\u54CE\u5440\uFF5E\u4F69\u7487\u9047\u5230\u4E86\u4E00\u4E9B\u5C0F\u554F\u984C\u5462..." : "Oops, Peixuan encountered a small issue...";
+      let errorMessage = locale2 === "zh-TW" ? "\u54CE\u5440\uFF5E\u4F69\u7487\u9047\u5230\u4E86\u4E00\u4E9B\u5C0F\u554F\u984C\u5462..." : "Oops, Peixuan encountered a small issue...";
       if (error46 instanceof Error) {
         const errMsg = error46.message.toLowerCase();
         if (errMsg.includes("quota") || errMsg.includes("429")) {
@@ -41252,16 +41259,16 @@ function createAnalyzeRoutes(router, env, ctx) {
           if (retryMatch) {
             const seconds = parseInt(retryMatch[1]);
             const minutes = Math.ceil(seconds / 60);
-            errorMessage = locale === "zh-TW" ? `\u4F69\u7487\u7D2F\u4E86\uFF0C\u9700\u8981\u4F11\u606F\u4E00\u4E0B\u5594\uFF5E\u8ACB\u7B49 ${minutes} \u5206\u9418\u5F8C\u518D\u4F86\u627E\u6211\u5427\uFF01\u2728` : `Peixuan needs a rest~ Please try again in ${minutes} minutes! \u2728`;
+            errorMessage = locale2 === "zh-TW" ? `\u4F69\u7487\u7D2F\u4E86\uFF0C\u9700\u8981\u4F11\u606F\u4E00\u4E0B\u5594\uFF5E\u8ACB\u7B49 ${minutes} \u5206\u9418\u5F8C\u518D\u4F86\u627E\u6211\u5427\uFF01\u2728` : `Peixuan needs a rest~ Please try again in ${minutes} minutes! \u2728`;
           } else {
-            errorMessage = locale === "zh-TW" ? "\u4F69\u7487\u4ECA\u5929\u592A\u5FD9\u4E86\uFF0C\u9700\u8981\u4F11\u606F\u4E00\u4E0B\uFF5E\u8ACB\u7A0D\u5F8C\u518D\u4F86\u627E\u6211\u5594\uFF01\u{1F4AB}" : "Peixuan is quite busy today~ Please try again later! \u{1F4AB}";
+            errorMessage = locale2 === "zh-TW" ? "\u4F69\u7487\u4ECA\u5929\u592A\u5FD9\u4E86\uFF0C\u9700\u8981\u4F11\u606F\u4E00\u4E0B\uFF5E\u8ACB\u7A0D\u5F8C\u518D\u4F86\u627E\u6211\u5594\uFF01\u{1F4AB}" : "Peixuan is quite busy today~ Please try again later! \u{1F4AB}";
           }
         } else if (errMsg.includes("not found")) {
-          errorMessage = locale === "zh-TW" ? "\u54A6\uFF1F\u4F69\u7487\u627E\u4E0D\u5230\u4F60\u7684\u547D\u76E4\u8CC7\u6599\u8036...\u8981\u4E0D\u8981\u91CD\u65B0\u7B97\u4E00\u6B21\u5462\uFF1F\u{1F52E}" : "Hmm? Peixuan cannot find your chart... Would you like to recalculate? \u{1F52E}";
+          errorMessage = locale2 === "zh-TW" ? "\u54A6\uFF1F\u4F69\u7487\u627E\u4E0D\u5230\u4F60\u7684\u547D\u76E4\u8CC7\u6599\u8036...\u8981\u4E0D\u8981\u91CD\u65B0\u7B97\u4E00\u6B21\u5462\uFF1F\u{1F52E}" : "Hmm? Peixuan cannot find your chart... Would you like to recalculate? \u{1F52E}";
         } else if (errMsg.includes("timeout")) {
-          errorMessage = locale === "zh-TW" ? "\u54CE\u5440\uFF5E\u4F69\u7487\u7B97\u5F97\u592A\u5C08\u5FC3\uFF0C\u6642\u9593\u6709\u9EDE\u4E45\u4E86...\u8981\u4E0D\u8981\u518D\u8A66\u4E00\u6B21\u5462\uFF1F\u23F0" : "Oops~ Peixuan was too focused, took a bit long... Try again? \u23F0";
+          errorMessage = locale2 === "zh-TW" ? "\u54CE\u5440\uFF5E\u4F69\u7487\u7B97\u5F97\u592A\u5C08\u5FC3\uFF0C\u6642\u9593\u6709\u9EDE\u4E45\u4E86...\u8981\u4E0D\u8981\u518D\u8A66\u4E00\u6B21\u5462\uFF1F\u23F0" : "Oops~ Peixuan was too focused, took a bit long... Try again? \u23F0";
         } else {
-          errorMessage = locale === "zh-TW" ? `\u4F69\u7487\u9047\u5230\u4E86\u4E00\u4E9B\u5C0F\u72C0\u6CC1\uFF1A${error46.message} \u{1F4AD}` : `Peixuan encountered an issue: ${error46.message} \u{1F4AD}`;
+          errorMessage = locale2 === "zh-TW" ? `\u4F69\u7487\u9047\u5230\u4E86\u4E00\u4E9B\u5C0F\u72C0\u6CC1\uFF1A${error46.message} \u{1F4AD}` : `Peixuan encountered an issue: ${error46.message} \u{1F4AD}`;
         }
       }
       const errorStream = new ReadableStream({

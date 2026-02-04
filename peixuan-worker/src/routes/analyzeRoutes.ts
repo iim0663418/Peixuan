@@ -401,12 +401,13 @@ export function createAnalyzeRoutes(router: Router, env: Env, ctx: ExecutionCont
    * - Final event: "data: [DONE]\n\n"
    */
   router.get('/api/v1/analyze/advanced/stream', async (req: IRequest) => {
+    // Parse URL and get chartId from query params (outside try block for error handling)
+    const url = new URL(req.url);
+    const chartId = url.searchParams.get('chartId');
+    const locale = url.searchParams.get('locale') || 'zh-TW';
+    const force = url.searchParams.get('force') === 'true';
+    
     try {
-      // Parse URL and get chartId from query params
-      const url = new URL(req.url);
-      const chartId = url.searchParams.get('chartId');
-      const locale = url.searchParams.get('locale') || 'zh-TW';
-      const force = url.searchParams.get('force') === 'true';
 
       // Validate chartId
       if (!chartId) {

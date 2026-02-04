@@ -273,3 +273,6 @@ agent_execution_traces|stat|RemoteTableCreated
 260204|UX|ver|NoStuckValidationError
 260204|Deployment|stat|ValidationFixStaging
 260204|Version|ver|f7c6df0ac4484fb1a5ec9a3450c1766f
+260204|Deployment|fix|RedeployWithCorrectCode
+260204|GitIssue|fix|MergedCommitToMain
+260204|Version|ver|93b7ac1307b9485f90301da834626121

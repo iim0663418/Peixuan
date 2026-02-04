@@ -35970,7 +35970,7 @@ var init_agenticAzureService = __esm({
         if (branchClashes.length > 0) {
           context.push("\u5730\u652F\u516D\u6C96\uFF1A");
           branchClashes.forEach((clash) => {
-            context.push(`  \u2022 ${clash.natal} \u26A1 ${clash.annual}\uFF08${clash.severity}\uFF09`);
+            context.push(`  \u2022 ${clash.pillar}\u67F1\uFF08${clash.severity}\uFF09`);
           });
         } else {
           context.push("\u5730\u652F\u516D\u6C96\uFF1A\u7121");
@@ -40077,7 +40077,7 @@ var AgenticGeminiService = class {
     if (branchClashes.length > 0) {
       context.push("\u5730\u652F\u516D\u6C96\uFF1A");
       branchClashes.forEach((clash) => {
-        context.push(`  \u2022 ${clash.natal} \u26A1 ${clash.annual}\uFF08${clash.severity}\uFF09`);
+        context.push(`  \u2022 ${clash.pillar}\u67F1\uFF08${clash.severity}\uFF09`);
       });
     } else {
       context.push("\u5730\u652F\u516D\u6C96\uFF1A\u7121");

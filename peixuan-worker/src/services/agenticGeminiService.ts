@@ -448,7 +448,7 @@ export class AgenticGeminiService {
     if (branchClashes.length > 0) {
       context.push('地支六沖：');
       branchClashes.forEach(clash => {
-        context.push(`  • ${clash.natal} ⚡ ${clash.annual}（${clash.severity}）`);
+        context.push(`  • ${clash.pillar}柱（${clash.severity}）`);
       });
     } else {
       context.push('地支六沖：無');

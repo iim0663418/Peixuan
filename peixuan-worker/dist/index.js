@@ -35572,7 +35572,7 @@ var init_analysisCacheService = __esm({
           const createdAt = new Date(result[0].createdAt);
           const now = /* @__PURE__ */ new Date();
           const hoursDiff = (now.getTime() - createdAt.getTime()) / (1e3 * 60 * 60);
-          if (hoursDiff < 24) {
+          if (hoursDiff < 168) {
             return result[0];
           }
         }
@@ -35633,7 +35633,7 @@ var init_advancedAnalysisCacheService = __esm({
           const createdAt = new Date(result[0].createdAt);
           const now = /* @__PURE__ */ new Date();
           const hoursDiff = (now.getTime() - createdAt.getTime()) / (1e3 * 60 * 60);
-          if (hoursDiff < 24) {
+          if (hoursDiff < 168) {
             return result[0];
           }
         }

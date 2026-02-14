@@ -78,7 +78,7 @@ jobs:
         run: |
           cd peixuan-worker
           echo "=== Applying D1 migrations ==="
-          npm run db:push || echo "Migration failed or already applied"
+          npx wrangler d1 migrations apply peixuan-db --remote || echo "Migration failed or already applied"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -87,8 +87,15 @@ jobs:
         run: |
           cd peixuan-worker
           echo "=== Starting deployment to production ==="
-          npx wrangler deploy --env=""
+          npx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Health Check
+        run: |
+          echo "=== Waiting for deployment to propagate ==="
+          sleep 10
+          echo "=== Running health check ==="
+          curl -f https://peixuan-worker.csw30454.workers.dev/health || exit 1
+          echo "=== Health check passed ==="

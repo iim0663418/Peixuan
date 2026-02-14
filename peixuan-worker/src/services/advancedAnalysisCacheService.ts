@@ -33,13 +33,13 @@ export class AdvancedAnalysisCacheService {
       .orderBy(desc(advancedAnalysisRecords.createdAt))
       .limit(1);
 
-    // Check if record exists and is not expired (24 hours)
+    // Check if record exists and is not expired (7 days = 168 hours)
     if (result[0]) {
       const createdAt = new Date(result[0].createdAt);
       const now = new Date();
       const hoursDiff = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
 
-      if (hoursDiff < 24) {
+      if (hoursDiff < 168) {
         return result[0];
       }
     }

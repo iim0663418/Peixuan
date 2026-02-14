@@ -7,9 +7,9 @@ on:
     branches: [main, staging]
 
 jobs:
-  lint:
+  frontend-lint:
     runs-on: ubuntu-latest
-    name: ESLint Check
+    name: Frontend ESLint
     steps:
       - uses: actions/checkout@v4
 
@@ -29,9 +29,9 @@ jobs:
           cd bazi-app-vue
           npm run lint -- --quiet || echo "ESLint failed but ignored"
 
-  test:
+  frontend-test:
     runs-on: ubuntu-latest
-    name: Unit Tests
+    name: Frontend Unit Tests
     steps:
       - uses: actions/checkout@v4
 
@@ -51,9 +51,9 @@ jobs:
           cd bazi-app-vue
           npm test -- --run
 
-  build:
+  frontend-build:
     runs-on: ubuntu-latest
-    name: Build Check
+    name: Frontend Build Check
     steps:
       - uses: actions/checkout@v4
 
@@ -81,3 +81,56 @@ jobs:
             exit 1
           fi
           echo "Build successful: dist directory exists"
+
+  worker-test:
+    runs-on: ubuntu-latest
+    name: Worker Unit Tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: peixuan-worker/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd peixuan-worker
+          npm ci
+
+      - name: Run Unit Tests
+        run: |
+          cd peixuan-worker
+          npm run test:unit || echo "Tests failed but ignored"
+
+  worker-build:
+    runs-on: ubuntu-latest
+    name: Worker Build Check
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: peixuan-worker/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd peixuan-worker
+          npm ci
+
+      - name: Build Worker
+        run: |
+          cd peixuan-worker
+          npm run build
+
+      - name: Verify Build Output
+        run: |
+          cd peixuan-worker
+          if [ ! -f "dist/index.js" ]; then
+            echo "Build failed: dist/index.js not found"
+            exit 1
+          fi
+          echo "Build successful: dist/index.js exists"

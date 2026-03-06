@@ -15,6 +15,203 @@ import { AnalyticsService } from './analyticsService';
 import type { Env } from '../index';
 
 /**
+ * Generation preset for different task types
+ */
+enum GenerationPreset {
+  TOOL_PLANNING = 'tool_planning',
+  CREATIVE_EXPLANATION = 'creative',
+  FACTUAL_SUMMARY = 'factual'
+}
+
+const GENERATION_PRESETS = {
+  tool_planning: {
+    temperature: 1.0,    // Gemini 3 official recommendation
+    topK: 40,
+    topP: 0.95,
+    maxOutputTokens: 2048
+  },
+  creative: {
+    temperature: 1.2,
+    topK: 50,
+    topP: 0.98,
+    maxOutputTokens: 2048
+  },
+  factual: {
+    temperature: 0.3,
+    topK: 20,
+    topP: 0.85,
+    maxOutputTokens: 2048
+  }
+};
+
+/**
+ * Error classification for structured error handling
+ */
+enum ErrorCategory {
+  RATE_LIMIT = 'rate_limit',
+  TRANSIENT_5XX = 'transient_5xx',
+  RESOURCE_EXHAUSTED = 'resource_exhausted',
+  INVALID_REQUEST = 'invalid_request',
+  AUTHENTICATION = 'authentication',
+  UNKNOWN = 'unknown'
+}
+
+interface ErrorClassification {
+  category: ErrorCategory;
+  shouldFallback: boolean;
+  shouldRetry: boolean;
+  retryAfterMs?: number;
+}
+
+class GeminiErrorClassifier {
+  static classify(error: Error): ErrorClassification {
+    const message = error.message.toLowerCase();
+    
+    if (message.includes('429') || message.includes('quota')) {
+      return {
+        category: ErrorCategory.RATE_LIMIT,
+        shouldFallback: true,
+        shouldRetry: false,
+        retryAfterMs: 60000
+      };
+    }
+    
+    if (message.includes('500') || message.includes('503') || 
+        message.includes('unavailable')) {
+      return {
+        category: ErrorCategory.TRANSIENT_5XX,
+        shouldFallback: true,
+        shouldRetry: true,
+        retryAfterMs: 2000
+      };
+    }
+    
+    if (message.includes('resource has been exhausted') ||
+        message.includes('resource_exhausted')) {
+      return {
+        category: ErrorCategory.RESOURCE_EXHAUSTED,
+        shouldFallback: true,
+        shouldRetry: false
+      };
+    }
+    
+    if (message.includes('400') || message.includes('invalid')) {
+      return {
+        category: ErrorCategory.INVALID_REQUEST,
+        shouldFallback: false,
+        shouldRetry: false
+      };
+    }
+    
+    return {
+      category: ErrorCategory.UNKNOWN,
+      shouldFallback: false,
+      shouldRetry: false
+    };
+  }
+}
+
+/**
+ * Tool description template for structured descriptions
+ */
+interface ToolDescriptionTemplate {
+  purpose: string;
+  when_to_use: string;
+  input_example?: string;
+  output_shape: string;
+}
+
+const TOOL_DESCRIPTION_TEMPLATES: Record<string, { zh_TW: ToolDescriptionTemplate; en: ToolDescriptionTemplate }> = {
+  get_bazi_profile: {
+    zh_TW: {
+      purpose: '獲取用戶的八字命盤基本資料，包含四柱、十神、五行分布等核心信息',
+      when_to_use: '當需要了解命主基本格局、分析性格特質、或作為其他分析的基礎資料時使用',
+      input_example: '「我的命格如何？」、「分析我的八字」、「我的五行缺什麼？」',
+      output_shape: '包含四柱干支、十神配置、五行能量分布、納音等結構化資料'
+    },
+    en: {
+      purpose: 'Get user\'s BaZi chart basic data, including Four Pillars, Ten Gods, Five Elements distribution',
+      when_to_use: 'Use when understanding basic chart structure, analyzing personality traits, or as foundation for other analyses',
+      input_example: '"What is my destiny?", "Analyze my BaZi", "What elements am I missing?"',
+      output_shape: 'Structured data including Four Pillars stems/branches, Ten Gods configuration, Five Elements energy distribution, NaYin'
+    }
+  },
+  get_ziwei_chart: {
+    zh_TW: {
+      purpose: '獲取用戶的紫微斗數命盤，包含十二宮位、主星分布、四化情況等',
+      when_to_use: '當需要分析宮位關係、星曜配置、或進行紫微斗數專業分析時使用',
+      input_example: '「我的命宮有什麼星？」、「紫微命盤分析」、「我的夫妻宮如何？」',
+      output_shape: '包含十二宮位配置、108顆星曜位置、四化飛星、宮位主星等結構化資料'
+    },
+    en: {
+      purpose: 'Get user\'s Zi Wei Dou Shu chart, including twelve palaces, major stars, SiHua transformations',
+      when_to_use: 'Use for palace relationships analysis, star configurations, or professional Zi Wei Dou Shu analysis',
+      input_example: '"What stars are in my Life Palace?", "Analyze my Zi Wei chart", "How is my Marriage Palace?"',
+      output_shape: 'Structured data including twelve palace configurations, 108 stars positions, SiHua flying stars, palace major stars'
+    }
+  },
+  get_daily_transit: {
+    zh_TW: {
+      purpose: '獲取今日的天象流運資訊，包含流年、流月干支、太歲方位等時空因素',
+      when_to_use: '當需要分析當日運勢、時間選擇、或了解當前時空能量時使用',
+      input_example: '「今天運勢如何？」、「今天適合做什麼？」、「今日吉凶？」',
+      output_shape: '包含今日干支、流年流月資訊、太歲方位、時辰吉凶等結構化資料'
+    },
+    en: {
+      purpose: 'Get today\'s transit information, including annual fortune, monthly stems/branches, Tai Sui direction',
+      when_to_use: 'Use for daily fortune analysis, timing selection, or understanding current temporal energy',
+      input_example: '"How is my fortune today?", "What should I do today?", "Is today auspicious?"',
+      output_shape: 'Structured data including today\'s stems/branches, annual/monthly info, Tai Sui direction, hourly fortune'
+    }
+  },
+  get_annual_context: {
+    zh_TW: {
+      purpose: '獲取流年大環境背景資訊，包含太歲互動、年度流年盤、全年運勢預測等宏觀時空因素',
+      when_to_use: '當用戶詢問年度規劃、重大決策、或需要了解全年運勢格局時使用。提供「全年天氣預報」般的整體運勢走向',
+      input_example: '「今年適合創業嗎？」、「2026年整體運勢如何？」、「今年財運如何？」',
+      output_shape: '包含太歲關係、流年四化、年度運勢預測、關鍵時間點等結構化資料'
+    },
+    en: {
+      purpose: 'Get annual macro context including Tai Sui interactions, yearly chart, annual fortune forecast',
+      when_to_use: 'Use for annual planning, major decisions, or understanding yearly fortune patterns. Provides "yearly weather report" for overall fortune trends',
+      input_example: '"Is this year good for starting a business?", "How is my overall fortune in 2026?", "What about my wealth luck this year?"',
+      output_shape: 'Structured data including Tai Sui relationship, annual SiHua, fortune forecast, key time points'
+    }
+  },
+  get_life_forces: {
+    zh_TW: {
+      purpose: '獲取命盤能量流動與五行結構資訊，包含四化能量聚散點、壓力/資源分布、五行平衡狀態等深層格局分析',
+      when_to_use: '當需要分析性格特質、能量模式、或了解命主本質優勢與挑戰時使用。揭示命盤內部的能量流向與結構特徵',
+      input_example: '「我的優勢在哪裡？」、「我的性格特質？」、「我的能量模式？」',
+      output_shape: '包含四化能量聚散、中心性分析、五行平衡、壓力/資源節點等結構化資料'
+    },
+    en: {
+      purpose: 'Get life force energy flow and Five Elements structure, including SiHua energy aggregation, pressure/resource distribution, elemental balance',
+      when_to_use: 'Use for personality analysis, energy patterns, or understanding innate strengths and challenges. Reveals internal energy flow and structural characteristics',
+      input_example: '"What are my strengths?", "What is my personality?", "What is my energy pattern?"',
+      output_shape: 'Structured data including SiHua energy aggregation, centrality analysis, Five Elements balance, pressure/resource nodes'
+    }
+  }
+};
+
+function buildToolDescription(toolName: string, locale: string): string {
+  const template = TOOL_DESCRIPTION_TEMPLATES[toolName]?.[locale === 'en' ? 'en' : 'zh_TW'];
+  if (!template) {
+    return '';
+  }
+  
+  return `
+【用途】${template.purpose}
+
+【使用時機】${template.when_to_use}
+
+【輸入範例】${template.input_example || '無'}
+
+【輸出結構】${template.output_shape}
+  `.trim();
+}
+
+/**
  * Function calling tool definition
  */
 interface FunctionTool {
@@ -762,22 +959,18 @@ export class AgenticGeminiService {
             try {
               response = await self.callGeminiWithFunctions(conversationHistory, locale);
             } catch (error) {
-              // Check if this is a quota/rate limit error that should trigger fallback
-              const shouldFallback = error instanceof Error &&
-                (error.message.includes('429') ||
-                 error.message.includes('503') ||
-                 error.message.includes('500') ||
-                 error.message.toLowerCase().includes('quota') ||
-                 error.message.toLowerCase().includes('resource has been exhausted') ||
-                 error.message.toLowerCase().includes('unavailable'));
+              // Use error classifier for structured error handling
+              const classification = GeminiErrorClassifier.classify(error as Error);
+              
+              console.log(`[AgenticGemini] Error classified as: ${classification.category}`);
 
-              if (shouldFallback && self.fallbackService) {
+              if (classification.shouldFallback && self.fallbackService) {
                 console.log('[AgenticGemini] Gemini API error detected, switching to Azure fallback');
                 console.log('[AgenticGemini] Error type:', error instanceof Error ? error.message : String(error));
 
                 // Mark fallback usage
                 usedFallback = true;
-                fallbackReason = error instanceof Error ? error.message : String(error);
+                fallbackReason = `${classification.category}: ${error instanceof Error ? error.message : String(error)}`;
 
                 // Send fallback notification
                 const fallbackMsg = locale === 'zh-TW'
@@ -1061,11 +1254,14 @@ And, **annual fortune harmonizes with your chart** ✨
    * Get tools with locale-specific descriptions
    */
   private getLocalizedTools(locale: string) {
-    return this.tools.map(tool => ({
-      name: tool.name,
-      description: locale === 'zh-TW' ? tool.description : (tool.descriptionEn || tool.description),
-      parameters: tool.parameters
-    }));
+    return this.tools.map(tool => {
+      const enhancedDescription = buildToolDescription(tool.name, locale);
+      return {
+        name: tool.name,
+        description: enhancedDescription || (locale === 'zh-TW' ? tool.description : (tool.descriptionEn || tool.description)),
+        parameters: tool.parameters
+      };
+    });
   }
 
   /**
@@ -1087,12 +1283,7 @@ And, **annual fortune harmonizes with your chart** ✨
           mode: 'AUTO'
         }
       },
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2048
-      }
+      generationConfig: GENERATION_PRESETS.tool_planning
     };
 
     console.log('[AgenticGemini] Calling Gemini API:', url.replace(this.apiKey, '***'));

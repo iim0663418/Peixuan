@@ -39778,6 +39778,154 @@ var AIServiceManager = class {
 
 // src/services/agenticGeminiService.ts
 init_analyticsService();
+var GENERATION_PRESETS = {
+  tool_planning: {
+    temperature: 1,
+    // Gemini 3 official recommendation
+    topK: 40,
+    topP: 0.95,
+    maxOutputTokens: 2048
+  },
+  creative: {
+    temperature: 1.2,
+    topK: 50,
+    topP: 0.98,
+    maxOutputTokens: 2048
+  },
+  factual: {
+    temperature: 0.3,
+    topK: 20,
+    topP: 0.85,
+    maxOutputTokens: 2048
+  }
+};
+var GeminiErrorClassifier = class {
+  static classify(error46) {
+    const message = error46.message.toLowerCase();
+    if (message.includes("429") || message.includes("quota")) {
+      return {
+        category: "rate_limit" /* RATE_LIMIT */,
+        shouldFallback: true,
+        shouldRetry: false,
+        retryAfterMs: 6e4
+      };
+    }
+    if (message.includes("500") || message.includes("503") || message.includes("unavailable")) {
+      return {
+        category: "transient_5xx" /* TRANSIENT_5XX */,
+        shouldFallback: true,
+        shouldRetry: true,
+        retryAfterMs: 2e3
+      };
+    }
+    if (message.includes("resource has been exhausted") || message.includes("resource_exhausted")) {
+      return {
+        category: "resource_exhausted" /* RESOURCE_EXHAUSTED */,
+        shouldFallback: true,
+        shouldRetry: false
+      };
+    }
+    if (message.includes("400") || message.includes("invalid")) {
+      return {
+        category: "invalid_request" /* INVALID_REQUEST */,
+        shouldFallback: false,
+        shouldRetry: false
+      };
+    }
+    return {
+      category: "unknown" /* UNKNOWN */,
+      shouldFallback: false,
+      shouldRetry: false
+    };
+  }
+};
+var TOOL_DESCRIPTION_TEMPLATES = {
+  get_bazi_profile: {
+    zh_TW: {
+      purpose: "\u7372\u53D6\u7528\u6236\u7684\u516B\u5B57\u547D\u76E4\u57FA\u672C\u8CC7\u6599\uFF0C\u5305\u542B\u56DB\u67F1\u3001\u5341\u795E\u3001\u4E94\u884C\u5206\u5E03\u7B49\u6838\u5FC3\u4FE1\u606F",
+      when_to_use: "\u7576\u9700\u8981\u4E86\u89E3\u547D\u4E3B\u57FA\u672C\u683C\u5C40\u3001\u5206\u6790\u6027\u683C\u7279\u8CEA\u3001\u6216\u4F5C\u70BA\u5176\u4ED6\u5206\u6790\u7684\u57FA\u790E\u8CC7\u6599\u6642\u4F7F\u7528",
+      input_example: "\u300C\u6211\u7684\u547D\u683C\u5982\u4F55\uFF1F\u300D\u3001\u300C\u5206\u6790\u6211\u7684\u516B\u5B57\u300D\u3001\u300C\u6211\u7684\u4E94\u884C\u7F3A\u4EC0\u9EBC\uFF1F\u300D",
+      output_shape: "\u5305\u542B\u56DB\u67F1\u5E72\u652F\u3001\u5341\u795E\u914D\u7F6E\u3001\u4E94\u884C\u80FD\u91CF\u5206\u5E03\u3001\u7D0D\u97F3\u7B49\u7D50\u69CB\u5316\u8CC7\u6599"
+    },
+    en: {
+      purpose: "Get user's BaZi chart basic data, including Four Pillars, Ten Gods, Five Elements distribution",
+      when_to_use: "Use when understanding basic chart structure, analyzing personality traits, or as foundation for other analyses",
+      input_example: '"What is my destiny?", "Analyze my BaZi", "What elements am I missing?"',
+      output_shape: "Structured data including Four Pillars stems/branches, Ten Gods configuration, Five Elements energy distribution, NaYin"
+    }
+  },
+  get_ziwei_chart: {
+    zh_TW: {
+      purpose: "\u7372\u53D6\u7528\u6236\u7684\u7D2B\u5FAE\u6597\u6578\u547D\u76E4\uFF0C\u5305\u542B\u5341\u4E8C\u5BAE\u4F4D\u3001\u4E3B\u661F\u5206\u5E03\u3001\u56DB\u5316\u60C5\u6CC1\u7B49",
+      when_to_use: "\u7576\u9700\u8981\u5206\u6790\u5BAE\u4F4D\u95DC\u4FC2\u3001\u661F\u66DC\u914D\u7F6E\u3001\u6216\u9032\u884C\u7D2B\u5FAE\u6597\u6578\u5C08\u696D\u5206\u6790\u6642\u4F7F\u7528",
+      input_example: "\u300C\u6211\u7684\u547D\u5BAE\u6709\u4EC0\u9EBC\u661F\uFF1F\u300D\u3001\u300C\u7D2B\u5FAE\u547D\u76E4\u5206\u6790\u300D\u3001\u300C\u6211\u7684\u592B\u59BB\u5BAE\u5982\u4F55\uFF1F\u300D",
+      output_shape: "\u5305\u542B\u5341\u4E8C\u5BAE\u4F4D\u914D\u7F6E\u3001108\u9846\u661F\u66DC\u4F4D\u7F6E\u3001\u56DB\u5316\u98DB\u661F\u3001\u5BAE\u4F4D\u4E3B\u661F\u7B49\u7D50\u69CB\u5316\u8CC7\u6599"
+    },
+    en: {
+      purpose: "Get user's Zi Wei Dou Shu chart, including twelve palaces, major stars, SiHua transformations",
+      when_to_use: "Use for palace relationships analysis, star configurations, or professional Zi Wei Dou Shu analysis",
+      input_example: '"What stars are in my Life Palace?", "Analyze my Zi Wei chart", "How is my Marriage Palace?"',
+      output_shape: "Structured data including twelve palace configurations, 108 stars positions, SiHua flying stars, palace major stars"
+    }
+  },
+  get_daily_transit: {
+    zh_TW: {
+      purpose: "\u7372\u53D6\u4ECA\u65E5\u7684\u5929\u8C61\u6D41\u904B\u8CC7\u8A0A\uFF0C\u5305\u542B\u6D41\u5E74\u3001\u6D41\u6708\u5E72\u652F\u3001\u592A\u6B72\u65B9\u4F4D\u7B49\u6642\u7A7A\u56E0\u7D20",
+      when_to_use: "\u7576\u9700\u8981\u5206\u6790\u7576\u65E5\u904B\u52E2\u3001\u6642\u9593\u9078\u64C7\u3001\u6216\u4E86\u89E3\u7576\u524D\u6642\u7A7A\u80FD\u91CF\u6642\u4F7F\u7528",
+      input_example: "\u300C\u4ECA\u5929\u904B\u52E2\u5982\u4F55\uFF1F\u300D\u3001\u300C\u4ECA\u5929\u9069\u5408\u505A\u4EC0\u9EBC\uFF1F\u300D\u3001\u300C\u4ECA\u65E5\u5409\u51F6\uFF1F\u300D",
+      output_shape: "\u5305\u542B\u4ECA\u65E5\u5E72\u652F\u3001\u6D41\u5E74\u6D41\u6708\u8CC7\u8A0A\u3001\u592A\u6B72\u65B9\u4F4D\u3001\u6642\u8FB0\u5409\u51F6\u7B49\u7D50\u69CB\u5316\u8CC7\u6599"
+    },
+    en: {
+      purpose: "Get today's transit information, including annual fortune, monthly stems/branches, Tai Sui direction",
+      when_to_use: "Use for daily fortune analysis, timing selection, or understanding current temporal energy",
+      input_example: '"How is my fortune today?", "What should I do today?", "Is today auspicious?"',
+      output_shape: "Structured data including today's stems/branches, annual/monthly info, Tai Sui direction, hourly fortune"
+    }
+  },
+  get_annual_context: {
+    zh_TW: {
+      purpose: "\u7372\u53D6\u6D41\u5E74\u5927\u74B0\u5883\u80CC\u666F\u8CC7\u8A0A\uFF0C\u5305\u542B\u592A\u6B72\u4E92\u52D5\u3001\u5E74\u5EA6\u6D41\u5E74\u76E4\u3001\u5168\u5E74\u904B\u52E2\u9810\u6E2C\u7B49\u5B8F\u89C0\u6642\u7A7A\u56E0\u7D20",
+      when_to_use: "\u7576\u7528\u6236\u8A62\u554F\u5E74\u5EA6\u898F\u5283\u3001\u91CD\u5927\u6C7A\u7B56\u3001\u6216\u9700\u8981\u4E86\u89E3\u5168\u5E74\u904B\u52E2\u683C\u5C40\u6642\u4F7F\u7528\u3002\u63D0\u4F9B\u300C\u5168\u5E74\u5929\u6C23\u9810\u5831\u300D\u822C\u7684\u6574\u9AD4\u904B\u52E2\u8D70\u5411",
+      input_example: "\u300C\u4ECA\u5E74\u9069\u5408\u5275\u696D\u55CE\uFF1F\u300D\u3001\u300C2026\u5E74\u6574\u9AD4\u904B\u52E2\u5982\u4F55\uFF1F\u300D\u3001\u300C\u4ECA\u5E74\u8CA1\u904B\u5982\u4F55\uFF1F\u300D",
+      output_shape: "\u5305\u542B\u592A\u6B72\u95DC\u4FC2\u3001\u6D41\u5E74\u56DB\u5316\u3001\u5E74\u5EA6\u904B\u52E2\u9810\u6E2C\u3001\u95DC\u9375\u6642\u9593\u9EDE\u7B49\u7D50\u69CB\u5316\u8CC7\u6599"
+    },
+    en: {
+      purpose: "Get annual macro context including Tai Sui interactions, yearly chart, annual fortune forecast",
+      when_to_use: 'Use for annual planning, major decisions, or understanding yearly fortune patterns. Provides "yearly weather report" for overall fortune trends',
+      input_example: '"Is this year good for starting a business?", "How is my overall fortune in 2026?", "What about my wealth luck this year?"',
+      output_shape: "Structured data including Tai Sui relationship, annual SiHua, fortune forecast, key time points"
+    }
+  },
+  get_life_forces: {
+    zh_TW: {
+      purpose: "\u7372\u53D6\u547D\u76E4\u80FD\u91CF\u6D41\u52D5\u8207\u4E94\u884C\u7D50\u69CB\u8CC7\u8A0A\uFF0C\u5305\u542B\u56DB\u5316\u80FD\u91CF\u805A\u6563\u9EDE\u3001\u58D3\u529B/\u8CC7\u6E90\u5206\u5E03\u3001\u4E94\u884C\u5E73\u8861\u72C0\u614B\u7B49\u6DF1\u5C64\u683C\u5C40\u5206\u6790",
+      when_to_use: "\u7576\u9700\u8981\u5206\u6790\u6027\u683C\u7279\u8CEA\u3001\u80FD\u91CF\u6A21\u5F0F\u3001\u6216\u4E86\u89E3\u547D\u4E3B\u672C\u8CEA\u512A\u52E2\u8207\u6311\u6230\u6642\u4F7F\u7528\u3002\u63ED\u793A\u547D\u76E4\u5167\u90E8\u7684\u80FD\u91CF\u6D41\u5411\u8207\u7D50\u69CB\u7279\u5FB5",
+      input_example: "\u300C\u6211\u7684\u512A\u52E2\u5728\u54EA\u88E1\uFF1F\u300D\u3001\u300C\u6211\u7684\u6027\u683C\u7279\u8CEA\uFF1F\u300D\u3001\u300C\u6211\u7684\u80FD\u91CF\u6A21\u5F0F\uFF1F\u300D",
+      output_shape: "\u5305\u542B\u56DB\u5316\u80FD\u91CF\u805A\u6563\u3001\u4E2D\u5FC3\u6027\u5206\u6790\u3001\u4E94\u884C\u5E73\u8861\u3001\u58D3\u529B/\u8CC7\u6E90\u7BC0\u9EDE\u7B49\u7D50\u69CB\u5316\u8CC7\u6599"
+    },
+    en: {
+      purpose: "Get life force energy flow and Five Elements structure, including SiHua energy aggregation, pressure/resource distribution, elemental balance",
+      when_to_use: "Use for personality analysis, energy patterns, or understanding innate strengths and challenges. Reveals internal energy flow and structural characteristics",
+      input_example: '"What are my strengths?", "What is my personality?", "What is my energy pattern?"',
+      output_shape: "Structured data including SiHua energy aggregation, centrality analysis, Five Elements balance, pressure/resource nodes"
+    }
+  }
+};
+function buildToolDescription(toolName, locale2) {
+  const template = TOOL_DESCRIPTION_TEMPLATES[toolName]?.[locale2 === "en" ? "en" : "zh_TW"];
+  if (!template) {
+    return "";
+  }
+  return `
+\u3010\u7528\u9014\u3011${template.purpose}
+
+\u3010\u4F7F\u7528\u6642\u6A5F\u3011${template.when_to_use}
+
+\u3010\u8F38\u5165\u7BC4\u4F8B\u3011${template.input_example || "\u7121"}
+
+\u3010\u8F38\u51FA\u7D50\u69CB\u3011${template.output_shape}
+  `.trim();
+}
 var AgenticGeminiService = class {
   constructor(apiKey, model = "gemini-3-flash-preview", maxRetries = 3, maxIterations = 8, fallbackService) {
     this.baseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
@@ -40323,12 +40471,13 @@ ${question}` }]
             try {
               response = await self.callGeminiWithFunctions(conversationHistory, locale2);
             } catch (error46) {
-              const shouldFallback = error46 instanceof Error && (error46.message.includes("429") || error46.message.includes("503") || error46.message.includes("500") || error46.message.toLowerCase().includes("quota") || error46.message.toLowerCase().includes("resource has been exhausted") || error46.message.toLowerCase().includes("unavailable"));
-              if (shouldFallback && self.fallbackService) {
+              const classification = GeminiErrorClassifier.classify(error46);
+              console.log(`[AgenticGemini] Error classified as: ${classification.category}`);
+              if (classification.shouldFallback && self.fallbackService) {
                 console.log("[AgenticGemini] Gemini API error detected, switching to Azure fallback");
                 console.log("[AgenticGemini] Error type:", error46 instanceof Error ? error46.message : String(error46));
                 usedFallback = true;
-                fallbackReason = error46 instanceof Error ? error46.message : String(error46);
+                fallbackReason = `${classification.category}: ${error46 instanceof Error ? error46.message : String(error46)}`;
                 const fallbackMsg = locale2 === "zh-TW" ? `[\u5207\u63DB\u4E2D] \u4F69\u7487\u63DB\u500B\u65B9\u5F0F\u4F86\u5E6B\u4F60\u5206\u6790...` : `[Switching] Peixuan is trying another approach...`;
                 const statusMsg2 = `data: ${JSON.stringify({ state: fallbackMsg })}
 
@@ -40562,11 +40711,14 @@ And, **annual fortune harmonizes with your chart** \u2728
    * Get tools with locale-specific descriptions
    */
   getLocalizedTools(locale2) {
-    return this.tools.map((tool) => ({
-      name: tool.name,
-      description: locale2 === "zh-TW" ? tool.description : tool.descriptionEn || tool.description,
-      parameters: tool.parameters
-    }));
+    return this.tools.map((tool) => {
+      const enhancedDescription = buildToolDescription(tool.name, locale2);
+      return {
+        name: tool.name,
+        description: enhancedDescription || (locale2 === "zh-TW" ? tool.description : tool.descriptionEn || tool.description),
+        parameters: tool.parameters
+      };
+    });
   }
   /**
    * Call Gemini API with function calling support
@@ -40583,12 +40735,7 @@ And, **annual fortune harmonizes with your chart** \u2728
           mode: "AUTO"
         }
       },
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2048
-      }
+      generationConfig: GENERATION_PRESETS.tool_planning
     };
     console.log("[AgenticGemini] Calling Gemini API:", url2.replace(this.apiKey, "***"));
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {

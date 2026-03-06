@@ -270,10 +270,23 @@ class ErrorHandler {
     event: PromiseRejectionEvent,
     userId?: string,
   ): void {
-    const error =
-      event.reason instanceof Error
-        ? event.reason
-        : new Error(String(event.reason));
+    let error: Error;
+    
+    if (event.reason instanceof Error) {
+      error = event.reason;
+    } else if (typeof event.reason === 'object' && event.reason !== null) {
+      // 如果是物件，嘗試序列化
+      try {
+        const reasonStr = JSON.stringify(event.reason);
+        error = new Error(`Promise rejected with: ${reasonStr}`);
+      } catch {
+        // JSON.stringify 失敗時的備用方案
+        error = new Error(`Promise rejected with non-serializable object`);
+      }
+    } else {
+      // 其他類型直接轉字串
+      error = new Error(`Promise rejected with: ${String(event.reason)}`);
+    }
 
     const { category, level } = this.analyzeError(error);
     const errorReport = this.createErrorReport(

@@ -23,36 +23,42 @@ const router = AutoRouter({
   finally: [corsify],
 });
 
+// Support HEAD requests for all GET routes (crawlers, Gemini, etc.)
+const head = (path: string, handler: (...args: any[]) => any) => {
+  router.get(path, handler);
+  router.head(path, handler);
+};
+
 // Landing page for humans (content-negotiated for LLMs)
-router.get('/', handleLanding);
+head('/', handleLanding);
 
 // robots.txt with LLM discovery hint
-router.get('/robots.txt', () => new Response(
-  'User-agent: *\nAllow: /\n\n# LLM discovery\n# See /llms.txt for machine-readable site description\n# See /openapi.json for API specification\n',
+head('/robots.txt', () => new Response(
+  'User-agent: *\nAllow: /\n\nSitemap: https://peixuan.sfan-tech.com/sitemap.xml\n\n# LLM discovery\n# See /llms.txt for machine-readable site description\n# See /openapi.json for API specification\n',
   { headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
 ));
 
 // Health
-router.get('/health', () => json({ status: 'ok', version: '2.0.0' }));
+head('/health', () => json({ status: 'ok', version: '2.0.0' }));
 
 // LLM discovery (llms.txt standard)
-router.get('/llms.txt', () => new Response(llmsTxt, { headers: { 'Content-Type': 'text/markdown; charset=utf-8' } }));
-router.get('/llms-full.txt', () => new Response(llmsFullTxt, { headers: { 'Content-Type': 'text/markdown; charset=utf-8' } }));
+head('/llms.txt', () => new Response(llmsTxt, { headers: { 'Content-Type': 'text/markdown; charset=utf-8' } }));
+head('/llms-full.txt', () => new Response(llmsFullTxt, { headers: { 'Content-Type': 'text/markdown; charset=utf-8' } }));
 
 // OpenAPI spec (for ChatGPT GPT Actions)
-router.get('/openapi.json', () => json(openApiSpec));
+head('/openapi.json', () => json(openApiSpec));
 
 // Agent workflow discovery (agents.json spec)
-router.get('/.well-known/agents.json', () => json(agentsJson));
+head('/.well-known/agents.json', () => json(agentsJson));
 
 // A2A Agent Card discovery
-router.get('/.well-known/agent-card.json', () => json(agentCard));
+head('/.well-known/agent-card.json', () => json(agentCard));
 
 // Persona resources (LLM reads these to initialize)
-router.get('/persona/character', handleGetPersona);
-router.get('/persona/personality-guide', handleGetGuide('personality'));
-router.get('/persona/fortune-guide', handleGetGuide('fortune'));
-router.get('/glossary', handleGetGlossary);
+head('/persona/character', handleGetPersona);
+head('/persona/personality-guide', handleGetGuide('personality'));
+head('/persona/fortune-guide', handleGetGuide('fortune'));
+head('/glossary', handleGetGlossary);
 
 // Calculation endpoints
 router.post('/calculate/unified', handleCalculateUnified);
@@ -60,7 +66,24 @@ router.post('/calculate/bazi', handleCalculateBazi);
 router.post('/calculate/ziwei', handleCalculateZiwei);
 
 // NLWeb natural language query endpoint
-router.get('/ask', handleAsk);
+head('/ask', handleAsk);
+
+// Google Search Console verification
+head('/google38515448333e76da.html', () => new Response(
+  'google-site-verification: google38515448333e76da.html',
+  { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+));
+
+// Sitemap for search engine indexing
+head('/sitemap.xml', () => new Response(
+  `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>https://peixuan.sfan-tech.com/</loc></url>
+<url><loc>https://peixuan.sfan-tech.com/llms.txt</loc></url>
+<url><loc>https://peixuan.sfan-tech.com/openapi.json</loc></url>
+</urlset>`,
+  { headers: { 'Content-Type': 'application/xml; charset=utf-8' } }
+));
 
 // 404
 router.all('*', () => error(404, 'Not found. See /openapi.json for available endpoints.'));

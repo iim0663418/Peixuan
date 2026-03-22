@@ -1,6 +1,6 @@
 # Peixuan (佩璇)
 
-> Free Chinese astrology calculation API for LLMs. Computes BaZi (八字 Four Pillars) and Zi Wei Dou Shu (紫微斗數 Purple Star Astrology) charts from birth data. Returns structured JSON — your LLM interprets the results. No API key required. Base URL: https://peixuan-api.workers.dev
+> Free Chinese astrology calculation API for LLMs. Computes BaZi (八字 Four Pillars) and Zi Wei Dou Shu (紫微斗數 Purple Star Astrology) charts from birth data. Returns structured JSON — your LLM interprets the results. No API key required. Base URL: https://peixuan-api.csw30454.workers.dev
 
 - Inputs: birthDate (YYYY-MM-DD), birthTime (HH:MM), gender (male/female), longitude (optional, default 121.5 Taipei)
 - Outputs: Four Pillars, Ten Gods, Hidden Stems, Five Elements distribution, Zi Wei 12 palaces with stars, SiHua transformations, Decade Luck, Annual Fortune, Tai Sui analysis
@@ -9,18 +9,18 @@
 
 ## API Endpoints
 
-- [Calculate complete chart (POST /calculate/unified)](https://peixuan-api.workers.dev/openapi.json): BaZi + Zi Wei Dou Shu combined
-- [Calculate BaZi only (POST /calculate/bazi)](https://peixuan-api.workers.dev/openapi.json): Four Pillars, Ten Gods, Five Elements
-- [Calculate Zi Wei only (POST /calculate/ziwei)](https://peixuan-api.workers.dev/openapi.json): 12 Palaces, Stars, SiHua
+- [Calculate complete chart (POST /calculate/unified)](https://peixuan-api.csw30454.workers.dev/openapi.json): BaZi + Zi Wei Dou Shu combined
+- [Calculate BaZi only (POST /calculate/bazi)](https://peixuan-api.csw30454.workers.dev/openapi.json): Four Pillars, Ten Gods, Five Elements
+- [Calculate Zi Wei only (POST /calculate/ziwei)](https://peixuan-api.csw30454.workers.dev/openapi.json): 12 Palaces, Stars, SiHua
 
 ## Persona & Guides
 
-- [Peixuan character persona](https://peixuan-api.workers.dev/persona/character): System prompt for LLM role-play
-- [Personality analysis guide](https://peixuan-api.workers.dev/persona/personality-guide): How to interpret personality from chart data
-- [Fortune analysis guide](https://peixuan-api.workers.dev/persona/fortune-guide): How to interpret fortune and 6-month forecast
+- [Peixuan character persona](https://peixuan-api.csw30454.workers.dev/persona/character): System prompt for LLM role-play
+- [Personality analysis guide](https://peixuan-api.csw30454.workers.dev/persona/personality-guide): How to interpret personality from chart data
+- [Fortune analysis guide](https://peixuan-api.csw30454.workers.dev/persona/fortune-guide): How to interpret fortune and 6-month forecast
 
 ## Reference
 
-- [Chinese astrology glossary](https://peixuan-api.workers.dev/glossary): BaZi and Zi Wei terminology with Chinese/English
-- [OpenAPI 3.1 specification](https://peixuan-api.workers.dev/openapi.json): Full API schema for ChatGPT GPT Actions
-- [Full documentation](https://peixuan-api.workers.dev/llms-full.txt): Complete reference in one file
+- [Chinese astrology glossary](https://peixuan-api.csw30454.workers.dev/glossary): BaZi and Zi Wei terminology with Chinese/English
+- [OpenAPI 3.1 specification](https://peixuan-api.csw30454.workers.dev/openapi.json): Full API schema for ChatGPT GPT Actions
+- [Full documentation](https://peixuan-api.csw30454.workers.dev/llms-full.txt): Complete reference in one file

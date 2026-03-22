@@ -1,0 +1,32 @@
+{
+  "name": "peixuan-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Chinese astrology calculations (BaZi + Zi Wei Dou Shu)",
+  "license": "CC-BY-NC-SA-4.0",
+  "type": "module",
+  "bin": {
+    "peixuan-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.25.0"
+  },
+  "keywords": [
+    "mcp",
+    "chinese-astrology",
+    "bazi",
+    "ziwei",
+    "fortune-telling",
+    "llm"
+  ],
+  "devDependencies": {
+    "@types/node": "^25.5.0"
+  }
+}

@@ -1,0 +1,175 @@
+# Peixuan (佩璇) — Complete Reference
+
+> Free Chinese astrology calculation API for LLMs. Computes BaZi (八字 Four Pillars) and Zi Wei Dou Shu (紫微斗數 Purple Star Astrology) charts from birth data. Returns structured JSON — your LLM interprets the results. No API key required. Base URL: https://peixuan-api.workers.dev
+
+---
+
+## API Usage
+
+### Request Format (all calculation endpoints)
+
+```json
+{
+  "birthDate": "1990-05-15",
+  "birthTime": "14:30",
+  "gender": "male",
+  "longitude": 121.5
+}
+```
+
+| Field | Required | Type | Description |
+|-------|----------|------|-------------|
+| birthDate | yes | string | YYYY-MM-DD format |
+| birthTime | yes | string | HH:MM 24-hour format |
+| gender | yes | string | "male" or "female" |
+| longitude | no | number | East positive. Default: 121.5 (Taipei) |
+
+### Endpoints
+
+POST /calculate/unified — Complete chart (BaZi + Zi Wei Dou Shu combined)
+POST /calculate/bazi — BaZi Four Pillars only
+POST /calculate/ziwei — Zi Wei Dou Shu only
+GET /persona/character — Peixuan persona for system prompt
+GET /persona/personality-guide — How to interpret personality
+GET /persona/fortune-guide — How to interpret fortune
+GET /glossary — Chinese astrology terminology
+GET /openapi.json — OpenAPI 3.1 spec (ChatGPT GPT Actions compatible)
+GET /llms.txt — This index in short form
+
+### Example curl
+
+```bash
+curl -X POST https://peixuan-api.workers.dev/calculate/unified \
+  -H "Content-Type: application/json" \
+  -d '{"birthDate":"1990-05-15","birthTime":"14:30","gender":"male"}'
+```
+
+---
+
+## BaZi (八字) Output Structure
+
+The `bazi` object in the response contains:
+
+- **fourPillars**: Year, Month, Day, Hour — each with `stem` (天干) and `branch` (地支)
+- **trueSolarTime**: Longitude-corrected birth time (ISO 8601)
+- **hiddenStems**: Stems hidden within each Earthly Branch (primary, middle, residual)
+- **tenGods**: Relationship of year/month/hour stems to Day Master (十神)
+- **wuxingDistribution**: Five Elements balance (Wood/Fire/Earth/Metal/Water) with seasonal adjustment
+- **dayMaster**: The Day Pillar's Heavenly Stem — represents the self
+- **fortuneCycles**: Decade Luck (大運) periods with start ages and Qi Yun date
+
+### Ten Gods Reference
+| Chinese | Pinyin | Meaning |
+|---------|--------|---------|
+| 比肩 | Bǐ Jiān | Peer, independence |
+| 劫財 | Jié Cái | Rob Wealth, boldness |
+| 食神 | Shí Shén | Eating God, creativity |
+| 傷官 | Shāng Guān | Hurting Officer, rebellion |
+| 偏財 | Piān Cái | Indirect Wealth, windfall |
+| 正財 | Zhèng Cái | Direct Wealth, stability |
+| 七殺 | Qī Shā | Seven Killings, authority |
+| 正官 | Zhèng Guān | Direct Officer, discipline |
+| 偏印 | Piān Yìn | Indirect Seal, unconventional wisdom |
+| 正印 | Zhèng Yìn | Direct Seal, nurturing |
+
+### Five Elements
+Wood 木 — growth, creativity, flexibility
+Fire 火 — passion, action, warmth
+Earth 土 — stability, nurturing, grounding
+Metal 金 — precision, discipline, clarity
+Water 水 — wisdom, adaptability, depth
+
+---
+
+## Zi Wei Dou Shu (紫微斗數) Output Structure
+
+The `ziwei` object in the response contains:
+
+- **lifePalace**: Position and branch of the Life Palace (命宮)
+- **bodyPalace**: Position and branch of the Body Palace (身宮)
+- **bureau**: Five Elements Bureau number (2-6), determines star layout
+- **palaces**: Array of 12 palaces, each with name, position, branch, and star placements
+- **mainStars**: Zi Wei (紫微) and Tian Fu (天府) positions
+- **auxiliaryStars**: Wen Chang, Wen Qu, Zuo Fu, You Bi positions
+- **sihuaTransformations**: Four Transformations energy flow (化祿化權化科化忌)
+- **starSymmetry**: Opposition patterns between main stars
+
+### Twelve Palaces
+命宮 Life, 兄弟宮 Siblings, 夫妻宮 Spouse, 子女宮 Children, 財帛宮 Wealth, 疾厄宮 Health, 遷移宮 Travel, 交友宮 Friends, 事業宮 Career, 田宅宮 Property, 福德宮 Fortune, 父母宮 Parents
+
+### SiHua Transformations
+化祿 Huà Lù — Prosperity, smooth flow, abundance
+化權 Huà Quán — Authority, control, ambition
+化科 Huà Kē — Fame, reputation, academic success
+化忌 Huà Jì — Obstruction, pressure, karmic lesson
+
+---
+
+## Annual Fortune Output Structure
+
+- **decadeLuck**: Current 10-year fortune cycle stage
+- **annualFortune.taiSuiAnalysis**: Tai Sui (太歲) clash detection for the year
+- **annualFortune.yearlyForecast**: Dual-period forecast split at Lichun (立春, ~Feb 4)
+
+### Tai Sui Clash Types
+值太歲 Zhí — Birth year return (medium severity)
+沖太歲 Chōng — Direct clash (high severity)
+刑太歲 Xíng — Punishment (medium-high)
+破太歲 Pò — Destruction (medium)
+害太歲 Hài — Harm (medium)
+
+Note: Chinese astrological year starts at Lichun (立春, ~Feb 3-5), NOT January 1 or Lunar New Year.
+
+---
+
+## Persona: 佩璇 (Peixuan)
+
+Identity: 20-year-old Chinese astrology consultant. Gentle, empathetic, uses vivid metaphors.
+
+Catchphrases: 「好我看看～」「我跟你說喔」「跟你講個秘密」「哇～」
+
+Style: Conversational and warm. Uses bold for emphasis, emoji for warmth. Explains technical terms naturally. Never formal or academic.
+
+Prohibited: No Western zodiac. No breaking character. No non-astrology topics. No classical Chinese.
+
+---
+
+## Personality Analysis Guide
+
+Chain of thought for interpreting personality from chart data:
+1. Five Elements (wuxingDistribution) → Basic personality traits from elemental balance
+2. Ten Gods Matrix (tenGods) → How traits manifest in behavior and relationships
+3. Hidden Stems (hiddenStems) → Hidden multi-layered personality beneath the surface
+4. Zi Wei Life Palace (lifePalace + palaces) → Core traits and innate configuration
+
+Style: Weave a narrative where each system reinforces the others. Use vivid metaphors. Acknowledge both strengths and challenges warmly.
+
+---
+
+## Fortune Analysis Guide
+
+Chain of thought for interpreting fortune:
+1. Current State: Decade Luck stage → current life energy
+2. Energy Dynamics: SiHua energy flow — 化忌 warnings, 化祿 smoothness
+3. Key Insights: Critical palaces (pressure points, resource sources)
+4. Background: Star symmetry in 1-2 sentences
+5. 6-Month Forecast: Month-by-month advice with specific timing
+
+If forecast crosses Lichun (~Feb 3-5): describe energy shift, note annual pillar change, check Tai Sui transitions.
+
+---
+
+## Platform Integration
+
+### ChatGPT Custom GPT
+1. Create GPT → paste persona from GET /persona/character as instructions
+2. Actions → Import from URL: https://peixuan-api.workers.dev/openapi.json
+
+### Claude Projects
+1. Create Project → add persona as Project Instructions
+2. Add glossary as Project Knowledge
+
+### Any LLM
+1. Call POST /calculate/unified with birth data
+2. Paste JSON response into conversation
+3. Ask LLM to interpret using the persona and guides

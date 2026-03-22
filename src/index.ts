@@ -9,6 +9,8 @@ import { AutoRouter, cors, json, error } from 'itty-router';
 import { handleCalculateUnified, handleCalculateBazi, handleCalculateZiwei } from './routes/calculate';
 import { handleGetPersona, handleGetGlossary, handleGetGuide } from './routes/persona';
 import { openApiSpec } from './routes/openapi';
+import llmsTxt from './llms.txt';
+import llmsFullTxt from './llms-full.txt';
 
 const { preflight, corsify } = cors({ origin: '*' });
 
@@ -19,6 +21,10 @@ const router = AutoRouter({
 
 // Health
 router.get('/health', () => json({ status: 'ok', version: '2.0.0' }));
+
+// LLM discovery (llms.txt standard)
+router.get('/llms.txt', () => new Response(llmsTxt, { headers: { 'Content-Type': 'text/markdown; charset=utf-8' } }));
+router.get('/llms-full.txt', () => new Response(llmsFullTxt, { headers: { 'Content-Type': 'text/markdown; charset=utf-8' } }));
 
 // OpenAPI spec (for ChatGPT GPT Actions)
 router.get('/openapi.json', () => json(openApiSpec));

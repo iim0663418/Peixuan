@@ -11,6 +11,7 @@ import { handleGetPersona, handleGetGlossary, handleGetGuide } from './routes/pe
 import { openApiSpec } from './routes/openapi';
 import llmsTxt from './llms.txt';
 import llmsFullTxt from './llms-full.txt';
+import agentsJson from './agents.json';
 
 const { preflight, corsify } = cors({ origin: '*' });
 
@@ -28,6 +29,9 @@ router.get('/llms-full.txt', () => new Response(llmsFullTxt, { headers: { 'Conte
 
 // OpenAPI spec (for ChatGPT GPT Actions)
 router.get('/openapi.json', () => json(openApiSpec));
+
+// Agent workflow discovery (agents.json spec)
+router.get('/.well-known/agents.json', () => json(agentsJson));
 
 // Persona resources (LLM reads these to initialize)
 router.get('/persona/character', handleGetPersona);

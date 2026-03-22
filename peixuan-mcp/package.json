@@ -5,7 +5,7 @@
   "license": "CC-BY-NC-SA-4.0",
   "type": "module",
   "bin": {
-    "peixuan-mcp": "./dist/index.js"
+    "peixuan-mcp": "dist/index.js"
   },
   "files": [
     "dist"

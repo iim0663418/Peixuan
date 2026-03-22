@@ -1,0 +1,107 @@
+{
+  "version": "1.0.0",
+  "name": "Peixuan",
+  "description": "Chinese astrology calculation service (BaZi + Zi Wei Dou Shu). Computes charts from birth data, returns structured JSON for LLM interpretation.",
+  "url": "https://peixuan-api.csw30454.workers.dev",
+  "source": {
+    "type": "openapi",
+    "url": "https://peixuan-api.csw30454.workers.dev/openapi.json"
+  },
+  "flows": [
+    {
+      "name": "full_reading",
+      "description": "Calculate a complete astrology chart and load persona + guides for interpretation. Step 1: get persona. Step 2: compute chart. Agent then interprets the chart using the persona.",
+      "steps": [
+        {
+          "name": "load_persona",
+          "operationId": "getPersonaCharacter",
+          "description": "Load the Peixuan persona definition for role-play",
+          "outputs": {
+            "persona": "$.content"
+          }
+        },
+        {
+          "name": "load_personality_guide",
+          "operationId": "getPersonalityGuide",
+          "description": "Load the personality analysis guide",
+          "outputs": {
+            "personalityGuide": "$.content"
+          }
+        },
+        {
+          "name": "calculate",
+          "operationId": "calculateUnified",
+          "description": "Calculate complete BaZi + Zi Wei chart",
+          "parameters": {
+            "body": {
+              "birthDate": "$user.birthDate",
+              "birthTime": "$user.birthTime",
+              "gender": "$user.gender",
+              "longitude": "$user.longitude"
+            }
+          },
+          "outputs": {
+            "chart": "$.data"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fortune_reading",
+      "description": "Calculate chart and load fortune guide for a 6-month forecast. Includes Tai Sui analysis and Decade Luck.",
+      "steps": [
+        {
+          "name": "load_persona",
+          "operationId": "getPersonaCharacter",
+          "outputs": {
+            "persona": "$.content"
+          }
+        },
+        {
+          "name": "load_fortune_guide",
+          "operationId": "getFortuneGuide",
+          "description": "Load the fortune analysis guide",
+          "outputs": {
+            "fortuneGuide": "$.content"
+          }
+        },
+        {
+          "name": "calculate",
+          "operationId": "calculateUnified",
+          "parameters": {
+            "body": {
+              "birthDate": "$user.birthDate",
+              "birthTime": "$user.birthTime",
+              "gender": "$user.gender",
+              "longitude": "$user.longitude"
+            }
+          },
+          "outputs": {
+            "chart": "$.data"
+          }
+        }
+      ]
+    },
+    {
+      "name": "quick_chart",
+      "description": "Calculate a chart without loading persona or guides. For agents that already have context.",
+      "steps": [
+        {
+          "name": "calculate",
+          "operationId": "calculateUnified",
+          "parameters": {
+            "body": {
+              "birthDate": "$user.birthDate",
+              "birthTime": "$user.birthTime",
+              "gender": "$user.gender",
+              "longitude": "$user.longitude"
+            }
+          },
+          "outputs": {
+            "chart": "$.data"
+          }
+        }
+      ]
+    }
+  ]
+}

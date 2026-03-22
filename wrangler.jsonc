@@ -2,6 +2,9 @@
   "name": "peixuan-api",
   "compatibility_date": "2025-12-01",
   "main": "src/index.ts",
+  "routes": [
+    { "pattern": "peixuan.sfan-tech.com", "custom_domain": true }
+  ],
   "rules": [
     { "type": "Text", "globs": ["**/*.md", "**/*.txt"], "fallthrough": true }
   ]

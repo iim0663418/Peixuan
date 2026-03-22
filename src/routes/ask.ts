@@ -58,7 +58,7 @@ export function handleAsk(request: Request) {
         '@type': 'HowTo',
         name: 'How to use Peixuan',
         description: 'Provide birth data in your query. Example: "Calculate chart for 1990-05-15 14:30 male"',
-        url: 'https://peixuan-api.csw30454.workers.dev/llms.txt',
+        url: 'https://peixuan.sfan-tech.com/llms.txt',
       }],
     });
   }
@@ -76,7 +76,7 @@ export function handleAsk(request: Request) {
         description: mode === 'summarize'
           ? `BaZi: ${label}. Day Master: ${pillars.day.stem}. Zi Wei Life Palace at branch ${result.ziwei.lifePalace.branch}. ${result.ziwei.palaces.length} palaces computed.`
           : `Complete BaZi + Zi Wei Dou Shu chart for ${birthInfo.solarDate.toISOString().slice(0, 10)} (${birthInfo.gender}).`,
-        url: 'https://peixuan-api.csw30454.workers.dev/calculate/unified',
+        url: 'https://peixuan.sfan-tech.com/calculate/unified',
         schema_object: result,
       }],
     };

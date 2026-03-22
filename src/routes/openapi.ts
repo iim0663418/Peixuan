@@ -11,7 +11,7 @@ export const openApiSpec = {
     version: '2.0.0',
   },
   servers: [
-    { url: 'https://peixuan-api.csw30454.workers.dev', description: 'Production' },
+    { url: 'https://peixuan.sfan-tech.com', description: 'Production' },
   ],
   paths: {
     '/calculate/unified': {

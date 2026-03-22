@@ -2,10 +2,10 @@
   "version": "1.0.0",
   "name": "Peixuan",
   "description": "Chinese astrology calculation service (BaZi + Zi Wei Dou Shu). Computes charts from birth data, returns structured JSON for LLM interpretation.",
-  "url": "https://peixuan-api.csw30454.workers.dev",
+  "url": "https://peixuan.sfan-tech.com",
   "source": {
     "type": "openapi",
-    "url": "https://peixuan-api.csw30454.workers.dev/openapi.json"
+    "url": "https://peixuan.sfan-tech.com/openapi.json"
   },
   "flows": [
     {

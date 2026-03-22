@@ -4,7 +4,7 @@
 
 Peixuan is a free, open API that calculates Chinese astrology charts. It returns structured data that any LLM can interpret — no API key required.
 
-**Base URL**: `https://peixuan-api.csw30454.workers.dev`
+**Base URL**: `https://peixuan.sfan-tech.com`
 
 ---
 
@@ -12,13 +12,13 @@ Peixuan is a free, open API that calculates Chinese astrology charts. It returns
 
 ### 1. Get the persona (optional)
 ```
-GET https://peixuan-api.csw30454.workers.dev/persona/character
+GET https://peixuan.sfan-tech.com/persona/character
 ```
 → Returns Peixuan's character definition. Paste into your system prompt to role-play as a Chinese astrology consultant.
 
 ### 2. Calculate a chart
 ```bash
-curl -X POST https://peixuan-api.csw30454.workers.dev/calculate/unified \
+curl -X POST https://peixuan.sfan-tech.com/calculate/unified \
   -H "Content-Type: application/json" \
   -d '{"birthDate":"1990-05-15","birthTime":"14:30","gender":"male"}'
 ```
@@ -77,7 +77,7 @@ Feed the chart data to your LLM along with the persona. It will analyze personal
 3. **Instructions**: Paste the content from `GET /persona/character`
 4. **Actions** → Create new action → Import URL:
    ```
-   https://peixuan-api.csw30454.workers.dev/openapi.json
+   https://peixuan.sfan-tech.com/openapi.json
    ```
 5. Save & publish. Users can now ask "幫我算命" and the GPT will call the API automatically.
 

@@ -1,7 +1,7 @@
 {
   "name": "Peixuan",
   "description": "Chinese astrology calculation agent. Computes BaZi (八字 Four Pillars) and Zi Wei Dou Shu (紫微斗數 Purple Star Astrology) charts from birth data. Returns structured JSON for LLM interpretation.",
-  "url": "https://peixuan-api.csw30454.workers.dev",
+  "url": "https://peixuan.sfan-tech.com",
   "version": "2.0.0",
   "capabilities": {
     "streaming": false,
@@ -31,6 +31,6 @@
     "organization": "Peixuan Project",
     "url": "https://github.com/iim0663418/Peixuan"
   },
-  "documentationUrl": "https://peixuan-api.csw30454.workers.dev/llms.txt",
+  "documentationUrl": "https://peixuan.sfan-tech.com/llms.txt",
   "authentication": null
 }

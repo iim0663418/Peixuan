@@ -4,7 +4,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 
-const API = process.env.PEIXUAN_API_URL ?? 'https://peixuan-api.csw30454.workers.dev';
+const API = process.env.PEIXUAN_API_URL ?? 'https://peixuan.sfan-tech.com';
 
 const server = new McpServer({
   name: 'peixuan',

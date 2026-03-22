@@ -1,6 +1,6 @@
 # Peixuan (佩璇) — Complete Reference
 
-> Free Chinese astrology calculation API for LLMs. Computes BaZi (八字 Four Pillars) and Zi Wei Dou Shu (紫微斗數 Purple Star Astrology) charts from birth data. Returns structured JSON — your LLM interprets the results. No API key required. Base URL: https://peixuan-api.csw30454.workers.dev
+> Free Chinese astrology calculation API for LLMs. Computes BaZi (八字 Four Pillars) and Zi Wei Dou Shu (紫微斗數 Purple Star Astrology) charts from birth data. Returns structured JSON — your LLM interprets the results. No API key required. Base URL: https://peixuan.sfan-tech.com
 
 ---
 
@@ -39,7 +39,7 @@ GET /llms.txt — This index in short form
 ### Example curl
 
 ```bash
-curl -X POST https://peixuan-api.csw30454.workers.dev/calculate/unified \
+curl -X POST https://peixuan.sfan-tech.com/calculate/unified \
   -H "Content-Type: application/json" \
   -d '{"birthDate":"1990-05-15","birthTime":"14:30","gender":"male"}'
 ```
@@ -163,7 +163,7 @@ If forecast crosses Lichun (~Feb 3-5): describe energy shift, note annual pillar
 
 ### ChatGPT Custom GPT
 1. Create GPT → paste persona from GET /persona/character as instructions
-2. Actions → Import from URL: https://peixuan-api.csw30454.workers.dev/openapi.json
+2. Actions → Import from URL: https://peixuan.sfan-tech.com/openapi.json
 
 ### Claude Projects
 1. Create Project → add persona as Project Instructions

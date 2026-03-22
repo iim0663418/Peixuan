@@ -61,11 +61,11 @@ footer{text-align:center;color:var(--dim);font-size:.8rem;padding:3rem 0 2rem;bo
 
 <div class="section">
   <h2>立即試用</h2>
-  <pre>curl -X POST https://peixuan-api.csw30454.workers.dev/calculate/unified \\
+  <pre>curl -X POST https://peixuan.sfan-tech.com/calculate/unified \\
   -H "Content-Type: application/json" \\
   -d '{"birthDate":"1990-05-15","birthTime":"14:30","gender":"male"}'</pre>
   <p style="color:var(--dim);font-size:.85rem">或用自然語言查詢：</p>
-  <pre>curl "https://peixuan-api.csw30454.workers.dev/ask?query=1990-05-15+14:30+male"</pre>
+  <pre>curl "https://peixuan.sfan-tech.com/ask?query=1990-05-15+14:30+male"</pre>
 </div>
 
 <div class="section">

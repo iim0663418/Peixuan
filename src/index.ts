@@ -8,10 +8,12 @@
 import { AutoRouter, cors, json, error } from 'itty-router';
 import { handleCalculateUnified, handleCalculateBazi, handleCalculateZiwei } from './routes/calculate';
 import { handleGetPersona, handleGetGlossary, handleGetGuide } from './routes/persona';
+import { handleAsk } from './routes/ask';
 import { openApiSpec } from './routes/openapi';
 import llmsTxt from './llms.txt';
 import llmsFullTxt from './llms-full.txt';
 import agentsJson from './agents.json';
+import agentCard from './agent-card.json';
 
 const { preflight, corsify } = cors({ origin: '*' });
 
@@ -33,6 +35,9 @@ router.get('/openapi.json', () => json(openApiSpec));
 // Agent workflow discovery (agents.json spec)
 router.get('/.well-known/agents.json', () => json(agentsJson));
 
+// A2A Agent Card discovery
+router.get('/.well-known/agent-card.json', () => json(agentCard));
+
 // Persona resources (LLM reads these to initialize)
 router.get('/persona/character', handleGetPersona);
 router.get('/persona/personality-guide', handleGetGuide('personality'));
@@ -43,6 +48,9 @@ router.get('/glossary', handleGetGlossary);
 router.post('/calculate/unified', handleCalculateUnified);
 router.post('/calculate/bazi', handleCalculateBazi);
 router.post('/calculate/ziwei', handleCalculateZiwei);
+
+// NLWeb natural language query endpoint
+router.get('/ask', handleAsk);
 
 // 404
 router.all('*', () => error(404, 'Not found. See /openapi.json for available endpoints.'));

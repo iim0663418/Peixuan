@@ -1,0 +1,36 @@
+{
+  "name": "Peixuan",
+  "description": "Chinese astrology calculation agent. Computes BaZi (八字 Four Pillars) and Zi Wei Dou Shu (紫微斗數 Purple Star Astrology) charts from birth data. Returns structured JSON for LLM interpretation.",
+  "url": "https://peixuan-api.csw30454.workers.dev",
+  "version": "2.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false
+  },
+  "skills": [
+    {
+      "id": "calculate-chart",
+      "name": "Calculate Astrology Chart",
+      "description": "Compute a complete BaZi + Zi Wei Dou Shu chart from birth date, time, gender, and optional longitude. Returns Four Pillars, Ten Gods, Five Elements, 12 Palaces, Stars, SiHua Transformations, Decade Luck, Annual Fortune, and Tai Sui analysis.",
+      "tags": ["astrology", "bazi", "ziwei", "chinese", "fortune"],
+      "examples": [
+        "Calculate the astrology chart for someone born 1990-05-15 at 14:30, male",
+        "幫我算 1995-12-01 早上 8 點出生的女生的命盤"
+      ]
+    },
+    {
+      "id": "persona-reading",
+      "name": "Persona-Guided Reading",
+      "description": "Provide the Peixuan (佩璇) persona, analysis guides, and glossary so an LLM can role-play as a warm Chinese astrology consultant and interpret chart data.",
+      "tags": ["persona", "interpretation", "guide"]
+    }
+  ],
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json"],
+  "provider": {
+    "organization": "Peixuan Project",
+    "url": "https://github.com/iim0663418/Peixuan"
+  },
+  "documentationUrl": "https://peixuan-api.csw30454.workers.dev/llms.txt",
+  "authentication": null
+}

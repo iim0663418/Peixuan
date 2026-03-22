@@ -9,6 +9,7 @@ import { AutoRouter, cors, json, error } from 'itty-router';
 import { handleCalculateUnified, handleCalculateBazi, handleCalculateZiwei } from './routes/calculate';
 import { handleGetPersona, handleGetGlossary, handleGetGuide } from './routes/persona';
 import { handleAsk } from './routes/ask';
+import { handleLanding } from './routes/landing';
 import { openApiSpec } from './routes/openapi';
 import llmsTxt from './llms.txt';
 import llmsFullTxt from './llms-full.txt';
@@ -21,6 +22,9 @@ const router = AutoRouter({
   before: [preflight],
   finally: [corsify],
 });
+
+// Landing page for humans
+router.get('/', handleLanding);
 
 // Health
 router.get('/health', () => json({ status: 'ok', version: '2.0.0' }));

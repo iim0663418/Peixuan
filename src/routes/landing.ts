@@ -111,7 +111,7 @@ footer{text-align:center;color:var(--dim);font-size:.8rem;padding:3rem 0 2rem;bo
     </div>
     <div class="card">
       <h3>✨ Gemini</h3>
-      <p>建立 Gem → 貼上 <code>/persona/character</code> 的人設 → 在對話中分享命盤資料</p>
+      <p>Gemini CLI + MCP：同上 <code>peixuan-mcp</code> 設定；或建立 Gem → 貼上 <code>/persona/character</code> 的人設</p>
     </div>
     <div class="card">
       <h3>🌐 任何 LLM</h3>

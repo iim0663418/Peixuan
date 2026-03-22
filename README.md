@@ -89,8 +89,15 @@ Feed the chart data to your LLM along with the persona. It will analyze personal
 3. Tell users to share their chart data (from the API) in the conversation
 
 **Option B — Gemini CLI + MCP** (developers):
-```bash
-# Coming soon: peixuan-mcp package
+```json
+{
+  "mcpServers": {
+    "peixuan": {
+      "command": "npx",
+      "args": ["-y", "peixuan-mcp"]
+    }
+  }
+}
 ```
 
 ### Claude (Anthropic)

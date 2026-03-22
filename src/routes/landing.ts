@@ -78,7 +78,18 @@ footer{text-align:center;color:var(--dim);font-size:.8rem;padding:3rem 0 2rem;bo
 </div>
 
 <div class="section">
-  <h2>立即試用</h2>
+  <h2>怎麼用？</h2>
+  <p>把這段話貼給你常用的 AI 聊天助手（ChatGPT、Claude、Gemini 都行）：</p>
+  <div class="card" style="background:#1a1a2e;cursor:pointer;position:relative" onclick="navigator.clipboard.writeText(this.querySelector('.prompt').textContent.trim());this.querySelector('.copied').style.opacity=1;setTimeout(()=>this.querySelector('.copied').style.opacity=0,1500)">
+    <p class="prompt" style="color:#c4b5fd;font-size:.95rem;line-height:1.7">請參考 https://peixuan.sfan-tech.com 這個網站，幫我用八字和紫微斗數算命。我的出生資料：1990 年 5 月 15 日，下午 2 點 30 分，男性。</p>
+    <span class="copied" style="position:absolute;top:.5rem;right:.75rem;font-size:.75rem;color:var(--accent);opacity:0;transition:opacity .3s">已複製 ✓</span>
+    <p style="color:var(--dim);font-size:.75rem;margin-top:.5rem">👆 點擊複製，把出生資料換成你自己的</p>
+  </div>
+  <p style="color:var(--dim);font-size:.85rem;margin-top:.75rem">AI 會自動讀取本站的 API 說明、呼叫計算引擎、取得你的命盤資料，然後為你解讀。</p>
+</div>
+
+<div class="section">
+  <h2>開發者？直接呼叫 API</h2>
   <pre>curl -X POST https://peixuan.sfan-tech.com/calculate/unified \\
   -H "Content-Type: application/json" \\
   -d '{"birthDate":"1990-05-15","birthTime":"14:30","gender":"male"}'</pre>
@@ -87,7 +98,8 @@ footer{text-align:center;color:var(--dim);font-size:.8rem;padding:3rem 0 2rem;bo
 </div>
 
 <div class="section">
-  <h2>搭配你喜歡的 LLM 使用</h2>
+  <h2>進階整合</h2>
+  <p style="color:var(--dim);font-size:.9rem;margin-bottom:.75rem">想讓你的 AI 助手隨時都能算命？可以做更深度的整合：</p>
   <div class="grid">
     <div class="card">
       <h3>💬 ChatGPT</h3>

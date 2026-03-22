@@ -46,6 +46,63 @@ curl -X POST https://peixuan.sfan-tech.com/calculate/unified \
 
 ---
 
+## Example Response (condensed)
+
+POST /calculate/unified with `{"birthDate":"1990-05-15","birthTime":"14:30","gender":"male"}` returns:
+
+```json
+{
+  "success": true,
+  "data": {
+    "input": { "solarDate": "1990-05-15T14:30:00.000Z", "longitude": 121.5, "gender": "male" },
+    "bazi": {
+      "fourPillars": {
+        "year":  { "stem": "庚", "branch": "午" },
+        "month": { "stem": "己", "branch": "卯" },
+        "day":   { "stem": "己", "branch": "卯" },
+        "hour":  { "stem": "辛", "branch": "未" }
+      },
+      "trueSolarTime": "1990-05-15T14:36:57.016Z",
+      "hiddenStems": {
+        "year":  { "primary": "丁", "middle": "己" },
+        "month": { "primary": "乙" },
+        "day":   { "primary": "乙" },
+        "hour":  { "primary": "己", "middle": "丁", "residual": "乙" }
+      },
+      "tenGods": { "year": "傷官", "month": "比肩", "hour": "食神" },
+      "wuxingDistribution": {
+        "adjusted": { "Wood": 3.15, "Fire": 1.17, "Earth": 1.89, "Metal": 1.0, "Water": 0 },
+        "dominant": "Wood", "deficient": "Water"
+      },
+      "fortuneCycles": {
+        "qiyunDate": "1997-06-27T14:30:00.000Z",
+        "direction": "forward",
+        "currentDayun": { "stem": "壬", "branch": "午", "startAge": 27, "endAge": 37 },
+        "dayunList": ["(10 cycles, each with stem/branch/startAge/endAge)"]
+      }
+    },
+    "ziwei": {
+      "lifePalace": { "position": 10, "branch": "戌" },
+      "bodyPalace": { "position": 10, "branch": "戌" },
+      "bureau": 3,
+      "ziWeiPosition": 8,
+      "tianFuPosition": 2,
+      "sihuaAggregation": "(detailed SiHua transformation data per palace)",
+      "palaces": [
+        { "position": 0, "branch": "子", "stars": [{ "name": "廉貞", "brightness": "neutral" }, { "name": "破軍", "brightness": "neutral" }] },
+        "(... 11 more palaces with position/branch/stars)"
+      ],
+      "starSymmetry": [
+        { "star": "紫微", "position": 8, "symmetryPair": "天府", "symmetryPosition": 2, "symmetryType": "opposite" },
+        "(... more pairs)"
+      ]
+    }
+  }
+}
+```
+
+---
+
 ## BaZi (八字) Output Structure
 
 The `bazi` object in the response contains:

@@ -1,8 +1,21 @@
 /**
- * Landing page — human-readable introduction to the LLM-native API
+ * Landing page — content negotiation based on Accept header
  */
 
-export function handleLanding() {
+export function handleLanding(request: Request) {
+  const accept = request.headers.get('Accept') || '';
+  // LLM/agent requesting plain text → serve llms.txt content
+  if (accept.includes('text/plain') && !accept.includes('text/html')) {
+    return new Response(null, { status: 302, headers: { 'Location': '/llms.txt' } });
+  }
+  // Agent requesting JSON → serve OpenAPI spec
+  if (accept.includes('application/json') && !accept.includes('text/html')) {
+    return new Response(null, { status: 302, headers: { 'Location': '/openapi.json' } });
+  }
+  return serveLandingHtml();
+}
+
+function serveLandingHtml() {
   const html = `<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -10,6 +23,11 @@ export function handleLanding() {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>佩璇 Peixuan — Chinese Astrology API for LLMs</title>
 <meta name="description" content="Free Chinese astrology calculation API. BaZi (八字) + Zi Wei Dou Shu (紫微斗數). Built for LLMs, usable by humans.">
+<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM instructions">
+<link rel="alternate" type="application/json" href="/openapi.json" title="OpenAPI spec">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebAPI","name":"佩璇 Peixuan","description":"Chinese astrology calculation API — BaZi (八字) and Zi Wei Dou Shu (紫微斗數). Returns structured JSON for LLM interpretation.","url":"https://peixuan.sfan-tech.com","documentation":"https://peixuan.sfan-tech.com/llms-full.txt","provider":{"@type":"Organization","name":"Peixuan"},"termsOfService":"CC BY-NC-SA 4.0","license":"https://creativecommons.org/licenses/by-nc-sa/4.0/"}
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a0a0f;--card:#12121a;--border:#1e1e2e;--text:#e0e0e0;--dim:#888;--accent:#a78bfa;--accent2:#818cf8;--glow:rgba(167,139,250,.15)}

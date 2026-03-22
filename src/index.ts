@@ -23,8 +23,14 @@ const router = AutoRouter({
   finally: [corsify],
 });
 
-// Landing page for humans
+// Landing page for humans (content-negotiated for LLMs)
 router.get('/', handleLanding);
+
+// robots.txt with LLM discovery hint
+router.get('/robots.txt', () => new Response(
+  'User-agent: *\nAllow: /\n\n# LLM discovery\n# See /llms.txt for machine-readable site description\n# See /openapi.json for API specification\n',
+  { headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+));
 
 // Health
 router.get('/health', () => json({ status: 'ok', version: '2.0.0' }));
